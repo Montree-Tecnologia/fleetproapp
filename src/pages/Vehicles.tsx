@@ -60,6 +60,10 @@ export default function Vehicles() {
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
+                  <span className="text-muted-foreground">Tipo:</span>
+                  <p className="font-medium">{vehicle.vehicleType}</p>
+                </div>
+                <div>
                   <span className="text-muted-foreground">Marca:</span>
                   <p className="font-medium">{vehicle.brand}</p>
                 </div>
@@ -76,6 +80,18 @@ export default function Vehicles() {
                   <p className="font-medium">{vehicle.branch}</p>
                 </div>
               </div>
+              {vehicle.hasComposition && vehicle.compositionPlates && vehicle.compositionPlates.length > 0 && (
+                <div className="pt-3 border-t border-border">
+                  <span className="text-sm text-muted-foreground">Composições:</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {vehicle.compositionPlates.map((plate, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {plate}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
               {getDriverName(vehicle.driverId) && (
                 <div className="pt-3 border-t border-border">
                   <span className="text-sm text-muted-foreground">Motorista:</span>

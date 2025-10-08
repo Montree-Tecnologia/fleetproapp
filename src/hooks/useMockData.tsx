@@ -22,11 +22,14 @@ export interface Vehicle {
   model: string;
   year: number;
   color: string;
+  vehicleType: 'Truck' | 'Baú' | 'Carreta' | 'Graneleiro' | 'Bitrem' | 'Tritem' | 'Container' | 'Caçamba';
   status: 'active' | 'maintenance' | 'inactive';
   currentKm: number;
   fuelType: 'diesel' | 'gasoline' | 'ethanol';
   branch: string;
   driverId?: string;
+  hasComposition: boolean;
+  compositionPlates?: string[];
   purchaseDate: string;
   purchaseValue: number;
 }
@@ -123,11 +126,13 @@ const mockVehicles: Vehicle[] = [
     model: 'FH 540',
     year: 2022,
     color: 'Branco',
+    vehicleType: 'Truck',
     status: 'active',
     currentKm: 85000,
     fuelType: 'diesel',
     branch: 'Matriz',
     driverId: '1',
+    hasComposition: false,
     purchaseDate: '2022-03-15',
     purchaseValue: 650000
   },
@@ -140,11 +145,14 @@ const mockVehicles: Vehicle[] = [
     model: 'R 450',
     year: 2021,
     color: 'Vermelho',
+    vehicleType: 'Bitrem',
     status: 'active',
     currentKm: 120000,
     fuelType: 'diesel',
     branch: 'Matriz',
     driverId: '2',
+    hasComposition: true,
+    compositionPlates: ['XYZ-1111', 'XYZ-2222'],
     purchaseDate: '2021-08-20',
     purchaseValue: 580000
   },
@@ -157,11 +165,14 @@ const mockVehicles: Vehicle[] = [
     model: 'Actros 2646',
     year: 2023,
     color: 'Prata',
+    vehicleType: 'Carreta',
     status: 'maintenance',
     currentKm: 45000,
     fuelType: 'diesel',
     branch: 'Filial SP',
     driverId: '3',
+    hasComposition: true,
+    compositionPlates: ['KLM-3333'],
     purchaseDate: '2023-01-10',
     purchaseValue: 720000
   }
