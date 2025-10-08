@@ -1,8 +1,8 @@
-import { useMockData } from '@/hooks/useMockData';
+import { useMockData, Vehicle } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Truck } from 'lucide-react';
+import { Plus, Truck, Pencil, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -10,15 +10,28 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { VehicleForm } from '@/components/forms/VehicleForm';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function Vehicles() {
-  const { vehicles, drivers, getRefrigerationUnitByVehicle, addVehicle } = useMockData();
+  const { vehicles, drivers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle } = useMockData();
   const allVehicles = vehicles();
   const allDrivers = drivers();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [vehicleToDelete, setVehicleToDelete] = useState<Vehicle | null>(null);
 
   const getDriverName = (driverId?: string) => {
     if (!driverId) return null;
@@ -36,6 +49,32 @@ export default function Vehicles() {
     return <Badge className={variant.className}>{variant.label}</Badge>;
   };
 
+  const handleEdit = (vehicle: Vehicle) => {
+    setEditingVehicle(vehicle);
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = (vehicle: Vehicle) => {
+    setVehicleToDelete(vehicle);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (vehicleToDelete) {
+      deleteVehicle(vehicleToDelete.id);
+      toast.success(`Veículo ${vehicleToDelete.plate} excluído com sucesso!`);
+      setVehicleToDelete(null);
+      setDeleteDialogOpen(false);
+    }
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      setEditingVehicle(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -51,24 +90,47 @@ export default function Vehicles() {
         </Button>
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Cadastrar Novo Veículo</DialogTitle>
+            <DialogTitle>{editingVehicle ? 'Editar Veículo' : 'Cadastrar Novo Veículo'}</DialogTitle>
             <DialogDescription>
-              Preencha os dados do veículo para cadastrá-lo no sistema
+              {editingVehicle ? 'Atualize os dados do veículo' : 'Preencha os dados do veículo para cadastrá-lo no sistema'}
             </DialogDescription>
           </DialogHeader>
           <VehicleForm
+            initialData={editingVehicle || undefined}
             onSubmit={(data) => {
-              addVehicle(data);
-              setIsDialogOpen(false);
-              toast.success('Veículo cadastrado com sucesso!');
+              if (editingVehicle) {
+                updateVehicle(editingVehicle.id, data);
+                toast.success('Veículo atualizado com sucesso!');
+              } else {
+                addVehicle(data);
+                toast.success('Veículo cadastrado com sucesso!');
+              }
+              handleDialogClose(false);
             }}
-            onCancel={() => setIsDialogOpen(false)}
+            onCancel={() => handleDialogClose(false)}
           />
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o veículo <strong>{vehicleToDelete?.plate}</strong>? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {allVehicles.map((vehicle) => (
@@ -140,9 +202,25 @@ export default function Vehicles() {
                   <p className="text-sm font-medium">{getDriverName(vehicle.driverId)}</p>
                 </div>
               )}
-              <Button variant="outline" className="w-full">
-                Ver Detalhes
-              </Button>
+              
+              <div className="flex gap-2 pt-3">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => handleEdit(vehicle)}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleDelete(vehicle)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}

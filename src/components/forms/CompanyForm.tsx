@@ -18,7 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useMockData } from '@/hooks/useMockData';
+import { useMockData, Company } from '@/hooks/useMockData';
+import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from 'react';
 
 const companySchema = z.object({
   type: z.enum(['matriz', 'filial']),
@@ -32,17 +34,26 @@ const companySchema = z.object({
 type CompanyFormValues = z.infer<typeof companySchema>;
 
 interface CompanyFormProps {
+  initialData?: Company;
   onSuccess: () => void;
 }
 
-export function CompanyForm({ onSuccess }: CompanyFormProps) {
-  const { addCompany, companies } = useMockData();
+export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
+  const { addCompany, updateCompany, companies } = useMockData();
+  const { toast } = useToast();
   const allCompanies = companies();
   const matrizes = allCompanies.filter(c => c.type === 'matriz');
 
   const form = useForm<CompanyFormValues>({
     resolver: zodResolver(companySchema),
-    defaultValues: {
+    defaultValues: initialData ? {
+      type: initialData.type,
+      name: initialData.name,
+      cnpj: initialData.cnpj,
+      city: initialData.city,
+      state: initialData.state,
+      matrizId: initialData.matrizId || '',
+    } : {
       type: 'filial',
       name: '',
       cnpj: '',
@@ -52,17 +63,49 @@ export function CompanyForm({ onSuccess }: CompanyFormProps) {
     },
   });
 
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        type: initialData.type,
+        name: initialData.name,
+        cnpj: initialData.cnpj,
+        city: initialData.city,
+        state: initialData.state,
+        matrizId: initialData.matrizId || '',
+      });
+    }
+  }, [initialData, form]);
+
   const watchType = form.watch('type');
 
   const onSubmit = (data: CompanyFormValues) => {
-    addCompany({
-      type: data.type,
-      name: data.name,
-      cnpj: data.cnpj,
-      city: data.city,
-      state: data.state,
-      matrizId: data.type === 'filial' ? data.matrizId : undefined,
-    });
+    if (initialData) {
+      updateCompany(initialData.id, {
+        type: data.type,
+        name: data.name,
+        cnpj: data.cnpj,
+        city: data.city,
+        state: data.state,
+        matrizId: data.type === 'filial' ? data.matrizId : undefined,
+      });
+      toast({
+        title: 'Empresa atualizada',
+        description: `${data.name} foi atualizada com sucesso.`,
+      });
+    } else {
+      addCompany({
+        type: data.type,
+        name: data.name,
+        cnpj: data.cnpj,
+        city: data.city,
+        state: data.state,
+        matrizId: data.type === 'filial' ? data.matrizId : undefined,
+      });
+      toast({
+        title: 'Empresa cadastrada',
+        description: `${data.name} foi adicionada com sucesso.`,
+      });
+    }
     onSuccess();
   };
 
