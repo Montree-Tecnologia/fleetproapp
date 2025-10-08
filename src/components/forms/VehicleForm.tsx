@@ -67,7 +67,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
     initialData?.compositionAxles || []
   );
   const [newCompositionPlate, setNewCompositionPlate] = useState('');
-  const [newCompositionAxles, setNewCompositionAxles] = useState<number>(2);
+  const [newCompositionAxles, setNewCompositionAxles] = useState<number | ''>('');
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
 
   const form = useForm<VehicleFormData>({
@@ -125,10 +125,11 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
   const addCompositionPlate = () => {
     if (newCompositionPlate.trim() && !compositionPlates.includes(newCompositionPlate.trim())) {
+      const axles = newCompositionAxles === '' ? 2 : newCompositionAxles;
       setCompositionPlates([...compositionPlates, newCompositionPlate.trim()]);
-      setCompositionAxles([...compositionAxles, newCompositionAxles]);
+      setCompositionAxles([...compositionAxles, axles]);
       setNewCompositionPlate('');
-      setNewCompositionAxles(2);
+      setNewCompositionAxles('');
     }
   };
 
@@ -463,7 +464,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
               min="1"
               max="10"
               value={newCompositionAxles}
-              onChange={(e) => setNewCompositionAxles(parseInt(e.target.value) || 2)}
+              onChange={(e) => setNewCompositionAxles(e.target.value === '' ? '' : parseInt(e.target.value))}
               className="w-48"
             />
             <Button 
