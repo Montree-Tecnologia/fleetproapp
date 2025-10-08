@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useMockData } from '@/hooks/useMockData';
+import { useMockData, RefrigerationUnit } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Snowflake, Thermometer } from 'lucide-react';
+import { Plus, Snowflake, Thermometer, Pencil, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,23 +11,71 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { RefrigerationForm } from '@/components/forms/RefrigerationForm';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Refrigeration() {
-  const { refrigerationUnits, vehicles, addRefrigerationUnit } = useMockData();
+  const { refrigerationUnits, vehicles, addRefrigerationUnit, updateRefrigerationUnit, deleteRefrigerationUnit } = useMockData();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [editingUnit, setEditingUnit] = useState<RefrigerationUnit | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [unitToDelete, setUnitToDelete] = useState<{ id: string; name: string } | null>(null);
   const allUnits = refrigerationUnits();
   const allVehicles = vehicles();
 
   const handleSubmit = (data: any) => {
-    addRefrigerationUnit(data);
-    toast({
-      title: 'Equipamento cadastrado',
-      description: 'Aparelho de refrigeração cadastrado com sucesso.',
-    });
+    if (editingUnit) {
+      updateRefrigerationUnit(editingUnit.id, data);
+      toast({
+        title: 'Equipamento atualizado',
+        description: 'Aparelho de refrigeração atualizado com sucesso.',
+      });
+    } else {
+      addRefrigerationUnit(data);
+      toast({
+        title: 'Equipamento cadastrado',
+        description: 'Aparelho de refrigeração cadastrado com sucesso.',
+      });
+    }
+    handleDialogClose();
+  };
+
+  const handleEdit = (unit: RefrigerationUnit) => {
+    setEditingUnit(unit);
+    setOpen(true);
+  };
+
+  const handleDialogClose = () => {
     setOpen(false);
+    setEditingUnit(null);
+  };
+
+  const handleDeleteClick = (unitId: string, unitName: string) => {
+    setUnitToDelete({ id: unitId, name: unitName });
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (unitToDelete) {
+      deleteRefrigerationUnit(unitToDelete.id);
+      toast({
+        title: 'Equipamento removido',
+        description: `${unitToDelete.name} foi removido do sistema.`,
+      });
+      setDeleteDialogOpen(false);
+      setUnitToDelete(null);
+    }
   };
 
   const getTypeBadge = (type: string) => {
@@ -49,22 +97,23 @@ export default function Refrigeration() {
             Controle dos equipamentos de refrigeração da frota
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
           <Button onClick={() => setOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Novo Aparelho
           </Button>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Cadastrar Equipamento de Refrigeração</DialogTitle>
+              <DialogTitle>{editingUnit ? 'Editar Equipamento de Refrigeração' : 'Cadastrar Equipamento de Refrigeração'}</DialogTitle>
               <DialogDescription>
-                Adicione um novo aparelho de refrigeração à frota
+                {editingUnit ? 'Atualize as informações do aparelho' : 'Adicione um novo aparelho de refrigeração à frota'}
               </DialogDescription>
             </DialogHeader>
             <RefrigerationForm
               onSubmit={handleSubmit}
-              onCancel={() => setOpen(false)}
+              onCancel={handleDialogClose}
               vehicles={allVehicles}
+              initialData={editingUnit}
             />
           </DialogContent>
         </Dialog>
@@ -114,9 +163,29 @@ export default function Refrigeration() {
                   </p>
                 </div>
 
-                <Button variant="outline" className="w-full">
-                  Ver Detalhes
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEdit(unit)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Ver Detalhes
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleDeleteClick(unit.id, `${unit.brand} ${unit.model}`)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           );
@@ -138,6 +207,22 @@ export default function Refrigeration() {
           </CardContent>
         </Card>
       )}
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o aparelho <strong>{unitToDelete?.name}</strong>?
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

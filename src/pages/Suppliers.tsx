@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useMockData } from '@/hooks/useMockData';
+import { useMockData, Supplier } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Building, MapPin } from 'lucide-react';
+import { Plus, Building, MapPin, Pencil, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,22 +11,70 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { SupplierForm } from '@/components/forms/SupplierForm';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Suppliers() {
-  const { suppliers, addSupplier } = useMockData();
+  const { suppliers, addSupplier, updateSupplier, deleteSupplier } = useMockData();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [supplierToDelete, setSupplierToDelete] = useState<{ id: string; name: string } | null>(null);
   const allSuppliers = suppliers();
 
   const handleSubmit = (data: any) => {
-    addSupplier(data);
-    toast({
-      title: 'Fornecedor cadastrado',
-      description: 'Fornecedor adicionado com sucesso.',
-    });
+    if (editingSupplier) {
+      updateSupplier(editingSupplier.id, data);
+      toast({
+        title: 'Fornecedor atualizado',
+        description: 'Fornecedor atualizado com sucesso.',
+      });
+    } else {
+      addSupplier(data);
+      toast({
+        title: 'Fornecedor cadastrado',
+        description: 'Fornecedor adicionado com sucesso.',
+      });
+    }
+    handleDialogClose();
+  };
+
+  const handleEdit = (supplier: Supplier) => {
+    setEditingSupplier(supplier);
+    setOpen(true);
+  };
+
+  const handleDialogClose = () => {
     setOpen(false);
+    setEditingSupplier(null);
+  };
+
+  const handleDeleteClick = (supplierId: string, supplierName: string) => {
+    setSupplierToDelete({ id: supplierId, name: supplierName });
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (supplierToDelete) {
+      deleteSupplier(supplierToDelete.id);
+      toast({
+        title: 'Fornecedor removido',
+        description: `${supplierToDelete.name} foi removido do sistema.`,
+      });
+      setDeleteDialogOpen(false);
+      setSupplierToDelete(null);
+    }
   };
 
   const getTypeBadge = (type: string) => {
@@ -48,21 +96,22 @@ export default function Suppliers() {
             Cadastro de fornecedores e prestadores de serviço
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
           <Button onClick={() => setOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Novo Fornecedor
           </Button>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Cadastrar Fornecedor</DialogTitle>
+              <DialogTitle>{editingSupplier ? 'Editar Fornecedor' : 'Cadastrar Fornecedor'}</DialogTitle>
               <DialogDescription>
-                Adicione um novo fornecedor ou prestador de serviço
+                {editingSupplier ? 'Atualize as informações do fornecedor' : 'Adicione um novo fornecedor ou prestador de serviço'}
               </DialogDescription>
             </DialogHeader>
             <SupplierForm
               onSubmit={handleSubmit}
-              onCancel={() => setOpen(false)}
+              onCancel={handleDialogClose}
+              initialData={editingSupplier}
             />
           </DialogContent>
         </Dialog>
@@ -107,13 +156,49 @@ export default function Suppliers() {
                 </div>
               </div>
 
-              <Button variant="outline" className="w-full">
-                Ver Detalhes
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleEdit(supplier)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Ver Detalhes
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleDeleteClick(supplier.id, supplier.fantasyName)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o fornecedor <strong>{supplierToDelete?.name}</strong>?
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

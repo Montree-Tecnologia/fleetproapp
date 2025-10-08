@@ -392,6 +392,12 @@ export function useMockData() {
     setRefrigerationUnits(prev => [...prev, newUnit]);
     return newUnit;
   }, []);
+  const updateRefrigerationUnit = useCallback((id: string, data: Partial<RefrigerationUnit>) => {
+    setRefrigerationUnits(prev => prev.map(u => u.id === id ? { ...u, ...data } : u));
+  }, []);
+  const deleteRefrigerationUnit = useCallback((id: string) => {
+    setRefrigerationUnits(prev => prev.filter(u => u.id !== id));
+  }, []);
 
   // Suppliers
   const getSuppliers = useCallback(() => suppliers, [suppliers]);
@@ -399,6 +405,12 @@ export function useMockData() {
     const newSupplier = { ...supplier, id: Date.now().toString() };
     setSuppliers(prev => [...prev, newSupplier]);
     return newSupplier;
+  }, []);
+  const updateSupplier = useCallback((id: string, data: Partial<Supplier>) => {
+    setSuppliers(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
+  }, []);
+  const deleteSupplier = useCallback((id: string) => {
+    setSuppliers(prev => prev.filter(s => s.id !== id));
   }, []);
 
   // Users
@@ -486,10 +498,14 @@ export function useMockData() {
     refrigerationUnits: getRefrigerationUnits,
     getRefrigerationUnitByVehicle,
     addRefrigerationUnit,
+    updateRefrigerationUnit,
+    deleteRefrigerationUnit,
     
     // Suppliers
     suppliers: getSuppliers,
     addSupplier,
+    updateSupplier,
+    deleteSupplier,
     
     // Users
     users: getUsers,
