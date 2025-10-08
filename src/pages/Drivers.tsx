@@ -21,7 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2 } from 'lucide-react';
+import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 
@@ -49,6 +59,9 @@ export default function Drivers() {
   const { drivers, addDriver, updateDriver, deleteDriver } = useMockData();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [driverToDelete, setDriverToDelete] = useState<{ id: string; name: string } | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     cpf: '',
@@ -78,36 +91,43 @@ export default function Drivers() {
     try {
       const validatedData = driverSchema.parse(formData);
       
-      if (allDrivers.some(d => d.cpf === validatedData.cpf)) {
+      if (allDrivers.some(d => d.cpf === validatedData.cpf && d.id !== editingDriver?.id)) {
         setErrors({ cpf: 'CPF já cadastrado' });
         return;
       }
 
-      addDriver({
-        name: validatedData.name,
-        cpf: validatedData.cpf,
-        birthDate: validatedData.birthDate,
-        cnhCategory: validatedData.cnhCategory,
-        cnhValidity: validatedData.cnhValidity,
-        branches: validatedData.branches,
-        active: true,
-      });
+      if (editingDriver) {
+        updateDriver(editingDriver.id, {
+          name: validatedData.name,
+          cpf: validatedData.cpf,
+          birthDate: validatedData.birthDate,
+          cnhCategory: validatedData.cnhCategory,
+          cnhValidity: validatedData.cnhValidity,
+          branches: validatedData.branches,
+        });
 
-      toast({
-        title: 'Motorista cadastrado',
-        description: `${validatedData.name} foi adicionado com sucesso.`,
-      });
+        toast({
+          title: 'Motorista atualizado',
+          description: `${validatedData.name} foi atualizado com sucesso.`,
+        });
+      } else {
+        addDriver({
+          name: validatedData.name,
+          cpf: validatedData.cpf,
+          birthDate: validatedData.birthDate,
+          cnhCategory: validatedData.cnhCategory,
+          cnhValidity: validatedData.cnhValidity,
+          branches: validatedData.branches,
+          active: true,
+        });
 
-      setFormData({
-        name: '',
-        cpf: '',
-        birthDate: '',
-        cnhCategory: 'D',
-        cnhValidity: '',
-        branches: ['Matriz'],
-      });
-      setErrors({});
-      setOpen(false);
+        toast({
+          title: 'Motorista cadastrado',
+          description: `${validatedData.name} foi adicionado com sucesso.`,
+        });
+      }
+
+      handleDialogClose();
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -121,6 +141,34 @@ export default function Drivers() {
     }
   };
 
+  const handleEdit = (driver: Driver) => {
+    setEditingDriver(driver);
+    setFormData({
+      name: driver.name,
+      cpf: driver.cpf,
+      birthDate: driver.birthDate,
+      cnhCategory: driver.cnhCategory as typeof formData.cnhCategory,
+      cnhValidity: driver.cnhValidity,
+      branches: driver.branches,
+    });
+    setErrors({});
+    setOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpen(false);
+    setEditingDriver(null);
+    setFormData({
+      name: '',
+      cpf: '',
+      birthDate: '',
+      cnhCategory: 'D' as const,
+      cnhValidity: '',
+      branches: ['Matriz'],
+    });
+    setErrors({});
+  };
+
   const handleToggleActive = (driverId: string, currentStatus: boolean) => {
     updateDriver(driverId, { active: !currentStatus });
     toast({
@@ -129,12 +177,21 @@ export default function Drivers() {
     });
   };
 
-  const handleDelete = (driverId: string, driverName: string) => {
-    deleteDriver(driverId);
-    toast({
-      title: 'Motorista removido',
-      description: `${driverName} foi removido do sistema.`,
-    });
+  const handleDeleteClick = (driverId: string, driverName: string) => {
+    setDriverToDelete({ id: driverId, name: driverName });
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (driverToDelete) {
+      deleteDriver(driverToDelete.id);
+      toast({
+        title: 'Motorista removido',
+        description: `${driverToDelete.name} foi removido do sistema.`,
+      });
+      setDeleteDialogOpen(false);
+      setDriverToDelete(null);
+    }
   };
 
   const getCNHStatus = (validity: string) => {
@@ -162,7 +219,7 @@ export default function Drivers() {
           </p>
         </div>
 
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
           <DialogTrigger asChild>
             <Button>
               <UserPlus className="mr-2 h-4 w-4" />
@@ -172,9 +229,9 @@ export default function Drivers() {
           <DialogContent className="sm:max-w-[500px]">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
-                <DialogTitle>Cadastrar Motorista</DialogTitle>
+                <DialogTitle>{editingDriver ? 'Editar Motorista' : 'Cadastrar Motorista'}</DialogTitle>
                 <DialogDescription>
-                  Adicione um novo motorista à sua frota.
+                  {editingDriver ? 'Atualize as informações do motorista.' : 'Adicione um novo motorista à sua frota.'}
                 </DialogDescription>
               </DialogHeader>
 
@@ -306,10 +363,10 @@ export default function Drivers() {
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                <Button type="button" variant="outline" onClick={handleDialogClose}>
                   Cancelar
                 </Button>
-                <Button type="submit">Cadastrar</Button>
+                <Button type="submit">{editingDriver ? 'Atualizar' : 'Cadastrar'}</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -360,6 +417,13 @@ export default function Drivers() {
                 <div className="flex gap-2 pt-2">
                   <Button
                     size="sm"
+                    variant="outline"
+                    onClick={() => handleEdit(driver)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
                     variant={driver.active ? 'outline' : 'default'}
                     className="flex-1"
                     onClick={() => handleToggleActive(driver.id, driver.active)}
@@ -369,7 +433,7 @@ export default function Drivers() {
                   <Button
                     size="sm"
                     variant="destructive"
-                    onClick={() => handleDelete(driver.id, driver.name)}
+                    onClick={() => handleDeleteClick(driver.id, driver.name)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -379,6 +443,22 @@ export default function Drivers() {
           );
         })}
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o motorista <strong>{driverToDelete?.name}</strong>?
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

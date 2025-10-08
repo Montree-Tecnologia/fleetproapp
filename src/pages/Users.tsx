@@ -21,7 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, Mail, Shield, Building2, Calendar, Trash2 } from 'lucide-react';
+import { UserPlus, Mail, Shield, Building2, Calendar, Trash2, Pencil } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 
@@ -36,6 +46,9 @@ export default function Users() {
   const { users, addUser, updateUser, deleteUser } = useMockData();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{ id: string; name: string } | null>(null);
   const [formData, setFormData] = useState<{
     name: string;
     email: string;
@@ -57,33 +70,39 @@ export default function Users() {
     try {
       const validatedData = userSchema.parse(formData);
       
-      // Check if email already exists
-      if (allUsers.some(u => u.email === validatedData.email)) {
+      if (allUsers.some(u => u.email === validatedData.email && u.id !== editingUser?.id)) {
         setErrors({ email: 'E-mail já cadastrado' });
         return;
       }
 
-      addUser({
-        name: validatedData.name,
-        email: validatedData.email,
-        role: validatedData.role,
-        company: validatedData.company,
-        active: true,
-      });
+      if (editingUser) {
+        updateUser(editingUser.id, {
+          name: validatedData.name,
+          email: validatedData.email,
+          role: validatedData.role,
+          company: validatedData.company,
+        });
 
-      toast({
-        title: 'Usuário criado',
-        description: `${validatedData.name} foi adicionado com sucesso.`,
-      });
+        toast({
+          title: 'Usuário atualizado',
+          description: `${validatedData.name} foi atualizado com sucesso.`,
+        });
+      } else {
+        addUser({
+          name: validatedData.name,
+          email: validatedData.email,
+          role: validatedData.role,
+          company: validatedData.company,
+          active: true,
+        });
 
-      setFormData({
-        name: '',
-        email: '',
-        role: 'manager',
-        company: 'Transportadora Matriz',
-      });
-      setErrors({});
-      setOpen(false);
+        toast({
+          title: 'Usuário criado',
+          description: `${validatedData.name} foi adicionado com sucesso.`,
+        });
+      }
+
+      handleDialogClose();
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -97,6 +116,30 @@ export default function Users() {
     }
   };
 
+  const handleEdit = (user: User) => {
+    setEditingUser(user);
+    setFormData({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      company: user.company,
+    });
+    setErrors({});
+    setOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpen(false);
+    setEditingUser(null);
+    setFormData({
+      name: '',
+      email: '',
+      role: 'manager',
+      company: 'Transportadora Matriz',
+    });
+    setErrors({});
+  };
+
   const handleToggleActive = (userId: string, currentStatus: boolean) => {
     updateUser(userId, { active: !currentStatus });
     toast({
@@ -105,7 +148,7 @@ export default function Users() {
     });
   };
 
-  const handleDelete = (userId: string, userName: string) => {
+  const handleDeleteClick = (userId: string, userName: string) => {
     if (userId === '1' || userId === '2') {
       toast({
         title: 'Erro',
@@ -114,12 +157,20 @@ export default function Users() {
       });
       return;
     }
+    setUserToDelete({ id: userId, name: userName });
+    setDeleteDialogOpen(true);
+  };
 
-    deleteUser(userId);
-    toast({
-      title: 'Usuário removido',
-      description: `${userName} foi removido do sistema.`,
-    });
+  const confirmDelete = () => {
+    if (userToDelete) {
+      deleteUser(userToDelete.id);
+      toast({
+        title: 'Usuário removido',
+        description: `${userToDelete.name} foi removido do sistema.`,
+      });
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+    }
   };
 
   const getRoleBadge = (role: string) => {
@@ -152,7 +203,7 @@ export default function Users() {
           </p>
         </div>
 
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
           <DialogTrigger asChild>
             <Button>
               <UserPlus className="mr-2 h-4 w-4" />
@@ -162,9 +213,9 @@ export default function Users() {
           <DialogContent className="sm:max-w-[500px]">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
-                <DialogTitle>Criar Novo Usuário</DialogTitle>
+                <DialogTitle>{editingUser ? 'Editar Usuário' : 'Criar Novo Usuário'}</DialogTitle>
                 <DialogDescription>
-                  Adicione um novo usuário ao sistema e defina suas permissões.
+                  {editingUser ? 'Atualize as informações do usuário.' : 'Adicione um novo usuário ao sistema e defina suas permissões.'}
                 </DialogDescription>
               </DialogHeader>
 
@@ -247,10 +298,10 @@ export default function Users() {
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                <Button type="button" variant="outline" onClick={handleDialogClose}>
                   Cancelar
                 </Button>
-                <Button type="submit">Criar Usuário</Button>
+                <Button type="submit">{editingUser ? 'Atualizar' : 'Criar Usuário'}</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -294,26 +345,47 @@ export default function Users() {
               <div className="flex gap-2 pt-2">
                 <Button
                   size="sm"
+                  variant="outline"
+                  onClick={() => handleEdit(user)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
                   variant={user.active ? 'outline' : 'default'}
                   className="flex-1"
                   onClick={() => handleToggleActive(user.id, user.active)}
                 >
                   {user.active ? 'Desativar' : 'Ativar'}
                 </Button>
-                {user.id !== '1' && user.id !== '2' && (
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDelete(user.id, user.name)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleDeleteClick(user.id, user.name)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o usuário <strong>{userToDelete?.name}</strong>?
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
