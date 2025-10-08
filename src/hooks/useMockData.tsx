@@ -10,7 +10,7 @@ export interface Driver {
   cnhValidity: string;
   cnhDocument?: string;
   active: boolean;
-  branch: string;
+  branches: string[];
 }
 
 export interface Vehicle {
@@ -94,7 +94,7 @@ const mockDrivers: Driver[] = [
     cnhCategory: 'E',
     cnhValidity: '2026-08-20',
     active: true,
-    branch: 'Matriz'
+    branches: ['Matriz']
   },
   {
     id: '2',
@@ -104,7 +104,7 @@ const mockDrivers: Driver[] = [
     cnhCategory: 'E',
     cnhValidity: '2027-03-10',
     active: true,
-    branch: 'Matriz'
+    branches: ['Matriz']
   },
   {
     id: '3',
@@ -114,7 +114,7 @@ const mockDrivers: Driver[] = [
     cnhCategory: 'D',
     cnhValidity: '2025-12-15',
     active: true,
-    branch: 'Filial SP'
+    branches: ['Filial SP']
   }
 ];
 

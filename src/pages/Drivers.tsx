@@ -42,7 +42,7 @@ const driverSchema = z.object({
     const today = new Date();
     return validity > today;
   }, 'CNH deve estar válida'),
-  branch: z.string().trim().min(1, 'Filial é obrigatória'),
+  branches: z.array(z.string()).min(1, 'Selecione ao menos uma filial'),
 });
 
 export default function Drivers() {
@@ -55,7 +55,7 @@ export default function Drivers() {
     birthDate: '',
     cnhCategory: 'D' as const,
     cnhValidity: '',
-    branch: 'Matriz',
+    branches: ['Matriz'],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -89,7 +89,7 @@ export default function Drivers() {
         birthDate: validatedData.birthDate,
         cnhCategory: validatedData.cnhCategory,
         cnhValidity: validatedData.cnhValidity,
-        branch: validatedData.branch,
+        branches: validatedData.branches,
         active: true,
       });
 
@@ -104,7 +104,7 @@ export default function Drivers() {
         birthDate: '',
         cnhCategory: 'D',
         cnhValidity: '',
-        branch: 'Matriz',
+        branches: ['Matriz'],
       });
       setErrors({});
       setOpen(false);
@@ -272,22 +272,36 @@ export default function Drivers() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="branch">Filial</Label>
-                  <Select
-                    value={formData.branch}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, branch: value })
-                    }
-                  >
-                    <SelectTrigger id="branch">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Matriz">Matriz</SelectItem>
-                      <SelectItem value="Filial SP">Filial SP</SelectItem>
-                      <SelectItem value="Filial RJ">Filial RJ</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Filiais Vinculadas</Label>
+                  <div className="flex flex-wrap gap-2 p-3 border rounded-md">
+                    {['Matriz', 'Filial SP', 'Filial RJ', 'Filial MG'].map((branch) => (
+                      <Badge
+                        key={branch}
+                        variant={formData.branches.includes(branch) ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => {
+                          if (formData.branches.includes(branch)) {
+                            if (formData.branches.length > 1) {
+                              setFormData({
+                                ...formData,
+                                branches: formData.branches.filter(b => b !== branch)
+                              });
+                            }
+                          } else {
+                            setFormData({
+                              ...formData,
+                              branches: [...formData.branches, branch]
+                            });
+                          }
+                        }}
+                      >
+                        {branch}
+                      </Badge>
+                    ))}
+                  </div>
+                  {errors.branches && (
+                    <p className="text-sm text-destructive">{errors.branches}</p>
+                  )}
                 </div>
               </div>
 
@@ -340,7 +354,7 @@ export default function Drivers() {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Building2 className="h-4 w-4" />
-                  <span>{driver.branch}</span>
+                  <span>{driver.branches.join(', ')}</span>
                 </div>
                 
                 <div className="flex gap-2 pt-2">

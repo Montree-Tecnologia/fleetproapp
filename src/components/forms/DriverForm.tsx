@@ -28,6 +28,8 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Driver } from '@/hooks/useMockData';
+import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
 
 const driverSchema = z.object({
   name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
@@ -39,7 +41,6 @@ const driverSchema = z.object({
   cnhValidity: z.date({
     required_error: 'Validade da CNH é obrigatória',
   }),
-  branch: z.string().min(1, 'Filial é obrigatória'),
 });
 
 type DriverFormData = z.infer<typeof driverSchema>;
@@ -52,6 +53,10 @@ interface DriverFormProps {
 }
 
 export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [] }: DriverFormProps) {
+  const [selectedBranches, setSelectedBranches] = useState<string[]>(
+    initialData?.branches || ['Matriz']
+  );
+
   const form = useForm<DriverFormData>({
     resolver: zodResolver(driverSchema),
     defaultValues: initialData ? {
@@ -60,10 +65,8 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [] 
       birthDate: new Date(initialData.birthDate),
       cnhCategory: initialData.cnhCategory as any,
       cnhValidity: new Date(initialData.cnhValidity),
-      branch: initialData.branch,
     } : {
       cnhCategory: 'E',
-      branch: 'Matriz',
     },
   });
 
@@ -87,16 +90,33 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [] 
       return;
     }
 
+    // Validate at least one branch is selected
+    if (selectedBranches.length === 0) {
+      return;
+    }
+
     onSubmit({
       name: data.name,
       cpf: data.cpf,
       cnhCategory: data.cnhCategory,
-      branch: data.branch,
+      branches: selectedBranches,
       birthDate: format(data.birthDate, 'yyyy-MM-dd'),
       cnhValidity: format(data.cnhValidity, 'yyyy-MM-dd'),
       active: initialData?.active ?? true,
     });
   };
+
+  const toggleBranch = (branch: string) => {
+    if (selectedBranches.includes(branch)) {
+      if (selectedBranches.length > 1) {
+        setSelectedBranches(selectedBranches.filter(b => b !== branch));
+      }
+    } else {
+      setSelectedBranches([...selectedBranches, branch]);
+    }
+  };
+
+  const availableBranches = ['Matriz', 'Filial SP', 'Filial RJ', 'Filial MG'];
 
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, '');
@@ -262,29 +282,21 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [] 
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="branch"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Filial *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a filial" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="Matriz">Matriz</SelectItem>
-                  <SelectItem value="Filial SP">Filial SP</SelectItem>
-                  <SelectItem value="Filial RJ">Filial RJ</SelectItem>
-                  <SelectItem value="Filial MG">Filial MG</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div>
+          <FormLabel>Filiais Vinculadas *</FormLabel>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {availableBranches.map((branch) => (
+              <Badge
+                key={branch}
+                variant={selectedBranches.includes(branch) ? "default" : "outline"}
+                className="cursor-pointer"
+                onClick={() => toggleBranch(branch)}
+              >
+                {branch}
+              </Badge>
+            ))}
+          </div>
+        </div>
 
         <div className="flex justify-end gap-3 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>
