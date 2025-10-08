@@ -83,13 +83,9 @@ export default function Vehicles() {
               {vehicle.hasComposition && vehicle.compositionPlates && vehicle.compositionPlates.length > 0 && (
                 <div className="pt-3 border-t border-border">
                   <span className="text-sm text-muted-foreground">Composições:</span>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {vehicle.compositionPlates.map((plate, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {plate}
-                      </Badge>
-                    ))}
-                  </div>
+                  <p className="text-sm font-medium">
+                    {vehicle.compositionPlates.length} {vehicle.compositionPlates.length === 1 ? 'reboque' : 'reboques'}
+                  </p>
                 </div>
               )}
               {getDriverName(vehicle.driverId) && (
