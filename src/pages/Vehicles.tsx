@@ -76,6 +76,15 @@ export default function Vehicles() {
                   <p className="font-medium">{vehicle.currentKm.toLocaleString('pt-BR')}</p>
                 </div>
                 <div>
+                  <span className="text-muted-foreground">Valor:</span>
+                  <p className="font-medium">
+                    {vehicle.purchaseValue.toLocaleString('pt-BR', { 
+                      style: 'currency', 
+                      currency: 'BRL' 
+                    })}
+                  </p>
+                </div>
+                <div>
                   <span className="text-muted-foreground">Filial:</span>
                   <p className="font-medium">{vehicle.branch}</p>
                 </div>
