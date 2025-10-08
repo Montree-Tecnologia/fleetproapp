@@ -1,12 +1,34 @@
+import { useState } from 'react';
 import { useMockData } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Fuel } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { RefuelingForm } from '@/components/forms/RefuelingForm';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Refuelings() {
-  const { refuelings, vehicles } = useMockData();
+  const { refuelings, vehicles, drivers, addRefueling } = useMockData();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
   const allRefuelings = refuelings();
   const allVehicles = vehicles();
+  const allDrivers = drivers();
+
+  const handleSubmit = (data: any) => {
+    addRefueling(data);
+    toast({
+      title: 'Abastecimento registrado',
+      description: 'Abastecimento cadastrado com sucesso.',
+    });
+    setOpen(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -17,10 +39,26 @@ export default function Refuelings() {
             Controle de abastecimentos e custos com combustível
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Abastecimento
-        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Button onClick={() => setOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Abastecimento
+          </Button>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Cadastrar Abastecimento</DialogTitle>
+              <DialogDescription>
+                Registre um novo abastecimento da frota
+              </DialogDescription>
+            </DialogHeader>
+            <RefuelingForm
+              onSubmit={handleSubmit}
+              onCancel={() => setOpen(false)}
+              vehicles={allVehicles}
+              drivers={allDrivers}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Card>

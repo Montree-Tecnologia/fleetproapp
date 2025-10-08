@@ -1,13 +1,34 @@
+import { useState } from 'react';
 import { useMockData } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus, Snowflake, Thermometer } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { RefrigerationForm } from '@/components/forms/RefrigerationForm';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Refrigeration() {
-  const { refrigerationUnits, vehicles } = useMockData();
+  const { refrigerationUnits, vehicles, addRefrigerationUnit } = useMockData();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
   const allUnits = refrigerationUnits();
   const allVehicles = vehicles();
+
+  const handleSubmit = (data: any) => {
+    addRefrigerationUnit(data);
+    toast({
+      title: 'Equipamento cadastrado',
+      description: 'Aparelho de refrigeração cadastrado com sucesso.',
+    });
+    setOpen(false);
+  };
 
   const getTypeBadge = (type: string) => {
     const variants = {
@@ -28,10 +49,25 @@ export default function Refrigeration() {
             Controle dos equipamentos de refrigeração da frota
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Aparelho
-        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Button onClick={() => setOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Aparelho
+          </Button>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Cadastrar Equipamento de Refrigeração</DialogTitle>
+              <DialogDescription>
+                Adicione um novo aparelho de refrigeração à frota
+              </DialogDescription>
+            </DialogHeader>
+            <RefrigerationForm
+              onSubmit={handleSubmit}
+              onCancel={() => setOpen(false)}
+              vehicles={allVehicles}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -95,7 +131,7 @@ export default function Refrigeration() {
             <p className="text-sm text-muted-foreground mb-4">
               Comece adicionando um aparelho de refrigeração
             </p>
-            <Button>
+            <Button onClick={() => setOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Adicionar Aparelho
             </Button>

@@ -352,6 +352,11 @@ export function useMockData() {
   const getRefrigerationUnits = useCallback(() => refrigerationUnits, [refrigerationUnits]);
   const getRefrigerationUnitByVehicle = useCallback((vehicleId: string) => 
     refrigerationUnits.find(r => r.vehicleId === vehicleId), [refrigerationUnits]);
+  const addRefrigerationUnit = useCallback((unit: Omit<RefrigerationUnit, 'id'>) => {
+    const newUnit = { ...unit, id: Date.now().toString() };
+    setRefrigerationUnits(prev => [...prev, newUnit]);
+    return newUnit;
+  }, []);
 
   // Suppliers
   const getSuppliers = useCallback(() => suppliers, [suppliers]);
@@ -426,6 +431,7 @@ export function useMockData() {
     // Refrigeration
     refrigerationUnits: getRefrigerationUnits,
     getRefrigerationUnitByVehicle,
+    addRefrigerationUnit,
     
     // Suppliers
     suppliers: getSuppliers,
