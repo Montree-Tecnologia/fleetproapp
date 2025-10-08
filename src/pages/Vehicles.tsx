@@ -3,11 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus, Truck } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { VehicleForm } from '@/components/forms/VehicleForm';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function Vehicles() {
-  const { vehicles, drivers, getRefrigerationUnitByVehicle } = useMockData();
+  const { vehicles, drivers, getRefrigerationUnitByVehicle, addVehicle } = useMockData();
   const allVehicles = vehicles();
   const allDrivers = drivers();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const getDriverName = (driverId?: string) => {
     if (!driverId) return null;
@@ -34,11 +45,30 @@ export default function Vehicles() {
             Controle completo dos veículos da sua empresa
           </p>
         </div>
-        <Button>
+        <Button onClick={() => setIsDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Veículo
         </Button>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Cadastrar Novo Veículo</DialogTitle>
+            <DialogDescription>
+              Preencha os dados do veículo para cadastrá-lo no sistema
+            </DialogDescription>
+          </DialogHeader>
+          <VehicleForm
+            onSubmit={(data) => {
+              addVehicle(data);
+              setIsDialogOpen(false);
+              toast.success('Veículo cadastrado com sucesso!');
+            }}
+            onCancel={() => setIsDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {allVehicles.map((vehicle) => (
