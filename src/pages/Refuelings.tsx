@@ -48,7 +48,7 @@ export default function Refuelings() {
                           {refueling.station} • {refueling.city}/{refueling.state}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Motorista: {refueling.driver} • {refueling.km.toLocaleString('pt-BR')} km
+                          Motorista: {refueling.driver} • {refueling.km.toLocaleString('pt-BR')} km • {refueling.fuelType}
                         </p>
                       </div>
                     </div>
