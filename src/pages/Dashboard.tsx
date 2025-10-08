@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Truck, TrendingUp, Fuel, Activity } from 'lucide-react';
 
 export default function Dashboard() {
-  const { getDashboardStats, vehicles, refuelings } = useMockData();
+  const { getDashboardStats, vehicles, refuelings, suppliers } = useMockData();
   const stats = getDashboardStats();
   const allVehicles = vehicles();
   const allRefuelings = refuelings();
+  const allSuppliers = suppliers();
 
   const statCards = [
     {
@@ -153,12 +154,13 @@ export default function Dashboard() {
               .slice(0, 5)
               .map((refueling) => {
                 const vehicle = allVehicles.find(v => v.id === refueling.vehicleId);
+                const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
                 return (
                   <div key={refueling.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
                     <div>
                       <p className="text-sm font-medium">{vehicle?.plate}</p>
                       <p className="text-xs text-muted-foreground">
-                        {refueling.liters}L • {refueling.station} • {refueling.city}/{refueling.state}
+                        {refueling.liters}L • {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
                       </p>
                     </div>
                     <div className="text-right">

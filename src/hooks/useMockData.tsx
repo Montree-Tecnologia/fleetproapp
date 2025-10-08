@@ -45,9 +45,7 @@ export interface Refueling {
   pricePerLiter: number;
   totalValue: number;
   fuelType: string;
-  station: string;
-  city: string;
-  state: string;
+  supplierId: string;
   driver: string;
 }
 
@@ -195,9 +193,7 @@ const mockRefuelings: Refueling[] = [
     pricePerLiter: 5.89,
     totalValue: 2061.50,
     fuelType: 'Diesel S10',
-    station: 'Posto Petrobras',
-    city: 'São Paulo',
-    state: 'SP',
+    supplierId: '1',
     driver: 'Carlos Santos'
   },
   {
@@ -209,9 +205,7 @@ const mockRefuelings: Refueling[] = [
     pricePerLiter: 5.92,
     totalValue: 2012.80,
     fuelType: 'Diesel S10',
-    station: 'Posto Shell',
-    city: 'Campinas',
-    state: 'SP',
+    supplierId: '2',
     driver: 'Carlos Santos'
   },
   {
@@ -223,9 +217,7 @@ const mockRefuelings: Refueling[] = [
     pricePerLiter: 5.85,
     totalValue: 2223.00,
     fuelType: 'Diesel S10',
-    station: 'Posto BR',
-    city: 'Rio de Janeiro',
-    state: 'RJ',
+    supplierId: '1',
     driver: 'João Pereira'
   }
 ];

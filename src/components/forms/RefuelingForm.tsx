@@ -27,7 +27,7 @@ import {
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Refueling, Vehicle, Driver } from '@/hooks/useMockData';
+import { Refueling, Vehicle, Driver, Supplier } from '@/hooks/useMockData';
 
 const refuelingSchema = z.object({
   vehicleId: z.string().min(1, 'Veículo é obrigatório'),
@@ -38,9 +38,7 @@ const refuelingSchema = z.object({
   liters: z.number().min(0.1, 'Litros deve ser maior que 0'),
   pricePerLiter: z.number().min(0.01, 'Preço por litro deve ser maior que 0'),
   fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Gasolina', 'Etanol']),
-  station: z.string().min(1, 'Posto é obrigatório'),
-  city: z.string().min(1, 'Cidade é obrigatória'),
-  state: z.string().length(2, 'UF deve ter 2 caracteres'),
+  supplierId: z.string().min(1, 'Posto é obrigatório'),
   driver: z.string().min(1, 'Motorista é obrigatório'),
 });
 
@@ -51,10 +49,13 @@ interface RefuelingFormProps {
   onCancel: () => void;
   vehicles: Vehicle[];
   drivers: Driver[];
+  suppliers: Supplier[];
   initialData?: Refueling;
 }
 
-export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, initialData }: RefuelingFormProps) {
+export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers, initialData }: RefuelingFormProps) {
+  const gasStations = suppliers.filter(s => s.type === 'gas_station');
+  
   const form = useForm<RefuelingFormData>({
     resolver: zodResolver(refuelingSchema),
     defaultValues: initialData ? {
@@ -64,9 +65,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, initialDa
       liters: initialData.liters,
       pricePerLiter: initialData.pricePerLiter,
       fuelType: initialData.fuelType as any,
-      station: initialData.station,
-      city: initialData.city,
-      state: initialData.state,
+      supplierId: initialData.supplierId,
       driver: initialData.driver,
     } : {
       date: new Date(),
@@ -101,9 +100,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, initialDa
       pricePerLiter: data.pricePerLiter,
       totalValue: totalValue,
       fuelType: data.fuelType,
-      station: data.station,
-      city: data.city,
-      state: data.state.toUpperCase(),
+      supplierId: data.supplierId,
       driver: data.driver,
     });
   };
@@ -273,13 +270,24 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, initialDa
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="station"
+            name="supplierId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Posto *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Posto Petrobras" {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o posto" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {gasStations.map((supplier) => (
+                      <SelectItem key={supplier.id} value={supplier.id}>
+                        {supplier.fantasyName} - {supplier.city}/{supplier.state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -305,39 +313,6 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, initialDa
                     ))}
                   </SelectContent>
                 </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cidade *</FormLabel>
-                <FormControl>
-                  <Input placeholder="São Paulo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="state"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>UF *</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="SP" 
-                    maxLength={2}
-                    {...field}
-                    onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                  />
-                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

@@ -14,12 +14,13 @@ import { RefuelingForm } from '@/components/forms/RefuelingForm';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Refuelings() {
-  const { refuelings, vehicles, drivers, addRefueling } = useMockData();
+  const { refuelings, vehicles, drivers, suppliers, addRefueling } = useMockData();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const allRefuelings = refuelings();
   const allVehicles = vehicles();
   const allDrivers = drivers();
+  const allSuppliers = suppliers();
 
   const handleSubmit = (data: any) => {
     addRefueling(data);
@@ -56,6 +57,7 @@ export default function Refuelings() {
               onCancel={() => setOpen(false)}
               vehicles={allVehicles}
               drivers={allDrivers}
+              suppliers={allSuppliers}
             />
           </DialogContent>
         </Dialog>
@@ -71,6 +73,7 @@ export default function Refuelings() {
               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
               .map((refueling) => {
                 const vehicle = allVehicles.find(v => v.id === refueling.vehicleId);
+                const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
                 return (
                   <div
                     key={refueling.id}
@@ -83,7 +86,7 @@ export default function Refuelings() {
                       <div>
                         <p className="font-medium">{vehicle?.plate} - {vehicle?.model}</p>
                         <p className="text-sm text-muted-foreground">
-                          {refueling.station} • {refueling.city}/{refueling.state}
+                          {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
                           Motorista: {refueling.driver} • {refueling.km.toLocaleString('pt-BR')} km • {refueling.fuelType}
