@@ -37,7 +37,7 @@ const refuelingSchema = z.object({
   km: z.number().min(0, 'KM deve ser positivo'),
   liters: z.number().min(0.1, 'Litros deve ser maior que 0'),
   pricePerLiter: z.number().min(0.01, 'Preço por litro deve ser maior que 0'),
-  fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Gasolina', 'Etanol']),
+  fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Gasolina', 'Etanol', 'GNV', 'Biometano']),
   supplierId: z.string().min(1, 'Posto é obrigatório'),
   driver: z.string().min(1, 'Motorista é obrigatório'),
 });
@@ -211,6 +211,8 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     <SelectItem value="Arla 32">Arla 32</SelectItem>
                     <SelectItem value="Gasolina">Gasolina</SelectItem>
                     <SelectItem value="Etanol">Etanol</SelectItem>
+                    <SelectItem value="GNV">GNV</SelectItem>
+                    <SelectItem value="Biometano">Biometano</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
