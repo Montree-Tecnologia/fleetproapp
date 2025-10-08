@@ -374,7 +374,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             control={form.control}
             name="purchaseDate"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem>
                 <FormLabel>Data de Compra *</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -382,7 +382,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
                       <Button
                         variant="outline"
                         className={cn(
-                          "pl-3 text-left font-normal",
+                          "w-full pl-3 text-left font-normal",
                           !field.value && "text-muted-foreground"
                         )}
                       >
