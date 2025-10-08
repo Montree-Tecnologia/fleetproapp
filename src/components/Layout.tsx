@@ -14,7 +14,8 @@ import {
   Menu,
   Building2,
   Settings,
-  UserCog
+  UserCog,
+  IdCard
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -32,6 +33,7 @@ export function Layout() {
   const allNavItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard', permission: 'view_dashboard' as const },
     { to: '/vehicles', icon: Truck, label: 'Frota', permission: 'manage_vehicles' as const },
+    { to: '/drivers', icon: IdCard, label: 'Motoristas', permission: 'manage_vehicles' as const },
     { to: '/refuelings', icon: Fuel, label: 'Abastecimentos', permission: 'manage_refuelings' as const },
     { to: '/refrigeration', icon: Snowflake, label: 'Refrigeração', permission: 'manage_refrigeration' as const },
     { to: '/suppliers', icon: Users, label: 'Fornecedores', permission: 'manage_suppliers' as const },

@@ -5,8 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Plus, Truck } from 'lucide-react';
 
 export default function Vehicles() {
-  const { vehicles } = useMockData();
+  const { vehicles, drivers } = useMockData();
   const allVehicles = vehicles();
+  const allDrivers = drivers();
+
+  const getDriverName = (driverId?: string) => {
+    if (!driverId) return null;
+    const driver = allDrivers.find(d => d.id === driverId);
+    return driver?.name;
+  };
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -69,10 +76,10 @@ export default function Vehicles() {
                   <p className="font-medium">{vehicle.branch}</p>
                 </div>
               </div>
-              {vehicle.driver && (
+              {getDriverName(vehicle.driverId) && (
                 <div className="pt-3 border-t border-border">
                   <span className="text-sm text-muted-foreground">Motorista:</span>
-                  <p className="text-sm font-medium">{vehicle.driver}</p>
+                  <p className="text-sm font-medium">{getDriverName(vehicle.driverId)}</p>
                 </div>
               )}
               <Button variant="outline" className="w-full">

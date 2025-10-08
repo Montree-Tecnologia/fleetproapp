@@ -1,6 +1,18 @@
 import { useState, useCallback } from 'react';
 
 // Types
+export interface Driver {
+  id: string;
+  name: string;
+  cpf: string;
+  birthDate: string;
+  cnhCategory: string;
+  cnhValidity: string;
+  cnhDocument?: string;
+  active: boolean;
+  branch: string;
+}
+
 export interface Vehicle {
   id: string;
   plate: string;
@@ -14,7 +26,7 @@ export interface Vehicle {
   currentKm: number;
   fuelType: 'diesel' | 'gasoline' | 'ethanol';
   branch: string;
-  driver?: string;
+  driverId?: string;
   purchaseDate: string;
   purchaseValue: number;
 }
@@ -68,6 +80,39 @@ export interface User {
 }
 
 // Mock Data
+const mockDrivers: Driver[] = [
+  {
+    id: '1',
+    name: 'Carlos Santos',
+    cpf: '123.456.789-00',
+    birthDate: '1985-05-15',
+    cnhCategory: 'E',
+    cnhValidity: '2026-08-20',
+    active: true,
+    branch: 'Matriz'
+  },
+  {
+    id: '2',
+    name: 'João Pereira',
+    cpf: '987.654.321-00',
+    birthDate: '1990-11-22',
+    cnhCategory: 'E',
+    cnhValidity: '2027-03-10',
+    active: true,
+    branch: 'Matriz'
+  },
+  {
+    id: '3',
+    name: 'Pedro Lima',
+    cpf: '456.789.123-00',
+    birthDate: '1988-07-08',
+    cnhCategory: 'D',
+    cnhValidity: '2025-12-15',
+    active: true,
+    branch: 'Filial SP'
+  }
+];
+
 const mockVehicles: Vehicle[] = [
   {
     id: '1',
@@ -82,7 +127,7 @@ const mockVehicles: Vehicle[] = [
     currentKm: 85000,
     fuelType: 'diesel',
     branch: 'Matriz',
-    driver: 'Carlos Santos',
+    driverId: '1',
     purchaseDate: '2022-03-15',
     purchaseValue: 650000
   },
@@ -99,7 +144,7 @@ const mockVehicles: Vehicle[] = [
     currentKm: 120000,
     fuelType: 'diesel',
     branch: 'Matriz',
-    driver: 'João Pereira',
+    driverId: '2',
     purchaseDate: '2021-08-20',
     purchaseValue: 580000
   },
@@ -116,7 +161,7 @@ const mockVehicles: Vehicle[] = [
     currentKm: 45000,
     fuelType: 'diesel',
     branch: 'Filial SP',
-    driver: 'Pedro Lima',
+    driverId: '3',
     purchaseDate: '2023-01-10',
     purchaseValue: 720000
   }
@@ -238,11 +283,27 @@ const mockUsers: User[] = [
 
 // Hook
 export function useMockData() {
+  const [drivers, setDrivers] = useState<Driver[]>(mockDrivers);
   const [vehicles, setVehicles] = useState<Vehicle[]>(mockVehicles);
   const [refuelings, setRefuelings] = useState<Refueling[]>(mockRefuelings);
   const [refrigerationUnits, setRefrigerationUnits] = useState<RefrigerationUnit[]>(mockRefrigerationUnits);
   const [suppliers, setSuppliers] = useState<Supplier[]>(mockSuppliers);
   const [users, setUsers] = useState<User[]>(mockUsers);
+
+  // Drivers
+  const getDrivers = useCallback(() => drivers, [drivers]);
+  const getDriver = useCallback((id: string) => drivers.find(d => d.id === id), [drivers]);
+  const addDriver = useCallback((driver: Omit<Driver, 'id'>) => {
+    const newDriver = { ...driver, id: Date.now().toString() };
+    setDrivers(prev => [...prev, newDriver]);
+    return newDriver;
+  }, []);
+  const updateDriver = useCallback((id: string, data: Partial<Driver>) => {
+    setDrivers(prev => prev.map(d => d.id === id ? { ...d, ...data } : d));
+  }, []);
+  const deleteDriver = useCallback((id: string) => {
+    setDrivers(prev => prev.filter(d => d.id !== id));
+  }, []);
 
   // Vehicles
   const getVehicles = useCallback(() => vehicles, [vehicles]);
@@ -325,6 +386,13 @@ export function useMockData() {
   }, [vehicles, refuelings]);
 
   return {
+    // Drivers
+    drivers: getDrivers,
+    getDriver,
+    addDriver,
+    updateDriver,
+    deleteDriver,
+    
     // Vehicles
     vehicles: getVehicles,
     getVehicle,

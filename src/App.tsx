@@ -9,6 +9,7 @@ import { Layout } from "@/components/Layout";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Vehicles from "./pages/Vehicles";
+import Drivers from "./pages/Drivers";
 import Refuelings from "./pages/Refuelings";
 import Refrigeration from "./pages/Refrigeration";
 import Suppliers from "./pages/Suppliers";
@@ -54,6 +55,7 @@ const App = () => (
             >
               <Route index element={<Dashboard />} />
               <Route path="vehicles" element={<Vehicles />} />
+              <Route path="drivers" element={<Drivers />} />
               <Route path="refuelings" element={<Refuelings />} />
               <Route path="refrigeration" element={<Refrigeration />} />
               <Route path="suppliers" element={<Suppliers />} />
