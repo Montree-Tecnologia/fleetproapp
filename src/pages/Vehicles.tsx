@@ -4,6 +4,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus, Truck, Pencil, Trash2 } from 'lucide-react';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -73,6 +80,16 @@ export default function Vehicles() {
     if (!open) {
       setEditingVehicle(null);
     }
+  };
+
+  const handleStatusChange = (vehicleId: string, newStatus: string) => {
+    updateVehicle(vehicleId, { status: newStatus as 'active' | 'maintenance' | 'inactive' });
+    const statusLabels = {
+      active: 'Ativo',
+      maintenance: 'Manutenção',
+      inactive: 'Inativo'
+    };
+    toast.success(`Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`);
   };
 
   return (
@@ -203,7 +220,24 @@ export default function Vehicles() {
                 </div>
               )}
               
-              <div className="flex gap-2 pt-3">
+              <div className="pt-3 border-t border-border">
+                <span className="text-sm text-muted-foreground mb-2 block">Alterar Status:</span>
+                <Select
+                  value={vehicle.status}
+                  onValueChange={(value) => handleStatusChange(vehicle.id, value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Ativo</SelectItem>
+                    <SelectItem value="maintenance">Manutenção</SelectItem>
+                    <SelectItem value="inactive">Inativo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex gap-2 pt-2">
                 <Button
                   size="sm"
                   variant="outline"
