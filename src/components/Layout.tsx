@@ -13,7 +13,8 @@ import {
   LogOut,
   Menu,
   Building2,
-  Settings
+  Settings,
+  UserCog
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -35,6 +36,7 @@ export function Layout() {
     { to: '/refrigeration', icon: Snowflake, label: 'Refrigeração', permission: 'manage_refrigeration' as const },
     { to: '/suppliers', icon: Users, label: 'Fornecedores', permission: 'manage_suppliers' as const },
     { to: '/companies', icon: Building2, label: 'Empresas', permission: 'manage_companies' as const },
+    { to: '/users', icon: UserCog, label: 'Usuários', permission: 'manage_users' as const },
     { to: '/settings', icon: Settings, label: 'Configurações', permission: 'view_settings' as const },
   ];
 

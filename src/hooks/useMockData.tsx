@@ -57,6 +57,16 @@ export interface Supplier {
   branches: string[];
 }
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'manager' | 'operator';
+  company: string;
+  active: boolean;
+  createdAt: string;
+}
+
 // Mock Data
 const mockVehicles: Vehicle[] = [
   {
@@ -205,12 +215,34 @@ const mockSuppliers: Supplier[] = [
   }
 ];
 
+const mockUsers: User[] = [
+  {
+    id: '1',
+    name: 'Administrador',
+    email: 'admin@frota.com',
+    role: 'admin',
+    company: 'Transportadora Matriz',
+    active: true,
+    createdAt: '2024-01-01'
+  },
+  {
+    id: '2',
+    name: 'João Silva',
+    email: 'gestor@frota.com',
+    role: 'manager',
+    company: 'Transportadora Matriz',
+    active: true,
+    createdAt: '2024-02-15'
+  }
+];
+
 // Hook
 export function useMockData() {
   const [vehicles, setVehicles] = useState<Vehicle[]>(mockVehicles);
   const [refuelings, setRefuelings] = useState<Refueling[]>(mockRefuelings);
   const [refrigerationUnits, setRefrigerationUnits] = useState<RefrigerationUnit[]>(mockRefrigerationUnits);
   const [suppliers, setSuppliers] = useState<Supplier[]>(mockSuppliers);
+  const [users, setUsers] = useState<User[]>(mockUsers);
 
   // Vehicles
   const getVehicles = useCallback(() => vehicles, [vehicles]);
@@ -244,6 +276,25 @@ export function useMockData() {
 
   // Suppliers
   const getSuppliers = useCallback(() => suppliers, [suppliers]);
+
+  // Users
+  const getUsers = useCallback(() => users, [users]);
+  const getUser = useCallback((id: string) => users.find(u => u.id === id), [users]);
+  const addUser = useCallback((user: Omit<User, 'id' | 'createdAt'>) => {
+    const newUser = { 
+      ...user, 
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+    setUsers(prev => [...prev, newUser]);
+    return newUser;
+  }, []);
+  const updateUser = useCallback((id: string, data: Partial<User>) => {
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, ...data } : u));
+  }, []);
+  const deleteUser = useCallback((id: string) => {
+    setUsers(prev => prev.filter(u => u.id !== id));
+  }, []);
 
   // Dashboard Stats
   const getDashboardStats = useCallback(() => {
@@ -292,6 +343,13 @@ export function useMockData() {
     
     // Suppliers
     suppliers: getSuppliers,
+    
+    // Users
+    users: getUsers,
+    getUser,
+    addUser,
+    updateUser,
+    deleteUser,
     
     // Dashboard
     getDashboardStats

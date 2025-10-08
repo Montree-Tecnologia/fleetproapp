@@ -13,6 +13,7 @@ import Refuelings from "./pages/Refuelings";
 import Refrigeration from "./pages/Refrigeration";
 import Suppliers from "./pages/Suppliers";
 import Companies from "./pages/Companies";
+import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -61,6 +62,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredPermission="manage_companies">
                     <Companies />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="users" 
+                element={
+                  <ProtectedRoute requiredPermission="manage_users">
+                    <Users />
                   </ProtectedRoute>
                 } 
               />
