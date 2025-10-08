@@ -13,7 +13,6 @@ import {
   LogOut,
   Menu,
   Building2,
-  Settings,
   UserCog,
   IdCard
 } from 'lucide-react';
@@ -39,7 +38,6 @@ export function Layout() {
     { to: '/suppliers', icon: Users, label: 'Fornecedores', permission: 'manage_suppliers' as const },
     { to: '/companies', icon: Building2, label: 'Empresas', permission: 'manage_companies' as const },
     { to: '/users', icon: UserCog, label: 'Usuários', permission: 'manage_users' as const },
-    { to: '/settings', icon: Settings, label: 'Configurações', permission: 'view_settings' as const },
   ];
 
   const navItems = allNavItems.filter((item) => hasPermission(item.permission));
