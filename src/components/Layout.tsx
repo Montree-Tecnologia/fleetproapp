@@ -1,7 +1,9 @@
 import { Outlet, useNavigate, NavLink } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { usePermissions } from '@/hooks/usePermissions';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import {
   LayoutDashboard,
   Truck,
@@ -10,12 +12,14 @@ import {
   Users,
   LogOut,
   Menu,
-  Building2
+  Building2,
+  Settings
 } from 'lucide-react';
 import { useState } from 'react';
 
 export function Layout() {
   const { user, logout } = useAuth();
+  const { hasPermission } = usePermissions();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -24,13 +28,29 @@ export function Layout() {
     navigate('/login');
   };
 
-  const navItems = [
-    { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/vehicles', icon: Truck, label: 'Frota' },
-    { to: '/refuelings', icon: Fuel, label: 'Abastecimentos' },
-    { to: '/refrigeration', icon: Snowflake, label: 'Refrigeração' },
-    { to: '/suppliers', icon: Users, label: 'Fornecedores' },
+  const allNavItems = [
+    { to: '/', icon: LayoutDashboard, label: 'Dashboard', permission: 'view_dashboard' as const },
+    { to: '/vehicles', icon: Truck, label: 'Frota', permission: 'manage_vehicles' as const },
+    { to: '/refuelings', icon: Fuel, label: 'Abastecimentos', permission: 'manage_refuelings' as const },
+    { to: '/refrigeration', icon: Snowflake, label: 'Refrigeração', permission: 'manage_refrigeration' as const },
+    { to: '/suppliers', icon: Users, label: 'Fornecedores', permission: 'manage_suppliers' as const },
+    { to: '/companies', icon: Building2, label: 'Empresas', permission: 'manage_companies' as const },
+    { to: '/settings', icon: Settings, label: 'Configurações', permission: 'view_settings' as const },
   ];
+
+  const navItems = allNavItems.filter((item) => hasPermission(item.permission));
+
+  const getRoleBadgeVariant = (role: string) => {
+    if (role === 'admin') return 'default';
+    if (role === 'manager') return 'secondary';
+    return 'outline';
+  };
+
+  const getRoleLabel = (role: string) => {
+    if (role === 'admin') return 'Administrador';
+    if (role === 'manager') return 'Gestor';
+    return 'Operador';
+  };
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -86,9 +106,12 @@ export function Layout() {
         {/* User Section */}
         <div className="p-4">
           {sidebarOpen && user && (
-            <div className="mb-3">
+            <div className="mb-3 space-y-2">
               <p className="text-sm font-medium text-sidebar-foreground">{user.name}</p>
               <p className="text-xs text-sidebar-foreground/60">{user.company}</p>
+              <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
+                {getRoleLabel(user.role)}
+              </Badge>
             </div>
           )}
           <Button
