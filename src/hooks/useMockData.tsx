@@ -26,7 +26,7 @@ export interface Vehicle {
   status: 'active' | 'maintenance' | 'inactive';
   currentKm: number;
   fuelType: 'diesel' | 'gasoline' | 'ethanol';
-  branch: string;
+  branches: string[];
   driverId?: string;
   hasComposition: boolean;
   compositionPlates?: string[];
@@ -130,7 +130,7 @@ const mockVehicles: Vehicle[] = [
     status: 'active',
     currentKm: 85000,
     fuelType: 'diesel',
-    branch: 'Matriz',
+    branches: ['Matriz', 'Filial SP'],
     driverId: '1',
     hasComposition: false,
     purchaseDate: '2022-03-15',
@@ -149,7 +149,7 @@ const mockVehicles: Vehicle[] = [
     status: 'active',
     currentKm: 120000,
     fuelType: 'diesel',
-    branch: 'Matriz',
+    branches: ['Matriz'],
     driverId: '2',
     hasComposition: true,
     compositionPlates: ['XYZ-1111', 'XYZ-2222'],
@@ -169,7 +169,7 @@ const mockVehicles: Vehicle[] = [
     status: 'maintenance',
     currentKm: 45000,
     fuelType: 'diesel',
-    branch: 'Filial SP',
+    branches: ['Filial SP', 'Filial RJ'],
     driverId: '3',
     hasComposition: true,
     compositionPlates: ['KLM-3333'],
