@@ -1,49 +1,58 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Building2, MapPin, Plus } from 'lucide-react';
+import { CompanyForm } from '@/components/forms/CompanyForm';
+import { useMockData } from '@/hooks/useMockData';
 
 export default function Companies() {
-  const companies = [
-    {
-      id: '1',
-      type: 'matriz',
-      name: 'Transportadora Matriz',
-      cnpj: '12.345.678/0001-90',
-      city: 'São Paulo',
-      state: 'SP',
-      branches: 3,
-    },
-    {
-      id: '2',
-      type: 'filial',
-      name: 'Filial Rio de Janeiro',
-      cnpj: '12.345.678/0002-71',
-      city: 'Rio de Janeiro',
-      state: 'RJ',
-      branches: 0,
-    },
-    {
-      id: '3',
-      type: 'filial',
-      name: 'Filial Belo Horizonte',
-      cnpj: '12.345.678/0003-52',
-      city: 'Belo Horizonte',
-      state: 'MG',
-      branches: 0,
-    },
-  ];
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const { companies } = useMockData();
+  const allCompanies = companies();
+
+  const getCompanyBranches = (matrizId: string) => {
+    return allCompanies.filter(c => c.type === 'filial' && c.matrizId === matrizId).length;
+  };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Empresas e Filiais</h2>
-        <p className="text-muted-foreground">
-          Gerencie matriz e filiais da organização
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Empresas e Filiais</h2>
+          <p className="text-muted-foreground">
+            Gerencie matriz e filiais da organização
+          </p>
+        </div>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Nova Empresa
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Cadastrar Empresa</DialogTitle>
+              <DialogDescription>
+                Adicione uma nova matriz ou filial
+              </DialogDescription>
+            </DialogHeader>
+            <CompanyForm onSuccess={() => setDialogOpen(false)} />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {companies.map((company) => (
+        {allCompanies.map((company) => (
           <Card key={company.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -62,7 +71,7 @@ export default function Companies() {
               </div>
               {company.type === 'matriz' && (
                 <div className="text-sm font-medium text-primary">
-                  {company.branches} {company.branches === 1 ? 'filial' : 'filiais'}
+                  {getCompanyBranches(company.id)} {getCompanyBranches(company.id) === 1 ? 'filial' : 'filiais'}
                 </div>
               )}
             </CardContent>

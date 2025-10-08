@@ -83,6 +83,16 @@ export interface User {
   createdAt: string;
 }
 
+export interface Company {
+  id: string;
+  type: 'matriz' | 'filial';
+  name: string;
+  cnpj: string;
+  city: string;
+  state: string;
+  matrizId?: string;
+}
+
 // Mock Data
 const mockDrivers: Driver[] = [
   {
@@ -294,6 +304,35 @@ const mockUsers: User[] = [
   }
 ];
 
+const mockCompanies: Company[] = [
+  {
+    id: '1',
+    type: 'matriz',
+    name: 'Transportadora Matriz',
+    cnpj: '12.345.678/0001-90',
+    city: 'São Paulo',
+    state: 'SP',
+  },
+  {
+    id: '2',
+    type: 'filial',
+    name: 'Filial Rio de Janeiro',
+    cnpj: '12.345.678/0002-71',
+    city: 'Rio de Janeiro',
+    state: 'RJ',
+    matrizId: '1',
+  },
+  {
+    id: '3',
+    type: 'filial',
+    name: 'Filial Belo Horizonte',
+    cnpj: '12.345.678/0003-52',
+    city: 'Belo Horizonte',
+    state: 'MG',
+    matrizId: '1',
+  },
+];
+
 // Hook
 export function useMockData() {
   const [drivers, setDrivers] = useState<Driver[]>(mockDrivers);
@@ -302,6 +341,7 @@ export function useMockData() {
   const [refrigerationUnits, setRefrigerationUnits] = useState<RefrigerationUnit[]>(mockRefrigerationUnits);
   const [suppliers, setSuppliers] = useState<Supplier[]>(mockSuppliers);
   const [users, setUsers] = useState<User[]>(mockUsers);
+  const [companies, setCompanies] = useState<Company[]>(mockCompanies);
 
   // Drivers
   const getDrivers = useCallback(() => drivers, [drivers]);
@@ -380,6 +420,20 @@ export function useMockData() {
     setUsers(prev => prev.filter(u => u.id !== id));
   }, []);
 
+  // Companies
+  const getCompanies = useCallback(() => companies, [companies]);
+  const addCompany = useCallback((company: Omit<Company, 'id'>) => {
+    const newCompany = { ...company, id: Date.now().toString() };
+    setCompanies(prev => [...prev, newCompany]);
+    return newCompany;
+  }, []);
+  const updateCompany = useCallback((id: string, data: Partial<Company>) => {
+    setCompanies(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
+  }, []);
+  const deleteCompany = useCallback((id: string) => {
+    setCompanies(prev => prev.filter(c => c.id !== id));
+  }, []);
+
   // Dashboard Stats
   const getDashboardStats = useCallback(() => {
     const activeVehicles = vehicles.filter(v => v.status === 'active').length;
@@ -443,6 +497,12 @@ export function useMockData() {
     addUser,
     updateUser,
     deleteUser,
+    
+    // Companies
+    companies: getCompanies,
+    addCompany,
+    updateCompany,
+    deleteCompany,
     
     // Dashboard
     getDashboardStats
