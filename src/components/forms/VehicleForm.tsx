@@ -151,12 +151,8 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="space-y-4">
-          <div className="border-b pb-2">
-            <h3 className="text-lg font-semibold">Informações Básicas</h3>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="plate"
@@ -198,14 +194,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
               </FormItem>
             )}
           />
-          </div>
-        </div>
 
-        <div className="space-y-4">
-          <div className="border-b pb-2">
-            <h3 className="text-lg font-semibold">Documentação</h3>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="brand"
@@ -251,14 +240,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
               </FormItem>
             )}
           />
-          </div>
-        </div>
 
-        <div className="space-y-4">
-          <div className="border-b pb-2">
-            <h3 className="text-lg font-semibold">Características Técnicas</h3>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="color"
@@ -468,72 +450,61 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
         <div>
           <FormLabel>Composições Acopladas</FormLabel>
-          <p className="text-sm text-muted-foreground mb-2">
-            Adicione as placas e a quantidade de eixos de cada composição (reboques, carretas, etc)
-          </p>
-          <div className="grid grid-cols-[1fr_auto_auto] gap-2">
-            <div>
-              <Input
-                placeholder="Placa da composição (ex: ABC-1234)"
-                value={newCompositionPlate}
-                onChange={(e) => setNewCompositionPlate(e.target.value)}
-              />
-            </div>
-            <div className="w-32">
-              <Input
-                type="number"
-                placeholder="Qtd. Eixos"
-                min="1"
-                max="10"
-                value={newCompositionAxles}
-                onChange={(e) => setNewCompositionAxles(parseInt(e.target.value) || 2)}
-              />
-            </div>
+          <div className="flex gap-2 mt-2">
+            <Input
+              placeholder="Placa da composição"
+              value={newCompositionPlate}
+              onChange={(e) => setNewCompositionPlate(e.target.value)}
+              className="flex-1"
+            />
+            <Input
+              type="number"
+              placeholder="Eixos"
+              min="1"
+              max="10"
+              value={newCompositionAxles}
+              onChange={(e) => setNewCompositionAxles(parseInt(e.target.value) || 2)}
+              className="w-24"
+            />
             <Button 
               type="button" 
               onClick={addCompositionPlate} 
-              size="default"
+              size="icon"
               disabled={!newCompositionPlate.trim()}
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar
+              <Plus className="h-4 w-4" />
             </Button>
           </div>
           {compositionPlates.length > 0 && (
             <div className="space-y-2 mt-3">
               {compositionPlates.map((plate, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="secondary" className="text-sm">{plate}</Badge>
-                    <span className="text-sm font-medium">
+                <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{plate}</Badge>
+                    <span className="text-sm text-muted-foreground">
                       {compositionAxles[index]} {compositionAxles[index] === 1 ? 'eixo' : 'eixos'}
                     </span>
                   </div>
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={() => removeCompositionPlate(index)}
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
               ))}
-              <div className="pt-3 border-t border-border">
-                <p className="text-sm font-semibold text-primary">
+              <div className="pt-2 border-t border-border">
+                <p className="text-sm font-medium">
                   Total de Eixos: {form.watch('axles') + compositionAxles.reduce((sum, axles) => sum + axles, 0)}
-                  <span className="text-muted-foreground font-normal ml-2">
-                    (Veículo: {form.watch('axles')} + Composições: {compositionAxles.reduce((sum, axles) => sum + axles, 0)})
-                  </span>
                 </p>
               </div>
             </div>
           )}
         </div>
 
-        </div>
-
-        <div className="flex justify-end gap-3 pt-6 border-t">
+        <div className="flex justify-end gap-3 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
