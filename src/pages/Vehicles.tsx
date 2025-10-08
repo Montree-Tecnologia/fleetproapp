@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Truck } from 'lucide-react';
 
 export default function Vehicles() {
-  const { vehicles, drivers } = useMockData();
+  const { vehicles, drivers, getRefrigerationUnitByVehicle } = useMockData();
   const allVehicles = vehicles();
   const allDrivers = drivers();
 
@@ -54,7 +54,14 @@ export default function Vehicles() {
                     <p className="text-sm text-muted-foreground">{vehicle.model}</p>
                   </div>
                 </div>
-                {getStatusBadge(vehicle.status)}
+                <div className="flex flex-col gap-2 items-end">
+                  {getStatusBadge(vehicle.status)}
+                  {getRefrigerationUnitByVehicle(vehicle.id) && (
+                    <Badge variant="outline" className="bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20">
+                      Refrigerado
+                    </Badge>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
