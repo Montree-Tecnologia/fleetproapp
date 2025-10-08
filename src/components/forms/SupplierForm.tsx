@@ -27,6 +27,7 @@ const supplierSchema = z.object({
   name: z.string().min(3, 'Razão social deve ter no mínimo 3 caracteres'),
   fantasyName: z.string().min(3, 'Nome fantasia deve ter no mínimo 3 caracteres'),
   type: z.enum(['gas_station', 'workshop', 'dealer']),
+  brand: z.string().optional(),
   city: z.string().min(1, 'Cidade é obrigatória'),
   state: z.string().length(2, 'UF deve ter 2 caracteres'),
 });
@@ -51,6 +52,7 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
       name: initialData.name,
       fantasyName: initialData.fantasyName,
       type: initialData.type,
+      brand: initialData.brand,
       city: initialData.city,
       state: initialData.state,
     } : {
@@ -76,6 +78,7 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
       name: data.name,
       fantasyName: data.fantasyName,
       type: data.type,
+      brand: data.brand,
       city: data.city,
       state: data.state.toUpperCase(),
       branches: selectedBranches,
@@ -133,6 +136,32 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
                     <SelectItem value="gas_station">Posto de Combustível</SelectItem>
                     <SelectItem value="workshop">Oficina</SelectItem>
                     <SelectItem value="dealer">Concessionária</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="brand"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>Bandeira</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a bandeira" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Petrobras">Petrobras</SelectItem>
+                    <SelectItem value="Shell">Shell</SelectItem>
+                    <SelectItem value="Ipiranga">Ipiranga</SelectItem>
+                    <SelectItem value="Ale">Ale</SelectItem>
+                    <SelectItem value="Outra Bandeira">Outra Bandeira</SelectItem>
+                    <SelectItem value="Sem Bandeira">Sem Bandeira</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

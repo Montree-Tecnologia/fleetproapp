@@ -67,6 +67,7 @@ export interface Supplier {
   name: string;
   fantasyName: string;
   type: 'gas_station' | 'workshop' | 'dealer';
+  brand?: string;
   city: string;
   state: string;
   branches: string[];
@@ -254,6 +255,7 @@ const mockSuppliers: Supplier[] = [
     name: 'Petrobras Distribuidora S.A.',
     fantasyName: 'Posto Petrobras Anhanguera',
     type: 'gas_station',
+    brand: 'Petrobras',
     city: 'São Paulo',
     state: 'SP',
     branches: ['Matriz', 'Filial SP']
@@ -264,6 +266,7 @@ const mockSuppliers: Supplier[] = [
     name: 'Shell Brasil Ltda',
     fantasyName: 'Posto Shell Bandeirantes',
     type: 'gas_station',
+    brand: 'Shell',
     city: 'Campinas',
     state: 'SP',
     branches: ['Matriz']
