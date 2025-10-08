@@ -25,11 +25,13 @@ export interface Vehicle {
   vehicleType: 'Truck' | 'Baú' | 'Carreta' | 'Graneleiro' | 'Bitrem' | 'Tritem' | 'Container' | 'Caçamba';
   status: 'active' | 'maintenance' | 'inactive';
   currentKm: number;
-  fuelType: 'diesel' | 'gasoline' | 'ethanol';
+  fuelType: 'Diesel S10' | 'Diesel S500' | 'Arla 32' | 'Arla 42' | 'Etanol' | 'Gasolina';
+  axles: number;
   branches: string[];
   driverId?: string;
   hasComposition: boolean;
   compositionPlates?: string[];
+  compositionAxles?: number[];
   purchaseDate: string;
   purchaseValue: number;
 }
@@ -129,7 +131,8 @@ const mockVehicles: Vehicle[] = [
     vehicleType: 'Truck',
     status: 'active',
     currentKm: 85000,
-    fuelType: 'diesel',
+    fuelType: 'Diesel S10',
+    axles: 3,
     branches: ['Matriz', 'Filial SP'],
     driverId: '1',
     hasComposition: false,
@@ -148,11 +151,13 @@ const mockVehicles: Vehicle[] = [
     vehicleType: 'Bitrem',
     status: 'active',
     currentKm: 120000,
-    fuelType: 'diesel',
+    fuelType: 'Diesel S10',
+    axles: 3,
     branches: ['Matriz'],
     driverId: '2',
     hasComposition: true,
     compositionPlates: ['XYZ-1111', 'XYZ-2222'],
+    compositionAxles: [3, 3],
     purchaseDate: '2021-08-20',
     purchaseValue: 580000
   },
@@ -168,11 +173,13 @@ const mockVehicles: Vehicle[] = [
     vehicleType: 'Carreta',
     status: 'maintenance',
     currentKm: 45000,
-    fuelType: 'diesel',
+    fuelType: 'Diesel S500',
+    axles: 3,
     branches: ['Filial SP', 'Filial RJ'],
     driverId: '3',
     hasComposition: true,
     compositionPlates: ['KLM-3333'],
+    compositionAxles: [2],
     purchaseDate: '2023-01-10',
     purchaseValue: 720000
   }

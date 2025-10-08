@@ -129,6 +129,9 @@ export default function Vehicles() {
                   <p className="text-sm font-medium">
                     {vehicle.compositionPlates.length} {vehicle.compositionPlates.length === 1 ? 'reboque' : 'reboques'}
                   </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Total de eixos: {vehicle.axles + (vehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
+                  </p>
                 </div>
               )}
               {getDriverName(vehicle.driverId) && (

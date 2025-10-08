@@ -42,7 +42,8 @@ const vehicleSchema = z.object({
   vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Bitrem', 'Tritem', 'Container', 'Caçamba']),
   status: z.enum(['active', 'maintenance', 'inactive']),
   currentKm: z.number().min(0),
-  fuelType: z.enum(['diesel', 'gasoline', 'ethanol']),
+  fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Arla 42', 'Etanol', 'Gasolina']),
+  axles: z.number().min(1).max(20),
   purchaseDate: z.date(),
   purchaseValue: z.number().min(0),
 });
@@ -62,7 +63,11 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
   const [compositionPlates, setCompositionPlates] = useState<string[]>(
     initialData?.compositionPlates || []
   );
+  const [compositionAxles, setCompositionAxles] = useState<number[]>(
+    initialData?.compositionAxles || []
+  );
   const [newCompositionPlate, setNewCompositionPlate] = useState('');
+  const [newCompositionAxles, setNewCompositionAxles] = useState<number>(2);
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
 
   const form = useForm<VehicleFormData>({
@@ -79,15 +84,17 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       status: initialData.status,
       currentKm: initialData.currentKm,
       fuelType: initialData.fuelType,
+      axles: initialData.axles,
       purchaseDate: new Date(initialData.purchaseDate),
       purchaseValue: initialData.purchaseValue,
     } : {
       year: new Date().getFullYear(),
       currentKm: 0,
+      axles: 2,
       purchaseValue: 0,
       status: 'active',
       vehicleType: 'Truck',
-      fuelType: 'diesel',
+      fuelType: 'Diesel S10',
       purchaseDate: new Date(),
     },
   });
@@ -105,9 +112,11 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       status: data.status,
       currentKm: data.currentKm,
       fuelType: data.fuelType,
+      axles: data.axles,
       branches: selectedBranches,
       hasComposition: compositionPlates.length > 0,
       compositionPlates: compositionPlates.length > 0 ? compositionPlates : undefined,
+      compositionAxles: compositionAxles.length > 0 ? compositionAxles : undefined,
       driverId: selectedDriver,
       purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd'),
       purchaseValue: data.purchaseValue,
@@ -117,12 +126,15 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
   const addCompositionPlate = () => {
     if (newCompositionPlate.trim() && !compositionPlates.includes(newCompositionPlate.trim())) {
       setCompositionPlates([...compositionPlates, newCompositionPlate.trim()]);
+      setCompositionAxles([...compositionAxles, newCompositionAxles]);
       setNewCompositionPlate('');
+      setNewCompositionAxles(2);
     }
   };
 
-  const removeCompositionPlate = (plate: string) => {
-    setCompositionPlates(compositionPlates.filter(p => p !== plate));
+  const removeCompositionPlate = (index: number) => {
+    setCompositionPlates(compositionPlates.filter((_, i) => i !== index));
+    setCompositionAxles(compositionAxles.filter((_, i) => i !== index));
   };
 
   const toggleBranch = (branch: string) => {
@@ -302,11 +314,34 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="diesel">Diesel</SelectItem>
-                    <SelectItem value="gasoline">Gasolina</SelectItem>
-                    <SelectItem value="ethanol">Etanol</SelectItem>
+                    <SelectItem value="Diesel S10">Diesel S10</SelectItem>
+                    <SelectItem value="Diesel S500">Diesel S500</SelectItem>
+                    <SelectItem value="Arla 32">Arla 32</SelectItem>
+                    <SelectItem value="Arla 42">Arla 42</SelectItem>
+                    <SelectItem value="Gasolina">Gasolina</SelectItem>
+                    <SelectItem value="Etanol">Etanol</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="axles"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Quantidade de Eixos *</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    min="1"
+                    max="20"
+                    {...field} 
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -420,23 +455,51 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
               placeholder="Placa da composição"
               value={newCompositionPlate}
               onChange={(e) => setNewCompositionPlate(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCompositionPlate())}
+              className="flex-1"
             />
-            <Button type="button" onClick={addCompositionPlate} size="icon">
+            <Input
+              type="number"
+              placeholder="Eixos"
+              min="1"
+              max="10"
+              value={newCompositionAxles}
+              onChange={(e) => setNewCompositionAxles(parseInt(e.target.value) || 2)}
+              className="w-24"
+            />
+            <Button 
+              type="button" 
+              onClick={addCompositionPlate} 
+              size="icon"
+              disabled={!newCompositionPlate.trim()}
+            >
               <Plus className="h-4 w-4" />
             </Button>
           </div>
           {compositionPlates.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {compositionPlates.map((plate) => (
-                <Badge key={plate} variant="secondary" className="gap-1">
-                  {plate}
-                  <X
-                    className="h-3 w-3 cursor-pointer"
-                    onClick={() => removeCompositionPlate(plate)}
-                  />
-                </Badge>
+            <div className="space-y-2 mt-3">
+              {compositionPlates.map((plate, index) => (
+                <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{plate}</Badge>
+                    <span className="text-sm text-muted-foreground">
+                      {compositionAxles[index]} {compositionAxles[index] === 1 ? 'eixo' : 'eixos'}
+                    </span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeCompositionPlate(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               ))}
+              <div className="pt-2 border-t border-border">
+                <p className="text-sm font-medium">
+                  Total de Eixos: {form.watch('axles') + compositionAxles.reduce((sum, axles) => sum + axles, 0)}
+                </p>
+              </div>
             </div>
           )}
         </div>
