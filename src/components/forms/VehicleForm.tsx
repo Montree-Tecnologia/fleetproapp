@@ -459,12 +459,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             />
             <Input
               type="number"
-              placeholder="Eixos"
+              placeholder="Quantidade de Eixos"
               min="1"
               max="10"
               value={newCompositionAxles}
               onChange={(e) => setNewCompositionAxles(parseInt(e.target.value) || 2)}
-              className="w-24"
+              className="w-48"
             />
             <Button 
               type="button" 
