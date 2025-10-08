@@ -1,12 +1,33 @@
+import { useState } from 'react';
 import { useMockData } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus, Building, MapPin } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { SupplierForm } from '@/components/forms/SupplierForm';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Suppliers() {
-  const { suppliers } = useMockData();
+  const { suppliers, addSupplier } = useMockData();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
   const allSuppliers = suppliers();
+
+  const handleSubmit = (data: any) => {
+    addSupplier(data);
+    toast({
+      title: 'Fornecedor cadastrado',
+      description: 'Fornecedor adicionado com sucesso.',
+    });
+    setOpen(false);
+  };
 
   const getTypeBadge = (type: string) => {
     const variants = {
@@ -27,10 +48,24 @@ export default function Suppliers() {
             Cadastro de fornecedores e prestadores de serviço
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Fornecedor
-        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <Button onClick={() => setOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Fornecedor
+          </Button>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Cadastrar Fornecedor</DialogTitle>
+              <DialogDescription>
+                Adicione um novo fornecedor ou prestador de serviço
+              </DialogDescription>
+            </DialogHeader>
+            <SupplierForm
+              onSubmit={handleSubmit}
+              onCancel={() => setOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

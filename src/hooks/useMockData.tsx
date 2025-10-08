@@ -352,6 +352,11 @@ export function useMockData() {
 
   // Suppliers
   const getSuppliers = useCallback(() => suppliers, [suppliers]);
+  const addSupplier = useCallback((supplier: Omit<Supplier, 'id'>) => {
+    const newSupplier = { ...supplier, id: Date.now().toString() };
+    setSuppliers(prev => [...prev, newSupplier]);
+    return newSupplier;
+  }, []);
 
   // Users
   const getUsers = useCallback(() => users, [users]);
@@ -427,6 +432,7 @@ export function useMockData() {
     
     // Suppliers
     suppliers: getSuppliers,
+    addSupplier,
     
     // Users
     users: getUsers,
