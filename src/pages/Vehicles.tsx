@@ -257,6 +257,13 @@ export default function Vehicles() {
   };
 
   const calculateAverageConsumption = (vehicleId: string): number | null => {
+    const vehicle = allVehicles.find(v => v.id === vehicleId);
+    
+    // Nunca calcular consumo para veículos de reboque
+    if (vehicle && trailerVehicleTypes.includes(vehicle.vehicleType)) {
+      return null;
+    }
+    
     const vehicleRefuelings = allRefuelings
       .filter(r => r.vehicleId === vehicleId)
       .sort((a, b) => a.km - b.km);
@@ -450,17 +457,19 @@ export default function Vehicles() {
                     <span className="text-muted-foreground">KM Atual:</span>
                     <p className="font-medium">{viewingVehicle.currentKm.toLocaleString('pt-BR')}</p>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">Consumo Médio:</span>
-                    <p className="font-medium">
-                      {(() => {
-                        const avgConsumption = calculateAverageConsumption(viewingVehicle.id);
-                        return avgConsumption 
-                          ? `${avgConsumption.toFixed(2)} km/l` 
-                          : 'Dados insuficientes';
-                      })()}
-                    </p>
-                  </div>
+                  {tractionVehicleTypes.includes(viewingVehicle.vehicleType) && (
+                    <div>
+                      <span className="text-muted-foreground">Consumo Médio:</span>
+                      <p className="font-medium">
+                        {(() => {
+                          const avgConsumption = calculateAverageConsumption(viewingVehicle.id);
+                          return avgConsumption 
+                            ? `${avgConsumption.toFixed(2)} km/l` 
+                            : 'Dados insuficientes';
+                        })()}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
