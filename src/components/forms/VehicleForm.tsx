@@ -639,34 +639,6 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="renavam"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>RENAVAM *</FormLabel>
-                <FormControl>
-                  <Input placeholder="00123456789" maxLength={11} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="chassis"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Chassis *</FormLabel>
-                <FormControl>
-                  <Input placeholder="9BWZZZ377VT004251" maxLength={17} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           {vehicleCategory === 'trailer' ? (
             <>
               <FormField
@@ -691,6 +663,34 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
               <FormField
                 control={form.control}
+                name="chassis"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chassis *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="9BWZZZ377VT004251" maxLength={17} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="renavam"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>RENAVAM *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="00123456789" maxLength={11} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="color"
                 render={({ field }) => (
                   <FormItem>
@@ -705,6 +705,34 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             </>
           ) : (
             <>
+              <FormField
+                control={form.control}
+                name="renavam"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>RENAVAM *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="00123456789" maxLength={11} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="chassis"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chassis *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="9BWZZZ377VT004251" maxLength={17} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="color"
