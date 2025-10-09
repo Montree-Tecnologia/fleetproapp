@@ -2,8 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Truck, Pencil, Trash2, Eye, DollarSign } from 'lucide-react';
+import { Truck, Pencil, Trash2, Eye, DollarSign, Link2, Plus, X } from 'lucide-react';
 import { Vehicle } from '@/hooks/useMockData';
+import { useState } from 'react';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -11,6 +12,7 @@ interface VehicleCardProps {
   getRefrigerationUnit: (vehicleId: string) => any;
   calculateAverageConsumption: (vehicleId: string) => number | null;
   allDrivers: any[];
+  allVehicles: Vehicle[];
   handleDriverChange: (vehicleId: string, driverId: string) => void;
   handleStatusChange: (vehicleId: string, status: string) => void;
   handleViewDetails: (vehicle: Vehicle) => void;
@@ -18,6 +20,8 @@ interface VehicleCardProps {
   handleSellVehicle: (vehicle: Vehicle) => void;
   handleDelete: (vehicle: Vehicle) => void;
   handleReverseSale: (vehicle: Vehicle) => void;
+  handleAddComposition: (vehicleId: string, trailerId: string) => void;
+  handleRemoveComposition: (vehicleId: string, trailerPlate: string) => void;
   isAdmin: () => boolean;
 }
 
@@ -27,6 +31,7 @@ export function VehicleCard({
   getRefrigerationUnit,
   calculateAverageConsumption,
   allDrivers,
+  allVehicles,
   handleDriverChange,
   handleStatusChange,
   handleViewDetails,
@@ -34,8 +39,36 @@ export function VehicleCard({
   handleSellVehicle,
   handleDelete,
   handleReverseSale,
+  handleAddComposition,
+  handleRemoveComposition,
   isAdmin,
 }: VehicleCardProps) {
+  const [showAddComposition, setShowAddComposition] = useState(false);
+  
+  const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
+  const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
+  const isTractionVehicle = tractionVehicleTypes.includes(vehicle.vehicleType);
+  
+  // Veículos de reboque disponíveis para adicionar
+  const availableTrailers = allVehicles.filter(v => {
+    if (!trailerVehicleTypes.includes(v.vehicleType)) return false;
+    if (v.status !== 'active') return false;
+    if (vehicle.compositionPlates?.includes(v.plate)) return false;
+    
+    // Verifica se o reboque já está vinculado a outro veículo de tração
+    const isLinkedToOther = allVehicles.some(vehicle2 => 
+      vehicle2.id !== vehicle.id &&
+      vehicle2.hasComposition && 
+      vehicle2.compositionPlates?.includes(v.plate)
+    );
+    
+    return !isLinkedToOther;
+  });
+  
+  // Encontra os detalhes dos reboques vinculados
+  const linkedTrailers = vehicle.compositionPlates?.map(plate => 
+    allVehicles.find(v => v.plate === plate)
+  ).filter(Boolean) || [];
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -112,26 +145,88 @@ export function VehicleCard({
           </div>
         </div>
         
-        <div className="pt-3 border-t border-border">
-          <span className="text-sm text-muted-foreground">Composições:</span>
-          {vehicle.hasComposition && vehicle.compositionPlates && vehicle.compositionPlates.length > 0 ? (
-            <>
-              <p className="text-sm font-medium">
-                {vehicle.compositionPlates.length} {vehicle.compositionPlates.length === 1 ? 'reboque' : 'reboques'}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Total de eixos: {vehicle.axles + (vehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="text-sm font-medium">Sem Composições</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Total de eixos: {vehicle.axles}
-              </p>
-            </>
-          )}
-        </div>
+        {isTractionVehicle && (
+          <div className="pt-3 border-t border-border">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-muted-foreground">Composições:</span>
+              {vehicle.status !== 'sold' && vehicle.status === 'active' && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-6 px-2"
+                  onClick={() => setShowAddComposition(!showAddComposition)}
+                >
+                  {showAddComposition ? (
+                    <X className="h-3 w-3" />
+                  ) : (
+                    <Plus className="h-3 w-3" />
+                  )}
+                </Button>
+              )}
+            </div>
+            
+            {showAddComposition && availableTrailers.length > 0 && (
+              <div className="mb-2">
+                <Select
+                  onValueChange={(trailerId) => {
+                    handleAddComposition(vehicle.id, trailerId);
+                    setShowAddComposition(false);
+                  }}
+                >
+                  <SelectTrigger className="w-full h-8 text-xs">
+                    <SelectValue placeholder="Selecione um reboque" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTrailers.map((trailer) => (
+                      <SelectItem key={trailer.id} value={trailer.id}>
+                        {trailer.plate} - {trailer.vehicleType} ({trailer.axles} eixos)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
+            {linkedTrailers.length > 0 ? (
+              <div className="space-y-1.5">
+                {linkedTrailers.map((trailer) => (
+                  <div
+                    key={trailer?.id}
+                    className="flex items-center justify-between p-2 bg-muted/50 rounded-md"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Link2 className="h-3 w-3 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs font-medium">{trailer?.plate}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {trailer?.vehicleType} - {trailer?.axles} eixos
+                        </p>
+                      </div>
+                    </div>
+                    {vehicle.status !== 'sold' && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0"
+                        onClick={() => handleRemoveComposition(vehicle.id, trailer!.plate)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <p className="text-xs text-muted-foreground mt-2">
+                  Total de eixos: {vehicle.axles + (vehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
+                </p>
+              </div>
+            ) : (
+              <div className="text-xs text-muted-foreground">
+                <p>Nenhuma composição vinculada</p>
+                <p className="mt-1">Total de eixos: {vehicle.axles}</p>
+              </div>
+            )}
+          </div>
+        )}
         
         {!['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'].includes(vehicle.vehicleType) && (
           <div className="pt-3 border-t border-border">

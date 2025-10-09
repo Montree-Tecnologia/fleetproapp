@@ -181,6 +181,43 @@ export default function Vehicles() {
     }
   };
 
+  const handleAddComposition = (vehicleId: string, trailerId: string) => {
+    const vehicle = allVehicles.find(v => v.id === vehicleId);
+    const trailer = allVehicles.find(v => v.id === trailerId);
+    
+    if (!vehicle || !trailer) return;
+    
+    const newCompositionPlates = [...(vehicle.compositionPlates || []), trailer.plate];
+    const newCompositionAxles = [...(vehicle.compositionAxles || []), trailer.axles];
+    
+    updateVehicle(vehicleId, {
+      hasComposition: true,
+      compositionPlates: newCompositionPlates,
+      compositionAxles: newCompositionAxles
+    });
+    
+    toast.success(`Reboque ${trailer.plate} vinculado ao veículo`);
+  };
+
+  const handleRemoveComposition = (vehicleId: string, trailerPlate: string) => {
+    const vehicle = allVehicles.find(v => v.id === vehicleId);
+    if (!vehicle || !vehicle.compositionPlates) return;
+    
+    const plateIndex = vehicle.compositionPlates.indexOf(trailerPlate);
+    if (plateIndex === -1) return;
+    
+    const newCompositionPlates = vehicle.compositionPlates.filter((_, i) => i !== plateIndex);
+    const newCompositionAxles = vehicle.compositionAxles?.filter((_, i) => i !== plateIndex) || [];
+    
+    updateVehicle(vehicleId, {
+      hasComposition: newCompositionPlates.length > 0,
+      compositionPlates: newCompositionPlates,
+      compositionAxles: newCompositionAxles
+    });
+    
+    toast.success(`Reboque ${trailerPlate} desvinculado do veículo`);
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
@@ -695,6 +732,7 @@ export default function Vehicles() {
                 getRefrigerationUnit={getRefrigerationUnitByVehicle}
                 calculateAverageConsumption={calculateAverageConsumption}
                 allDrivers={allDrivers}
+                allVehicles={allVehicles}
                 handleDriverChange={handleDriverChange}
                 handleStatusChange={handleStatusChange}
                 handleViewDetails={handleViewDetails}
@@ -702,6 +740,8 @@ export default function Vehicles() {
                 handleSellVehicle={handleSellVehicle}
                 handleDelete={handleDelete}
                 handleReverseSale={handleReverseSale}
+                handleAddComposition={handleAddComposition}
+                handleRemoveComposition={handleRemoveComposition}
                 isAdmin={isAdmin}
               />
             ))}
@@ -718,6 +758,7 @@ export default function Vehicles() {
                 getRefrigerationUnit={getRefrigerationUnitByVehicle}
                 calculateAverageConsumption={calculateAverageConsumption}
                 allDrivers={allDrivers}
+                allVehicles={allVehicles}
                 handleDriverChange={handleDriverChange}
                 handleStatusChange={handleStatusChange}
                 handleViewDetails={handleViewDetails}
@@ -725,6 +766,8 @@ export default function Vehicles() {
                 handleSellVehicle={handleSellVehicle}
                 handleDelete={handleDelete}
                 handleReverseSale={handleReverseSale}
+                handleAddComposition={handleAddComposition}
+                handleRemoveComposition={handleRemoveComposition}
                 isAdmin={isAdmin}
               />
             ))}
