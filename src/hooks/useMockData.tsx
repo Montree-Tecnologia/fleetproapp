@@ -35,6 +35,7 @@ export interface Vehicle {
   vehicleType: 'Truck' | 'Baú' | 'Carreta' | 'Graneleiro' | 'Bitrem' | 'Tritem' | 'Container' | 'Caçamba';
   status: 'active' | 'maintenance' | 'inactive' | 'sold';
   purchaseKm: number;
+  currentKm: number;
   fuelType: 'Diesel S10' | 'Diesel S500' | 'Arla 32' | 'Arla 42' | 'Etanol' | 'Gasolina';
   axles: number;
   branches: string[];
@@ -161,6 +162,7 @@ const mockVehicles: Vehicle[] = [
     vehicleType: 'Truck',
     status: 'active',
     purchaseKm: 85000,
+    currentKm: 125000,
     fuelType: 'Diesel S10',
     axles: 3,
     branches: ['Matriz', 'Filial SP'],
@@ -188,6 +190,7 @@ const mockVehicles: Vehicle[] = [
     vehicleType: 'Bitrem',
     status: 'active',
     purchaseKm: 120000,
+    currentKm: 185000,
     fuelType: 'Diesel S10',
     axles: 3,
     branches: ['Matriz'],
@@ -216,6 +219,7 @@ const mockVehicles: Vehicle[] = [
     vehicleType: 'Carreta',
     status: 'maintenance',
     purchaseKm: 45000,
+    currentKm: 52000,
     fuelType: 'Diesel S500',
     axles: 3,
     branches: ['Filial SP', 'Filial RJ'],
@@ -416,13 +420,26 @@ export function useMockData() {
   // Vehicles
   const getVehicles = useCallback(() => vehicles, [vehicles]);
   const getVehicle = useCallback((id: string) => vehicles.find(v => v.id === id), [vehicles]);
-  const addVehicle = useCallback((vehicle: Omit<Vehicle, 'id'>) => {
-    const newVehicle = { ...vehicle, id: Date.now().toString() };
+  const addVehicle = useCallback((vehicle: Omit<Vehicle, 'id' | 'currentKm'>) => {
+    const newVehicle = { 
+      ...vehicle, 
+      id: Date.now().toString(),
+      currentKm: vehicle.purchaseKm, // Inicializa currentKm com purchaseKm
+    };
     setVehicles(prev => [...prev, newVehicle]);
     return newVehicle;
   }, []);
   const updateVehicle = useCallback((id: string, data: Partial<Vehicle>) => {
-    setVehicles(prev => prev.map(v => v.id === id ? { ...v, ...data } : v));
+    setVehicles(prev => prev.map(v => {
+      if (v.id === id) {
+        // Se purchaseKm for atualizado e currentKm for menor, atualiza currentKm também
+        if (data.purchaseKm && v.currentKm < data.purchaseKm) {
+          return { ...v, ...data, currentKm: data.purchaseKm };
+        }
+        return { ...v, ...data };
+      }
+      return v;
+    }));
   }, []);
   const deleteVehicle = useCallback((id: string) => {
     setVehicles(prev => prev.filter(v => v.id !== id));
@@ -435,7 +452,7 @@ export function useMockData() {
             previousStatus: v.status as 'active' | 'maintenance' | 'inactive',
             status: 'sold' as const, 
             saleInfo: saleData, 
-            purchaseKm: saleData.km,
+            currentKm: saleData.km,
             driverId: undefined
           } 
         : v
@@ -462,6 +479,14 @@ export function useMockData() {
   const addRefueling = useCallback((refueling: Omit<Refueling, 'id'>) => {
     const newRefueling = { ...refueling, id: Date.now().toString() };
     setRefuelings(prev => [...prev, newRefueling]);
+    
+    // Atualiza o currentKm do veículo com o KM do abastecimento
+    setVehicles(prev => prev.map(v => 
+      v.id === refueling.vehicleId 
+        ? { ...v, currentKm: Math.max(v.currentKm, refueling.km) } 
+        : v
+    ));
+    
     return newRefueling;
   }, []);
   const updateRefueling = useCallback((id: string, data: Partial<Refueling>) => {
@@ -538,7 +563,7 @@ export function useMockData() {
   const getDashboardStats = useCallback(() => {
     const activeVehicles = vehicles.filter(v => v.status === 'active').length;
     const maintenanceVehicles = vehicles.filter(v => v.status === 'maintenance').length;
-    const totalKm = vehicles.reduce((sum, v) => sum + v.purchaseKm, 0);
+    const totalKm = vehicles.reduce((sum, v) => sum + v.currentKm, 0);
     
     const thisMonthRefuelings = refuelings.filter(r => {
       const refuelDate = new Date(r.date);

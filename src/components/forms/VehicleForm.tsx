@@ -149,7 +149,7 @@ const vehicleSchema = z.object({
 type VehicleFormData = z.infer<typeof vehicleSchema>;
 
 interface VehicleFormProps {
-  onSubmit: (data: Omit<Vehicle, 'id'>) => void;
+  onSubmit: (data: Omit<Vehicle, 'id' | 'currentKm'>) => void;
   onCancel: () => void;
   initialData?: Vehicle;
 }

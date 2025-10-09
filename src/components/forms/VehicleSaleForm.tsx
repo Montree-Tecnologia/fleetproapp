@@ -96,7 +96,7 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm }: VehicleSaleFo
   const handleSubmit = (data: VehicleSaleFormData) => {
     if (data.km < currentKm) {
       form.setError('km', { 
-        message: `KM deve ser maior ou igual ao KM de compra do veículo (${currentKm.toLocaleString('pt-BR')})` 
+        message: `KM deve ser maior ou igual ao KM atual do veículo (${currentKm.toLocaleString('pt-BR')})` 
       });
       return;
     }

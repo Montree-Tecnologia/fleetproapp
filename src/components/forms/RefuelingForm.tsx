@@ -116,9 +116,9 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   const handleSubmit = (data: RefuelingFormData) => {
     const vehicle = vehicles.find(v => v.id === data.vehicleId);
     
-    if (vehicle && data.km < vehicle.purchaseKm) {
+    if (vehicle && data.km < vehicle.currentKm) {
       form.setError('km', { 
-        message: `KM deve ser maior ou igual ao KM de compra do veículo (${vehicle.purchaseKm.toLocaleString('pt-BR')})` 
+        message: `KM deve ser maior ou igual ao KM atual do veículo (${vehicle.currentKm.toLocaleString('pt-BR')})` 
       });
       return;
     }
