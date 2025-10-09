@@ -193,7 +193,7 @@ const vehicleSchema = z.object({
   manufacturingYear: z.number().min(1900).max(new Date().getFullYear() + 1),
   modelYear: z.number().min(1900).max(new Date().getFullYear() + 1),
   color: z.string().min(1, 'Cor é obrigatória'),
-  vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Cavalo Mecânico', 'Baú Frigorífico', 'Toco']),
+  vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Cavalo Mecânico', 'Baú Frigorífico', 'Toco', 'VUC', '3/4', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Bitruck', 'Rodotrem']),
   status: z.enum(['active', 'maintenance', 'inactive', 'sold']),
   purchaseKm: z.number().min(0),
   fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Arla 42', 'Etanol', 'Gasolina']),
@@ -234,8 +234,8 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     initialData?.ownerBranch || 'Matriz'
   );
 
-  const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco'];
-  const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico'];
+  const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
+  const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
 
   // Filtra veículos de reboque ativos disponíveis para composição
   const availableTrailerVehicles = availableVehicles.filter(v => 
@@ -435,7 +435,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 }`}
               >
                 <div className="font-semibold mb-1">Veículo de Tração</div>
-                <div className="text-xs text-muted-foreground">Truck, Cavalo Mecânico, Toco</div>
+                <div className="text-xs text-muted-foreground">Truck, Cavalo Mecânico, Toco, VUC, 3/4, Bitruck</div>
               </button>
               <button
                 type="button"
@@ -450,7 +450,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 }`}
               >
                 <div className="font-semibold mb-1">Veículo de Reboque</div>
-                <div className="text-xs text-muted-foreground">Baú, Carreta, Graneleiro, etc.</div>
+                <div className="text-xs text-muted-foreground">Baú, Sider, Carreta, Graneleiro, etc.</div>
               </button>
             </div>
           </div>
@@ -494,6 +494,9 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                           <SelectItem value="Truck">Truck</SelectItem>
                           <SelectItem value="Cavalo Mecânico">Cavalo Mecânico</SelectItem>
                           <SelectItem value="Toco">Toco</SelectItem>
+                          <SelectItem value="VUC">VUC</SelectItem>
+                          <SelectItem value="3/4">3/4</SelectItem>
+                          <SelectItem value="Bitruck">Bitruck</SelectItem>
                         </>
                       )}
                       {initialData && !vehicleCategory && (
@@ -507,6 +510,14 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                           <SelectItem value="Cavalo Mecânico">Cavalo Mecânico</SelectItem>
                           <SelectItem value="Baú Frigorífico">Baú Frigorífico</SelectItem>
                           <SelectItem value="Toco">Toco</SelectItem>
+                          <SelectItem value="VUC">VUC</SelectItem>
+                          <SelectItem value="3/4">3/4</SelectItem>
+                          <SelectItem value="Sider">Sider</SelectItem>
+                          <SelectItem value="Prancha">Prancha</SelectItem>
+                          <SelectItem value="Tanque">Tanque</SelectItem>
+                          <SelectItem value="Cegonheiro">Cegonheiro</SelectItem>
+                          <SelectItem value="Bitruck">Bitruck</SelectItem>
+                          <SelectItem value="Rodotrem">Rodotrem</SelectItem>
                         </>
                       )}
                     </SelectContent>

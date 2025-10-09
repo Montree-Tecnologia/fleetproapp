@@ -180,8 +180,8 @@ export default function Vehicles() {
     return totalKmTraveled / totalLiters;
   };
 
-  const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco'];
-  const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico'];
+  const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
+  const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
 
   const filteredVehicles = allVehicles.filter(vehicle => {
     const search = searchTerm.toLowerCase();

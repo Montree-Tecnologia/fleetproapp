@@ -133,7 +133,7 @@ export function VehicleCard({
           )}
         </div>
         
-        {!['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico'].includes(vehicle.vehicleType) && (
+        {!['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'].includes(vehicle.vehicleType) && (
           <div className="pt-3 border-t border-border">
             <span className="text-sm text-muted-foreground mb-2 block">Vincular Motorista:</span>
             <Select
