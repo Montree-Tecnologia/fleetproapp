@@ -382,6 +382,12 @@ export function useMockData() {
     setRefuelings(prev => [...prev, newRefueling]);
     return newRefueling;
   }, []);
+  const updateRefueling = useCallback((id: string, data: Partial<Refueling>) => {
+    setRefuelings(prev => prev.map(r => r.id === id ? { ...r, ...data } : r));
+  }, []);
+  const deleteRefueling = useCallback((id: string) => {
+    setRefuelings(prev => prev.filter(r => r.id !== id));
+  }, []);
 
   // Refrigeration Units
   const getRefrigerationUnits = useCallback(() => refrigerationUnits, [refrigerationUnits]);
@@ -493,6 +499,8 @@ export function useMockData() {
     refuelings: getRefuelings,
     getRefuelingsByVehicle,
     addRefueling,
+    updateRefueling,
+    deleteRefueling,
     
     // Refrigeration
     refrigerationUnits: getRefrigerationUnits,
