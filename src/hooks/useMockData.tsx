@@ -13,6 +13,16 @@ export interface Driver {
   branches: string[];
 }
 
+export interface VehicleSale {
+  buyerName: string;
+  buyerCpfCnpj: string;
+  saleDate: string;
+  km: number;
+  salePrice: number;
+  paymentReceipt?: string;
+  transferDocument?: string;
+}
+
 export interface Vehicle {
   id: string;
   plate: string;
@@ -23,7 +33,7 @@ export interface Vehicle {
   year: number;
   color: string;
   vehicleType: 'Truck' | 'Baú' | 'Carreta' | 'Graneleiro' | 'Bitrem' | 'Tritem' | 'Container' | 'Caçamba';
-  status: 'active' | 'maintenance' | 'inactive';
+  status: 'active' | 'maintenance' | 'inactive' | 'sold';
   currentKm: number;
   fuelType: 'Diesel S10' | 'Diesel S500' | 'Arla 32' | 'Arla 42' | 'Etanol' | 'Gasolina';
   axles: number;
@@ -36,6 +46,7 @@ export interface Vehicle {
   purchaseValue: number;
   images?: string[];
   crlvDocument?: string;
+  saleInfo?: VehicleSale;
 }
 
 export interface Refueling {
@@ -411,6 +422,13 @@ export function useMockData() {
   const deleteVehicle = useCallback((id: string) => {
     setVehicles(prev => prev.filter(v => v.id !== id));
   }, []);
+  const sellVehicle = useCallback((id: string, saleData: VehicleSale) => {
+    setVehicles(prev => prev.map(v => 
+      v.id === id 
+        ? { ...v, status: 'sold' as const, saleInfo: saleData, currentKm: saleData.km } 
+        : v
+    ));
+  }, []);
 
   // Refuelings
   const getRefuelings = useCallback(() => refuelings, [refuelings]);
@@ -533,6 +551,7 @@ export function useMockData() {
     addVehicle,
     updateVehicle,
     deleteVehicle,
+    sellVehicle,
     
     // Refuelings
     refuelings: getRefuelings,

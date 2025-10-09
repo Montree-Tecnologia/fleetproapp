@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search } from 'lucide-react';
+import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -29,11 +29,12 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { VehicleForm } from '@/components/forms/VehicleForm';
+import { VehicleSaleForm, VehicleSale } from '@/components/forms/VehicleSaleForm';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function Vehicles() {
-  const { vehicles, drivers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle } = useMockData();
+  const { vehicles, drivers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle } = useMockData();
   const allVehicles = vehicles();
   const allDrivers = drivers();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -44,6 +45,8 @@ export default function Vehicles() {
   const [viewingVehicle, setViewingVehicle] = useState<Vehicle | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [saleDialogOpen, setSaleDialogOpen] = useState(false);
+  const [vehicleToSell, setVehicleToSell] = useState<Vehicle | null>(null);
 
   const getDriverName = (driverId?: string) => {
     if (!driverId) return null;
@@ -55,7 +58,8 @@ export default function Vehicles() {
     const variants = {
       active: { label: 'Ativo', variant: 'default' as const },
       maintenance: { label: 'Manutenção', className: 'bg-warning text-warning-foreground' },
-      inactive: { label: 'Inativo', variant: 'destructive' as const }
+      inactive: { label: 'Inativo', variant: 'destructive' as const },
+      sold: { label: 'Vendido', className: 'bg-gray-500 text-white' }
     };
     const config = variants[status as keyof typeof variants];
     return 'variant' in config ? (
@@ -86,6 +90,20 @@ export default function Vehicles() {
       toast.success(`Veículo ${vehicleToDelete.plate} excluído com sucesso!`);
       setVehicleToDelete(null);
       setDeleteDialogOpen(false);
+    }
+  };
+
+  const handleSellVehicle = (vehicle: Vehicle) => {
+    setVehicleToSell(vehicle);
+    setSaleDialogOpen(true);
+  };
+
+  const handleConfirmSale = (saleData: VehicleSale) => {
+    if (vehicleToSell) {
+      sellVehicle(vehicleToSell.id, saleData);
+      toast.success(`Veículo ${vehicleToSell.plate} vendido com sucesso!`);
+      setVehicleToSell(null);
+      setSaleDialogOpen(false);
     }
   };
 
@@ -413,6 +431,80 @@ export default function Vehicles() {
                   })()}
                 </div>
               )}
+
+              {viewingVehicle.status === 'sold' && viewingVehicle.saleInfo && (
+                <div className="border-t pt-4">
+                  <h3 className="font-semibold mb-3 text-lg">Informações da Venda</h3>
+                  <div className="space-y-4 bg-green-500/5 p-4 rounded-lg border border-green-500/20">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Comprador:</span>
+                        <p className="font-semibold text-base">{viewingVehicle.saleInfo.buyerName}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">CPF/CNPJ:</span>
+                        <p className="font-medium">{viewingVehicle.saleInfo.buyerCpfCnpj}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Data da Venda:</span>
+                        <p className="font-medium">{formatDate(viewingVehicle.saleInfo.saleDate)}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Quilometragem na Venda:</span>
+                        <p className="font-medium">{viewingVehicle.saleInfo.km.toLocaleString('pt-BR')} km</p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-muted-foreground">Preço de Venda:</span>
+                        <p className="font-bold text-2xl text-green-600">{formatCurrency(viewingVehicle.saleInfo.salePrice)}</p>
+                      </div>
+                    </div>
+
+                    {(viewingVehicle.saleInfo.paymentReceipt || viewingVehicle.saleInfo.transferDocument) && (
+                      <div className="pt-4 border-t border-green-500/20">
+                        <h4 className="font-semibold mb-3">Documentos da Venda</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          {viewingVehicle.saleInfo.paymentReceipt && (
+                            <div className="space-y-2">
+                              <span className="text-sm font-medium text-muted-foreground">Comprovante de Recebimento</span>
+                              {viewingVehicle.saleInfo.paymentReceipt.startsWith('data:image') ? (
+                                <img
+                                  src={viewingVehicle.saleInfo.paymentReceipt}
+                                  alt="Comprovante"
+                                  className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
+                                  onClick={() => window.open(viewingVehicle.saleInfo!.paymentReceipt, '_blank')}
+                                />
+                              ) : (
+                                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                                  <FileText className="h-5 w-5" />
+                                  <span className="text-sm">Comprovante anexado</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {viewingVehicle.saleInfo.transferDocument && (
+                            <div className="space-y-2">
+                              <span className="text-sm font-medium text-muted-foreground">CRV Assinado</span>
+                              {viewingVehicle.saleInfo.transferDocument.startsWith('data:image') ? (
+                                <img
+                                  src={viewingVehicle.saleInfo.transferDocument}
+                                  alt="CRV"
+                                  className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
+                                  onClick={() => window.open(viewingVehicle.saleInfo!.transferDocument, '_blank')}
+                                />
+                              ) : (
+                                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                                  <FileText className="h-5 w-5" />
+                                  <span className="text-sm">CRV anexado</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
@@ -428,6 +520,24 @@ export default function Vehicles() {
               src={selectedImage}
               alt="Imagem ampliada"
               className="w-full h-auto max-h-[70vh] object-contain rounded-lg"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={saleDialogOpen} onOpenChange={setSaleDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Venda de Veículo - {vehicleToSell?.plate}</DialogTitle>
+            <DialogDescription>
+              Preencha os dados da venda do veículo
+            </DialogDescription>
+          </DialogHeader>
+          {vehicleToSell && (
+            <VehicleSaleForm
+              onSubmit={handleConfirmSale}
+              onCancel={() => setSaleDialogOpen(false)}
+              currentKm={vehicleToSell.currentKm}
             />
           )}
         </DialogContent>
@@ -573,20 +683,32 @@ export default function Vehicles() {
                   <Eye className="h-4 w-4 mr-2" />
                   Detalhes
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleEdit(vehicle)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => handleDelete(vehicle)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                {vehicle.status !== 'sold' && (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEdit(vehicle)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleSellVehicle(vehicle)}
+                      className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                    >
+                      <DollarSign className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDelete(vehicle)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
