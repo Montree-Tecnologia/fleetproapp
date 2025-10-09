@@ -138,7 +138,7 @@ const vehicleSchema = z.object({
   color: z.string().min(1, 'Cor é obrigatória'),
   vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Bitrem', 'Tritem', 'Container', 'Caçamba']),
   status: z.enum(['active', 'maintenance', 'inactive', 'sold']),
-  currentKm: z.number().min(0),
+  purchaseKm: z.number().min(0),
   fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Arla 42', 'Etanol', 'Gasolina']),
   axles: z.number().min(1).max(20),
   purchaseDate: z.date(),
@@ -187,7 +187,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       color: initialData.color,
       vehicleType: initialData.vehicleType,
       status: initialData.status,
-      currentKm: initialData.currentKm,
+      purchaseKm: initialData.purchaseKm,
       fuelType: initialData.fuelType,
       axles: initialData.axles,
       purchaseDate: new Date(initialData.purchaseDate),
@@ -195,7 +195,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       ownerBranch: initialData.ownerBranch || 'Matriz',
     } : {
       year: new Date().getFullYear(),
-      currentKm: 0,
+      purchaseKm: 0,
       axles: 2,
       purchaseValue: 0,
       status: 'active',
@@ -256,7 +256,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       color: data.color,
       vehicleType: data.vehicleType,
       status: data.status,
-      currentKm: data.currentKm,
+      purchaseKm: data.purchaseKm,
       fuelType: data.fuelType,
       axles: data.axles,
       branches: selectedBranches,
@@ -477,10 +477,10 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
           <FormField
             control={form.control}
-            name="currentKm"
+            name="purchaseKm"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>KM Atual *</FormLabel>
+                <FormLabel>KM de Compra *</FormLabel>
                 <FormControl>
                   <Input 
                     type="number" 

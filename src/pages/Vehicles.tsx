@@ -314,8 +314,8 @@ export default function Vehicles() {
                     <div className="mt-1">{getStatusBadge(viewingVehicle.status)}</div>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">KM Atual:</span>
-                    <p className="font-medium">{viewingVehicle.currentKm.toLocaleString('pt-BR')}</p>
+                    <span className="text-muted-foreground">KM de Compra:</span>
+                    <p className="font-medium">{viewingVehicle.purchaseKm.toLocaleString('pt-BR')}</p>
                   </div>
                 </div>
               </div>
@@ -586,7 +586,7 @@ export default function Vehicles() {
             <VehicleSaleForm
               onSubmit={handleConfirmSale}
               onCancel={() => setSaleDialogOpen(false)}
-              currentKm={vehicleToSell.currentKm}
+              currentKm={vehicleToSell.purchaseKm}
             />
           )}
         </DialogContent>
@@ -649,8 +649,8 @@ export default function Vehicles() {
                   <p className="font-medium">{vehicle.year}</p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">KM Atual:</span>
-                  <p className="font-medium">{vehicle.currentKm.toLocaleString('pt-BR')}</p>
+                  <span className="text-muted-foreground">KM de Compra:</span>
+                  <p className="font-medium">{vehicle.purchaseKm.toLocaleString('pt-BR')}</p>
                 </div>
                 <div className="col-span-2">
                   <span className="text-muted-foreground">Filiais Vinculadas:</span>

@@ -124,7 +124,7 @@ export default function Dashboard() {
           <CardContent>
             <div className="space-y-3">
               {allVehicles
-                .sort((a, b) => b.currentKm - a.currentKm)
+                .sort((a, b) => b.purchaseKm - a.purchaseKm)
                 .slice(0, 5)
                 .map((vehicle) => (
                   <div key={vehicle.id} className="flex items-center justify-between">
@@ -133,7 +133,7 @@ export default function Dashboard() {
                       <p className="text-xs text-muted-foreground">{vehicle.model}</p>
                     </div>
                     <span className="text-sm font-bold">
-                      {vehicle.currentKm.toLocaleString('pt-BR')} km
+                      {vehicle.purchaseKm.toLocaleString('pt-BR')} km
                     </span>
                   </div>
                 ))}

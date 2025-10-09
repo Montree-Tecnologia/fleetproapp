@@ -34,7 +34,7 @@ export interface Vehicle {
   color: string;
   vehicleType: 'Truck' | 'Baú' | 'Carreta' | 'Graneleiro' | 'Bitrem' | 'Tritem' | 'Container' | 'Caçamba';
   status: 'active' | 'maintenance' | 'inactive' | 'sold';
-  currentKm: number;
+  purchaseKm: number;
   fuelType: 'Diesel S10' | 'Diesel S500' | 'Arla 32' | 'Arla 42' | 'Etanol' | 'Gasolina';
   axles: number;
   branches: string[];
@@ -160,7 +160,7 @@ const mockVehicles: Vehicle[] = [
     color: 'Branco',
     vehicleType: 'Truck',
     status: 'active',
-    currentKm: 85000,
+    purchaseKm: 85000,
     fuelType: 'Diesel S10',
     axles: 3,
     branches: ['Matriz', 'Filial SP'],
@@ -187,7 +187,7 @@ const mockVehicles: Vehicle[] = [
     color: 'Vermelho',
     vehicleType: 'Bitrem',
     status: 'active',
-    currentKm: 120000,
+    purchaseKm: 120000,
     fuelType: 'Diesel S10',
     axles: 3,
     branches: ['Matriz'],
@@ -215,7 +215,7 @@ const mockVehicles: Vehicle[] = [
     color: 'Prata',
     vehicleType: 'Carreta',
     status: 'maintenance',
-    currentKm: 45000,
+    purchaseKm: 45000,
     fuelType: 'Diesel S500',
     axles: 3,
     branches: ['Filial SP', 'Filial RJ'],
@@ -435,7 +435,7 @@ export function useMockData() {
             previousStatus: v.status as 'active' | 'maintenance' | 'inactive',
             status: 'sold' as const, 
             saleInfo: saleData, 
-            currentKm: saleData.km,
+            purchaseKm: saleData.km,
             driverId: undefined
           } 
         : v
@@ -538,7 +538,7 @@ export function useMockData() {
   const getDashboardStats = useCallback(() => {
     const activeVehicles = vehicles.filter(v => v.status === 'active').length;
     const maintenanceVehicles = vehicles.filter(v => v.status === 'maintenance').length;
-    const totalKm = vehicles.reduce((sum, v) => sum + v.currentKm, 0);
+    const totalKm = vehicles.reduce((sum, v) => sum + v.purchaseKm, 0);
     
     const thisMonthRefuelings = refuelings.filter(r => {
       const refuelDate = new Date(r.date);
