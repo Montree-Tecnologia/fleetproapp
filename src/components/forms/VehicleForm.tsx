@@ -304,9 +304,10 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
           form.setValue('axles', axles);
         }
       }
-      // Limpa composições para veículos de reboque
+      // Limpa composições e motorista para veículos de reboque
       setCompositionPlates([]);
       setCompositionAxles([]);
+      setSelectedDriver(undefined);
     }
   }, [form.watch('model'), vehicleCategory]);
 
@@ -363,7 +364,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       hasComposition: compositionPlates.length > 0,
       compositionPlates: compositionPlates.length > 0 ? compositionPlates : undefined,
       compositionAxles: compositionAxles.length > 0 ? compositionAxles : undefined,
-      driverId: selectedDriver,
+      driverId: vehicleCategory !== 'trailer' ? selectedDriver : undefined,
       purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd'),
       purchaseValue: data.purchaseValue,
       images: vehicleImages.length > 0 ? vehicleImages : undefined,
