@@ -3,7 +3,7 @@ import { useMockData, Supplier } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Building, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Building, MapPin, Pencil, Trash2, Eye } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -31,6 +31,8 @@ export default function Suppliers() {
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [supplierToDelete, setSupplierToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [viewingSupplier, setViewingSupplier] = useState<Supplier | null>(null);
   const allSuppliers = suppliers();
 
   const handleSubmit = (data: any) => {
@@ -77,6 +79,11 @@ export default function Suppliers() {
     }
   };
 
+  const handleViewDetails = (supplier: Supplier) => {
+    setViewingSupplier(supplier);
+    setDetailsDialogOpen(true);
+  };
+
   const getTypeBadge = (type: string) => {
     const variants = {
       gas_station: { label: 'Posto', className: 'bg-chart-4 text-white' },
@@ -85,6 +92,15 @@ export default function Suppliers() {
     };
     const variant = variants[type as keyof typeof variants];
     return <Badge className={variant.className}>{variant.label}</Badge>;
+  };
+
+  const getTypeLabel = (type: string) => {
+    const labels = {
+      gas_station: 'Posto de Combustível',
+      workshop: 'Oficina',
+      dealer: 'Concessionária'
+    };
+    return labels[type as keyof typeof labels];
   };
 
   return (
@@ -160,16 +176,18 @@ export default function Suppliers() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleEdit(supplier)}
+                  className="flex-1"
+                  onClick={() => handleViewDetails(supplier)}
                 >
-                  <Pencil className="h-4 w-4" />
+                  <Eye className="h-4 w-4 mr-2" />
+                  Detalhes
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex-1"
+                  onClick={() => handleEdit(supplier)}
                 >
-                  Ver Detalhes
+                  <Pencil className="h-4 w-4" />
                 </Button>
                 <Button
                   size="sm"
@@ -199,6 +217,89 @@ export default function Suppliers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Fornecedor</DialogTitle>
+            <DialogDescription>
+              Informações completas do fornecedor
+            </DialogDescription>
+          </DialogHeader>
+
+          {viewingSupplier && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-3">Informações Básicas</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Nome Fantasia:</span>
+                    <p className="font-medium">{viewingSupplier.fantasyName}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Razão Social:</span>
+                    <p className="font-medium">{viewingSupplier.name}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">CNPJ:</span>
+                    <p className="font-medium font-mono">{viewingSupplier.cnpj}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Tipo:</span>
+                    <div className="mt-1">
+                      {getTypeBadge(viewingSupplier.type)}
+                    </div>
+                  </div>
+                  {viewingSupplier.brand && (
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground">Bandeira:</span>
+                      <p className="font-medium">{viewingSupplier.brand}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Localização</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Cidade:</span>
+                    <p className="font-medium">{viewingSupplier.city}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Estado:</span>
+                    <p className="font-medium">{viewingSupplier.state}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Filiais Vinculadas</h3>
+                <div className="flex flex-wrap gap-2">
+                  {viewingSupplier.branches.map((branch, index) => (
+                    <Badge key={index} variant="secondary">
+                      {branch}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setDetailsDialogOpen(false);
+                    handleEdit(viewingSupplier);
+                  }}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
