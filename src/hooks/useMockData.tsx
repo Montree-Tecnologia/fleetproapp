@@ -431,7 +431,8 @@ export function useMockData() {
             previousStatus: v.status as 'active' | 'maintenance' | 'inactive',
             status: 'sold' as const, 
             saleInfo: saleData, 
-            currentKm: saleData.km 
+            currentKm: saleData.km,
+            driverId: undefined
           } 
         : v
     ));
