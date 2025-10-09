@@ -663,7 +663,7 @@ export default function Drivers() {
                   Editar
                 </Button>
                 <Button
-                  variant={viewingDriver.active ? 'outline' : 'default'}
+                  variant={viewingDriver.active ? 'destructive' : 'default'}
                   onClick={() => {
                     handleToggleActive(viewingDriver.id, viewingDriver.active);
                     setViewingDriver({ ...viewingDriver, active: !viewingDriver.active });
