@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil, Eye } from 'lucide-react';
+import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil, Eye, Upload, X } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -71,6 +71,7 @@ export default function Drivers() {
     cnhCategory: 'D' as const,
     cnhValidity: '',
     branches: ['Matriz'],
+    cnhDocument: '' as string | undefined,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -85,6 +86,21 @@ export default function Drivers() {
         .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
     }
     return value;
+  };
+
+  const handleCNHUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, cnhDocument: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeCNHDocument = () => {
+    setFormData({ ...formData, cnhDocument: undefined });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -106,6 +122,7 @@ export default function Drivers() {
           cnhCategory: validatedData.cnhCategory,
           cnhValidity: validatedData.cnhValidity,
           branches: validatedData.branches,
+          cnhDocument: formData.cnhDocument,
         });
 
         toast({
@@ -121,6 +138,7 @@ export default function Drivers() {
           cnhValidity: validatedData.cnhValidity,
           branches: validatedData.branches,
           active: true,
+          cnhDocument: formData.cnhDocument,
         });
 
         toast({
@@ -152,6 +170,7 @@ export default function Drivers() {
       cnhCategory: driver.cnhCategory as typeof formData.cnhCategory,
       cnhValidity: driver.cnhValidity,
       branches: driver.branches,
+      cnhDocument: driver.cnhDocument,
     });
     setErrors({});
     setOpen(true);
@@ -167,6 +186,7 @@ export default function Drivers() {
       cnhCategory: 'D' as const,
       cnhValidity: '',
       branches: ['Matriz'],
+      cnhDocument: undefined,
     });
     setErrors({});
   };
@@ -241,7 +261,7 @@ export default function Drivers() {
           </p>
         </div>
 
-        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
               <UserPlus className="mr-2 h-4 w-4" />
@@ -381,6 +401,55 @@ export default function Drivers() {
                   {errors.branches && (
                     <p className="text-sm text-destructive">{errors.branches}</p>
                   )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Documento CNH (Foto/PDF)</Label>
+                  <div className="space-y-2">
+                    {formData.cnhDocument ? (
+                      <div className="relative">
+                        {formData.cnhDocument.startsWith('data:image') ? (
+                          <img
+                            src={formData.cnhDocument}
+                            alt="CNH"
+                            className="w-full h-40 object-cover rounded-lg border border-border"
+                          />
+                        ) : (
+                          <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                            <FileText className="h-5 w-5" />
+                            <span className="text-sm">Documento anexado</span>
+                          </div>
+                        )}
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2 h-8 w-8"
+                          onClick={removeCNHDocument}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <Input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          onChange={handleCNHUpload}
+                          className="hidden"
+                          id="cnh-upload"
+                        />
+                        <label htmlFor="cnh-upload">
+                          <Button type="button" variant="outline" className="w-full" asChild>
+                            <span className="cursor-pointer">
+                              <Upload className="h-4 w-4 mr-2" />
+                              Anexar CNH
+                            </span>
+                          </Button>
+                        </label>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -546,7 +615,26 @@ export default function Drivers() {
                   {viewingDriver.cnhDocument && (
                     <div className="col-span-2">
                       <span className="text-muted-foreground">Documento CNH:</span>
-                      <p className="font-medium font-mono">{viewingDriver.cnhDocument}</p>
+                      <div className="mt-2">
+                        {viewingDriver.cnhDocument.startsWith('data:image') ? (
+                          <img
+                            src={viewingDriver.cnhDocument}
+                            alt="CNH"
+                            className="w-full max-w-md h-auto object-contain rounded-lg border border-border cursor-pointer"
+                            onClick={() => window.open(viewingDriver.cnhDocument, '_blank')}
+                          />
+                        ) : (
+                          <a
+                            href={viewingDriver.cnhDocument}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border hover:bg-muted/80 transition-colors w-fit"
+                          >
+                            <FileText className="h-5 w-5" />
+                            <span className="text-sm font-medium">Ver documento CNH</span>
+                          </a>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
