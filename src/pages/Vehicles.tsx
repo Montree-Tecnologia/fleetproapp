@@ -41,6 +41,7 @@ export default function Vehicles() {
   const [vehicleToDelete, setVehicleToDelete] = useState<Vehicle | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [viewingVehicle, setViewingVehicle] = useState<Vehicle | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const getDriverName = (driverId?: string) => {
     if (!driverId) return null;
@@ -177,15 +178,23 @@ export default function Vehicles() {
             <div className="space-y-6">
               {viewingVehicle.images && viewingVehicle.images.length > 0 && (
                 <div>
-                  <h3 className="font-semibold mb-3">Imagens</h3>
-                  <div className="grid grid-cols-3 gap-3">
+                  <h3 className="font-semibold mb-3">Imagens do Veículo</h3>
+                  <div className="grid grid-cols-4 gap-3">
                     {viewingVehicle.images.map((image, index) => (
-                      <img
+                      <div 
                         key={index}
-                        src={image}
-                        alt={`${viewingVehicle.plate} - ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg border border-border"
-                      />
+                        className="relative group cursor-pointer"
+                        onClick={() => setSelectedImage(image)}
+                      >
+                        <img
+                          src={image}
+                          alt={`${viewingVehicle.plate} - ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border border-border hover:border-primary transition-colors"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                          <Eye className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -345,6 +354,21 @@ export default function Vehicles() {
                 </div>
               )}
             </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Visualização da Imagem</DialogTitle>
+          </DialogHeader>
+          {selectedImage && (
+            <img
+              src={selectedImage}
+              alt="Imagem ampliada"
+              className="w-full h-auto max-h-[70vh] object-contain rounded-lg"
+            />
           )}
         </DialogContent>
       </Dialog>
