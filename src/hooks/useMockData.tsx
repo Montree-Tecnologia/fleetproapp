@@ -49,6 +49,8 @@ export interface Refueling {
   fuelType: string;
   supplierId: string;
   driver: string;
+  paymentReceipt?: string;
+  fiscalNote?: string;
 }
 
 export interface RefrigerationUnit {

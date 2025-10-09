@@ -24,10 +24,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, FileText, Upload, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Refueling, Vehicle, Driver, Supplier } from '@/hooks/useMockData';
+import { useState } from 'react';
 
 const refuelingSchema = z.object({
   vehicleId: z.string().min(1, 'Veículo é obrigatório'),
@@ -55,6 +56,8 @@ interface RefuelingFormProps {
 
 export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers, initialData }: RefuelingFormProps) {
   const gasStations = suppliers.filter(s => s.type === 'gas_station');
+  const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>(initialData?.paymentReceipt);
+  const [fiscalNote, setFiscalNote] = useState<string | undefined>(initialData?.fiscalNote);
   
   const form = useForm<RefuelingFormData>({
     resolver: zodResolver(refuelingSchema),
@@ -80,6 +83,36 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   const watchPricePerLiter = form.watch('pricePerLiter');
   const totalValue = watchLiters * watchPricePerLiter;
 
+  const handlePaymentReceiptUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPaymentReceipt(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFiscalNoteUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFiscalNote(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePaymentReceipt = () => {
+    setPaymentReceipt(undefined);
+  };
+
+  const removeFiscalNote = () => {
+    setFiscalNote(undefined);
+  };
+
   const handleSubmit = (data: RefuelingFormData) => {
     const vehicle = vehicles.find(v => v.id === data.vehicleId);
     
@@ -102,6 +135,8 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       fuelType: data.fuelType,
       supplierId: data.supplierId,
       driver: data.driver,
+      paymentReceipt,
+      fiscalNote,
     });
   };
 
@@ -319,6 +354,106 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
               </FormItem>
             )}
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Comprovante de Pagamento</label>
+            <div className="space-y-2">
+              {paymentReceipt ? (
+                <div className="relative">
+                  {paymentReceipt.startsWith('data:image') ? (
+                    <img
+                      src={paymentReceipt}
+                      alt="Comprovante"
+                      className="w-full h-40 object-cover rounded-lg border border-border"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                      <FileText className="h-5 w-5" />
+                      <span className="text-sm">Comprovante anexado</span>
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8"
+                    onClick={removePaymentReceipt}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={handlePaymentReceiptUpload}
+                    className="hidden"
+                    id="payment-receipt-upload"
+                  />
+                  <label htmlFor="payment-receipt-upload">
+                    <Button type="button" variant="outline" className="w-full" asChild>
+                      <span className="cursor-pointer">
+                        <Upload className="h-4 w-4 mr-2" />
+                        Anexar Comprovante
+                      </span>
+                    </Button>
+                  </label>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Nota Fiscal / Cupom</label>
+            <div className="space-y-2">
+              {fiscalNote ? (
+                <div className="relative">
+                  {fiscalNote.startsWith('data:image') ? (
+                    <img
+                      src={fiscalNote}
+                      alt="Nota Fiscal"
+                      className="w-full h-40 object-cover rounded-lg border border-border"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                      <FileText className="h-5 w-5" />
+                      <span className="text-sm">Nota fiscal anexada</span>
+                    </div>
+                  )}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8"
+                    onClick={removeFiscalNote}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Input
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={handleFiscalNoteUpload}
+                    className="hidden"
+                    id="fiscal-note-upload"
+                  />
+                  <label htmlFor="fiscal-note-upload">
+                    <Button type="button" variant="outline" className="w-full" asChild>
+                      <span className="cursor-pointer">
+                        <Upload className="h-4 w-4 mr-2" />
+                        Anexar Nota Fiscal
+                      </span>
+                    </Button>
+                  </label>
+                </>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
