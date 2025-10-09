@@ -135,6 +135,18 @@ export function VehicleCard({
             <span className="text-muted-foreground">Proprietária:</span>
             <p className="font-medium">{vehicle.ownerBranch}</p>
           </div>
+          {(isTractionVehicle || isTrailerVehicle) && (
+            <>
+              <div>
+                <span className="text-muted-foreground">KM Rodados:</span>
+                <p className="font-medium">{(vehicle.currentKm - vehicle.purchaseKm).toLocaleString('pt-BR')}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">KM Atual:</span>
+                <p className="font-medium">{vehicle.currentKm.toLocaleString('pt-BR')}</p>
+              </div>
+            </>
+          )}
           {isTractionVehicle && (
             <div>
               <span className="text-muted-foreground">Consumo Médio:</span>
@@ -147,18 +159,6 @@ export function VehicleCard({
                 })()}
               </p>
             </div>
-          )}
-          {(isTractionVehicle || isTrailerVehicle) && (
-            <>
-              <div>
-                <span className="text-muted-foreground">KM Rodados:</span>
-                <p className="font-medium">{(vehicle.currentKm - vehicle.purchaseKm).toLocaleString('pt-BR')}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">KM Atual:</span>
-                <p className="font-medium">{vehicle.currentKm.toLocaleString('pt-BR')}</p>
-              </div>
-            </>
           )}
           <div className="col-span-2">
             <span className="text-muted-foreground">Filiais Vinculadas:</span>
