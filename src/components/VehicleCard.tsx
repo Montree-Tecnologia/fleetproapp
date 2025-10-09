@@ -148,7 +148,7 @@ export function VehicleCard({
               </p>
             </div>
           )}
-          {isTractionVehicle && (
+          {(isTractionVehicle || isTrailerVehicle) && (
             <>
               <div>
                 <span className="text-muted-foreground">KM Rodados:</span>
