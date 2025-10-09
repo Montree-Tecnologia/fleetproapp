@@ -32,7 +32,7 @@ export interface Vehicle {
   model: string;
   year: number;
   color: string;
-  vehicleType: 'Truck' | 'Baú' | 'Carreta' | 'Graneleiro' | 'Bitrem' | 'Tritem' | 'Container' | 'Caçamba';
+  vehicleType: 'Truck' | 'Baú' | 'Carreta' | 'Graneleiro' | 'Bitrem' | 'Tritem' | 'Container' | 'Caçamba' | 'Cavalo Mecânico' | 'Baú Frigorífico' | 'Toco';
   status: 'active' | 'maintenance' | 'inactive' | 'sold';
   purchaseKm: number;
   currentKm: number;

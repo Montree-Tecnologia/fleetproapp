@@ -137,7 +137,7 @@ const vehicleSchema = z.object({
   manufacturingYear: z.number().min(1900).max(new Date().getFullYear() + 1),
   modelYear: z.number().min(1900).max(new Date().getFullYear() + 1),
   color: z.string().min(1, 'Cor é obrigatória'),
-  vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Bitrem', 'Tritem', 'Container', 'Caçamba']),
+  vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Bitrem', 'Tritem', 'Container', 'Caçamba', 'Cavalo Mecânico', 'Baú Frigorífico', 'Toco']),
   status: z.enum(['active', 'maintenance', 'inactive', 'sold']),
   purchaseKm: z.number().min(0),
   fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Arla 42', 'Etanol', 'Gasolina']),
@@ -346,6 +346,9 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
                     <SelectItem value="Tritem">Tritem</SelectItem>
                     <SelectItem value="Container">Container</SelectItem>
                     <SelectItem value="Caçamba">Caçamba</SelectItem>
+                    <SelectItem value="Cavalo Mecânico">Cavalo Mecânico</SelectItem>
+                    <SelectItem value="Baú Frigorífico">Baú Frigorífico</SelectItem>
+                    <SelectItem value="Toco">Toco</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
