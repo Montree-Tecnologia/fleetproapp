@@ -143,6 +143,7 @@ const vehicleSchema = z.object({
   axles: z.number().min(1).max(20),
   purchaseDate: z.date(),
   purchaseValue: z.number().min(0),
+  ownerBranch: z.string().min(1, 'Matriz/Filial proprietária é obrigatória'),
 });
 
 type VehicleFormData = z.infer<typeof vehicleSchema>;
@@ -169,6 +170,9 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
   const [vehicleImages, setVehicleImages] = useState<string[]>(initialData?.images || []);
   const [crlvDocument, setCrlvDocument] = useState<string | undefined>(initialData?.crlvDocument);
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>(initialData?.brand);
+  const [ownerBranch, setOwnerBranch] = useState<string>(
+    initialData?.ownerBranch || 'Matriz'
+  );
 
 
   const form = useForm<VehicleFormData>({
@@ -188,6 +192,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       axles: initialData.axles,
       purchaseDate: new Date(initialData.purchaseDate),
       purchaseValue: initialData.purchaseValue,
+      ownerBranch: initialData.ownerBranch || 'Matriz',
     } : {
       year: new Date().getFullYear(),
       currentKm: 0,
@@ -197,6 +202,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       vehicleType: 'Truck',
       fuelType: 'Diesel S10',
       purchaseDate: new Date(),
+      ownerBranch: 'Matriz',
     },
   });
 
@@ -254,6 +260,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       fuelType: data.fuelType,
       axles: data.axles,
       branches: selectedBranches,
+      ownerBranch: data.ownerBranch,
       hasComposition: compositionPlates.length > 0,
       compositionPlates: compositionPlates.length > 0 ? compositionPlates : undefined,
       compositionAxles: compositionAxles.length > 0 ? compositionAxles : undefined,
@@ -611,6 +618,33 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
                     onChange={(e) => field.onChange(parseFloat(e.target.value))}
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="ownerBranch"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Matriz/Filial Proprietária *</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a matriz/filial" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {availableBranches.map((branch) => (
+                      <SelectItem key={branch} value={branch}>
+                        {branch}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

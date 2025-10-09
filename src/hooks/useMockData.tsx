@@ -38,6 +38,7 @@ export interface Vehicle {
   fuelType: 'Diesel S10' | 'Diesel S500' | 'Arla 32' | 'Arla 42' | 'Etanol' | 'Gasolina';
   axles: number;
   branches: string[];
+  ownerBranch: string;
   driverId?: string;
   hasComposition: boolean;
   compositionPlates?: string[];
@@ -163,6 +164,7 @@ const mockVehicles: Vehicle[] = [
     fuelType: 'Diesel S10',
     axles: 3,
     branches: ['Matriz', 'Filial SP'],
+    ownerBranch: 'Matriz',
     driverId: '1',
     hasComposition: false,
     purchaseDate: '2022-03-15',
@@ -189,6 +191,7 @@ const mockVehicles: Vehicle[] = [
     fuelType: 'Diesel S10',
     axles: 3,
     branches: ['Matriz'],
+    ownerBranch: 'Matriz',
     driverId: '2',
     hasComposition: true,
     compositionPlates: ['XYZ-1111', 'XYZ-2222'],
@@ -216,6 +219,7 @@ const mockVehicles: Vehicle[] = [
     fuelType: 'Diesel S500',
     axles: 3,
     branches: ['Filial SP', 'Filial RJ'],
+    ownerBranch: 'Filial SP',
     driverId: '3',
     hasComposition: true,
     compositionPlates: ['KLM-3333'],
