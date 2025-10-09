@@ -30,19 +30,29 @@ import { cn } from '@/lib/utils';
 import { RefrigerationUnit, Vehicle } from '@/hooks/useMockData';
 
 const refrigerationSchema = z.object({
-  vehicleId: z.string().min(1, 'Veículo é obrigatório'),
+  vehicleId: z.string().optional(),
   brand: z.string().min(1, 'Marca é obrigatória'),
   model: z.string().min(1, 'Modelo é obrigatório'),
   serialNumber: z.string().min(1, 'Número de série é obrigatório'),
   type: z.enum(['freezer', 'cooled', 'climatized']),
   minTemp: z.number().min(-50, 'Temperatura mínima inválida').max(50, 'Temperatura mínima inválida'),
   maxTemp: z.number().min(-50, 'Temperatura máxima inválida').max(50, 'Temperatura máxima inválida'),
+  status: z.enum(['active', 'defective', 'maintenance', 'sold']),
   installDate: z.date({
     required_error: 'Data de instalação é obrigatória',
   }),
 }).refine((data) => data.maxTemp > data.minTemp, {
   message: 'Temperatura máxima deve ser maior que a mínima',
   path: ['maxTemp'],
+}).refine((data) => {
+  // Se vinculado a veículo, status só pode ser active ou defective
+  if (data.vehicleId && data.status !== 'active' && data.status !== 'defective') {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Equipamentos vinculados só podem estar ativos ou com defeito',
+  path: ['status'],
 });
 
 type RefrigerationFormData = z.infer<typeof refrigerationSchema>;
@@ -65,11 +75,13 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }:
       type: initialData.type,
       minTemp: initialData.minTemp,
       maxTemp: initialData.maxTemp,
+      status: initialData.status,
       installDate: new Date(initialData.installDate),
     } : {
       type: 'freezer',
       minTemp: -18,
       maxTemp: -15,
+      status: 'maintenance',
       installDate: new Date(),
     },
   });
@@ -83,27 +95,31 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }:
       type: data.type,
       minTemp: data.minTemp,
       maxTemp: data.maxTemp,
+      status: data.status,
       installDate: format(data.installDate, 'yyyy-MM-dd'),
     });
   };
+
+  const hasVehicle = form.watch('vehicleId');
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          <FormField
+         <FormField
             control={form.control}
             name="vehicleId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Veículo *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormLabel>Veículo</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o veículo" />
+                      <SelectValue placeholder="Sem vínculo" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
+                    <SelectItem value="">Sem vínculo</SelectItem>
                     {vehicles.map((vehicle) => (
                       <SelectItem key={vehicle.id} value={vehicle.id}>
                         {vehicle.plate} - {vehicle.model}
@@ -132,6 +148,34 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }:
                     <SelectItem value="freezer">Freezer</SelectItem>
                     <SelectItem value="cooled">Resfriado</SelectItem>
                     <SelectItem value="climatized">Climatizado</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status *</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="active">Ativo</SelectItem>
+                    <SelectItem value="defective">Defeito</SelectItem>
+                    {!hasVehicle && (
+                      <>
+                        <SelectItem value="maintenance">Manutenção</SelectItem>
+                        <SelectItem value="sold">Vendido</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
                 <FormMessage />

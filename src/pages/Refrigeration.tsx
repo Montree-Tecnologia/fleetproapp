@@ -3,7 +3,7 @@ import { useMockData, RefrigerationUnit } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye } from 'lucide-react';
+import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -108,6 +115,64 @@ export default function Refrigeration() {
     return new Date(date).toLocaleDateString('pt-BR');
   };
 
+  const getStatusBadge = (status: string) => {
+    const variants = {
+      active: { label: 'Ativo', className: 'bg-success text-success-foreground' },
+      defective: { label: 'Defeito', className: 'bg-destructive text-destructive-foreground' },
+      maintenance: { label: 'Manutenção', className: 'bg-warning text-warning-foreground' },
+      sold: { label: 'Vendido', className: 'bg-muted text-muted-foreground' }
+    };
+    const variant = variants[status as keyof typeof variants];
+    return <Badge className={variant.className}>{variant.label}</Badge>;
+  };
+
+  const handleStatusChange = (unitId: string, newStatus: string, hasVehicle: boolean) => {
+    // Validação: se vinculado a veículo, só permite active ou defective
+    if (hasVehicle && newStatus !== 'active' && newStatus !== 'defective') {
+      toast({
+        title: 'Operação inválida',
+        description: 'Equipamentos vinculados só podem estar ativos ou com defeito',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    updateRefrigerationUnit(unitId, { status: newStatus as any });
+    const statusLabels = {
+      active: 'Ativo',
+      defective: 'Defeito',
+      maintenance: 'Manutenção',
+      sold: 'Vendido'
+    };
+    toast({
+      title: 'Status atualizado',
+      description: `Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`,
+    });
+  };
+
+  const handleVehicleLink = (unitId: string, vehicleId: string) => {
+    const unit = allUnits.find(u => u.id === unitId);
+    if (!unit) return;
+
+    // Se está vinculando a um veículo e o status não é válido, ajusta para active
+    if (vehicleId && unit.status !== 'active' && unit.status !== 'defective') {
+      updateRefrigerationUnit(unitId, { 
+        vehicleId: vehicleId || undefined,
+        status: 'active'
+      });
+      toast({
+        title: 'Vinculação realizada',
+        description: 'Equipamento vinculado e status ajustado para Ativo',
+      });
+    } else {
+      updateRefrigerationUnit(unitId, { vehicleId: vehicleId || undefined });
+      toast({
+        title: vehicleId ? 'Vinculação realizada' : 'Vínculo removido',
+        description: vehicleId ? 'Equipamento vinculado ao veículo' : 'Equipamento desvinculado',
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -155,7 +220,10 @@ export default function Refrigeration() {
                       <p className="text-sm text-muted-foreground">SN: {unit.serialNumber}</p>
                     </div>
                   </div>
-                  {getTypeBadge(unit.type)}
+                  <div className="flex flex-col gap-2 items-end">
+                    {getTypeBadge(unit.type)}
+                    {getStatusBadge(unit.status)}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -169,18 +237,46 @@ export default function Refrigeration() {
                   </div>
                 </div>
 
-                {vehicle && (
-                  <div className="pt-3 border-t border-border">
-                    <p className="text-sm text-muted-foreground mb-1">Veículo Vinculado:</p>
-                    <p className="font-medium">{vehicle.plate} - {vehicle.model}</p>
-                  </div>
-                )}
+                <div className="pt-3 border-t border-border">
+                  <p className="text-sm text-muted-foreground mb-2">Vincular a Veículo:</p>
+                  <Select
+                    value={unit.vehicleId || ''}
+                    onValueChange={(value) => handleVehicleLink(unit.id, value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sem vínculo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Sem vínculo</SelectItem>
+                      {allVehicles.map((vehicle) => (
+                        <SelectItem key={vehicle.id} value={vehicle.id}>
+                          {vehicle.plate} - {vehicle.model}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 <div className="pt-3 border-t border-border">
-                  <p className="text-sm text-muted-foreground mb-1">Data de Instalação:</p>
-                  <p className="font-medium">
-                    {new Date(unit.installDate).toLocaleDateString('pt-BR')}
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-2">Alterar Status:</p>
+                  <Select
+                    value={unit.status}
+                    onValueChange={(value) => handleStatusChange(unit.id, value, !!unit.vehicleId)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Ativo</SelectItem>
+                      <SelectItem value="defective">Defeito</SelectItem>
+                      {!unit.vehicleId && (
+                        <>
+                          <SelectItem value="maintenance">Manutenção</SelectItem>
+                          <SelectItem value="sold">Vendido</SelectItem>
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="flex gap-2">
@@ -282,6 +378,12 @@ export default function Refrigeration() {
                     <span className="text-muted-foreground">Data de Instalação:</span>
                     <p className="font-medium">{formatDate(viewingUnit.installDate)}</p>
                   </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <div className="mt-1">
+                      {getStatusBadge(viewingUnit.status)}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -310,33 +412,39 @@ export default function Refrigeration() {
 
               <div>
                 <h3 className="font-semibold mb-3">Veículo Vinculado</h3>
-                {(() => {
-                  const vehicle = allVehicles.find(v => v.id === viewingUnit.vehicleId);
-                  return vehicle ? (
-                    <div className="p-4 bg-muted rounded-lg border border-border">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Placa:</span>
-                          <p className="font-medium">{vehicle.plate}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Marca/Modelo:</span>
-                          <p className="font-medium">{vehicle.brand} {vehicle.model}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Tipo:</span>
-                          <p className="font-medium">{vehicle.vehicleType}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Ano:</span>
-                          <p className="font-medium">{vehicle.year}</p>
+                {viewingUnit.vehicleId ? (
+                  (() => {
+                    const vehicle = allVehicles.find(v => v.id === viewingUnit.vehicleId);
+                    return vehicle ? (
+                      <div className="p-4 bg-muted rounded-lg border border-border">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Placa:</span>
+                            <p className="font-medium">{vehicle.plate}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Marca/Modelo:</span>
+                            <p className="font-medium">{vehicle.brand} {vehicle.model}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Tipo:</span>
+                            <p className="font-medium">{vehicle.vehicleType}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Ano:</span>
+                            <p className="font-medium">{vehicle.year}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">Veículo não encontrado</p>
-                  );
-                })()}
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Veículo não encontrado</p>
+                    );
+                  })()
+                ) : (
+                  <div className="p-4 bg-muted rounded-lg border border-border text-center">
+                    <p className="text-sm text-muted-foreground">Sem vínculo com veículo</p>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t">

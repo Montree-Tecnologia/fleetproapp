@@ -52,7 +52,7 @@ export interface Refueling {
 
 export interface RefrigerationUnit {
   id: string;
-  vehicleId: string;
+  vehicleId?: string;
   brand: string;
   model: string;
   serialNumber: string;
@@ -60,6 +60,7 @@ export interface RefrigerationUnit {
   minTemp: number;
   maxTemp: number;
   installDate: string;
+  status: 'active' | 'defective' | 'maintenance' | 'sold';
 }
 
 export interface Supplier {
@@ -262,7 +263,8 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     type: 'freezer',
     minTemp: -25,
     maxTemp: -18,
-    installDate: '2022-03-20'
+    installDate: '2022-03-20',
+    status: 'active'
   },
   {
     id: '2',
@@ -273,7 +275,19 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     type: 'cooled',
     minTemp: 0,
     maxTemp: 8,
-    installDate: '2021-09-01'
+    installDate: '2021-09-01',
+    status: 'active'
+  },
+  {
+    id: '3',
+    brand: 'Thermo King',
+    model: 'T-Series',
+    serialNumber: 'TK456789',
+    type: 'freezer',
+    minTemp: -20,
+    maxTemp: -15,
+    installDate: '2023-05-15',
+    status: 'maintenance'
   }
 ];
 
