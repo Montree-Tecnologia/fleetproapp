@@ -467,12 +467,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
           <FormField
             control={form.control}
-            name="color"
+            name="renavam"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Cor *</FormLabel>
+                <FormLabel>RENAVAM *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Branco" {...field} />
+                  <Input placeholder="00123456789" maxLength={11} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -495,12 +495,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
           <FormField
             control={form.control}
-            name="renavam"
+            name="color"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>RENAVAM *</FormLabel>
+                <FormLabel>Cor *</FormLabel>
                 <FormControl>
-                  <Input placeholder="00123456789" maxLength={11} {...field} />
+                  <Input placeholder="Branco" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
