@@ -142,6 +142,7 @@ const vehicleSchema = z.object({
   purchaseKm: z.number().min(0),
   fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Arla 42', 'Etanol', 'Gasolina']),
   axles: z.number().min(1).max(20),
+  weight: z.number().min(0).optional(),
   purchaseDate: z.date(),
   purchaseValue: z.number().min(0),
   ownerBranch: z.string().min(1, 'Matriz/Filial proprietária é obrigatória'),
@@ -192,6 +193,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       purchaseKm: initialData.purchaseKm,
       fuelType: initialData.fuelType,
       axles: initialData.axles,
+      weight: initialData.weight,
       purchaseDate: new Date(initialData.purchaseDate),
       purchaseValue: initialData.purchaseValue,
       ownerBranch: initialData.ownerBranch || 'Matriz',
@@ -262,6 +264,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       purchaseKm: data.purchaseKm,
       fuelType: data.fuelType,
       axles: data.axles,
+      weight: data.weight,
       branches: selectedBranches,
       ownerBranch: data.ownerBranch,
       hasComposition: compositionPlates.length > 0,
@@ -568,6 +571,30 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="weight"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Peso (Toneladas)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    min="0"
+                    step="0.1"
+                    placeholder="Ex: 23.5"
+                    {...field} 
+                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                    value={field.value || ''}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="purchaseValue"

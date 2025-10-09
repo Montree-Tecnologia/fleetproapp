@@ -417,6 +417,12 @@ export default function Vehicles() {
                     <span className="text-muted-foreground">Quantidade de Eixos:</span>
                     <p className="font-medium">{viewingVehicle.axles}</p>
                   </div>
+                  {viewingVehicle.weight && (
+                    <div>
+                      <span className="text-muted-foreground">Peso:</span>
+                      <p className="font-medium">{viewingVehicle.weight} toneladas</p>
+                    </div>
+                  )}
                 </div>
               </div>
 

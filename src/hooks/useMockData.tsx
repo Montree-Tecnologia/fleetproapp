@@ -38,6 +38,7 @@ export interface Vehicle {
   currentKm: number;
   fuelType: 'Diesel S10' | 'Diesel S500' | 'Arla 32' | 'Arla 42' | 'Etanol' | 'Gasolina';
   axles: number;
+  weight?: number;
   branches: string[];
   ownerBranch: string;
   driverId?: string;
