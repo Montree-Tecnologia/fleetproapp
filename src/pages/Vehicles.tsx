@@ -155,9 +155,17 @@ export default function Vehicles() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Truck className="h-6 w-6 text-primary" />
-                  </div>
+                  {vehicle.images && vehicle.images.length > 0 ? (
+                    <img
+                      src={vehicle.images[0]}
+                      alt={vehicle.plate}
+                      className="w-12 h-12 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <Truck className="h-6 w-6 text-primary" />
+                    </div>
+                  )}
                   <div>
                     <CardTitle className="text-lg">{vehicle.plate}</CardTitle>
                     <p className="text-sm text-muted-foreground">{vehicle.model}</p>

@@ -34,6 +34,7 @@ export interface Vehicle {
   compositionAxles?: number[];
   purchaseDate: string;
   purchaseValue: number;
+  images?: string[];
 }
 
 export interface Refueling {

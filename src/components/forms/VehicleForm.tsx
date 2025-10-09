@@ -24,7 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, Plus, X } from 'lucide-react';
+import { CalendarIcon, Plus, X, Upload, Image as ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -69,6 +69,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
   const [newCompositionPlate, setNewCompositionPlate] = useState('');
   const [newCompositionAxles, setNewCompositionAxles] = useState<number | ''>('');
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
+  const [vehicleImages, setVehicleImages] = useState<string[]>(initialData?.images || []);
 
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
@@ -99,6 +100,23 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
     },
   });
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setVehicleImages((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setVehicleImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = (data: VehicleFormData) => {
     onSubmit({
       plate: data.plate,
@@ -120,6 +138,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       driverId: selectedDriver,
       purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd'),
       purchaseValue: data.purchaseValue,
+      images: vehicleImages.length > 0 ? vehicleImages : undefined,
     });
   };
 
@@ -503,6 +522,58 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
               </div>
             </div>
           )}
+        </div>
+
+        <div>
+          <FormLabel>Imagens do Veículo</FormLabel>
+          <div className="mt-2 space-y-3">
+            <div className="flex items-center gap-2">
+              <Input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageUpload}
+                className="hidden"
+                id="vehicle-images"
+              />
+              <label htmlFor="vehicle-images">
+                <Button type="button" variant="outline" asChild>
+                  <span className="cursor-pointer">
+                    <Upload className="h-4 w-4 mr-2" />
+                    Adicionar Imagens
+                  </span>
+                </Button>
+              </label>
+              {vehicleImages.length > 0 && (
+                <span className="text-sm text-muted-foreground">
+                  {vehicleImages.length} {vehicleImages.length === 1 ? 'imagem' : 'imagens'}
+                </span>
+              )}
+            </div>
+            
+            {vehicleImages.length > 0 && (
+              <div className="grid grid-cols-3 gap-2">
+                {vehicleImages.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={image}
+                      alt={`Veículo ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg border border-border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => removeImage(index)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
