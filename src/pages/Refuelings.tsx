@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useMockData } from '@/hooks/useMockData';
+import { usePermissions } from '@/hooks/usePermissions';
 import mockupPaymentReceipt from '@/assets/mockup-payment-receipt.jpg';
 import mockupFiscalNote from '@/assets/mockup-fiscal-note.jpg';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,6 +43,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function Refuelings() {
   const { refuelings, vehicles, drivers, suppliers, addRefueling, updateRefueling, deleteRefueling } = useMockData();
+  const { isAdmin } = usePermissions();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [editingRefueling, setEditingRefueling] = useState<any>(null);
@@ -361,21 +363,25 @@ export default function Refuelings() {
                         </p>
                       </div>
                       <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(refueling)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeletingRefueling(refueling)}
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {isAdmin() && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(refueling)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDeletingRefueling(refueling)}
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -1,4 +1,5 @@
 import { useMockData, Vehicle } from '@/hooks/useMockData';
+import { usePermissions } from '@/hooks/usePermissions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ import { toast } from 'sonner';
 
 export default function Vehicles() {
   const { vehicles, drivers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale } = useMockData();
+  const { isAdmin } = usePermissions();
   const allVehicles = vehicles();
   const allDrivers = drivers();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -728,14 +730,16 @@ export default function Vehicles() {
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleSellVehicle(vehicle)}
-                      className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                    >
-                      <DollarSign className="h-4 w-4" />
-                    </Button>
+                    {isAdmin() && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleSellVehicle(vehicle)}
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                      >
+                        <DollarSign className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       variant="destructive"
@@ -744,7 +748,7 @@ export default function Vehicles() {
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </>
-                ) : (
+                ) : isAdmin() ? (
                   <Button
                     size="sm"
                     variant="outline"
@@ -754,7 +758,7 @@ export default function Vehicles() {
                     <DollarSign className="h-4 w-4 mr-2" />
                     Reverter Venda
                   </Button>
-                )}
+                ) : null}
               </div>
             </CardContent>
           </Card>
