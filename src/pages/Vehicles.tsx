@@ -387,13 +387,26 @@ export default function Vehicles() {
               </div>
 
               <div>
-                <h3 className="font-semibold mb-3">Filiais Vinculadas</h3>
-                <div className="flex flex-wrap gap-2">
-                  {viewingVehicle.branches.map((branch, index) => (
-                    <Badge key={index} variant="secondary">
-                      {branch}
-                    </Badge>
-                  ))}
+                <h3 className="font-semibold mb-3">Propriedade e Filiais</h3>
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-muted-foreground text-sm">Matriz/Filial Proprietária:</span>
+                    <div className="mt-1">
+                      <Badge className="bg-primary text-primary-foreground">
+                        {viewingVehicle.ownerBranch}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground text-sm">Filiais Vinculadas:</span>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {viewingVehicle.branches.map((branch, index) => (
+                        <Badge key={index} variant="secondary">
+                          {branch}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
