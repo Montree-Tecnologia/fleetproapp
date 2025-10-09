@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMockData } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon } from 'lucide-react';
+import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -44,6 +44,7 @@ export default function Refuelings() {
   const [open, setOpen] = useState(false);
   const [editingRefueling, setEditingRefueling] = useState<any>(null);
   const [deletingRefueling, setDeletingRefueling] = useState<any>(null);
+  const [viewingRefueling, setViewingRefueling] = useState<any>(null);
   
   // Filtros avançados
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -324,7 +325,8 @@ export default function Refuelings() {
                 return (
                   <div
                     key={refueling.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors"
+                    className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors cursor-pointer"
+                    onClick={() => setViewingRefueling(refueling)}
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-chart-4/10 rounded-lg flex items-center justify-center">
@@ -356,7 +358,7 @@ export default function Refuelings() {
                           })}
                         </p>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -398,6 +400,144 @@ export default function Refuelings() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Detail View Dialog */}
+      <Dialog open={!!viewingRefueling} onOpenChange={(open) => !open && setViewingRefueling(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Abastecimento</DialogTitle>
+            <DialogDescription>
+              Informações completas do abastecimento
+            </DialogDescription>
+          </DialogHeader>
+          {viewingRefueling && (() => {
+            const vehicle = allVehicles.find(v => v.id === viewingRefueling.vehicleId);
+            const supplier = allSuppliers.find(s => s.id === viewingRefueling.supplierId);
+            return (
+              <div className="space-y-6">
+                {/* Vehicle and Date Info */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Veículo</label>
+                    <p className="text-lg font-semibold">{vehicle?.plate} - {vehicle?.model}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Data</label>
+                    <p className="text-lg font-semibold">
+                      {new Date(viewingRefueling.date).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Supplier and Driver Info */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Posto</label>
+                    <p className="font-semibold">{supplier?.fantasyName}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {supplier?.city}/{supplier?.state}
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Motorista</label>
+                    <p className="font-semibold">{viewingRefueling.driver}</p>
+                  </div>
+                </div>
+
+                {/* Fuel Details */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">KM</label>
+                    <p className="text-lg font-semibold">
+                      {viewingRefueling.km.toLocaleString('pt-BR')} km
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Tipo de Combustível</label>
+                    <p className="text-lg font-semibold">{viewingRefueling.fuelType}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Litros</label>
+                    <p className="text-lg font-semibold">{viewingRefueling.liters}L</p>
+                  </div>
+                </div>
+
+                {/* Financial Details */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Preço por Litro</label>
+                    <p className="text-lg font-semibold">
+                      R$ {viewingRefueling.pricePerLiter.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <label className="text-sm font-medium text-muted-foreground">Valor Total</label>
+                    <p className="text-2xl font-bold text-primary">
+                      {viewingRefueling.totalValue.toLocaleString('pt-BR', { 
+                        style: 'currency', 
+                        currency: 'BRL' 
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Documents */}
+                {(viewingRefueling.paymentReceipt || viewingRefueling.fiscalNote) && (
+                  <div className="space-y-4 pt-4 border-t">
+                    <h3 className="font-semibold text-lg">Documentos</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {viewingRefueling.paymentReceipt && (
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-muted-foreground">
+                            Comprovante de Pagamento
+                          </label>
+                          {viewingRefueling.paymentReceipt.startsWith('data:image') ? (
+                            <img
+                              src={viewingRefueling.paymentReceipt}
+                              alt="Comprovante"
+                              className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
+                              onClick={() => window.open(viewingRefueling.paymentReceipt, '_blank')}
+                            />
+                          ) : (
+                            <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                              <FileText className="h-5 w-5" />
+                              <span className="text-sm">Comprovante anexado</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {viewingRefueling.fiscalNote && (
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-muted-foreground">
+                            Nota Fiscal / Cupom
+                          </label>
+                          {viewingRefueling.fiscalNote.startsWith('data:image') ? (
+                            <img
+                              src={viewingRefueling.fiscalNote}
+                              alt="Nota Fiscal"
+                              className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
+                              onClick={() => window.open(viewingRefueling.fiscalNote, '_blank')}
+                            />
+                          ) : (
+                            <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                              <FileText className="h-5 w-5" />
+                              <span className="text-sm">Nota fiscal anexada</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
