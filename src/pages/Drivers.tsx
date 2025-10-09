@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil } from 'lucide-react';
+import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil, Eye } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,6 +62,8 @@ export default function Drivers() {
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [driverToDelete, setDriverToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [viewingDriver, setViewingDriver] = useState<Driver | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     cpf: '',
@@ -194,6 +196,11 @@ export default function Drivers() {
     }
   };
 
+  const handleViewDetails = (driver: Driver) => {
+    setViewingDriver(driver);
+    setDetailsDialogOpen(true);
+  };
+
   const getCNHStatus = (validity: string) => {
     const validityDate = new Date(validity);
     const today = new Date();
@@ -207,6 +214,21 @@ export default function Drivers() {
       return { status: 'Atenção', variant: 'outline' as const };
     }
     return { status: 'Válida', variant: 'secondary' as const };
+  };
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('pt-BR');
+  };
+
+  const calculateAge = (birthDate: string) => {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
   };
 
   return (
@@ -418,17 +440,18 @@ export default function Drivers() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleEdit(driver)}
+                    className="flex-1"
+                    onClick={() => handleViewDetails(driver)}
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Eye className="h-4 w-4 mr-2" />
+                    Detalhes
                   </Button>
                   <Button
                     size="sm"
-                    variant={driver.active ? 'outline' : 'default'}
-                    className="flex-1"
-                    onClick={() => handleToggleActive(driver.id, driver.active)}
+                    variant="outline"
+                    onClick={() => handleEdit(driver)}
                   >
-                    {driver.active ? 'Desativar' : 'Ativar'}
+                    <Pencil className="h-4 w-4" />
                   </Button>
                   <Button
                     size="sm"
@@ -459,6 +482,112 @@ export default function Drivers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Motorista</DialogTitle>
+            <DialogDescription>
+              Informações completas do motorista
+            </DialogDescription>
+          </DialogHeader>
+
+          {viewingDriver && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-3">Informações Pessoais</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Nome Completo:</span>
+                    <p className="font-medium">{viewingDriver.name}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">CPF:</span>
+                    <p className="font-medium font-mono">{viewingDriver.cpf}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Data de Nascimento:</span>
+                    <p className="font-medium">{formatDate(viewingDriver.birthDate)}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Idade:</span>
+                    <p className="font-medium">{calculateAge(viewingDriver.birthDate)} anos</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <div className="mt-1">
+                      <Badge variant={viewingDriver.active ? "default" : "outline"}>
+                        {viewingDriver.active ? 'Ativo' : 'Inativo'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Habilitação (CNH)</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Categoria:</span>
+                    <p className="font-medium">Categoria {viewingDriver.cnhCategory}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Data de Validade:</span>
+                    <p className="font-medium">{formatDate(viewingDriver.cnhValidity)}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status da CNH:</span>
+                    <div className="mt-1">
+                      <Badge variant={getCNHStatus(viewingDriver.cnhValidity).variant}>
+                        {getCNHStatus(viewingDriver.cnhValidity).status}
+                      </Badge>
+                    </div>
+                  </div>
+                  {viewingDriver.cnhDocument && (
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground">Documento CNH:</span>
+                      <p className="font-medium font-mono">{viewingDriver.cnhDocument}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Filiais Vinculadas</h3>
+                <div className="flex flex-wrap gap-2">
+                  {viewingDriver.branches.map((branch, index) => (
+                    <Badge key={index} variant="secondary">
+                      {branch}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setDetailsDialogOpen(false);
+                    handleEdit(viewingDriver);
+                  }}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+                <Button
+                  variant={viewingDriver.active ? 'outline' : 'default'}
+                  onClick={() => {
+                    handleToggleActive(viewingDriver.id, viewingDriver.active);
+                    setViewingDriver({ ...viewingDriver, active: !viewingDriver.active });
+                  }}
+                >
+                  {viewingDriver.active ? 'Desativar' : 'Ativar'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
