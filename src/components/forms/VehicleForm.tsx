@@ -603,41 +603,6 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="manufacturingYear"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ano de Fabricação *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(parseInt(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="modelYear"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ano do Modelo *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(parseInt(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           {vehicleCategory === 'trailer' ? (
             <>
@@ -654,6 +619,42 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
                         max="20"
                         {...field} 
                         onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="modelYear"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ano do Modelo *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        {...field} 
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="manufacturingYear"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ano de Fabricação *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        {...field} 
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
@@ -705,6 +706,42 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             </>
           ) : (
             <>
+              <FormField
+                control={form.control}
+                name="manufacturingYear"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ano de Fabricação *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        {...field} 
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="modelYear"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ano do Modelo *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        {...field} 
+                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="renavam"
