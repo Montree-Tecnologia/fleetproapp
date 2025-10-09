@@ -276,23 +276,28 @@ export default function Vehicles() {
                   {viewingVehicle.crlvDocument && (
                     <div className="col-span-2">
                       <span className="text-muted-foreground">Documento CRLV:</span>
-                      <div className="mt-2">
+                      <div className="mt-2 grid grid-cols-4 gap-3">
                         {viewingVehicle.crlvDocument.startsWith('data:image') || viewingVehicle.crlvDocument.includes('unsplash') ? (
-                          <img
-                            src={viewingVehicle.crlvDocument}
-                            alt="CRLV"
-                            className="w-full h-32 object-cover rounded-lg border border-border cursor-pointer hover:border-primary transition-colors"
-                            onClick={() => window.open(viewingVehicle.crlvDocument, '_blank')}
-                          />
+                          <div className="relative group cursor-pointer">
+                            <img
+                              src={viewingVehicle.crlvDocument}
+                              alt="CRLV"
+                              className="w-full h-32 object-cover rounded-lg border border-border hover:border-primary transition-colors"
+                              onClick={() => window.open(viewingVehicle.crlvDocument, '_blank')}
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                              <Eye className="h-6 w-6 text-white" />
+                            </div>
+                          </div>
                         ) : (
                           <a
                             href={viewingVehicle.crlvDocument}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border hover:bg-muted/80 transition-colors w-fit"
+                            className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border hover:bg-muted/80 transition-colors"
                           >
                             <FileText className="h-5 w-5" />
-                            <span className="text-sm font-medium">Ver documento CRLV</span>
+                            <span className="text-sm font-medium">Ver CRLV</span>
                           </a>
                         )}
                       </div>
