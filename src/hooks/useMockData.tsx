@@ -147,7 +147,12 @@ const mockVehicles: Vehicle[] = [
     driverId: '1',
     hasComposition: false,
     purchaseDate: '2022-03-15',
-    purchaseValue: 650000
+    purchaseValue: 650000,
+    images: [
+      'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=80',
+      'https://images.unsplash.com/photo-1570560258091-1a8f8b8c7dfc?w=800&q=80',
+      'https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=800&q=80'
+    ]
   },
   {
     id: '2',
@@ -169,7 +174,11 @@ const mockVehicles: Vehicle[] = [
     compositionPlates: ['XYZ-1111', 'XYZ-2222'],
     compositionAxles: [3, 3],
     purchaseDate: '2021-08-20',
-    purchaseValue: 580000
+    purchaseValue: 580000,
+    images: [
+      'https://images.unsplash.com/photo-1615529182904-14819c35db37?w=800&q=80',
+      'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=80'
+    ]
   },
   {
     id: '3',
@@ -191,7 +200,13 @@ const mockVehicles: Vehicle[] = [
     compositionPlates: ['KLM-3333'],
     compositionAxles: [2],
     purchaseDate: '2023-01-10',
-    purchaseValue: 720000
+    purchaseValue: 720000,
+    images: [
+      'https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=800&q=80',
+      'https://images.unsplash.com/photo-1615529162924-f7e4e5e9e9b4?w=800&q=80',
+      'https://images.unsplash.com/photo-1622021142947-da7dedc7c39a?w=800&q=80',
+      'https://images.unsplash.com/photo-1570560258091-1a8f8b8c7dfc?w=800&q=80'
+    ]
   }
 ];
 
