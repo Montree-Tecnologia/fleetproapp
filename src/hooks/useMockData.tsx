@@ -1182,11 +1182,28 @@ export function useMockData() {
     setRefuelings(prev => [...prev, newRefueling]);
     
     // Atualiza o currentKm do veículo com o KM do abastecimento
-    setVehicles(prev => prev.map(v => 
-      v.id === refueling.vehicleId 
-        ? { ...v, currentKm: Math.max(v.currentKm, refueling.km) } 
-        : v
-    ));
+    setVehicles(prev => {
+      const vehicle = prev.find(v => v.id === refueling.vehicleId);
+      if (!vehicle) return prev;
+      
+      const oldKm = vehicle.currentKm;
+      const newKm = Math.max(oldKm, refueling.km);
+      const kmIncrement = newKm - oldKm;
+      
+      return prev.map(v => {
+        // Atualiza o veículo de tração
+        if (v.id === refueling.vehicleId) {
+          return { ...v, currentKm: newKm };
+        }
+        
+        // Atualiza os reboques vinculados ao veículo de tração
+        if (vehicle.hasComposition && vehicle.compositionPlates?.includes(v.plate)) {
+          return { ...v, currentKm: v.currentKm + kmIncrement };
+        }
+        
+        return v;
+      });
+    });
     
     return newRefueling;
   }, []);
