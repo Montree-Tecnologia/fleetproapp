@@ -195,7 +195,7 @@ const vehicleSchema = z.object({
   color: z.string().min(1, 'Cor é obrigatória'),
   vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Cavalo Mecânico', 'Baú Frigorífico', 'Toco']),
   status: z.enum(['active', 'maintenance', 'inactive', 'sold']),
-  purchaseKm: z.number().min(0),
+  purchaseKm: z.number().min(0).optional(),
   fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Arla 42', 'Etanol', 'Gasolina']),
   axles: z.number().min(1).max(20),
   weight: z.number().min(0).optional(),
@@ -351,7 +351,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       color: data.color,
       vehicleType: data.vehicleType,
       status: data.status,
-      purchaseKm: data.purchaseKm,
+      purchaseKm: data.purchaseKm || 0,
       fuelType: data.fuelType,
       axles: data.axles,
       weight: data.weight,
@@ -851,23 +851,26 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="purchaseKm"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>KM de Compra *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(parseInt(e.target.value))}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {vehicleCategory !== 'trailer' && (
+            <FormField
+              control={form.control}
+              name="purchaseKm"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>KM de Compra *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
 
           <FormField
             control={form.control}
