@@ -47,6 +47,7 @@ export interface Vehicle {
   images?: string[];
   crlvDocument?: string;
   saleInfo?: VehicleSale;
+  previousStatus?: 'active' | 'maintenance' | 'inactive';
 }
 
 export interface Refueling {
@@ -425,7 +426,26 @@ export function useMockData() {
   const sellVehicle = useCallback((id: string, saleData: VehicleSale) => {
     setVehicles(prev => prev.map(v => 
       v.id === id 
-        ? { ...v, status: 'sold' as const, saleInfo: saleData, currentKm: saleData.km } 
+        ? { 
+            ...v, 
+            previousStatus: v.status as 'active' | 'maintenance' | 'inactive',
+            status: 'sold' as const, 
+            saleInfo: saleData, 
+            currentKm: saleData.km 
+          } 
+        : v
+    ));
+  }, []);
+  
+  const reverseSale = useCallback((id: string) => {
+    setVehicles(prev => prev.map(v => 
+      v.id === id 
+        ? { 
+            ...v, 
+            status: (v.previousStatus || 'active') as 'active' | 'maintenance' | 'inactive',
+            saleInfo: undefined,
+            previousStatus: undefined
+          } 
         : v
     ));
   }, []);
@@ -552,6 +572,7 @@ export function useMockData() {
     updateVehicle,
     deleteVehicle,
     sellVehicle,
+    reverseSale,
     
     // Refuelings
     refuelings: getRefuelings,

@@ -34,7 +34,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function Vehicles() {
-  const { vehicles, drivers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle } = useMockData();
+  const { vehicles, drivers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale } = useMockData();
   const allVehicles = vehicles();
   const allDrivers = drivers();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -47,6 +47,8 @@ export default function Vehicles() {
   const [searchTerm, setSearchTerm] = useState('');
   const [saleDialogOpen, setSaleDialogOpen] = useState(false);
   const [vehicleToSell, setVehicleToSell] = useState<Vehicle | null>(null);
+  const [reverseSaleDialogOpen, setReverseSaleDialogOpen] = useState(false);
+  const [vehicleToReverseSale, setVehicleToReverseSale] = useState<Vehicle | null>(null);
 
   const getDriverName = (driverId?: string) => {
     if (!driverId) return null;
@@ -104,6 +106,20 @@ export default function Vehicles() {
       toast.success(`Veículo ${vehicleToSell.plate} vendido com sucesso!`);
       setVehicleToSell(null);
       setSaleDialogOpen(false);
+    }
+  };
+
+  const handleReverseSale = (vehicle: Vehicle) => {
+    setVehicleToReverseSale(vehicle);
+    setReverseSaleDialogOpen(true);
+  };
+
+  const confirmReverseSale = () => {
+    if (vehicleToReverseSale) {
+      reverseSale(vehicleToReverseSale.id);
+      toast.success(`Venda do veículo ${vehicleToReverseSale.plate} revertida com sucesso!`);
+      setVehicleToReverseSale(null);
+      setReverseSaleDialogOpen(false);
     }
   };
 
@@ -206,6 +222,24 @@ export default function Vehicles() {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={reverseSaleDialogOpen} onOpenChange={setReverseSaleDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar reversão de venda</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja reverter a venda do veículo <strong>{vehicleToReverseSale?.plate}</strong>? 
+              O veículo voltará ao status "{vehicleToReverseSale?.previousStatus === 'active' ? 'Ativo' : vehicleToReverseSale?.previousStatus === 'maintenance' ? 'Manutenção' : 'Inativo'}" e as informações da venda serão removidas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmReverseSale} className="bg-primary text-primary-foreground hover:bg-primary/90">
+              Reverter Venda
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -641,6 +675,7 @@ export default function Vehicles() {
                 <Select
                   value={vehicle.driverId || 'none'}
                   onValueChange={(value) => handleDriverChange(vehicle.id, value)}
+                  disabled={vehicle.status === 'sold'}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Sem motorista" />
@@ -661,6 +696,7 @@ export default function Vehicles() {
                 <Select
                   value={vehicle.status}
                   onValueChange={(value) => handleStatusChange(vehicle.id, value)}
+                  disabled={vehicle.status === 'sold'}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -683,7 +719,7 @@ export default function Vehicles() {
                   <Eye className="h-4 w-4 mr-2" />
                   Detalhes
                 </Button>
-                {vehicle.status !== 'sold' && (
+                {vehicle.status !== 'sold' ? (
                   <>
                     <Button
                       size="sm"
@@ -708,6 +744,16 @@ export default function Vehicles() {
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleReverseSale(vehicle)}
+                    className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                  >
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    Reverter Venda
+                  </Button>
                 )}
               </div>
             </CardContent>
