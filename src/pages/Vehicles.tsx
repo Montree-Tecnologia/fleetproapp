@@ -171,6 +171,21 @@ export default function Vehicles() {
 
   const handleDriverChange = (vehicleId: string, driverId: string) => {
     const actualDriverId = driverId === 'none' ? undefined : driverId;
+    
+    // Verifica se o motorista já está vinculado a outro veículo
+    if (actualDriverId) {
+      const driverInUse = allVehicles.find(v => 
+        v.id !== vehicleId && 
+        v.driverId === actualDriverId &&
+        v.status !== 'sold'
+      );
+      
+      if (driverInUse) {
+        toast.error(`Motorista já está vinculado ao veículo ${driverInUse.plate}`);
+        return;
+      }
+    }
+    
     updateVehicle(vehicleId, { driverId: actualDriverId });
     
     if (actualDriverId) {
@@ -179,6 +194,21 @@ export default function Vehicles() {
     } else {
       toast.success('Vínculo com motorista removido');
     }
+  };
+
+  const getAvailableDrivers = (currentVehicleId: string) => {
+    return allDrivers.filter(driver => {
+      if (!driver.active) return false;
+      
+      // Verifica se o motorista já está vinculado a outro veículo ativo
+      const isLinkedToOther = allVehicles.some(v => 
+        v.id !== currentVehicleId && 
+        v.driverId === driver.id &&
+        v.status !== 'sold'
+      );
+      
+      return !isLinkedToOther;
+    });
   };
 
   const handleAddComposition = (vehicleId: string, trailerId: string) => {
@@ -733,6 +763,7 @@ export default function Vehicles() {
                 calculateAverageConsumption={calculateAverageConsumption}
                 allDrivers={allDrivers}
                 allVehicles={allVehicles}
+                getAvailableDrivers={getAvailableDrivers}
                 handleDriverChange={handleDriverChange}
                 handleStatusChange={handleStatusChange}
                 handleViewDetails={handleViewDetails}
@@ -759,6 +790,7 @@ export default function Vehicles() {
                 calculateAverageConsumption={calculateAverageConsumption}
                 allDrivers={allDrivers}
                 allVehicles={allVehicles}
+                getAvailableDrivers={getAvailableDrivers}
                 handleDriverChange={handleDriverChange}
                 handleStatusChange={handleStatusChange}
                 handleViewDetails={handleViewDetails}

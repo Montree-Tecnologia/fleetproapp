@@ -13,6 +13,7 @@ interface VehicleCardProps {
   calculateAverageConsumption: (vehicleId: string) => number | null;
   allDrivers: any[];
   allVehicles: Vehicle[];
+  getAvailableDrivers: (currentVehicleId: string) => any[];
   handleDriverChange: (vehicleId: string, driverId: string) => void;
   handleStatusChange: (vehicleId: string, status: string) => void;
   handleViewDetails: (vehicle: Vehicle) => void;
@@ -32,6 +33,7 @@ export function VehicleCard({
   calculateAverageConsumption,
   allDrivers,
   allVehicles,
+  getAvailableDrivers,
   handleDriverChange,
   handleStatusChange,
   handleViewDetails,
@@ -49,6 +51,9 @@ export function VehicleCard({
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
   const isTractionVehicle = tractionVehicleTypes.includes(vehicle.vehicleType);
   const isTrailerVehicle = trailerVehicleTypes.includes(vehicle.vehicleType);
+  
+  // Motoristas disponíveis (não vinculados a outros veículos)
+  const availableDrivers = getAvailableDrivers(vehicle.id);
   
   // Veículos de reboque disponíveis para adicionar
   const availableTrailers = allVehicles.filter(v => {
@@ -275,13 +280,11 @@ export function VehicleCard({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Sem motorista</SelectItem>
-                {allDrivers
-                  .filter(d => d.active)
-                  .map((driver) => (
-                    <SelectItem key={driver.id} value={driver.id}>
-                      {driver.name}
-                    </SelectItem>
-                  ))}
+                {availableDrivers.map((driver) => (
+                  <SelectItem key={driver.id} value={driver.id}>
+                    {driver.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
