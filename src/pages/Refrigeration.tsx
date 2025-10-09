@@ -154,10 +154,12 @@ export default function Refrigeration() {
     const unit = allUnits.find(u => u.id === unitId);
     if (!unit) return;
 
+    const actualVehicleId = vehicleId === 'none' ? undefined : vehicleId;
+
     // Se está vinculando a um veículo e o status não é válido, ajusta para active
-    if (vehicleId && unit.status !== 'active' && unit.status !== 'defective') {
+    if (actualVehicleId && unit.status !== 'active' && unit.status !== 'defective') {
       updateRefrigerationUnit(unitId, { 
-        vehicleId: vehicleId || undefined,
+        vehicleId: actualVehicleId,
         status: 'active'
       });
       toast({
@@ -165,10 +167,10 @@ export default function Refrigeration() {
         description: 'Equipamento vinculado e status ajustado para Ativo',
       });
     } else {
-      updateRefrigerationUnit(unitId, { vehicleId: vehicleId || undefined });
+      updateRefrigerationUnit(unitId, { vehicleId: actualVehicleId });
       toast({
-        title: vehicleId ? 'Vinculação realizada' : 'Vínculo removido',
-        description: vehicleId ? 'Equipamento vinculado ao veículo' : 'Equipamento desvinculado',
+        title: actualVehicleId ? 'Vinculação realizada' : 'Vínculo removido',
+        description: actualVehicleId ? 'Equipamento vinculado ao veículo' : 'Equipamento desvinculado',
       });
     }
   };
@@ -240,14 +242,14 @@ export default function Refrigeration() {
                 <div className="pt-3 border-t border-border">
                   <p className="text-sm text-muted-foreground mb-2">Vincular a Veículo:</p>
                   <Select
-                    value={unit.vehicleId || ''}
+                    value={unit.vehicleId || 'none'}
                     onValueChange={(value) => handleVehicleLink(unit.id, value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Sem vínculo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Sem vínculo</SelectItem>
+                      <SelectItem value="none">Sem vínculo</SelectItem>
                       {allVehicles.map((vehicle) => (
                         <SelectItem key={vehicle.id} value={vehicle.id}>
                           {vehicle.plate} - {vehicle.model}

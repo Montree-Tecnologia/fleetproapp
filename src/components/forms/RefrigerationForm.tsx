@@ -112,14 +112,17 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }:
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Veículo</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select 
+                  onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)} 
+                  value={field.value || 'none'}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Sem vínculo" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">Sem vínculo</SelectItem>
+                    <SelectItem value="none">Sem vínculo</SelectItem>
                     {vehicles.map((vehicle) => (
                       <SelectItem key={vehicle.id} value={vehicle.id}>
                         {vehicle.plate} - {vehicle.model}
