@@ -683,6 +683,17 @@ export default function Vehicles() {
                   <span className="text-muted-foreground">KM Atual:</span>
                   <p className="font-medium">{vehicle.currentKm.toLocaleString('pt-BR')}</p>
                 </div>
+                <div>
+                  <span className="text-muted-foreground">Consumo Médio:</span>
+                  <p className="font-medium">
+                    {(() => {
+                      const avgConsumption = calculateAverageConsumption(vehicle.id);
+                      return avgConsumption 
+                        ? `${avgConsumption.toFixed(2)} km/l` 
+                        : 'N/A';
+                    })()}
+                  </p>
+                </div>
                 <div className="col-span-2">
                   <span className="text-muted-foreground">Filiais Vinculadas:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
