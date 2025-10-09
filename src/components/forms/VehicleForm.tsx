@@ -238,12 +238,22 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
 
   // Filtra veículos de reboque ativos disponíveis para composição
-  const availableTrailerVehicles = availableVehicles.filter(v => 
-    trailerVehicleTypes.includes(v.vehicleType) && 
-    v.status === 'active' &&
-    v.id !== initialData?.id &&
-    !compositionPlates.includes(v.plate)
-  );
+  // Um reboque só pode estar vinculado a um veículo de tração por vez
+  const availableTrailerVehicles = availableVehicles.filter(v => {
+    if (!trailerVehicleTypes.includes(v.vehicleType)) return false;
+    if (v.status !== 'active') return false;
+    if (v.id === initialData?.id) return false;
+    if (compositionPlates.includes(v.plate)) return false;
+    
+    // Verifica se o reboque já está vinculado a outro veículo de tração
+    const isLinkedToOtherTraction = availableVehicles.some(vehicle => 
+      vehicle.id !== initialData?.id && // Exclui o veículo atual sendo editado
+      vehicle.hasComposition && 
+      vehicle.compositionPlates?.includes(v.plate)
+    );
+    
+    return !isLinkedToOtherTraction;
+  });
 
   const getVehicleCategory = (vehicleType?: string) => {
     if (!vehicleType) return undefined;

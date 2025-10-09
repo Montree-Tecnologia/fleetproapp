@@ -806,7 +806,36 @@ export function useMockData() {
       id: Date.now().toString(),
       currentKm: vehicle.purchaseKm, // Inicializa currentKm com purchaseKm
     };
-    setVehicles(prev => [...prev, newVehicle]);
+    
+    // Se o veículo sendo adicionado tem composições, remove essas composições de outros veículos de tração
+    if (newVehicle.hasComposition && newVehicle.compositionPlates) {
+      setVehicles(prev => {
+        const updatedVehicles = prev.map(v => {
+          if (v.hasComposition && v.compositionPlates) {
+            const hasConflict = v.compositionPlates.some(plate => newVehicle.compositionPlates?.includes(plate));
+            if (hasConflict) {
+              const newCompositionPlates = v.compositionPlates.filter(plate => !newVehicle.compositionPlates?.includes(plate));
+              const filteredIndexes = v.compositionPlates.map((plate, idx) => 
+                newVehicle.compositionPlates?.includes(plate) ? -1 : idx
+              ).filter(idx => idx !== -1);
+              const newCompositionAxles = filteredIndexes.map(idx => v.compositionAxles![idx]);
+              
+              return {
+                ...v,
+                compositionPlates: newCompositionPlates,
+                compositionAxles: newCompositionAxles,
+                hasComposition: newCompositionPlates.length > 0
+              };
+            }
+          }
+          return v;
+        });
+        return [...updatedVehicles, newVehicle];
+      });
+    } else {
+      setVehicles(prev => [...prev, newVehicle]);
+    }
+    
     return newVehicle;
   }, []);
   const updateVehicle = useCallback((id: string, data: Partial<Vehicle>) => {
@@ -820,6 +849,9 @@ export function useMockData() {
       const isTraction = tractionTypes.includes(updatedVehicle.vehicleType);
       const statusChanged = data.status && data.status !== updatedVehicle.status;
       const newStatusIsInactiveOrMaintenance = data.status === 'inactive' || data.status === 'maintenance';
+      
+      // Verifica se há mudanças nas composições (novas composições sendo adicionadas)
+      const compositionsChanged = data.compositionPlates && JSON.stringify(data.compositionPlates) !== JSON.stringify(updatedVehicle.compositionPlates);
 
       // Caso 1: Veículo de reboque mudou para inativo/manutenção - desvincular de veículos de tração
       if (isTrailer && statusChanged && newStatusIsInactiveOrMaintenance) {
@@ -861,6 +893,40 @@ export function useMockData() {
           // Atualiza status dos reboques acoplados
           if (updatedVehicle.compositionPlates.includes(v.plate)) {
             return { ...v, status: data.status! };
+          }
+          return v;
+        });
+      }
+
+      // Caso 3: Veículo de tração teve composições adicionadas/alteradas
+      // Remove os reboques de outras composições se estiverem sendo vinculados a este veículo
+      if (isTraction && compositionsChanged && data.compositionPlates) {
+        return prev.map(v => {
+          if (v.id === id) {
+            // Atualiza o veículo de tração
+            if (data.purchaseKm && v.currentKm < data.purchaseKm) {
+              return { ...v, ...data, currentKm: data.purchaseKm };
+            }
+            return { ...v, ...data };
+          }
+          
+          // Remove os reboques que agora pertencem ao veículo sendo atualizado de outras composições
+          if (v.id !== id && v.hasComposition && v.compositionPlates) {
+            const hasConflict = v.compositionPlates.some(plate => data.compositionPlates?.includes(plate));
+            if (hasConflict) {
+              const newCompositionPlates = v.compositionPlates.filter(plate => !data.compositionPlates?.includes(plate));
+              const filteredIndexes = v.compositionPlates.map((plate, idx) => 
+                data.compositionPlates?.includes(plate) ? -1 : idx
+              ).filter(idx => idx !== -1);
+              const newCompositionAxles = filteredIndexes.map(idx => v.compositionAxles![idx]);
+              
+              return {
+                ...v,
+                compositionPlates: newCompositionPlates,
+                compositionAxles: newCompositionAxles,
+                hasComposition: newCompositionPlates.length > 0
+              };
+            }
           }
           return v;
         });
