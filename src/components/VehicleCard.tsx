@@ -48,6 +48,7 @@ export function VehicleCard({
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
   const isTractionVehicle = tractionVehicleTypes.includes(vehicle.vehicleType);
+  const isTrailerVehicle = trailerVehicleTypes.includes(vehicle.vehicleType);
   
   // Veículos de reboque disponíveis para adicionar
   const availableTrailers = allVehicles.filter(v => {
@@ -65,10 +66,17 @@ export function VehicleCard({
     return !isLinkedToOther;
   });
   
-  // Encontra os detalhes dos reboques vinculados
+  // Encontra os detalhes dos reboques vinculados (para veículos de tração)
   const linkedTrailers = vehicle.compositionPlates?.map(plate => 
     allVehicles.find(v => v.plate === plate)
   ).filter(Boolean) || [];
+  
+  // Encontra os veículos de tração que têm este reboque vinculado (para veículos de reboque)
+  const linkedToTractionVehicles = isTrailerVehicle ? allVehicles.filter(v => 
+    tractionVehicleTypes.includes(v.vehicleType) &&
+    v.hasComposition && 
+    v.compositionPlates?.includes(vehicle.plate)
+  ) : [];
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -224,6 +232,32 @@ export function VehicleCard({
                 <p>Nenhuma composição vinculada</p>
                 <p className="mt-1">Total de eixos: {vehicle.axles}</p>
               </div>
+            )}
+          </div>
+        )}
+        
+        {isTrailerVehicle && (
+          <div className="pt-3 border-t border-border">
+            <span className="text-sm text-muted-foreground block mb-2">Vinculado a:</span>
+            {linkedToTractionVehicles.length > 0 ? (
+              <div className="space-y-1.5">
+                {linkedToTractionVehicles.map((tractionVehicle) => (
+                  <div
+                    key={tractionVehicle.id}
+                    className="flex items-center gap-2 p-2 bg-primary/5 rounded-md border border-primary/10"
+                  >
+                    <Link2 className="h-3 w-3 text-primary" />
+                    <div>
+                      <p className="text-xs font-medium">{tractionVehicle.plate}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {tractionVehicle.vehicleType} - {tractionVehicle.model}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Não vinculado a nenhum veículo de tração</p>
             )}
           </div>
         )}
