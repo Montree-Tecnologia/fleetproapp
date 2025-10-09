@@ -277,7 +277,7 @@ export default function Vehicles() {
                           <img
                             src={viewingVehicle.crlvDocument}
                             alt="CRLV"
-                            className="w-full max-w-md h-auto object-contain rounded-lg border border-border cursor-pointer"
+                            className="w-full h-32 object-cover rounded-lg border border-border cursor-pointer hover:border-primary transition-colors"
                             onClick={() => window.open(viewingVehicle.crlvDocument, '_blank')}
                           />
                         ) : (
@@ -325,7 +325,9 @@ export default function Vehicles() {
               {viewingVehicle.driverId && getDriverName(viewingVehicle.driverId) && (
                 <div>
                   <h3 className="font-semibold mb-3">Motorista Vinculado</h3>
-                  <p className="font-medium">{getDriverName(viewingVehicle.driverId)}</p>
+                  <div className="p-3 bg-muted rounded-lg border border-border">
+                    <p className="text-lg font-semibold">{getDriverName(viewingVehicle.driverId)}</p>
+                  </div>
                 </div>
               )}
 
