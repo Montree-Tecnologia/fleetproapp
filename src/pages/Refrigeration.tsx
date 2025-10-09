@@ -3,7 +3,7 @@ import { useMockData, RefrigerationUnit } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Snowflake, Thermometer, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -31,6 +31,8 @@ export default function Refrigeration() {
   const [editingUnit, setEditingUnit] = useState<RefrigerationUnit | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [unitToDelete, setUnitToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [viewingUnit, setViewingUnit] = useState<RefrigerationUnit | null>(null);
   const allUnits = refrigerationUnits();
   const allVehicles = vehicles();
 
@@ -78,6 +80,11 @@ export default function Refrigeration() {
     }
   };
 
+  const handleViewDetails = (unit: RefrigerationUnit) => {
+    setViewingUnit(unit);
+    setDetailsDialogOpen(true);
+  };
+
   const getTypeBadge = (type: string) => {
     const variants = {
       freezer: { label: 'Freezer', className: 'bg-chart-1 text-white' },
@@ -86,6 +93,19 @@ export default function Refrigeration() {
     };
     const variant = variants[type as keyof typeof variants];
     return <Badge className={variant.className}>{variant.label}</Badge>;
+  };
+
+  const getTypeLabel = (type: string) => {
+    const labels = {
+      freezer: 'Freezer',
+      cooled: 'Resfriado',
+      climatized: 'Climatizado'
+    };
+    return labels[type as keyof typeof labels];
+  };
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('pt-BR');
   };
 
   return (
@@ -167,16 +187,18 @@ export default function Refrigeration() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleEdit(unit)}
+                    className="flex-1"
+                    onClick={() => handleViewDetails(unit)}
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Eye className="h-4 w-4 mr-2" />
+                    Detalhes
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    className="flex-1"
+                    onClick={() => handleEdit(unit)}
                   >
-                    Ver Detalhes
+                    <Pencil className="h-4 w-4" />
                   </Button>
                   <Button
                     size="sm"
@@ -223,6 +245,116 @@ export default function Refrigeration() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Equipamento de Refrigeração</DialogTitle>
+            <DialogDescription>
+              Informações completas do aparelho
+            </DialogDescription>
+          </DialogHeader>
+
+          {viewingUnit && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-3">Informações do Equipamento</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Marca:</span>
+                    <p className="font-medium">{viewingUnit.brand}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Modelo:</span>
+                    <p className="font-medium">{viewingUnit.model}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Número de Série:</span>
+                    <p className="font-medium font-mono">{viewingUnit.serialNumber}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Tipo:</span>
+                    <div className="mt-1">
+                      {getTypeBadge(viewingUnit.type)}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Data de Instalação:</span>
+                    <p className="font-medium">{formatDate(viewingUnit.installDate)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Especificações Técnicas</h3>
+                <div className="p-4 bg-chart-1/5 rounded-lg border border-chart-1/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Thermometer className="h-6 w-6 text-chart-1" />
+                    <div>
+                      <p className="font-semibold">Faixa de Temperatura Operacional</p>
+                      <p className="text-sm text-muted-foreground">Capacidade de refrigeração do equipamento</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Temperatura Mínima:</span>
+                      <p className="text-xl font-bold text-chart-1">{viewingUnit.minTemp}°C</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Temperatura Máxima:</span>
+                      <p className="text-xl font-bold text-chart-1">{viewingUnit.maxTemp}°C</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Veículo Vinculado</h3>
+                {(() => {
+                  const vehicle = allVehicles.find(v => v.id === viewingUnit.vehicleId);
+                  return vehicle ? (
+                    <div className="p-4 bg-muted rounded-lg border border-border">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Placa:</span>
+                          <p className="font-medium">{vehicle.plate}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Marca/Modelo:</span>
+                          <p className="font-medium">{vehicle.brand} {vehicle.model}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Tipo:</span>
+                          <p className="font-medium">{vehicle.vehicleType}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Ano:</span>
+                          <p className="font-medium">{vehicle.year}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Veículo não encontrado</p>
+                  );
+                })()}
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setDetailsDialogOpen(false);
+                    handleEdit(viewingUnit);
+                  }}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
