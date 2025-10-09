@@ -680,14 +680,6 @@ export default function Vehicles() {
                   <p className="font-medium">{vehicle.year}</p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">KM Atual:</span>
-                  <p className="font-medium">{vehicle.currentKm.toLocaleString('pt-BR')}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">KM Rodados:</span>
-                  <p className="font-medium">{(vehicle.currentKm - vehicle.purchaseKm).toLocaleString('pt-BR')}</p>
-                </div>
-                <div>
                   <span className="text-muted-foreground">Consumo Médio:</span>
                   <p className="font-medium">
                     {(() => {
@@ -697,6 +689,14 @@ export default function Vehicles() {
                         : 'N/A';
                     })()}
                   </p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">KM Rodados:</span>
+                  <p className="font-medium">{(vehicle.currentKm - vehicle.purchaseKm).toLocaleString('pt-BR')}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">KM Atual:</span>
+                  <p className="font-medium">{vehicle.currentKm.toLocaleString('pt-BR')}</p>
                 </div>
                 <div className="col-span-2">
                   <span className="text-muted-foreground">Filiais Vinculadas:</span>
