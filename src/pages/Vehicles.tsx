@@ -2,7 +2,7 @@ import { useMockData, Vehicle } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Truck, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Truck, Pencil, Trash2, Eye } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -39,6 +39,8 @@ export default function Vehicles() {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<Vehicle | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [viewingVehicle, setViewingVehicle] = useState<Vehicle | null>(null);
 
   const getDriverName = (driverId?: string) => {
     if (!driverId) return null;
@@ -59,6 +61,11 @@ export default function Vehicles() {
   const handleEdit = (vehicle: Vehicle) => {
     setEditingVehicle(vehicle);
     setIsDialogOpen(true);
+  };
+
+  const handleViewDetails = (vehicle: Vehicle) => {
+    setViewingVehicle(vehicle);
+    setDetailsDialogOpen(true);
   };
 
   const handleDelete = (vehicle: Vehicle) => {
@@ -90,6 +97,14 @@ export default function Vehicles() {
       inactive: 'Inativo'
     };
     toast.success(`Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`);
+  };
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  };
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('pt-BR');
   };
 
   return (
@@ -148,6 +163,191 @@ export default function Vehicles() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Veículo - {viewingVehicle?.plate}</DialogTitle>
+            <DialogDescription>
+              Informações completas do veículo
+            </DialogDescription>
+          </DialogHeader>
+          
+          {viewingVehicle && (
+            <div className="space-y-6">
+              {viewingVehicle.images && viewingVehicle.images.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-3">Imagens</h3>
+                  <div className="grid grid-cols-3 gap-3">
+                    {viewingVehicle.images.map((image, index) => (
+                      <img
+                        key={index}
+                        src={image}
+                        alt={`${viewingVehicle.plate} - ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border border-border"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h3 className="font-semibold mb-3">Informações Básicas</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Placa:</span>
+                    <p className="font-medium">{viewingVehicle.plate}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Tipo:</span>
+                    <p className="font-medium">{viewingVehicle.vehicleType}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Marca:</span>
+                    <p className="font-medium">{viewingVehicle.brand}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Modelo:</span>
+                    <p className="font-medium">{viewingVehicle.model}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Ano:</span>
+                    <p className="font-medium">{viewingVehicle.year}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Cor:</span>
+                    <p className="font-medium">{viewingVehicle.color}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <div className="mt-1">{getStatusBadge(viewingVehicle.status)}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">KM Atual:</span>
+                    <p className="font-medium">{viewingVehicle.currentKm.toLocaleString('pt-BR')}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Documentação</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Chassis:</span>
+                    <p className="font-medium font-mono">{viewingVehicle.chassis}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">RENAVAM:</span>
+                    <p className="font-medium font-mono">{viewingVehicle.renavam}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Data de Compra:</span>
+                    <p className="font-medium">{formatDate(viewingVehicle.purchaseDate)}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Valor de Compra:</span>
+                    <p className="font-medium">{formatCurrency(viewingVehicle.purchaseValue)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Características Técnicas</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Tipo de Combustível:</span>
+                    <p className="font-medium">{viewingVehicle.fuelType}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Quantidade de Eixos:</span>
+                    <p className="font-medium">{viewingVehicle.axles}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Filiais Vinculadas</h3>
+                <div className="flex flex-wrap gap-2">
+                  {viewingVehicle.branches.map((branch, index) => (
+                    <Badge key={index} variant="secondary">
+                      {branch}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {viewingVehicle.driverId && getDriverName(viewingVehicle.driverId) && (
+                <div>
+                  <h3 className="font-semibold mb-3">Motorista Vinculado</h3>
+                  <p className="font-medium">{getDriverName(viewingVehicle.driverId)}</p>
+                </div>
+              )}
+
+              {viewingVehicle.hasComposition && viewingVehicle.compositionPlates && viewingVehicle.compositionPlates.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-3">Composições Acopladas</h3>
+                  <div className="space-y-2">
+                    {viewingVehicle.compositionPlates.map((plate, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                        <Badge variant="secondary">{plate}</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {viewingVehicle.compositionAxles?.[index]} {viewingVehicle.compositionAxles?.[index] === 1 ? 'eixo' : 'eixos'}
+                        </span>
+                      </div>
+                    ))}
+                    <div className="pt-2 border-t border-border">
+                      <p className="text-sm font-medium">
+                        Total de eixos (veículo + composições): {viewingVehicle.axles + (viewingVehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {getRefrigerationUnitByVehicle(viewingVehicle.id) && (
+                <div>
+                  <h3 className="font-semibold mb-3">Unidade de Refrigeração</h3>
+                  {(() => {
+                    const unit = getRefrigerationUnitByVehicle(viewingVehicle.id);
+                    return unit ? (
+                      <div className="grid grid-cols-2 gap-4 text-sm bg-blue-500/5 p-4 rounded-lg border border-blue-500/20">
+                        <div>
+                          <span className="text-muted-foreground">Marca:</span>
+                          <p className="font-medium">{unit.brand}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Modelo:</span>
+                          <p className="font-medium">{unit.model}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Número de Série:</span>
+                          <p className="font-medium font-mono">{unit.serialNumber}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Tipo:</span>
+                          <p className="font-medium capitalize">{unit.type === 'freezer' ? 'Freezer' : unit.type === 'cooled' ? 'Resfriado' : 'Climatizado'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Temperatura Mínima:</span>
+                          <p className="font-medium">{unit.minTemp}°C</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Temperatura Máxima:</span>
+                          <p className="font-medium">{unit.maxTemp}°C</p>
+                        </div>
+                        <div className="col-span-2">
+                          <span className="text-muted-foreground">Data de Instalação:</span>
+                          <p className="font-medium">{formatDate(unit.installDate)}</p>
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {allVehicles.map((vehicle) => (
@@ -250,10 +450,17 @@ export default function Vehicles() {
                   size="sm"
                   variant="outline"
                   className="flex-1"
+                  onClick={() => handleViewDetails(vehicle)}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Detalhes
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
                   onClick={() => handleEdit(vehicle)}
                 >
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Editar
+                  <Pencil className="h-4 w-4" />
                 </Button>
                 <Button
                   size="sm"
