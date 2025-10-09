@@ -83,7 +83,7 @@ export interface Supplier {
   cnpj: string;
   name: string;
   fantasyName: string;
-  type: 'gas_station' | 'workshop' | 'dealer';
+  type: 'gas_station' | 'workshop' | 'dealer' | 'parts_store' | 'tire_store';
   brand?: string;
   city: string;
   state: string;

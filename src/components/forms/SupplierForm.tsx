@@ -26,7 +26,7 @@ const supplierSchema = z.object({
   cnpj: z.string().regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, 'CNPJ inválido (formato: 00.000.000/0000-00)'),
   name: z.string().min(3, 'Razão social deve ter no mínimo 3 caracteres'),
   fantasyName: z.string().min(3, 'Nome fantasia deve ter no mínimo 3 caracteres'),
-  type: z.enum(['gas_station', 'workshop', 'dealer']),
+  type: z.enum(['gas_station', 'workshop', 'dealer', 'parts_store', 'tire_store']),
   brand: z.string().optional(),
   city: z.string().min(1, 'Cidade é obrigatória'),
   state: z.string().length(2, 'UF deve ter 2 caracteres'),
@@ -136,6 +136,8 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
                     <SelectItem value="gas_station">Posto de Combustível</SelectItem>
                     <SelectItem value="workshop">Oficina</SelectItem>
                     <SelectItem value="dealer">Concessionária</SelectItem>
+                    <SelectItem value="parts_store">Loja de Peças e Componentes</SelectItem>
+                    <SelectItem value="tire_store">Loja de Pneus</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

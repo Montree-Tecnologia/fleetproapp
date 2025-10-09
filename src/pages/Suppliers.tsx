@@ -90,7 +90,9 @@ export default function Suppliers() {
     const variants = {
       gas_station: { label: 'Posto', className: 'bg-chart-4 text-white' },
       workshop: { label: 'Oficina', className: 'bg-chart-5 text-white' },
-      dealer: { label: 'Concessionária', className: 'bg-chart-1 text-white' }
+      dealer: { label: 'Concessionária', className: 'bg-chart-1 text-white' },
+      parts_store: { label: 'Peças', className: 'bg-chart-2 text-white' },
+      tire_store: { label: 'Pneus', className: 'bg-chart-3 text-white' }
     };
     const variant = variants[type as keyof typeof variants];
     return <Badge className={variant.className}>{variant.label}</Badge>;
@@ -100,7 +102,9 @@ export default function Suppliers() {
     const labels = {
       gas_station: 'Posto de Combustível',
       workshop: 'Oficina',
-      dealer: 'Concessionária'
+      dealer: 'Concessionária',
+      parts_store: 'Loja de Peças e Componentes',
+      tire_store: 'Loja de Pneus'
     };
     return labels[type as keyof typeof labels];
   };
