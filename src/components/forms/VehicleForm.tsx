@@ -643,10 +643,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
                   <SelectContent>
                     {availableBranches.map((branch) => (
                       <SelectItem key={branch.name} value={branch.name}>
-                        <div className="flex flex-col">
-                          <span>{branch.name}</span>
-                          <span className="text-xs text-muted-foreground">{branch.cnpj}</span>
-                        </div>
+                        {branch.name} - {branch.cnpj}
                       </SelectItem>
                     ))}
                   </SelectContent>
