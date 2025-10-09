@@ -143,7 +143,6 @@ const vehicleSchema = z.object({
   axles: z.number().min(1).max(20),
   purchaseDate: z.date(),
   purchaseValue: z.number().min(0),
-  branch: z.string().min(1, 'Filial é obrigatória'),
 });
 
 type VehicleFormData = z.infer<typeof vehicleSchema>;
@@ -155,6 +154,9 @@ interface VehicleFormProps {
 }
 
 export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProps) {
+  const [selectedBranches, setSelectedBranches] = useState<string[]>(
+    initialData?.branches || ['Matriz']
+  );
   const [compositionPlates, setCompositionPlates] = useState<string[]>(
     initialData?.compositionPlates || []
   );
@@ -186,7 +188,6 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       axles: initialData.axles,
       purchaseDate: new Date(initialData.purchaseDate),
       purchaseValue: initialData.purchaseValue,
-      branch: initialData.branches?.[0] || 'Matriz',
     } : {
       year: new Date().getFullYear(),
       currentKm: 0,
@@ -196,7 +197,6 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       vehicleType: 'Truck',
       fuelType: 'Diesel S10',
       purchaseDate: new Date(),
-      branch: 'Matriz',
     },
   });
 
@@ -253,7 +253,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       currentKm: data.currentKm,
       fuelType: data.fuelType,
       axles: data.axles,
-      branches: [data.branch],
+      branches: selectedBranches,
       hasComposition: compositionPlates.length > 0,
       compositionPlates: compositionPlates.length > 0 ? compositionPlates : undefined,
       compositionAxles: compositionAxles.length > 0 ? compositionAxles : undefined,
@@ -278,6 +278,16 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
   const removeCompositionPlate = (index: number) => {
     setCompositionPlates(compositionPlates.filter((_, i) => i !== index));
     setCompositionAxles(compositionAxles.filter((_, i) => i !== index));
+  };
+
+  const toggleBranch = (branch: string) => {
+    if (selectedBranches.includes(branch)) {
+      if (selectedBranches.length > 1) {
+        setSelectedBranches(selectedBranches.filter(b => b !== branch));
+      }
+    } else {
+      setSelectedBranches([...selectedBranches, branch]);
+    }
   };
 
   const availableBranches = ['Matriz', 'Filial SP', 'Filial RJ', 'Filial MG'];
@@ -607,30 +617,21 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="branch"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Matriz/Filial Proprietária *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a matriz/filial" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {availableBranches.map((branch) => (
-                    <SelectItem key={branch} value={branch}>
-                      {branch}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div>
+          <FormLabel>Filiais Vinculadas *</FormLabel>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {availableBranches.map((branch) => (
+              <Badge
+                key={branch}
+                variant={selectedBranches.includes(branch) ? "default" : "outline"}
+                className="cursor-pointer"
+                onClick={() => toggleBranch(branch)}
+              >
+                {branch}
+              </Badge>
+            ))}
+          </div>
+        </div>
 
         <div>
           <FormLabel>Composições Acopladas</FormLabel>
