@@ -2,7 +2,22 @@ import { useState } from 'react';
 import { useMockData } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Fuel, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +44,14 @@ export default function Refuelings() {
   const [open, setOpen] = useState(false);
   const [editingRefueling, setEditingRefueling] = useState<any>(null);
   const [deletingRefueling, setDeletingRefueling] = useState<any>(null);
+  
+  // Filtros avançados
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [selectedVehicle, setSelectedVehicle] = useState<string>('all');
+  const [selectedDriver, setSelectedDriver] = useState<string>('all');
+  const [selectedSupplier, setSelectedSupplier] = useState<string>('all');
+  
   const allRefuelings = refuelings();
   const allVehicles = vehicles();
   const allDrivers = drivers();
@@ -73,6 +96,44 @@ export default function Refuelings() {
     setEditingRefueling(null);
   };
 
+  const clearFilters = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setSelectedVehicle('all');
+    setSelectedDriver('all');
+    setSelectedSupplier('all');
+  };
+
+  const hasActiveFilters = startDate || endDate || selectedVehicle !== 'all' || 
+    selectedDriver !== 'all' || selectedSupplier !== 'all';
+
+  const filteredRefuelings = allRefuelings
+    .filter((refueling) => {
+      const refuelingDate = new Date(refueling.date);
+      
+      // Filtro de data inicial
+      if (startDate && refuelingDate < startDate) return false;
+      
+      // Filtro de data final
+      if (endDate) {
+        const endOfDay = new Date(endDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        if (refuelingDate > endOfDay) return false;
+      }
+      
+      // Filtro de veículo
+      if (selectedVehicle !== 'all' && refueling.vehicleId !== selectedVehicle) return false;
+      
+      // Filtro de motorista
+      if (selectedDriver !== 'all' && refueling.driver !== selectedDriver) return false;
+      
+      // Filtro de fornecedor
+      if (selectedSupplier !== 'all' && refueling.supplierId !== selectedSupplier) return false;
+      
+      return true;
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -106,15 +167,158 @@ export default function Refuelings() {
         </Dialog>
       </div>
 
+      {/* Filtros Avançados */}
       <Card>
         <CardHeader>
-          <CardTitle>Histórico de Abastecimentos</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Filtros Avançados</CardTitle>
+            {hasActiveFilters && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearFilters}
+              >
+                <FilterX className="mr-2 h-4 w-4" />
+                Limpar Filtros
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* Filtro de Data Inicial */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Data Inicial</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !startDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate ? format(startDate, "dd/MM/yyyy") : "Selecione"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={setStartDate}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Filtro de Data Final */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Data Final</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !endDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {endDate ? format(endDate, "dd/MM/yyyy") : "Selecione"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={setEndDate}
+                    disabled={(date) => startDate ? date < startDate : false}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Filtro de Veículo */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Veículo</label>
+              <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {allVehicles.map((vehicle) => (
+                    <SelectItem key={vehicle.id} value={vehicle.id}>
+                      {vehicle.plate} - {vehicle.model}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro de Motorista */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Motorista</label>
+              <Select value={selectedDriver} onValueChange={setSelectedDriver}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {allDrivers.map((driver) => (
+                    <SelectItem key={driver.id} value={driver.name}>
+                      {driver.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Filtro de Fornecedor */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Fornecedor</label>
+              <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  {allSuppliers.filter(s => s.type === 'gas_station').map((supplier) => (
+                    <SelectItem key={supplier.id} value={supplier.id}>
+                      {supplier.fantasyName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Histórico de Abastecimentos
+            {hasActiveFilters && (
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                ({filteredRefuelings.length} {filteredRefuelings.length === 1 ? 'resultado' : 'resultados'})
+              </span>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {allRefuelings
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-              .map((refueling) => {
+            {filteredRefuelings.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Nenhum abastecimento encontrado com os filtros aplicados.
+              </div>
+            ) : (
+              filteredRefuelings.map((refueling) => {
                 const vehicle = allVehicles.find(v => v.id === refueling.vehicleId);
                 const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
                 return (
@@ -172,7 +376,8 @@ export default function Refuelings() {
                     </div>
                   </div>
                 );
-              })}
+              })
+            )}
           </div>
         </CardContent>
       </Card>
