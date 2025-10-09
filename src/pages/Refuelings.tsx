@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useMockData } from '@/hooks/useMockData';
+import mockupPaymentReceipt from '@/assets/mockup-payment-receipt.jpg';
+import mockupFiscalNote from '@/assets/mockup-fiscal-note.jpg';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText } from 'lucide-react';
@@ -486,53 +488,65 @@ export default function Refuelings() {
                 </div>
 
                 {/* Documents */}
-                {(viewingRefueling.paymentReceipt || viewingRefueling.fiscalNote) && (
-                  <div className="space-y-4 pt-4 border-t">
-                    <h3 className="font-semibold text-lg">Documentos</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      {viewingRefueling.paymentReceipt && (
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-muted-foreground">
-                            Comprovante de Pagamento
-                          </label>
-                          {viewingRefueling.paymentReceipt.startsWith('data:image') ? (
-                            <img
-                              src={viewingRefueling.paymentReceipt}
-                              alt="Comprovante"
-                              className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
-                              onClick={() => window.open(viewingRefueling.paymentReceipt, '_blank')}
-                            />
-                          ) : (
-                            <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
-                              <FileText className="h-5 w-5" />
-                              <span className="text-sm">Comprovante anexado</span>
-                            </div>
-                          )}
-                        </div>
+                <div className="space-y-4 pt-4 border-t">
+                  <h3 className="font-semibold text-lg">Documentos</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Comprovante de Pagamento
+                      </label>
+                      {viewingRefueling.paymentReceipt ? (
+                        viewingRefueling.paymentReceipt.startsWith('data:image') ? (
+                          <img
+                            src={viewingRefueling.paymentReceipt}
+                            alt="Comprovante"
+                            className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
+                            onClick={() => window.open(viewingRefueling.paymentReceipt, '_blank')}
+                          />
+                        ) : (
+                          <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                            <FileText className="h-5 w-5" />
+                            <span className="text-sm">Comprovante anexado</span>
+                          </div>
+                        )
+                      ) : (
+                        <img
+                          src={mockupPaymentReceipt}
+                          alt="Mockup Comprovante"
+                          className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
+                          onClick={() => window.open(mockupPaymentReceipt, '_blank')}
+                        />
                       )}
-                      {viewingRefueling.fiscalNote && (
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium text-muted-foreground">
-                            Nota Fiscal / Cupom
-                          </label>
-                          {viewingRefueling.fiscalNote.startsWith('data:image') ? (
-                            <img
-                              src={viewingRefueling.fiscalNote}
-                              alt="Nota Fiscal"
-                              className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
-                              onClick={() => window.open(viewingRefueling.fiscalNote, '_blank')}
-                            />
-                          ) : (
-                            <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
-                              <FileText className="h-5 w-5" />
-                              <span className="text-sm">Nota fiscal anexada</span>
-                            </div>
-                          )}
-                        </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Nota Fiscal / Cupom
+                      </label>
+                      {viewingRefueling.fiscalNote ? (
+                        viewingRefueling.fiscalNote.startsWith('data:image') ? (
+                          <img
+                            src={viewingRefueling.fiscalNote}
+                            alt="Nota Fiscal"
+                            className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
+                            onClick={() => window.open(viewingRefueling.fiscalNote, '_blank')}
+                          />
+                        ) : (
+                          <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                            <FileText className="h-5 w-5" />
+                            <span className="text-sm">Nota fiscal anexada</span>
+                          </div>
+                        )
+                      ) : (
+                        <img
+                          src={mockupFiscalNote}
+                          alt="Mockup Nota Fiscal"
+                          className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
+                          onClick={() => window.open(mockupFiscalNote, '_blank')}
+                        />
                       )}
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             );
           })()}
