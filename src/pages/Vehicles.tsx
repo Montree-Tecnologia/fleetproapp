@@ -434,10 +434,10 @@ export default function Vehicles() {
                     <span className="text-muted-foreground">Modelo:</span>
                     <p className="font-medium">{viewingVehicle.model}</p>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">Ano:</span>
-                    <p className="font-medium">{viewingVehicle.year}</p>
-                  </div>
+                          <div>
+                            <span className="text-muted-foreground">Ano:</span>
+                            <p className="font-medium">{viewingVehicle.manufacturingYear}/{viewingVehicle.modelYear.toString().slice(-2)}</p>
+                          </div>
                   <div>
                     <span className="text-muted-foreground">Cor:</span>
                     <p className="font-medium">{viewingVehicle.color}</p>

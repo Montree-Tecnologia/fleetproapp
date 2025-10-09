@@ -455,7 +455,7 @@ export default function Refrigeration() {
                           </div>
                           <div>
                             <span className="text-muted-foreground">Ano:</span>
-                            <p className="font-medium">{vehicle.year}</p>
+                            <p className="font-medium">{vehicle.manufacturingYear}/{vehicle.modelYear.toString().slice(-2)}</p>
                           </div>
                         </div>
                       </div>
