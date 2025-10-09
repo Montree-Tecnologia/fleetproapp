@@ -240,9 +240,28 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Marca *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Volvo" {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a marca" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Agrale">Agrale</SelectItem>
+                    <SelectItem value="DAF">DAF</SelectItem>
+                    <SelectItem value="Ford">Ford</SelectItem>
+                    <SelectItem value="International">International</SelectItem>
+                    <SelectItem value="Iveco">Iveco</SelectItem>
+                    <SelectItem value="MAN">MAN</SelectItem>
+                    <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
+                    <SelectItem value="Mitsubishi">Mitsubishi</SelectItem>
+                    <SelectItem value="Peugeot">Peugeot</SelectItem>
+                    <SelectItem value="Renault">Renault</SelectItem>
+                    <SelectItem value="Scania">Scania</SelectItem>
+                    <SelectItem value="Volvo">Volvo</SelectItem>
+                    <SelectItem value="Volkswagen">Volkswagen</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
