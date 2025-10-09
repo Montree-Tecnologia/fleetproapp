@@ -62,6 +62,13 @@ export default function Refuelings() {
   const allDrivers = drivers();
   const allSuppliers = suppliers();
 
+  // Filtrar apenas veículos de tração
+  const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
+  const tractionVehicles = allVehicles.filter(v => 
+    tractionVehicleTypes.includes(v.vehicleType) && 
+    v.status !== 'sold'
+  );
+
   const handleSubmit = (data: any) => {
     if (editingRefueling) {
       updateRefueling(editingRefueling.id, data);
@@ -163,7 +170,7 @@ export default function Refuelings() {
             <RefuelingForm
               onSubmit={handleSubmit}
               onCancel={handleCloseDialog}
-              vehicles={allVehicles}
+              vehicles={tractionVehicles}
               drivers={allDrivers}
               suppliers={allSuppliers}
               initialData={editingRefueling}
@@ -257,7 +264,7 @@ export default function Refuelings() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  {allVehicles.map((vehicle) => (
+                  {tractionVehicles.map((vehicle) => (
                     <SelectItem key={vehicle.id} value={vehicle.id}>
                       {vehicle.plate} - {vehicle.model}
                     </SelectItem>

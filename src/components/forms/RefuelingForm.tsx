@@ -59,6 +59,13 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>(initialData?.paymentReceipt);
   const [fiscalNote, setFiscalNote] = useState<string | undefined>(initialData?.fiscalNote);
   
+  // Filtrar apenas veículos de tração
+  const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
+  const tractionVehicles = vehicles.filter(v => 
+    tractionVehicleTypes.includes(v.vehicleType) && 
+    v.status !== 'sold'
+  );
+  
   const form = useForm<RefuelingFormData>({
     resolver: zodResolver(refuelingSchema),
     defaultValues: initialData ? {
@@ -157,7 +164,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {vehicles.map((vehicle) => (
+                    {tractionVehicles.map((vehicle) => (
                       <SelectItem key={vehicle.id} value={vehicle.id}>
                         {vehicle.plate} - {vehicle.model}
                       </SelectItem>
