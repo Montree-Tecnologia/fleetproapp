@@ -437,59 +437,51 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="vehicleType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tipo de Veículo *</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                  disabled={!vehicleCategory && !initialData}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={vehicleCategory ? "Selecione o tipo" : "Selecione primeiro a categoria"} />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {vehicleCategory === 'traction' && (
-                      <>
-                        <SelectItem value="Truck">Truck</SelectItem>
-                        <SelectItem value="Cavalo Mecânico">Cavalo Mecânico</SelectItem>
-                        <SelectItem value="Toco">Toco</SelectItem>
-                      </>
-                    )}
-                    {vehicleCategory === 'trailer' && (
-                      <>
-                        <SelectItem value="Baú">Baú</SelectItem>
-                        <SelectItem value="Carreta">Carreta</SelectItem>
-                        <SelectItem value="Graneleiro">Graneleiro</SelectItem>
-                        <SelectItem value="Container">Container</SelectItem>
-                        <SelectItem value="Caçamba">Caçamba</SelectItem>
-                        <SelectItem value="Baú Frigorífico">Baú Frigorífico</SelectItem>
-                      </>
-                    )}
-                    {initialData && !vehicleCategory && (
-                      <>
-                        <SelectItem value="Truck">Truck</SelectItem>
-                        <SelectItem value="Baú">Baú</SelectItem>
-                        <SelectItem value="Carreta">Carreta</SelectItem>
-                        <SelectItem value="Graneleiro">Graneleiro</SelectItem>
-                        <SelectItem value="Container">Container</SelectItem>
-                        <SelectItem value="Caçamba">Caçamba</SelectItem>
-                        <SelectItem value="Cavalo Mecânico">Cavalo Mecânico</SelectItem>
-                        <SelectItem value="Baú Frigorífico">Baú Frigorífico</SelectItem>
-                        <SelectItem value="Toco">Toco</SelectItem>
-                      </>
-                    )}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {vehicleCategory !== 'trailer' && (
+            <FormField
+              control={form.control}
+              name="vehicleType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Veículo *</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value}
+                    disabled={!vehicleCategory && !initialData}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={vehicleCategory ? "Selecione o tipo" : "Selecione primeiro a categoria"} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {vehicleCategory === 'traction' && (
+                        <>
+                          <SelectItem value="Truck">Truck</SelectItem>
+                          <SelectItem value="Cavalo Mecânico">Cavalo Mecânico</SelectItem>
+                          <SelectItem value="Toco">Toco</SelectItem>
+                        </>
+                      )}
+                      {initialData && !vehicleCategory && (
+                        <>
+                          <SelectItem value="Truck">Truck</SelectItem>
+                          <SelectItem value="Baú">Baú</SelectItem>
+                          <SelectItem value="Carreta">Carreta</SelectItem>
+                          <SelectItem value="Graneleiro">Graneleiro</SelectItem>
+                          <SelectItem value="Container">Container</SelectItem>
+                          <SelectItem value="Caçamba">Caçamba</SelectItem>
+                          <SelectItem value="Cavalo Mecânico">Cavalo Mecânico</SelectItem>
+                          <SelectItem value="Baú Frigorífico">Baú Frigorífico</SelectItem>
+                          <SelectItem value="Toco">Toco</SelectItem>
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}
