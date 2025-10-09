@@ -667,39 +667,79 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="color"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cor *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Branco" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {vehicleCategory === 'trailer' ? (
+            <>
+              <FormField
+                control={form.control}
+                name="axles"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Quantidade de Eixos *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min="1"
+                        max="20"
+                        {...field} 
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormField
-            control={form.control}
-            name="axles"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Quantidade de Eixos *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    min="1"
-                    max="20"
-                    {...field} 
-                    onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              <FormField
+                control={form.control}
+                name="color"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cor *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Branco" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          ) : (
+            <>
+              <FormField
+                control={form.control}
+                name="color"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cor *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Branco" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="axles"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Quantidade de Eixos *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min="1"
+                        max="20"
+                        {...field} 
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
 
           <FormField
             control={form.control}
