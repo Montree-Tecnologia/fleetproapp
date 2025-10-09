@@ -33,19 +33,99 @@ import { Badge } from '@/components/ui/badge';
 
 // Mapeamento de marcas para modelos (baseado na tabela FIPE de veículos pesados)
 const BRAND_MODELS: Record<string, string[]> = {
-  'Agrale': ['8500 TCA', '8500 TDX', '9200 TCA', '13000 TCA', '14000 TCA', '16000'],
-  'DAF': ['XF 105', 'XF 530', 'CF 85', 'LF 55', 'XF 480'],
-  'Ford': ['Cargo 815', 'Cargo 1119', 'Cargo 1319', 'Cargo 1519', 'Cargo 1719', 'Cargo 2429', 'Cargo 2629'],
-  'International': ['4300', '7400', '9800', 'ProStar'],
-  'Iveco': ['Stralis 380', 'Stralis 410', 'Stralis 440', 'Stralis 460', 'Stralis 490', 'Tector 170', 'Tector 240', 'Daily 35S14', 'Daily 55C16'],
-  'MAN': ['TGX 29.480', 'TGX 29.440', 'TGS 28.440', 'TGS 24.440', 'TGS 26.440'],
-  'Mercedes-Benz': ['Actros 2546', 'Actros 2651', 'Atego 1719', 'Atego 1729', 'Atego 2426', 'Atego 2729', 'Axor 2036', 'Axor 2544', 'Axor 2644', 'Axor 3344'],
-  'Mitsubishi': ['L200 Triton', 'Fuso Canter', 'Fuso Fighter'],
-  'Peugeot': ['Boxer 2.3', 'Boxer 2.8'],
-  'Renault': ['Master 2.3', 'T 520', 'C 460', 'K 380'],
-  'Scania': ['R 440', 'R 450', 'R 500', 'R 620', 'G 380', 'G 420', 'P 310', 'P 360', 'S 580'],
-  'Volvo': ['FH 440', 'FH 460', 'FH 500', 'FH 540', 'FM 370', 'FM 420', 'VM 270', 'VM 330'],
-  'Volkswagen': ['Constellation 17.280', 'Constellation 19.360', 'Constellation 24.280', 'Constellation 25.360', 'Constellation 31.280', 'Delivery 9.170', 'Delivery 11.180'],
+  'Agrale': [
+    '8500 TCA', '8500 TDX', '9200 TCA', '13000 TCA', '14000 TCA', '16000',
+    '6000 TCA', '7500 TCA', '8500 TCLE', '9200 TCLE', '10000 TCA',
+    'Marruá AM 100', 'Marruá AM 150', 'Marruá AM 200', 'Marruá AM 300'
+  ],
+  'DAF': [
+    'XF 105.460', 'XF 105.510', 'XF 105.530', 'XF 530', 'XF 480',
+    'CF 85.410', 'CF 85.430', 'CF 85.460', 'CF 85.480', 'CF 85.510',
+    'LF 45.180', 'LF 45.220', 'LF 55.180', 'LF 55.220', 'LF 55.250',
+    'XF 440', 'XF 510', 'XF 450 FT', 'XF 530 FT'
+  ],
+  'Ford': [
+    'Cargo 815', 'Cargo 816', 'Cargo 915', 'Cargo 1119', 'Cargo 1215',
+    'Cargo 1317', 'Cargo 1319', 'Cargo 1517', 'Cargo 1519', 'Cargo 1717',
+    'Cargo 1719', 'Cargo 1722', 'Cargo 1729', 'Cargo 2422', 'Cargo 2428',
+    'Cargo 2429', 'Cargo 2622', 'Cargo 2629', 'Cargo 2631', 'Cargo 2932',
+    'Cargo 3222', 'Cargo 3229', 'Cargo 3328', 'Cargo 3329', 'Cargo 4030',
+    'Cargo 4331', 'Cargo 4432', 'Cargo 4532'
+  ],
+  'International': [
+    '4300', '4400', '7400', '9200', '9400', '9800', '9900',
+    'ProStar', 'LoneStar', 'PayStar', 'WorkStar', 'TranStar',
+    'DuraStar', 'TerraStar'
+  ],
+  'Iveco': [
+    'Stralis 380', 'Stralis 410', 'Stralis 440', 'Stralis 460', 'Stralis 490',
+    'Stralis 570', 'Stralis 600', 'Stralis 740', 'Stralis Hi-Way 440',
+    'Stralis Hi-Way 480', 'Stralis Hi-Way 560', 'Stralis Hi-Way 600',
+    'Tector 150', 'Tector 170', 'Tector 240', 'Tector 260',
+    'Daily 35S14', 'Daily 35S17', 'Daily 45S17', 'Daily 55C16', 'Daily 55C17',
+    'Daily 70C16', 'Daily 70C17', 'Vertis 90V16', 'Vertis 90V18',
+    'Cursor 330', 'Cursor 400', 'Cursor 450'
+  ],
+  'MAN': [
+    'TGX 29.440', 'TGX 29.480', 'TGX 28.440', 'TGX 28.480',
+    'TGS 24.440', 'TGS 26.440', 'TGS 28.440', 'TGS 29.440',
+    'TGL 8.150', 'TGL 8.180', 'TGL 10.180', 'TGL 12.220',
+    'TGM 13.250', 'TGM 15.250', 'TGM 18.280', 'TGM 23.250',
+    'TGA 18.350', 'TGA 26.350', 'TGA 28.350'
+  ],
+  'Mercedes-Benz': [
+    'Actros 2546', 'Actros 2651', 'Actros 2655', 'Actros 3344', 'Actros 4144',
+    'Atego 1016', 'Atego 1316', 'Atego 1418', 'Atego 1419', 'Atego 1518',
+    'Atego 1719', 'Atego 1726', 'Atego 1729', 'Atego 2426', 'Atego 2429',
+    'Atego 2730', 'Atego 2729', 'Atego 3030',
+    'Axor 1933', 'Axor 2036', 'Axor 2041', 'Axor 2044', 'Axor 2533',
+    'Axor 2536', 'Axor 2540', 'Axor 2544', 'Axor 2644', 'Axor 3131', 'Axor 3344',
+    'Accelo 715', 'Accelo 815', 'Accelo 915', 'Accelo 1016', 'Accelo 1316',
+    'L 1113', 'L 1313', 'L 1513', 'L 1518', 'L 1519', 'L 1620', 'L 1621',
+    'L 1938', 'L 2013', 'L 2318', 'LS 1632', 'LS 1634', 'LS 1938'
+  ],
+  'Mitsubishi': [
+    'L200 Triton Sport', 'L200 Triton Savana', 'L200 Triton HPE',
+    'Fuso Canter 815', 'Fuso Canter 915', 'Fuso Canter 3.5',
+    'Fuso Fighter FK', 'Fuso Fighter FM', 'Fuso Fighter FN',
+    'Pajero Full', 'Pajero Sport', 'Pajero TR4'
+  ],
+  'Peugeot': [
+    'Boxer 2.3 Furgão', 'Boxer 2.3 Chassi', 'Boxer 2.3 Minibus',
+    'Boxer 2.8 Furgão', 'Boxer 2.8 Chassi', 'Boxer 2.8 Minibus',
+    'Boxer 2.0 HDI', 'Boxer 2.2 HDI'
+  ],
+  'Renault': [
+    'Master 2.3', 'Master 2.5', 'Master L1H1', 'Master L2H2', 'Master L3H2',
+    'T 380', 'T 430', 'T 460', 'T 480', 'T 520',
+    'C 380', 'C 430', 'C 460', 'C 480',
+    'K 380', 'K 430', 'K 460', 'K 520',
+    'D 310', 'D 340', 'D 380'
+  ],
+  'Scania': [
+    'R 440', 'R 450', 'R 480', 'R 500', 'R 540', 'R 560', 'R 620', 'R 730',
+    'G 340', 'G 360', 'G 380', 'G 400', 'G 420', 'G 440', 'G 480',
+    'P 250', 'P 280', 'P 310', 'P 340', 'P 360', 'P 380', 'P 410',
+    'S 500', 'S 520', 'S 540', 'S 580', 'S 650', 'S 730',
+    'XT 440', 'XT 540'
+  ],
+  'Volvo': [
+    'FH 440', 'FH 460', 'FH 480', 'FH 500', 'FH 520', 'FH 540', 'FH 580', 'FH 660',
+    'FH16 600', 'FH16 660', 'FH16 700', 'FH16 750',
+    'FM 330', 'FM 370', 'FM 380', 'FM 400', 'FM 420', 'FM 440', 'FM 460', 'FM 480',
+    'FMX 370', 'FMX 420', 'FMX 440', 'FMX 460', 'FMX 500', 'FMX 540',
+    'VM 210', 'VM 220', 'VM 260', 'VM 270', 'VM 310', 'VM 330',
+    'VNL 430', 'VNL 630', 'VNL 670', 'VNL 780', 'VNL 860'
+  ],
+  'Volkswagen': [
+    'Constellation 13.180', 'Constellation 15.180', 'Constellation 17.250', 'Constellation 17.280',
+    'Constellation 19.320', 'Constellation 19.330', 'Constellation 19.360', 'Constellation 19.390',
+    'Constellation 24.250', 'Constellation 24.280', 'Constellation 25.320', 'Constellation 25.360',
+    'Constellation 25.390', 'Constellation 26.280', 'Constellation 31.280', 'Constellation 31.330',
+    'Delivery 6.160', 'Delivery 9.170', 'Delivery 11.180', 'Delivery 13.180',
+    'Worker 8.150', 'Worker 10.160', 'Worker 15.180', 'Worker 17.210',
+    'Worker 24.220', 'Worker 26.260', 'Worker 31.260', 'Worker 31.320'
+  ],
 };
 
 const vehicleSchema = z.object({
