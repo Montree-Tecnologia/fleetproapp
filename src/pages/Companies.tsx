@@ -136,18 +136,20 @@ export default function Companies() {
               <CardTitle className="mt-4">{company.name}</CardTitle>
               <CardDescription>{company.cnpj}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 flex flex-col h-full">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin className="h-4 w-4" />
                 <span>{company.city} - {company.state}</span>
               </div>
-              {company.type === 'matriz' && (
-                <div className="text-sm font-medium text-primary">
-                  {getCompanyBranches(company.id)} {getCompanyBranches(company.id) === 1 ? 'filial' : 'filiais'}
-                </div>
-              )}
+              <div className="text-sm font-medium text-primary min-h-[20px]">
+                {company.type === 'matriz' && (
+                  <>
+                    {getCompanyBranches(company.id)} {getCompanyBranches(company.id) === 1 ? 'filial' : 'filiais'}
+                  </>
+                )}
+              </div>
               
-              <div className="flex gap-2 pt-3">
+              <div className="flex gap-2 pt-3 mt-auto">
                 <Button
                   size="sm"
                   variant="outline"
