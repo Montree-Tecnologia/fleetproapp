@@ -436,7 +436,11 @@ export default function Vehicles() {
                   </div>
                           <div>
                             <span className="text-muted-foreground">Ano:</span>
-                            <p className="font-medium">{viewingVehicle.manufacturingYear}/{viewingVehicle.modelYear.toString().slice(-2)}</p>
+                            <p className="font-medium">
+                              {viewingVehicle.manufacturingYear && viewingVehicle.modelYear
+                                ? `${viewingVehicle.manufacturingYear}/${viewingVehicle.modelYear.toString().slice(-2)}`
+                                : 'N/A'}
+                            </p>
                           </div>
                   <div>
                     <span className="text-muted-foreground">Cor:</span>
