@@ -434,17 +434,28 @@ export default function Vehicles() {
                   </div>
                 </div>
               </div>
-              {vehicle.hasComposition && vehicle.compositionPlates && vehicle.compositionPlates.length > 0 && (
-                <div className="pt-3 border-t border-border">
-                  <span className="text-sm text-muted-foreground">Composições:</span>
-                  <p className="text-sm font-medium">
-                    {vehicle.compositionPlates.length} {vehicle.compositionPlates.length === 1 ? 'reboque' : 'reboques'}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Total de eixos: {vehicle.axles + (vehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
-                  </p>
-                </div>
-              )}
+              
+              <div className="pt-3 border-t border-border">
+                <span className="text-sm text-muted-foreground">Composições:</span>
+                {vehicle.hasComposition && vehicle.compositionPlates && vehicle.compositionPlates.length > 0 ? (
+                  <>
+                    <p className="text-sm font-medium">
+                      {vehicle.compositionPlates.length} {vehicle.compositionPlates.length === 1 ? 'reboque' : 'reboques'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Total de eixos: {vehicle.axles + (vehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-medium">Sem Composições</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Total de eixos: {vehicle.axles}
+                    </p>
+                  </>
+                )}
+              </div>
+              
               {getDriverName(vehicle.driverId) && (
                 <div className="pt-3 border-t border-border">
                   <span className="text-sm text-muted-foreground">Motorista:</span>
