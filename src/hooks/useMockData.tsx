@@ -241,14 +241,15 @@ const mockVehicles: Vehicle[] = [
 ];
 
 const mockRefuelings: Refueling[] = [
+  // Abastecimentos do veículo 1 (ABC-1234)
   {
     id: '1',
     vehicleId: '1',
-    date: '2025-01-05',
-    km: 85000,
-    liters: 350,
+    date: '2025-01-15',
+    km: 125000,
+    liters: 320,
     pricePerLiter: 5.89,
-    totalValue: 2061.50,
+    totalValue: 1884.80,
     fuelType: 'Diesel S10',
     supplierId: '1',
     driver: 'Carlos Santos'
@@ -256,25 +257,135 @@ const mockRefuelings: Refueling[] = [
   {
     id: '2',
     vehicleId: '1',
-    date: '2024-12-28',
-    km: 84200,
-    liters: 340,
+    date: '2025-01-08',
+    km: 123200,
+    liters: 310,
     pricePerLiter: 5.92,
-    totalValue: 2012.80,
+    totalValue: 1835.20,
     fuelType: 'Diesel S10',
     supplierId: '2',
     driver: 'Carlos Santos'
   },
   {
     id: '3',
-    vehicleId: '2',
-    date: '2025-01-04',
-    km: 120000,
-    liters: 380,
+    vehicleId: '1',
+    date: '2025-01-01',
+    km: 121500,
+    liters: 305,
     pricePerLiter: 5.85,
-    totalValue: 2223.00,
+    totalValue: 1784.25,
     fuelType: 'Diesel S10',
     supplierId: '1',
+    driver: 'Carlos Santos'
+  },
+  {
+    id: '4',
+    vehicleId: '1',
+    date: '2024-12-25',
+    km: 119800,
+    liters: 315,
+    pricePerLiter: 5.80,
+    totalValue: 1827.00,
+    fuelType: 'Diesel S10',
+    supplierId: '2',
+    driver: 'Carlos Santos'
+  },
+  // Abastecimentos do veículo 2 (DEF-5678)
+  {
+    id: '5',
+    vehicleId: '2',
+    date: '2025-01-14',
+    km: 185000,
+    liters: 450,
+    pricePerLiter: 5.85,
+    totalValue: 2632.50,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Pedro Lima'
+  },
+  {
+    id: '6',
+    vehicleId: '2',
+    date: '2025-01-07',
+    km: 183500,
+    liters: 440,
+    pricePerLiter: 5.90,
+    totalValue: 2596.00,
+    fuelType: 'Diesel S10',
+    supplierId: '2',
+    driver: 'Pedro Lima'
+  },
+  {
+    id: '7',
+    vehicleId: '2',
+    date: '2024-12-31',
+    km: 182000,
+    liters: 445,
+    pricePerLiter: 5.88,
+    totalValue: 2616.60,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Pedro Lima'
+  },
+  {
+    id: '8',
+    vehicleId: '2',
+    date: '2024-12-24',
+    km: 180400,
+    liters: 450,
+    pricePerLiter: 5.82,
+    totalValue: 2619.00,
+    fuelType: 'Diesel S10',
+    supplierId: '2',
+    driver: 'Pedro Lima'
+  },
+  // Abastecimentos do veículo 3 (GHI-9012)
+  {
+    id: '9',
+    vehicleId: '3',
+    date: '2025-01-12',
+    km: 52000,
+    liters: 280,
+    pricePerLiter: 6.10,
+    totalValue: 1708.00,
+    fuelType: 'Diesel S500',
+    supplierId: '1',
+    driver: 'João Pereira'
+  },
+  {
+    id: '10',
+    vehicleId: '3',
+    date: '2025-01-05',
+    km: 50300,
+    liters: 275,
+    pricePerLiter: 6.15,
+    totalValue: 1691.25,
+    fuelType: 'Diesel S500',
+    supplierId: '2',
+    driver: 'João Pereira'
+  },
+  {
+    id: '11',
+    vehicleId: '3',
+    date: '2024-12-29',
+    km: 48600,
+    liters: 270,
+    pricePerLiter: 6.08,
+    totalValue: 1641.60,
+    fuelType: 'Diesel S500',
+    supplierId: '1',
+    driver: 'João Pereira'
+  },
+  {
+    id: '12',
+    vehicleId: '3',
+    date: '2024-12-22',
+    km: 47000,
+    liters: 275,
+    pricePerLiter: 6.12,
+    totalValue: 1683.00,
+    fuelType: 'Diesel S500',
+    supplierId: '2',
     driver: 'João Pereira'
   }
 ];
