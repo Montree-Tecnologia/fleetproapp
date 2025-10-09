@@ -119,12 +119,33 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Top 5 Veículos por KM</CardTitle>
+            <CardTitle>Top 5 Veículos por Consumo</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {allVehicles
-                .sort((a, b) => b.currentKm - a.currentKm)
+                .map((vehicle) => {
+                  const vehicleRefuelings = allRefuelings
+                    .filter(r => r.vehicleId === vehicle.id)
+                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                  
+                  let totalConsumption = 0;
+                  let consumptionCount = 0;
+
+                  for (let i = 1; i < vehicleRefuelings.length; i++) {
+                    const kmDiff = vehicleRefuelings[i].km - vehicleRefuelings[i - 1].km;
+                    const liters = vehicleRefuelings[i].liters;
+                    if (kmDiff > 0 && liters > 0) {
+                      totalConsumption += kmDiff / liters;
+                      consumptionCount++;
+                    }
+                  }
+
+                  const avgConsumption = consumptionCount > 0 ? totalConsumption / consumptionCount : 0;
+                  return { ...vehicle, avgConsumption };
+                })
+                .filter(v => v.avgConsumption > 0)
+                .sort((a, b) => b.avgConsumption - a.avgConsumption)
                 .slice(0, 5)
                 .map((vehicle) => (
                   <div key={vehicle.id} className="flex items-center justify-between">
@@ -133,7 +154,7 @@ export default function Dashboard() {
                       <p className="text-xs text-muted-foreground">{vehicle.model}</p>
                     </div>
                     <span className="text-sm font-bold">
-                      {vehicle.currentKm.toLocaleString('pt-BR')} km
+                      {vehicle.avgConsumption.toFixed(2)} km/L
                     </span>
                   </div>
                 ))}
