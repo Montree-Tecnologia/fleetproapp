@@ -2,7 +2,7 @@ import { useMockData, Vehicle } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Truck, Pencil, Trash2, Eye, FileText } from 'lucide-react';
+import { Plus, Truck, Pencil, Trash2, Eye, FileText, Fuel } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -32,9 +32,11 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function Vehicles() {
-  const { vehicles, drivers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle } = useMockData();
+  const { vehicles, drivers, refuelings, suppliers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle } = useMockData();
   const allVehicles = vehicles();
   const allDrivers = drivers();
+  const allRefuelings = refuelings();
+  const allSuppliers = suppliers();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -401,6 +403,59 @@ export default function Vehicles() {
                   })()}
                 </div>
               )}
+
+              {(() => {
+                const vehicleRefuelings = allRefuelings.filter(r => r.vehicleId === viewingVehicle.id);
+                if (vehicleRefuelings.length === 0) return null;
+                
+                return (
+                  <div>
+                    <h3 className="font-semibold mb-3">Histórico de Abastecimentos</h3>
+                    <div className="space-y-3">
+                      {vehicleRefuelings
+                        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                        .slice(0, 5)
+                        .map((refueling) => {
+                          const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
+                          return (
+                            <div
+                              key={refueling.id}
+                              className="flex items-center justify-between p-3 bg-muted rounded-lg border border-border"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-chart-4/10 rounded-lg flex items-center justify-center">
+                                  <Fuel className="h-5 w-5 text-chart-4" />
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">{supplier?.fantasyName}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {formatDate(refueling.date)} • {refueling.km.toLocaleString('pt-BR')} km
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {refueling.fuelType} • {refueling.liters}L
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-semibold">
+                                  {formatCurrency(refueling.totalValue)}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  R$ {refueling.pricePerLiter.toFixed(2)}/L
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      {vehicleRefuelings.length > 5 && (
+                        <p className="text-xs text-muted-foreground text-center pt-2">
+                          Mostrando os 5 abastecimentos mais recentes de {vehicleRefuelings.length} no total
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </DialogContent>
