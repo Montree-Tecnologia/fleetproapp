@@ -131,6 +131,10 @@ export function VehicleCard({
                 : 'N/A'}
             </p>
           </div>
+          <div>
+            <span className="text-muted-foreground">Proprietária:</span>
+            <p className="font-medium">{vehicle.ownerBranch}</p>
+          </div>
           {isTractionVehicle && (
             <div>
               <span className="text-muted-foreground">Consumo Médio:</span>
