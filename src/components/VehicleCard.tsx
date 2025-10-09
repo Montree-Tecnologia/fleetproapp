@@ -133,28 +133,30 @@ export function VehicleCard({
           )}
         </div>
         
-        <div className="pt-3 border-t border-border">
-          <span className="text-sm text-muted-foreground mb-2 block">Vincular Motorista:</span>
-          <Select
-            value={vehicle.driverId || 'none'}
-            onValueChange={(value) => handleDriverChange(vehicle.id, value)}
-            disabled={vehicle.status === 'sold'}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">Sem motorista</SelectItem>
-              {allDrivers
-                .filter(d => d.active)
-                .map((driver) => (
-                  <SelectItem key={driver.id} value={driver.id}>
-                    {driver.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {!['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico'].includes(vehicle.vehicleType) && (
+          <div className="pt-3 border-t border-border">
+            <span className="text-sm text-muted-foreground mb-2 block">Vincular Motorista:</span>
+            <Select
+              value={vehicle.driverId || 'none'}
+              onValueChange={(value) => handleDriverChange(vehicle.id, value)}
+              disabled={vehicle.status === 'sold'}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem motorista</SelectItem>
+                {allDrivers
+                  .filter(d => d.active)
+                  .map((driver) => (
+                    <SelectItem key={driver.id} value={driver.id}>
+                      {driver.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {vehicle.status !== 'sold' && (
           <div className="pt-3 border-t border-border">
