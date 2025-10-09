@@ -134,7 +134,8 @@ const vehicleSchema = z.object({
   renavam: z.string().min(11, 'RENAVAM deve ter 11 dígitos').max(11),
   brand: z.string().min(1, 'Marca é obrigatória'),
   model: z.string().min(1, 'Modelo é obrigatório'),
-  year: z.number().min(1900).max(new Date().getFullYear() + 1),
+  manufacturingYear: z.number().min(1900).max(new Date().getFullYear() + 1),
+  modelYear: z.number().min(1900).max(new Date().getFullYear() + 1),
   color: z.string().min(1, 'Cor é obrigatória'),
   vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Bitrem', 'Tritem', 'Container', 'Caçamba']),
   status: z.enum(['active', 'maintenance', 'inactive', 'sold']),
@@ -183,7 +184,8 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       renavam: initialData.renavam,
       brand: initialData.brand,
       model: initialData.model,
-      year: initialData.year,
+      manufacturingYear: initialData.year,
+      modelYear: initialData.year,
       color: initialData.color,
       vehicleType: initialData.vehicleType,
       status: initialData.status,
@@ -194,7 +196,8 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       purchaseValue: initialData.purchaseValue,
       ownerBranch: initialData.ownerBranch || 'Matriz',
     } : {
-      year: new Date().getFullYear(),
+      manufacturingYear: new Date().getFullYear(),
+      modelYear: new Date().getFullYear(),
       purchaseKm: 0,
       axles: 2,
       purchaseValue: 0,
@@ -252,7 +255,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       renavam: data.renavam,
       brand: data.brand,
       model: data.model,
-      year: data.year,
+      year: data.modelYear,
       color: data.color,
       vehicleType: data.vehicleType,
       status: data.status,
@@ -417,10 +420,28 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
           <FormField
             control={form.control}
-            name="year"
+            name="manufacturingYear"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Ano *</FormLabel>
+                <FormLabel>Ano de Fabricação *</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    {...field} 
+                    onChange={(e) => field.onChange(parseInt(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="modelYear"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Ano do Modelo *</FormLabel>
                 <FormControl>
                   <Input 
                     type="number" 
