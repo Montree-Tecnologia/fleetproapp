@@ -249,15 +249,27 @@ export function VehicleCard({
                 {linkedToTractionVehicles.map((tractionVehicle) => (
                   <div
                     key={tractionVehicle.id}
-                    className="flex items-center gap-2 p-2 bg-primary/5 rounded-md border border-primary/10"
+                    className="flex items-center justify-between p-2 bg-primary/5 rounded-md border border-primary/10"
                   >
-                    <Link2 className="h-3 w-3 text-primary" />
-                    <div>
-                      <p className="text-xs font-medium">{tractionVehicle.plate}</p>
-                      <p className="text-[10px] text-muted-foreground">
-                        {tractionVehicle.vehicleType} - {tractionVehicle.model}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      <Link2 className="h-3 w-3 text-primary" />
+                      <div>
+                        <p className="text-xs font-medium">{tractionVehicle.plate}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {tractionVehicle.vehicleType} - {tractionVehicle.model}
+                        </p>
+                      </div>
                     </div>
+                    {vehicle.status !== 'sold' && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0"
+                        onClick={() => handleRemoveComposition(tractionVehicle.id, vehicle.plate)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
