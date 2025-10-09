@@ -100,6 +100,18 @@ export default function Vehicles() {
     toast.success(`Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`);
   };
 
+  const handleDriverChange = (vehicleId: string, driverId: string) => {
+    const actualDriverId = driverId === 'none' ? undefined : driverId;
+    updateVehicle(vehicleId, { driverId: actualDriverId });
+    
+    if (actualDriverId) {
+      const driver = allDrivers.find(d => d.id === actualDriverId);
+      toast.success(`Motorista ${driver?.name} vinculado ao veículo`);
+    } else {
+      toast.success('Vínculo com motorista removido');
+    }
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   };
@@ -456,12 +468,25 @@ export default function Vehicles() {
                 )}
               </div>
               
-              {getDriverName(vehicle.driverId) && (
-                <div className="pt-3 border-t border-border">
-                  <span className="text-sm text-muted-foreground">Motorista:</span>
-                  <p className="text-sm font-medium">{getDriverName(vehicle.driverId)}</p>
-                </div>
-              )}
+              <div className="pt-3 border-t border-border">
+                <span className="text-sm text-muted-foreground mb-2 block">Vincular Motorista:</span>
+                <Select
+                  value={vehicle.driverId || 'none'}
+                  onValueChange={(value) => handleDriverChange(vehicle.id, value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sem motorista" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Sem motorista</SelectItem>
+                    {allDrivers.filter(d => d.active).map((driver) => (
+                      <SelectItem key={driver.id} value={driver.id}>
+                        {driver.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               
               <div className="pt-3 border-t border-border">
                 <span className="text-sm text-muted-foreground mb-2 block">Alterar Status:</span>
