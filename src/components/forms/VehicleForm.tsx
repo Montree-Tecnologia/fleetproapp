@@ -567,22 +567,19 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
           <FormField
             control={form.control}
-            name="status"
+            name="purchaseValue"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Status *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="active">Ativo</SelectItem>
-                    <SelectItem value="maintenance">Manutenção</SelectItem>
-                    <SelectItem value="inactive">Inativo</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormLabel>Valor de Compra *</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    step="0.01"
+                    placeholder="0.00"
+                    {...field} 
+                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -631,19 +628,22 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
           <FormField
             control={form.control}
-            name="purchaseValue"
+            name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Valor de Compra *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    step="0.01"
-                    placeholder="0.00"
-                    {...field} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                  />
-                </FormControl>
+                <FormLabel>Status *</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="active">Ativo</SelectItem>
+                    <SelectItem value="maintenance">Manutenção</SelectItem>
+                    <SelectItem value="inactive">Inativo</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
