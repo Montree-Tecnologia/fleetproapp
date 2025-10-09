@@ -2,7 +2,7 @@ import { useMockData, Vehicle } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Truck, Pencil, Trash2, Eye } from 'lucide-react';
+import { Plus, Truck, Pencil, Trash2, Eye, FileText } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -269,6 +269,31 @@ export default function Vehicles() {
                     <span className="text-muted-foreground">Valor de Compra:</span>
                     <p className="font-medium">{formatCurrency(viewingVehicle.purchaseValue)}</p>
                   </div>
+                  {viewingVehicle.crlvDocument && (
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground">Documento CRLV:</span>
+                      <div className="mt-2">
+                        {viewingVehicle.crlvDocument.startsWith('data:image') || viewingVehicle.crlvDocument.includes('unsplash') ? (
+                          <img
+                            src={viewingVehicle.crlvDocument}
+                            alt="CRLV"
+                            className="w-full max-w-md h-auto object-contain rounded-lg border border-border cursor-pointer"
+                            onClick={() => window.open(viewingVehicle.crlvDocument, '_blank')}
+                          />
+                        ) : (
+                          <a
+                            href={viewingVehicle.crlvDocument}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border hover:bg-muted/80 transition-colors w-fit"
+                          >
+                            <FileText className="h-5 w-5" />
+                            <span className="text-sm font-medium">Ver documento CRLV</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

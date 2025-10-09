@@ -24,7 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, Plus, X, Upload, Image as ImageIcon } from 'lucide-react';
+import { CalendarIcon, Plus, X, Upload, Image as ImageIcon, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -70,6 +70,8 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
   const [newCompositionAxles, setNewCompositionAxles] = useState<number | ''>('');
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
   const [vehicleImages, setVehicleImages] = useState<string[]>(initialData?.images || []);
+  const [crlvDocument, setCrlvDocument] = useState<string | undefined>(initialData?.crlvDocument);
+
 
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
@@ -117,6 +119,22 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
     setVehicleImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleCRLVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCrlvDocument(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeCRLVDocument = () => {
+    setCrlvDocument(undefined);
+  };
+
+
   const handleSubmit = (data: VehicleFormData) => {
     onSubmit({
       plate: data.plate,
@@ -139,6 +157,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd'),
       purchaseValue: data.purchaseValue,
       images: vehicleImages.length > 0 ? vehicleImages : undefined,
+      crlvDocument: crlvDocument,
     });
   };
 
@@ -572,6 +591,55 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <FormLabel>Documento CRLV</FormLabel>
+          <div className="mt-2 space-y-2">
+            {crlvDocument ? (
+              <div className="relative">
+                {crlvDocument.startsWith('data:image') ? (
+                  <img
+                    src={crlvDocument}
+                    alt="CRLV"
+                    className="w-full h-40 object-cover rounded-lg border border-border"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                    <FileText className="h-5 w-5" />
+                    <span className="text-sm">Documento CRLV anexado</span>
+                  </div>
+                )}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 h-8 w-8"
+                  onClick={removeCRLVDocument}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleCRLVUpload}
+                  className="hidden"
+                  id="crlv-upload"
+                />
+                <label htmlFor="crlv-upload">
+                  <Button type="button" variant="outline" className="w-full" asChild>
+                    <span className="cursor-pointer">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Anexar CRLV
+                    </span>
+                  </Button>
+                </label>
+              </>
             )}
           </div>
         </div>
