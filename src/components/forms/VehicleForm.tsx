@@ -176,6 +176,20 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
     initialData?.ownerBranch || 'Matriz'
   );
 
+  const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco'];
+  const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Bitrem', 'Tritem', 'Container', 'Caçamba', 'Baú Frigorífico'];
+
+  const getVehicleCategory = (vehicleType?: string) => {
+    if (!vehicleType) return undefined;
+    if (tractionVehicleTypes.includes(vehicleType)) return 'traction';
+    if (trailerVehicleTypes.includes(vehicleType)) return 'trailer';
+    return undefined;
+  };
+
+  const [vehicleCategory, setVehicleCategory] = useState<'traction' | 'trailer' | undefined>(
+    getVehicleCategory(initialData?.vehicleType)
+  );
+
 
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
@@ -313,6 +327,44 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        {!initialData && (
+          <div className="p-4 bg-muted/50 rounded-lg border border-border">
+            <label className="text-sm font-medium mb-3 block">Categoria do Veículo *</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setVehicleCategory('traction');
+                  form.setValue('vehicleType', 'Truck');
+                }}
+                className={`p-4 rounded-lg border-2 transition-all ${
+                  vehicleCategory === 'traction'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <div className="font-semibold mb-1">Veículo de Tração</div>
+                <div className="text-xs text-muted-foreground">Truck, Cavalo Mecânico, Toco</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setVehicleCategory('trailer');
+                  form.setValue('vehicleType', 'Baú');
+                }}
+                className={`p-4 rounded-lg border-2 transition-all ${
+                  vehicleCategory === 'trailer'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <div className="font-semibold mb-1">Veículo de Reboque</div>
+                <div className="text-xs text-muted-foreground">Baú, Carreta, Graneleiro, etc.</div>
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -334,24 +386,51 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tipo de Veículo *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                  disabled={!vehicleCategory && !initialData}
+                >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo" />
+                      <SelectValue placeholder={vehicleCategory ? "Selecione o tipo" : "Selecione primeiro a categoria"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Truck">Truck</SelectItem>
-                    <SelectItem value="Baú">Baú</SelectItem>
-                    <SelectItem value="Carreta">Carreta</SelectItem>
-                    <SelectItem value="Graneleiro">Graneleiro</SelectItem>
-                    <SelectItem value="Bitrem">Bitrem</SelectItem>
-                    <SelectItem value="Tritem">Tritem</SelectItem>
-                    <SelectItem value="Container">Container</SelectItem>
-                    <SelectItem value="Caçamba">Caçamba</SelectItem>
-                    <SelectItem value="Cavalo Mecânico">Cavalo Mecânico</SelectItem>
-                    <SelectItem value="Baú Frigorífico">Baú Frigorífico</SelectItem>
-                    <SelectItem value="Toco">Toco</SelectItem>
+                    {vehicleCategory === 'traction' && (
+                      <>
+                        <SelectItem value="Truck">Truck</SelectItem>
+                        <SelectItem value="Cavalo Mecânico">Cavalo Mecânico</SelectItem>
+                        <SelectItem value="Toco">Toco</SelectItem>
+                      </>
+                    )}
+                    {vehicleCategory === 'trailer' && (
+                      <>
+                        <SelectItem value="Baú">Baú</SelectItem>
+                        <SelectItem value="Carreta">Carreta</SelectItem>
+                        <SelectItem value="Graneleiro">Graneleiro</SelectItem>
+                        <SelectItem value="Bitrem">Bitrem</SelectItem>
+                        <SelectItem value="Tritem">Tritem</SelectItem>
+                        <SelectItem value="Container">Container</SelectItem>
+                        <SelectItem value="Caçamba">Caçamba</SelectItem>
+                        <SelectItem value="Baú Frigorífico">Baú Frigorífico</SelectItem>
+                      </>
+                    )}
+                    {initialData && !vehicleCategory && (
+                      <>
+                        <SelectItem value="Truck">Truck</SelectItem>
+                        <SelectItem value="Baú">Baú</SelectItem>
+                        <SelectItem value="Carreta">Carreta</SelectItem>
+                        <SelectItem value="Graneleiro">Graneleiro</SelectItem>
+                        <SelectItem value="Bitrem">Bitrem</SelectItem>
+                        <SelectItem value="Tritem">Tritem</SelectItem>
+                        <SelectItem value="Container">Container</SelectItem>
+                        <SelectItem value="Caçamba">Caçamba</SelectItem>
+                        <SelectItem value="Cavalo Mecânico">Cavalo Mecânico</SelectItem>
+                        <SelectItem value="Baú Frigorífico">Baú Frigorífico</SelectItem>
+                        <SelectItem value="Toco">Toco</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
                 <FormMessage />
