@@ -679,13 +679,15 @@ export default function Vehicles() {
                   <span className="text-muted-foreground">Ano:</span>
                   <p className="font-medium">{vehicle.year}</p>
                 </div>
-                <div>
-                  <span className="text-muted-foreground">KM Atual:</span>
-                  <p className="font-medium">{vehicle.currentKm.toLocaleString('pt-BR')}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">KM Rodados:</span>
-                  <p className="font-medium">{(vehicle.currentKm - vehicle.purchaseKm).toLocaleString('pt-BR')}</p>
+                <div className="flex gap-4">
+                  <div>
+                    <span className="text-muted-foreground">KM Atual:</span>
+                    <p className="font-medium">{vehicle.currentKm.toLocaleString('pt-BR')}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">KM Rodados:</span>
+                    <p className="font-medium">{(vehicle.currentKm - vehicle.purchaseKm).toLocaleString('pt-BR')}</p>
+                  </div>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Consumo Médio:</span>
