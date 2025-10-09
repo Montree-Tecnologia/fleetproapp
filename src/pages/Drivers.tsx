@@ -585,7 +585,7 @@ export default function Drivers() {
                   <div>
                     <span className="text-muted-foreground">Status:</span>
                     <div className="mt-1">
-                      <Badge variant={viewingDriver.active ? "default" : "outline"}>
+                      <Badge variant={viewingDriver.active ? "default" : "destructive"}>
                         {viewingDriver.active ? 'Ativo' : 'Inativo'}
                       </Badge>
                     </div>
