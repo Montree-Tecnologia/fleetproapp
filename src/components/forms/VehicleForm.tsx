@@ -31,8 +31,8 @@ import { useState, useMemo } from 'react';
 import { Vehicle } from '@/hooks/useMockData';
 import { Badge } from '@/components/ui/badge';
 
-// Mapeamento de marcas para modelos (baseado na tabela FIPE de veículos pesados)
-const BRAND_MODELS: Record<string, string[]> = {
+// Mapeamento de marcas para modelos de veículos de tração
+const TRACTION_BRAND_MODELS: Record<string, string[]> = {
   'Agrale': [
     '8500 TCA', '8500 TDX', '9200 TCA', '13000 TCA', '14000 TCA', '16000',
     '6000 TCA', '7500 TCA', '8500 TCLE', '9200 TCLE', '10000 TCA',
@@ -125,6 +125,62 @@ const BRAND_MODELS: Record<string, string[]> = {
     'Delivery 6.160', 'Delivery 9.170', 'Delivery 11.180', 'Delivery 13.180',
     'Worker 8.150', 'Worker 10.160', 'Worker 15.180', 'Worker 17.210',
     'Worker 24.220', 'Worker 26.260', 'Worker 31.260', 'Worker 31.320'
+  ],
+};
+
+// Mapeamento de marcas para modelos de veículos de reboque (implementos rodoviários)
+const TRAILER_BRAND_MODELS: Record<string, string[]> = {
+  'Randon': [
+    'Sider 3 Eixos', 'Sider 2 Eixos', 'Baú Frigorífico 3 Eixos', 'Baú Frigorífico 2 Eixos',
+    'Graneleiro 3 Eixos', 'Graneleiro 2 Eixos', 'Porta Container 3 Eixos',
+    'Prancha 3 Eixos', 'Prancha 2 Eixos', 'Caçamba Basculante 3 Eixos',
+    'Tanque 3 Eixos', 'Cegonheiro 2 Andares', 'Cegonheiro 3 Andares'
+  ],
+  'Librelato': [
+    'Sider 3 Eixos', 'Sider 2 Eixos', 'Baú Seco 3 Eixos', 'Baú Seco 2 Eixos',
+    'Graneleiro 3 Eixos', 'Graneleiro 2 Eixos', 'Porta Container 3 Eixos',
+    'Prancha 3 Eixos', 'Caçamba 3 Eixos', 'Tanque Combustível 3 Eixos'
+  ],
+  'Guerra': [
+    'Baú Frigorífico 3 Eixos', 'Baú Frigorífico 2 Eixos', 'Sider 3 Eixos',
+    'Graneleiro 3 Eixos', 'Porta Container 3 Eixos', 'Prancha 3 Eixos',
+    'Tanque 3 Eixos', 'Caçamba Basculante 3 Eixos'
+  ],
+  'Noma': [
+    'Sider 3 Eixos', 'Sider 2 Eixos', 'Baú Seco 3 Eixos',
+    'Graneleiro 3 Eixos', 'Porta Container 3 Eixos', 'Prancha 3 Eixos'
+  ],
+  'Facchini': [
+    'Graneleiro 3 Eixos', 'Graneleiro 2 Eixos', 'Sider 3 Eixos',
+    'Baú Seco 3 Eixos', 'Caçamba Basculante 3 Eixos', 'Porta Container 3 Eixos'
+  ],
+  'Vanderleia': [
+    'Baú Frigorífico 3 Eixos', 'Baú Frigorífico 2 Eixos', 'Sider 3 Eixos',
+    'Graneleiro 3 Eixos', 'Prancha 3 Eixos'
+  ],
+  'Rodotec': [
+    'Baú Seco 3 Eixos', 'Baú Seco 2 Eixos', 'Sider 3 Eixos',
+    'Graneleiro 3 Eixos', 'Porta Container 3 Eixos'
+  ],
+  'Rondon': [
+    'Sider 3 Eixos', 'Baú Seco 3 Eixos', 'Graneleiro 3 Eixos',
+    'Caçamba 3 Eixos', 'Prancha 3 Eixos'
+  ],
+  'Kässbohrer': [
+    'Sider 3 Eixos', 'Baú Frigorífico 3 Eixos', 'Porta Container 3 Eixos',
+    'Prancha 3 Eixos', 'Tanque 3 Eixos'
+  ],
+  'Recrusul': [
+    'Baú Frigorífico 3 Eixos', 'Sider 3 Eixos', 'Graneleiro 3 Eixos',
+    'Porta Container 3 Eixos', 'Prancha 3 Eixos'
+  ],
+  'Schiffer': [
+    'Graneleiro 3 Eixos', 'Caçamba Basculante 3 Eixos', 'Sider 3 Eixos',
+    'Baú Seco 3 Eixos', 'Porta Container 3 Eixos'
+  ],
+  'Pastre': [
+    'Baú Frigorífico 3 Eixos', 'Baú Seco 3 Eixos', 'Sider 3 Eixos',
+    'Graneleiro 3 Eixos', 'Prancha 3 Eixos'
   ],
 };
 
@@ -225,11 +281,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
     },
   });
 
-  // Filtra os modelos disponíveis baseado na marca selecionada
+  // Filtra os modelos disponíveis baseado na marca selecionada e categoria do veículo
   const availableModels = useMemo(() => {
     if (!selectedBrand) return [];
-    return BRAND_MODELS[selectedBrand] || [];
-  }, [selectedBrand]);
+    const brandModels = vehicleCategory === 'trailer' ? TRAILER_BRAND_MODELS : TRACTION_BRAND_MODELS;
+    return brandModels[selectedBrand] || [];
+  }, [selectedBrand, vehicleCategory]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -448,26 +505,76 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
                     form.setValue('model', '');
                   }} 
                   defaultValue={field.value}
+                  disabled={!vehicleCategory && !initialData}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione a marca" />
+                      <SelectValue placeholder={vehicleCategory ? "Selecione a marca" : "Selecione primeiro a categoria"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Agrale">Agrale</SelectItem>
-                    <SelectItem value="DAF">DAF</SelectItem>
-                    <SelectItem value="Ford">Ford</SelectItem>
-                    <SelectItem value="International">International</SelectItem>
-                    <SelectItem value="Iveco">Iveco</SelectItem>
-                    <SelectItem value="MAN">MAN</SelectItem>
-                    <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
-                    <SelectItem value="Mitsubishi">Mitsubishi</SelectItem>
-                    <SelectItem value="Peugeot">Peugeot</SelectItem>
-                    <SelectItem value="Renault">Renault</SelectItem>
-                    <SelectItem value="Scania">Scania</SelectItem>
-                    <SelectItem value="Volvo">Volvo</SelectItem>
-                    <SelectItem value="Volkswagen">Volkswagen</SelectItem>
+                    {vehicleCategory === 'traction' && (
+                      <>
+                        <SelectItem value="Agrale">Agrale</SelectItem>
+                        <SelectItem value="DAF">DAF</SelectItem>
+                        <SelectItem value="Ford">Ford</SelectItem>
+                        <SelectItem value="International">International</SelectItem>
+                        <SelectItem value="Iveco">Iveco</SelectItem>
+                        <SelectItem value="MAN">MAN</SelectItem>
+                        <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
+                        <SelectItem value="Mitsubishi">Mitsubishi</SelectItem>
+                        <SelectItem value="Peugeot">Peugeot</SelectItem>
+                        <SelectItem value="Renault">Renault</SelectItem>
+                        <SelectItem value="Scania">Scania</SelectItem>
+                        <SelectItem value="Volvo">Volvo</SelectItem>
+                        <SelectItem value="Volkswagen">Volkswagen</SelectItem>
+                      </>
+                    )}
+                    {vehicleCategory === 'trailer' && (
+                      <>
+                        <SelectItem value="Randon">Randon</SelectItem>
+                        <SelectItem value="Librelato">Librelato</SelectItem>
+                        <SelectItem value="Guerra">Guerra</SelectItem>
+                        <SelectItem value="Noma">Noma</SelectItem>
+                        <SelectItem value="Facchini">Facchini</SelectItem>
+                        <SelectItem value="Vanderleia">Vanderleia</SelectItem>
+                        <SelectItem value="Rodotec">Rodotec</SelectItem>
+                        <SelectItem value="Rondon">Rondon</SelectItem>
+                        <SelectItem value="Kässbohrer">Kässbohrer</SelectItem>
+                        <SelectItem value="Recrusul">Recrusul</SelectItem>
+                        <SelectItem value="Schiffer">Schiffer</SelectItem>
+                        <SelectItem value="Pastre">Pastre</SelectItem>
+                      </>
+                    )}
+                    {initialData && !vehicleCategory && (
+                      <>
+                        <SelectItem value="Agrale">Agrale</SelectItem>
+                        <SelectItem value="DAF">DAF</SelectItem>
+                        <SelectItem value="Ford">Ford</SelectItem>
+                        <SelectItem value="International">International</SelectItem>
+                        <SelectItem value="Iveco">Iveco</SelectItem>
+                        <SelectItem value="MAN">MAN</SelectItem>
+                        <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
+                        <SelectItem value="Mitsubishi">Mitsubishi</SelectItem>
+                        <SelectItem value="Peugeot">Peugeot</SelectItem>
+                        <SelectItem value="Renault">Renault</SelectItem>
+                        <SelectItem value="Scania">Scania</SelectItem>
+                        <SelectItem value="Volvo">Volvo</SelectItem>
+                        <SelectItem value="Volkswagen">Volkswagen</SelectItem>
+                        <SelectItem value="Randon">Randon</SelectItem>
+                        <SelectItem value="Librelato">Librelato</SelectItem>
+                        <SelectItem value="Guerra">Guerra</SelectItem>
+                        <SelectItem value="Noma">Noma</SelectItem>
+                        <SelectItem value="Facchini">Facchini</SelectItem>
+                        <SelectItem value="Vanderleia">Vanderleia</SelectItem>
+                        <SelectItem value="Rodotec">Rodotec</SelectItem>
+                        <SelectItem value="Rondon">Rondon</SelectItem>
+                        <SelectItem value="Kässbohrer">Kässbohrer</SelectItem>
+                        <SelectItem value="Recrusul">Recrusul</SelectItem>
+                        <SelectItem value="Schiffer">Schiffer</SelectItem>
+                        <SelectItem value="Pastre">Pastre</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
                 <FormMessage />
