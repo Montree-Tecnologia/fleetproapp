@@ -137,7 +137,7 @@ const vehicleSchema = z.object({
   manufacturingYear: z.number().min(1900).max(new Date().getFullYear() + 1),
   modelYear: z.number().min(1900).max(new Date().getFullYear() + 1),
   color: z.string().min(1, 'Cor é obrigatória'),
-  vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Bitrem', 'Tritem', 'Container', 'Caçamba', 'Cavalo Mecânico', 'Baú Frigorífico', 'Toco']),
+  vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Cavalo Mecânico', 'Baú Frigorífico', 'Toco']),
   status: z.enum(['active', 'maintenance', 'inactive', 'sold']),
   purchaseKm: z.number().min(0),
   fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Arla 42', 'Etanol', 'Gasolina']),
@@ -177,7 +177,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
   );
 
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco'];
-  const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Bitrem', 'Tritem', 'Container', 'Caçamba', 'Baú Frigorífico'];
+  const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico'];
 
   const getVehicleCategory = (vehicleType?: string) => {
     if (!vehicleType) return undefined;
@@ -409,8 +409,6 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
                         <SelectItem value="Baú">Baú</SelectItem>
                         <SelectItem value="Carreta">Carreta</SelectItem>
                         <SelectItem value="Graneleiro">Graneleiro</SelectItem>
-                        <SelectItem value="Bitrem">Bitrem</SelectItem>
-                        <SelectItem value="Tritem">Tritem</SelectItem>
                         <SelectItem value="Container">Container</SelectItem>
                         <SelectItem value="Caçamba">Caçamba</SelectItem>
                         <SelectItem value="Baú Frigorífico">Baú Frigorífico</SelectItem>
@@ -422,8 +420,6 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
                         <SelectItem value="Baú">Baú</SelectItem>
                         <SelectItem value="Carreta">Carreta</SelectItem>
                         <SelectItem value="Graneleiro">Graneleiro</SelectItem>
-                        <SelectItem value="Bitrem">Bitrem</SelectItem>
-                        <SelectItem value="Tritem">Tritem</SelectItem>
                         <SelectItem value="Container">Container</SelectItem>
                         <SelectItem value="Caçamba">Caçamba</SelectItem>
                         <SelectItem value="Cavalo Mecânico">Cavalo Mecânico</SelectItem>

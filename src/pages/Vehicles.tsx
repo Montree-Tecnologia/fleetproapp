@@ -181,7 +181,7 @@ export default function Vehicles() {
   };
 
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco'];
-  const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Bitrem', 'Tritem', 'Container', 'Caçamba', 'Baú Frigorífico'];
+  const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico'];
 
   const filteredVehicles = allVehicles.filter(vehicle => {
     const search = searchTerm.toLowerCase();

@@ -32,7 +32,7 @@ export interface Vehicle {
   model: string;
   year: number;
   color: string;
-  vehicleType: 'Truck' | 'Baú' | 'Carreta' | 'Graneleiro' | 'Bitrem' | 'Tritem' | 'Container' | 'Caçamba' | 'Cavalo Mecânico' | 'Baú Frigorífico' | 'Toco';
+  vehicleType: 'Truck' | 'Baú' | 'Carreta' | 'Graneleiro' | 'Container' | 'Caçamba' | 'Cavalo Mecânico' | 'Baú Frigorífico' | 'Toco';
   status: 'active' | 'maintenance' | 'inactive' | 'sold';
   purchaseKm: number;
   currentKm: number;
@@ -188,7 +188,7 @@ const mockVehicles: Vehicle[] = [
     model: 'R 450',
     year: 2021,
     color: 'Vermelho',
-    vehicleType: 'Bitrem',
+    vehicleType: 'Carreta',
     status: 'active',
     purchaseKm: 120000,
     currentKm: 185000,
