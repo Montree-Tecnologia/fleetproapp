@@ -35,10 +35,11 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function Vehicles() {
-  const { vehicles, drivers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale } = useMockData();
+  const { vehicles, drivers, refuelings, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale } = useMockData();
   const { isAdmin } = usePermissions();
   const allVehicles = vehicles();
   const allDrivers = drivers();
+  const allRefuelings = refuelings();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -160,6 +161,21 @@ export default function Vehicles() {
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('pt-BR');
+  };
+
+  const calculateAverageConsumption = (vehicleId: string): number | null => {
+    const vehicleRefuelings = allRefuelings
+      .filter(r => r.vehicleId === vehicleId)
+      .sort((a, b) => a.km - b.km);
+
+    if (vehicleRefuelings.length < 2) return null;
+
+    const totalKmTraveled = vehicleRefuelings[vehicleRefuelings.length - 1].km - vehicleRefuelings[0].km;
+    const totalLiters = vehicleRefuelings.reduce((sum, r) => sum + r.liters, 0);
+
+    if (totalLiters === 0) return null;
+
+    return totalKmTraveled / totalLiters;
   };
 
   return (
@@ -316,6 +332,17 @@ export default function Vehicles() {
                   <div>
                     <span className="text-muted-foreground">KM Atual:</span>
                     <p className="font-medium">{viewingVehicle.currentKm.toLocaleString('pt-BR')}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Consumo Médio:</span>
+                    <p className="font-medium">
+                      {(() => {
+                        const avgConsumption = calculateAverageConsumption(viewingVehicle.id);
+                        return avgConsumption 
+                          ? `${avgConsumption.toFixed(2)} km/l` 
+                          : 'Dados insuficientes';
+                      })()}
+                    </p>
                   </div>
                 </div>
               </div>
