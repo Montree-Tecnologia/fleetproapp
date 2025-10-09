@@ -104,7 +104,8 @@ const mockDrivers: Driver[] = [
     cnhCategory: 'E',
     cnhValidity: '2026-08-20',
     active: true,
-    branches: ['Matriz']
+    branches: ['Matriz'],
+    cnhDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
   },
   {
     id: '2',
@@ -114,7 +115,8 @@ const mockDrivers: Driver[] = [
     cnhCategory: 'E',
     cnhValidity: '2027-03-10',
     active: true,
-    branches: ['Matriz']
+    branches: ['Matriz'],
+    cnhDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
   },
   {
     id: '3',
@@ -124,7 +126,8 @@ const mockDrivers: Driver[] = [
     cnhCategory: 'D',
     cnhValidity: '2025-12-15',
     active: true,
-    branches: ['Filial SP']
+    branches: ['Filial SP'],
+    cnhDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
   }
 ];
 
