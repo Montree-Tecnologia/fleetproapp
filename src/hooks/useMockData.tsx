@@ -810,16 +810,73 @@ export function useMockData() {
     return newVehicle;
   }, []);
   const updateVehicle = useCallback((id: string, data: Partial<Vehicle>) => {
-    setVehicles(prev => prev.map(v => {
-      if (v.id === id) {
-        // Se purchaseKm for atualizado e currentKm for menor, atualiza currentKm também
-        if (data.purchaseKm && v.currentKm < data.purchaseKm) {
-          return { ...v, ...data, currentKm: data.purchaseKm };
-        }
-        return { ...v, ...data };
+    setVehicles(prev => {
+      const updatedVehicle = prev.find(v => v.id === id);
+      if (!updatedVehicle) return prev;
+
+      const trailerTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
+      const tractionTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
+      const isTrailer = trailerTypes.includes(updatedVehicle.vehicleType);
+      const isTraction = tractionTypes.includes(updatedVehicle.vehicleType);
+      const statusChanged = data.status && data.status !== updatedVehicle.status;
+      const newStatusIsInactiveOrMaintenance = data.status === 'inactive' || data.status === 'maintenance';
+
+      // Caso 1: Veículo de reboque mudou para inativo/manutenção - desvincular de veículos de tração
+      if (isTrailer && statusChanged && newStatusIsInactiveOrMaintenance) {
+        return prev.map(v => {
+          if (v.id === id) {
+            // Atualiza o veículo de reboque
+            if (data.purchaseKm && v.currentKm < data.purchaseKm) {
+              return { ...v, ...data, currentKm: data.purchaseKm };
+            }
+            return { ...v, ...data };
+          }
+          // Remove este reboque das composições de outros veículos de tração
+          if (v.hasComposition && v.compositionPlates?.includes(updatedVehicle.plate)) {
+            const plateIndex = v.compositionPlates.indexOf(updatedVehicle.plate);
+            const newCompositionPlates = v.compositionPlates.filter((_, i) => i !== plateIndex);
+            const newCompositionAxles = v.compositionAxles?.filter((_, i) => i !== plateIndex);
+            
+            return {
+              ...v,
+              compositionPlates: newCompositionPlates,
+              compositionAxles: newCompositionAxles,
+              hasComposition: newCompositionPlates.length > 0
+            };
+          }
+          return v;
+        });
       }
-      return v;
-    }));
+
+      // Caso 2: Veículo de tração mudou para inativo/manutenção - alterar status das composições
+      if (isTraction && statusChanged && newStatusIsInactiveOrMaintenance && updatedVehicle.hasComposition && updatedVehicle.compositionPlates) {
+        return prev.map(v => {
+          if (v.id === id) {
+            // Atualiza o veículo de tração
+            if (data.purchaseKm && v.currentKm < data.purchaseKm) {
+              return { ...v, ...data, currentKm: data.purchaseKm };
+            }
+            return { ...v, ...data };
+          }
+          // Atualiza status dos reboques acoplados
+          if (updatedVehicle.compositionPlates.includes(v.plate)) {
+            return { ...v, status: data.status! };
+          }
+          return v;
+        });
+      }
+
+      // Caso padrão: apenas atualiza o veículo normalmente
+      return prev.map(v => {
+        if (v.id === id) {
+          if (data.purchaseKm && v.currentKm < data.purchaseKm) {
+            return { ...v, ...data, currentKm: data.purchaseKm };
+          }
+          return { ...v, ...data };
+        }
+        return v;
+      });
+    });
   }, []);
   const deleteVehicle = useCallback((id: string) => {
     setVehicles(prev => prev.filter(v => v.id !== id));

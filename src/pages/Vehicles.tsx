@@ -136,13 +136,37 @@ export default function Vehicles() {
   };
 
   const handleStatusChange = (vehicleId: string, newStatus: string) => {
+    const vehicle = allVehicles.find(v => v.id === vehicleId);
+    if (!vehicle) return;
+
+    const trailerTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
+    const isTrailer = trailerTypes.includes(vehicle.vehicleType);
+    const isInactiveOrMaintenance = newStatus === 'inactive' || newStatus === 'maintenance';
+
     updateVehicle(vehicleId, { status: newStatus as 'active' | 'maintenance' | 'inactive' });
+    
     const statusLabels = {
       active: 'Ativo',
       maintenance: 'Manutenção',
       inactive: 'Inativo'
     };
+    
     toast.success(`Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`);
+
+    // Notifica sobre desvinculação automática de reboque
+    if (isTrailer && isInactiveOrMaintenance) {
+      const tractionVehicles = allVehicles.filter(v => 
+        v.hasComposition && v.compositionPlates?.includes(vehicle.plate)
+      );
+      if (tractionVehicles.length > 0) {
+        toast.info('Veículo desvinculado automaticamente das composições');
+      }
+    }
+
+    // Notifica sobre alteração de status das composições
+    if (!isTrailer && isInactiveOrMaintenance && vehicle.hasComposition && vehicle.compositionPlates) {
+      toast.info(`Status das composições acopladas também alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`);
+    }
   };
 
   const handleDriverChange = (vehicleId: string, driverId: string) => {
