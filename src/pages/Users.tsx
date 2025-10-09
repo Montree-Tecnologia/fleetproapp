@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, Mail, Shield, Building2, Calendar, Trash2, Pencil } from 'lucide-react';
+import { UserPlus, Mail, Shield, Building2, Calendar, Trash2, Pencil, Search } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,6 +61,7 @@ export default function Users() {
     company: 'Transportadora Matriz',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [searchTerm, setSearchTerm] = useState('');
 
   const allUsers = users();
 
@@ -308,8 +309,27 @@ export default function Users() {
         </Dialog>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Buscar por nome, e-mail ou empresa..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {allUsers.map((user) => (
+        {allUsers
+          .filter(user => {
+            const search = searchTerm.toLowerCase();
+            return (
+              user.name.toLowerCase().includes(search) ||
+              user.email.toLowerCase().includes(search) ||
+              user.company.toLowerCase().includes(search)
+            );
+          })
+          .map((user) => (
           <Card key={user.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">

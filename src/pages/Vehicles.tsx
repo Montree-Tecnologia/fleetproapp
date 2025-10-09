@@ -2,7 +2,8 @@ import { useMockData, Vehicle } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Truck, Pencil, Trash2, Eye, FileText } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -42,6 +43,7 @@ export default function Vehicles() {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [viewingVehicle, setViewingVehicle] = useState<Vehicle | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const getDriverName = (driverId?: string) => {
     if (!driverId) return null;
@@ -137,6 +139,16 @@ export default function Vehicles() {
           <Plus className="mr-2 h-4 w-4" />
           Novo Veículo
         </Button>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Buscar por placa, modelo, chassi ou motorista..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
@@ -422,7 +434,17 @@ export default function Vehicles() {
       </Dialog>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {allVehicles.map((vehicle) => (
+        {allVehicles
+          .filter(vehicle => {
+            const search = searchTerm.toLowerCase();
+            return (
+              vehicle.plate.toLowerCase().includes(search) ||
+              vehicle.model.toLowerCase().includes(search) ||
+              vehicle.chassis.toLowerCase().includes(search) ||
+              (getDriverName(vehicle.driverId)?.toLowerCase() || '').includes(search)
+            );
+          })
+          .map((vehicle) => (
           <Card key={vehicle.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">

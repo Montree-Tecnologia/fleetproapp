@@ -3,7 +3,8 @@ import { useMockData, Supplier } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Building, MapPin, Pencil, Trash2, Eye } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Building, MapPin, Pencil, Trash2, Eye, Search } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,7 @@ export default function Suppliers() {
   const [supplierToDelete, setSupplierToDelete] = useState<{ id: string; name: string } | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [viewingSupplier, setViewingSupplier] = useState<Supplier | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const allSuppliers = suppliers();
 
   const handleSubmit = (data: any) => {
@@ -133,8 +135,28 @@ export default function Suppliers() {
         </Dialog>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Buscar por nome fantasia, razão social ou CNPJ..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {allSuppliers.map((supplier) => (
+        {allSuppliers
+          .filter(supplier => {
+            const search = searchTerm.toLowerCase();
+            return (
+              supplier.fantasyName.toLowerCase().includes(search) ||
+              supplier.name.toLowerCase().includes(search) ||
+              supplier.cnpj.includes(search) ||
+              supplier.city.toLowerCase().includes(search)
+            );
+          })
+          .map((supplier) => (
           <Card key={supplier.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between mb-2">

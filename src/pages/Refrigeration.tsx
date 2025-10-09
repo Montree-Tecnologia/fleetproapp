@@ -3,7 +3,8 @@ import { useMockData, RefrigerationUnit } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -40,6 +41,7 @@ export default function Refrigeration() {
   const [unitToDelete, setUnitToDelete] = useState<{ id: string; name: string } | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [viewingUnit, setViewingUnit] = useState<RefrigerationUnit | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const allUnits = refrigerationUnits();
   const allVehicles = vehicles();
 
@@ -206,8 +208,27 @@ export default function Refrigeration() {
         </Dialog>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Buscar por marca, modelo ou número de série..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2">
-        {allUnits.map((unit) => {
+        {allUnits
+          .filter(unit => {
+            const search = searchTerm.toLowerCase();
+            return (
+              unit.brand.toLowerCase().includes(search) ||
+              unit.model.toLowerCase().includes(search) ||
+              unit.serialNumber.toLowerCase().includes(search)
+            );
+          })
+          .map((unit) => {
           const vehicle = allVehicles.find(v => v.id === unit.vehicleId);
           return (
             <Card key={unit.id} className="hover:shadow-lg transition-shadow">

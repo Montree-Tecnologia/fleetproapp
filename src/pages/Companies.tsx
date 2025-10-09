@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -20,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Building2, MapPin, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Building2, MapPin, Plus, Pencil, Trash2, Search } from 'lucide-react';
 import { CompanyForm } from '@/components/forms/CompanyForm';
 import { useMockData, Company } from '@/hooks/useMockData';
 import { useToast } from '@/hooks/use-toast';
@@ -30,6 +31,7 @@ export default function Companies() {
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { companies, updateCompany, deleteCompany } = useMockData();
   const { toast } = useToast();
   const allCompanies = companies();
@@ -123,8 +125,27 @@ export default function Companies() {
         </AlertDialogContent>
       </AlertDialog>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Buscar por nome ou CNPJ..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {allCompanies.map((company) => (
+        {allCompanies
+          .filter(company => {
+            const search = searchTerm.toLowerCase();
+            return (
+              company.name.toLowerCase().includes(search) ||
+              company.cnpj.includes(search) ||
+              company.city.toLowerCase().includes(search)
+            );
+          })
+          .map((company) => (
           <Card key={company.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">

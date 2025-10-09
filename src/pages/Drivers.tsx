@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil, Eye, Upload, X } from 'lucide-react';
+import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil, Eye, Upload, X, Search } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,6 +74,7 @@ export default function Drivers() {
     cnhDocument: '' as string | undefined,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [searchTerm, setSearchTerm] = useState('');
 
   const allDrivers = drivers();
 
@@ -464,8 +465,27 @@ export default function Drivers() {
         </Dialog>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Buscar por nome, CPF ou categoria de CNH..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {allDrivers.map((driver) => {
+        {allDrivers
+          .filter(driver => {
+            const search = searchTerm.toLowerCase();
+            return (
+              driver.name.toLowerCase().includes(search) ||
+              driver.cpf.includes(search) ||
+              driver.cnhCategory.toLowerCase().includes(search)
+            );
+          })
+          .map((driver) => {
           const cnhStatus = getCNHStatus(driver.cnhValidity);
           
           return (
