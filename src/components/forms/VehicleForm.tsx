@@ -210,9 +210,10 @@ interface VehicleFormProps {
   onSubmit: (data: Omit<Vehicle, 'id' | 'currentKm'>) => void;
   onCancel: () => void;
   initialData?: Vehicle;
+  availableVehicles?: Vehicle[];
 }
 
-export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProps) {
+export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles = [] }: VehicleFormProps) {
   const [selectedBranches, setSelectedBranches] = useState<string[]>(
     initialData?.branches || ['Matriz']
   );
@@ -224,6 +225,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
   );
   const [newCompositionPlate, setNewCompositionPlate] = useState('');
   const [newCompositionAxles, setNewCompositionAxles] = useState<number | ''>('');
+  const [newCompositionVehicleId, setNewCompositionVehicleId] = useState<string>('');
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
   const [vehicleImages, setVehicleImages] = useState<string[]>(initialData?.images || []);
   const [crlvDocument, setCrlvDocument] = useState<string | undefined>(initialData?.crlvDocument);
@@ -234,6 +236,14 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco'];
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico'];
+
+  // Filtra veículos de reboque ativos disponíveis para composição
+  const availableTrailerVehicles = availableVehicles.filter(v => 
+    trailerVehicleTypes.includes(v.vehicleType) && 
+    v.status === 'active' &&
+    v.id !== initialData?.id &&
+    !compositionPlates.includes(v.plate)
+  );
 
   const getVehicleCategory = (vehicleType?: string) => {
     if (!vehicleType) return undefined;
@@ -373,12 +383,13 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
   };
 
   const addCompositionPlate = () => {
-    if (newCompositionPlate.trim() && !compositionPlates.includes(newCompositionPlate.trim())) {
-      const axles = newCompositionAxles === '' ? 2 : newCompositionAxles;
-      setCompositionPlates([...compositionPlates, newCompositionPlate.trim()]);
-      setCompositionAxles([...compositionAxles, axles]);
-      setNewCompositionPlate('');
-      setNewCompositionAxles('');
+    if (newCompositionVehicleId) {
+      const selectedVehicle = availableTrailerVehicles.find(v => v.id === newCompositionVehicleId);
+      if (selectedVehicle && !compositionPlates.includes(selectedVehicle.plate)) {
+        setCompositionPlates([...compositionPlates, selectedVehicle.plate]);
+        setCompositionAxles([...compositionAxles, selectedVehicle.axles]);
+        setNewCompositionVehicleId('');
+      }
     }
   };
 
@@ -1081,30 +1092,36 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
           </div>
         </div>
 
-        {vehicleCategory !== 'trailer' && (
+        {form.watch('vehicleType') === 'Cavalo Mecânico' && (
           <div>
-            <FormLabel>Composições Acopladas</FormLabel>
+            <FormLabel>Composições Acopladas (Veículos de Reboque)</FormLabel>
             <div className="flex gap-2 mt-2">
-              <Input
-                placeholder="Placa da composição"
-                value={newCompositionPlate}
-                onChange={(e) => setNewCompositionPlate(e.target.value)}
-                className="flex-1"
-              />
-              <Input
-                type="number"
-                placeholder="Quantidade de Eixos"
-                min="1"
-                max="10"
-                value={newCompositionAxles}
-                onChange={(e) => setNewCompositionAxles(e.target.value === '' ? '' : parseInt(e.target.value))}
-                className="w-48"
-              />
+              <Select
+                value={newCompositionVehicleId}
+                onValueChange={setNewCompositionVehicleId}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Selecione um veículo de reboque" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableTrailerVehicles.length === 0 ? (
+                    <SelectItem value="none" disabled>
+                      Nenhum veículo de reboque disponível
+                    </SelectItem>
+                  ) : (
+                    availableTrailerVehicles.map((vehicle) => (
+                      <SelectItem key={vehicle.id} value={vehicle.id}>
+                        {vehicle.plate} - {vehicle.model} ({vehicle.axles} eixos)
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
               <Button 
                 type="button" 
                 onClick={addCompositionPlate} 
                 size="icon"
-                disabled={!newCompositionPlate.trim()}
+                disabled={!newCompositionVehicleId}
               >
                 <Plus className="h-4 w-4" />
               </Button>

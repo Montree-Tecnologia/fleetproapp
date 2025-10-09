@@ -231,6 +231,7 @@ export default function Vehicles() {
           </DialogHeader>
           <VehicleForm
             initialData={editingVehicle || undefined}
+            availableVehicles={allVehicles}
             onSubmit={(data) => {
               if (editingVehicle) {
                 updateVehicle(editingVehicle.id, data);
