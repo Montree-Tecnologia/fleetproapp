@@ -51,12 +51,16 @@ export default function Vehicles() {
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      active: { label: 'Ativo', className: 'bg-success text-success-foreground' },
+      active: { label: 'Ativo', variant: 'default' as const },
       maintenance: { label: 'Manutenção', className: 'bg-warning text-warning-foreground' },
-      inactive: { label: 'Inativo', className: 'bg-muted text-muted-foreground' }
+      inactive: { label: 'Inativo', variant: 'destructive' as const }
     };
-    const variant = variants[status as keyof typeof variants];
-    return <Badge className={variant.className}>{variant.label}</Badge>;
+    const config = variants[status as keyof typeof variants];
+    return 'variant' in config ? (
+      <Badge variant={config.variant}>{config.label}</Badge>
+    ) : (
+      <Badge className={config.className}>{config.label}</Badge>
+    );
   };
 
   const handleEdit = (vehicle: Vehicle) => {
