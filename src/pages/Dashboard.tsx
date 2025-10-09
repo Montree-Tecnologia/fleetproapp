@@ -145,7 +145,7 @@ export default function Dashboard() {
                   return { ...vehicle, avgConsumption };
                 })
                 .filter(v => v.avgConsumption > 0)
-                .sort((a, b) => b.avgConsumption - a.avgConsumption)
+                .sort((a, b) => a.avgConsumption - b.avgConsumption)
                 .slice(0, 5)
                 .map((vehicle) => (
                   <div key={vehicle.id} className="flex items-center justify-between">
