@@ -300,7 +300,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
     }
   };
 
-  const availableBranches = ['Matriz', 'Filial SP', 'Filial RJ', 'Filial MG'];
+  const availableBranches = [
+    { name: 'Matriz', cnpj: '12.345.678/0001-90' },
+    { name: 'Filial SP', cnpj: '12.345.678/0002-71' },
+    { name: 'Filial RJ', cnpj: '12.345.678/0003-52' },
+    { name: 'Filial MG', cnpj: '12.345.678/0004-33' }
+  ];
 
   return (
     <Form {...form}>
@@ -660,8 +665,11 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
                   </FormControl>
                   <SelectContent>
                     {availableBranches.map((branch) => (
-                      <SelectItem key={branch} value={branch}>
-                        {branch}
+                      <SelectItem key={branch.name} value={branch.name}>
+                        <div className="flex flex-col">
+                          <span>{branch.name}</span>
+                          <span className="text-xs text-muted-foreground">{branch.cnpj}</span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -677,12 +685,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
           <div className="flex flex-wrap gap-2 mt-2">
             {availableBranches.map((branch) => (
               <Badge
-                key={branch}
-                variant={selectedBranches.includes(branch) ? "default" : "outline"}
+                key={branch.name}
+                variant={selectedBranches.includes(branch.name) ? "default" : "outline"}
                 className="cursor-pointer"
-                onClick={() => toggleBranch(branch)}
+                onClick={() => toggleBranch(branch.name)}
               >
-                {branch}
+                {branch.name}
               </Badge>
             ))}
           </div>
