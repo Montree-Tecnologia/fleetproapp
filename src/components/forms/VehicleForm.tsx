@@ -304,6 +304,9 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
           form.setValue('axles', axles);
         }
       }
+      // Limpa composições para veículos de reboque
+      setCompositionPlates([]);
+      setCompositionAxles([]);
     }
   }, [form.watch('model'), vehicleCategory]);
 
@@ -1022,61 +1025,64 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
           </div>
         </div>
 
-        <div>
-          <FormLabel>Composições Acopladas</FormLabel>
-          <div className="flex gap-2 mt-2">
-            <Input
-              placeholder="Placa da composição"
-              value={newCompositionPlate}
-              onChange={(e) => setNewCompositionPlate(e.target.value)}
-              className="flex-1"
-            />
-            <Input
-              type="number"
-              placeholder="Quantidade de Eixos"
-              min="1"
-              max="10"
-              value={newCompositionAxles}
-              onChange={(e) => setNewCompositionAxles(e.target.value === '' ? '' : parseInt(e.target.value))}
-              className="w-48"
-            />
-            <Button 
-              type="button" 
-              onClick={addCompositionPlate} 
-              size="icon"
-              disabled={!newCompositionPlate.trim()}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-          {compositionPlates.length > 0 && (
-            <div className="space-y-2 mt-3">
-              {compositionPlates.map((plate, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary">{plate}</Badge>
-                    <span className="text-sm text-muted-foreground">
-                      {compositionAxles[index]} {compositionAxles[index] === 1 ? 'eixo' : 'eixos'}
-                    </span>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeCompositionPlate(index)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              <div className="pt-2 border-t border-border">
-                <p className="text-sm font-medium">
-                  Total de Eixos: {form.watch('axles') + compositionAxles.reduce((sum, axles) => sum + axles, 0)}
-                </p>
-              </div>
+        {vehicleCategory !== 'trailer' && (
+          <div>
+            <FormLabel>Composições Acopladas</FormLabel>
+            <div className="flex gap-2 mt-2">
+              <Input
+                placeholder="Placa da composição"
+                value={newCompositionPlate}
+                onChange={(e) => setNewCompositionPlate(e.target.value)}
+                className="flex-1"
+              />
+              <Input
+                type="number"
+                placeholder="Quantidade de Eixos"
+                min="1"
+                max="10"
+                value={newCompositionAxles}
+                onChange={(e) => setNewCompositionAxles(e.target.value === '' ? '' : parseInt(e.target.value))}
+                className="w-48"
+              />
+              <Button 
+                type="button" 
+                onClick={addCompositionPlate} 
+                size="icon"
+                disabled={!newCompositionPlate.trim()}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
-          )}
-        </div>
+            {compositionPlates.length > 0 && (
+              <div className="space-y-2 mt-3">
+                {compositionPlates.map((plate, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">{plate}</Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {compositionAxles[index]} {compositionAxles[index] === 1 ? 'eixo' : 'eixos'}
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeCompositionPlate(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <div className="pt-2 border-t border-border">
+                  <p className="text-sm font-medium">
+                    Total de Eixos: {form.watch('axles') + compositionAxles.reduce((sum, axles) => sum + axles, 0)}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
 
         <div>
           <FormLabel>Imagens do Veículo</FormLabel>
