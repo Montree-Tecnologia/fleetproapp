@@ -509,15 +509,17 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
           <FormField
             control={form.control}
-            name="purchaseKm"
+            name="axles"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>KM de Compra *</FormLabel>
+                <FormLabel>Quantidade de Eixos *</FormLabel>
                 <FormControl>
                   <Input 
                     type="number" 
+                    min="1"
+                    max="20"
                     {...field} 
-                    onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -553,17 +555,15 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
 
           <FormField
             control={form.control}
-            name="axles"
+            name="purchaseKm"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Quantidade de Eixos *</FormLabel>
+                <FormLabel>KM de Compra *</FormLabel>
                 <FormControl>
                   <Input 
                     type="number" 
-                    min="1"
-                    max="20"
                     {...field} 
-                    onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                    onChange={(e) => field.onChange(parseInt(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
