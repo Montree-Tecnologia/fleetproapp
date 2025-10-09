@@ -27,9 +27,26 @@ import {
 import { CalendarIcon, Plus, X, Upload, Image as ImageIcon, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Vehicle } from '@/hooks/useMockData';
 import { Badge } from '@/components/ui/badge';
+
+// Mapeamento de marcas para modelos (baseado na tabela FIPE de veículos pesados)
+const BRAND_MODELS: Record<string, string[]> = {
+  'Agrale': ['8500 TCA', '8500 TDX', '9200 TCA', '13000 TCA', '14000 TCA', '16000'],
+  'DAF': ['XF 105', 'XF 530', 'CF 85', 'LF 55', 'XF 480'],
+  'Ford': ['Cargo 815', 'Cargo 1119', 'Cargo 1319', 'Cargo 1519', 'Cargo 1719', 'Cargo 2429', 'Cargo 2629'],
+  'International': ['4300', '7400', '9800', 'ProStar'],
+  'Iveco': ['Stralis 380', 'Stralis 410', 'Stralis 440', 'Stralis 460', 'Stralis 490', 'Tector 170', 'Tector 240', 'Daily 35S14', 'Daily 55C16'],
+  'MAN': ['TGX 29.480', 'TGX 29.440', 'TGS 28.440', 'TGS 24.440', 'TGS 26.440'],
+  'Mercedes-Benz': ['Actros 2546', 'Actros 2651', 'Atego 1719', 'Atego 1729', 'Atego 2426', 'Atego 2729', 'Axor 2036', 'Axor 2544', 'Axor 2644', 'Axor 3344'],
+  'Mitsubishi': ['L200 Triton', 'Fuso Canter', 'Fuso Fighter'],
+  'Peugeot': ['Boxer 2.3', 'Boxer 2.8'],
+  'Renault': ['Master 2.3', 'T 520', 'C 460', 'K 380'],
+  'Scania': ['R 440', 'R 450', 'R 500', 'R 620', 'G 380', 'G 420', 'P 310', 'P 360', 'S 580'],
+  'Volvo': ['FH 440', 'FH 460', 'FH 500', 'FH 540', 'FM 370', 'FM 420', 'VM 270', 'VM 330'],
+  'Volkswagen': ['Constellation 17.280', 'Constellation 19.360', 'Constellation 24.280', 'Constellation 25.360', 'Constellation 31.280', 'Delivery 9.170', 'Delivery 11.180'],
+};
 
 const vehicleSchema = z.object({
   plate: z.string().min(7, 'Placa inválida').max(8, 'Placa inválida'),
@@ -71,6 +88,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
   const [vehicleImages, setVehicleImages] = useState<string[]>(initialData?.images || []);
   const [crlvDocument, setCrlvDocument] = useState<string | undefined>(initialData?.crlvDocument);
+  const [selectedBrand, setSelectedBrand] = useState<string | undefined>(initialData?.brand);
 
 
   const form = useForm<VehicleFormData>({
@@ -101,6 +119,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
       purchaseDate: new Date(),
     },
   });
+
+  // Filtra os modelos disponíveis baseado na marca selecionada
+  const availableModels = useMemo(() => {
+    if (!selectedBrand) return [];
+    return BRAND_MODELS[selectedBrand] || [];
+  }, [selectedBrand]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -240,7 +264,15 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Marca *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select 
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    setSelectedBrand(value);
+                    // Limpa o modelo quando a marca muda
+                    form.setValue('model', '');
+                  }} 
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione a marca" />
@@ -273,9 +305,24 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Modelo *</FormLabel>
-                <FormControl>
-                  <Input placeholder="FH 540" {...field} />
-                </FormControl>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                  disabled={!selectedBrand}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder={selectedBrand ? "Selecione o modelo" : "Selecione a marca primeiro"} />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {availableModels.map((model) => (
+                      <SelectItem key={model} value={model}>
+                        {model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
