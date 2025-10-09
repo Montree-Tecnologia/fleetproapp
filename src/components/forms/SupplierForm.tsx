@@ -143,31 +143,33 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="brand"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>Bandeira</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a bandeira" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Petrobras">Petrobras</SelectItem>
-                    <SelectItem value="Shell">Shell</SelectItem>
-                    <SelectItem value="Ipiranga">Ipiranga</SelectItem>
-                    <SelectItem value="Ale">Ale</SelectItem>
-                    <SelectItem value="Outra Bandeira">Outra Bandeira</SelectItem>
-                    <SelectItem value="Sem Bandeira">Sem Bandeira</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {form.watch('type') === 'gas_station' && (
+            <FormField
+              control={form.control}
+              name="brand"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>Bandeira</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a bandeira" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Petrobras">Petrobras</SelectItem>
+                      <SelectItem value="Shell">Shell</SelectItem>
+                      <SelectItem value="Ipiranga">Ipiranga</SelectItem>
+                      <SelectItem value="Ale">Ale</SelectItem>
+                      <SelectItem value="Outra Bandeira">Outra Bandeira</SelectItem>
+                      <SelectItem value="Sem Bandeira">Sem Bandeira</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}
