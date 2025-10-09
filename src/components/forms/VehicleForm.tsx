@@ -27,7 +27,7 @@ import {
 import { CalendarIcon, Plus, X, Upload, Image as ImageIcon, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Vehicle } from '@/hooks/useMockData';
 import { Badge } from '@/components/ui/badge';
 
@@ -287,6 +287,25 @@ export function VehicleForm({ onSubmit, onCancel, initialData }: VehicleFormProp
     const brandModels = vehicleCategory === 'trailer' ? TRAILER_BRAND_MODELS : TRACTION_BRAND_MODELS;
     return brandModels[selectedBrand] || [];
   }, [selectedBrand, vehicleCategory]);
+
+  // Extrai o número de eixos do nome do modelo
+  const extractAxlesFromModel = (modelName: string): number | null => {
+    const match = modelName.match(/(\d+)\s*Eixos?/i);
+    return match ? parseInt(match[1]) : null;
+  };
+
+  // Atualiza automaticamente a quantidade de eixos baseado no modelo selecionado (apenas para reboques)
+  useEffect(() => {
+    if (vehicleCategory === 'trailer') {
+      const selectedModel = form.watch('model');
+      if (selectedModel) {
+        const axles = extractAxlesFromModel(selectedModel);
+        if (axles !== null) {
+          form.setValue('axles', axles);
+        }
+      }
+    }
+  }, [form.watch('model'), vehicleCategory]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
