@@ -496,8 +496,15 @@ export default function Vehicles() {
                     <span className="text-muted-foreground">Valor de Compra:</span>
                     <p className="font-medium">{formatCurrency(viewingVehicle.purchaseValue)}</p>
                   </div>
+                  {viewingVehicle.weight && (
+                    <div>
+                      <span className="text-muted-foreground">Peso:</span>
+                      <p className="font-medium">{viewingVehicle.weight} toneladas</p>
+                    </div>
+                  )}
                   {viewingVehicle.crlvDocument && (
                     <div className="col-span-2">
+
                       <span className="text-muted-foreground">Documento CRLV:</span>
                       <div className="mt-2 grid grid-cols-4 gap-3">
                         {viewingVehicle.crlvDocument.startsWith('data:image') || viewingVehicle.crlvDocument.includes('unsplash') ? (
@@ -540,12 +547,6 @@ export default function Vehicles() {
                     <span className="text-muted-foreground">Quantidade de Eixos:</span>
                     <p className="font-medium">{viewingVehicle.axles}</p>
                   </div>
-                  {viewingVehicle.weight && (
-                    <div>
-                      <span className="text-muted-foreground">Peso:</span>
-                      <p className="font-medium">{viewingVehicle.weight} toneladas</p>
-                    </div>
-                  )}
                 </div>
               </div>
 
