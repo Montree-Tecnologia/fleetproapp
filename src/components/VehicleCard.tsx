@@ -233,6 +233,7 @@ export function VehicleCard({
                         <p className="text-xs font-medium">{trailer?.plate}</p>
                         <p className="text-[10px] text-muted-foreground">
                           {trailer?.vehicleType} - {trailer?.axles} eixos
+                          {trailer?.weight && ` - ${trailer.weight} ton`}
                         </p>
                       </div>
                     </div>
@@ -248,14 +249,27 @@ export function VehicleCard({
                     )}
                   </div>
                 ))}
-                <p className="text-xs text-muted-foreground mt-2">
-                  Total de eixos: {vehicle.axles + (vehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
-                </p>
+                <div className="mt-2 pt-2 border-t border-border/50">
+                  <p className="text-xs text-muted-foreground">
+                    Total de eixos: {vehicle.axles + (vehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
+                  </p>
+                  {vehicle.weight && (
+                    <p className="text-xs text-muted-foreground">
+                      Peso do conjunto: {(
+                        vehicle.weight + 
+                        linkedTrailers.reduce((sum, trailer) => sum + (trailer?.weight || 0), 0)
+                      ).toFixed(1)} ton
+                    </p>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="text-xs text-muted-foreground">
                 <p>Nenhuma composição vinculada</p>
                 <p className="mt-1">Total de eixos: {vehicle.axles}</p>
+                {vehicle.weight && (
+                  <p className="mt-1">Peso: {vehicle.weight} ton</p>
+                )}
               </div>
             )}
           </div>
