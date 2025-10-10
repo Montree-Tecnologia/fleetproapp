@@ -496,15 +496,8 @@ export default function Vehicles() {
                     <span className="text-muted-foreground">Valor de Compra:</span>
                     <p className="font-medium">{formatCurrency(viewingVehicle.purchaseValue)}</p>
                   </div>
-                  {viewingVehicle.weight && (
-                    <div>
-                      <span className="text-muted-foreground">Peso:</span>
-                      <p className="font-medium">{viewingVehicle.weight} toneladas</p>
-                    </div>
-                  )}
                   {viewingVehicle.crlvDocument && (
                     <div className="col-span-2">
-
                       <span className="text-muted-foreground">Documento CRLV:</span>
                       <div className="mt-2 grid grid-cols-4 gap-3">
                         {viewingVehicle.crlvDocument.startsWith('data:image') || viewingVehicle.crlvDocument.includes('unsplash') ? (
@@ -547,6 +540,12 @@ export default function Vehicles() {
                     <span className="text-muted-foreground">Quantidade de Eixos:</span>
                     <p className="font-medium">{viewingVehicle.axles}</p>
                   </div>
+                  {viewingVehicle.weight && (
+                    <div>
+                      <span className="text-muted-foreground">Peso:</span>
+                      <p className="font-medium">{viewingVehicle.weight} toneladas</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -587,42 +586,18 @@ export default function Vehicles() {
                 <div>
                   <h3 className="font-semibold mb-3">Composições Acopladas</h3>
                   <div className="space-y-2">
-                    {viewingVehicle.compositionPlates.map((plate, index) => {
-                      const trailerVehicle = allVehicles.find(v => v.plate === plate);
-                      return (
-                        <div key={index} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                          <Badge variant="secondary">{plate}</Badge>
-                          <span className="text-sm text-muted-foreground">
-                            {viewingVehicle.compositionAxles?.[index]} {viewingVehicle.compositionAxles?.[index] === 1 ? 'eixo' : 'eixos'}
-                          </span>
-                          {trailerVehicle?.weight && (
-                            <span className="text-sm text-muted-foreground ml-auto">
-                              {trailerVehicle.weight} ton
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                    <div className="pt-2 border-t border-border space-y-1">
+                    {viewingVehicle.compositionPlates.map((plate, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                        <Badge variant="secondary">{plate}</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {viewingVehicle.compositionAxles?.[index]} {viewingVehicle.compositionAxles?.[index] === 1 ? 'eixo' : 'eixos'}
+                        </span>
+                      </div>
+                    ))}
+                    <div className="pt-2 border-t border-border">
                       <p className="text-sm font-medium">
                         Total de eixos (veículo + composições): {viewingVehicle.axles + (viewingVehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
                       </p>
-                      {(() => {
-                        const tractionWeight = viewingVehicle.weight || 0;
-                        const trailerWeights = viewingVehicle.compositionPlates
-                          .map(plate => allVehicles.find(v => v.plate === plate)?.weight || 0)
-                          .reduce((sum, weight) => sum + weight, 0);
-                        const totalWeight = tractionWeight + trailerWeights;
-                        
-                        if (totalWeight > 0) {
-                          return (
-                            <p className="text-sm font-medium">
-                              Peso total do conjunto: {totalWeight.toFixed(1)} toneladas
-                            </p>
-                          );
-                        }
-                        return null;
-                      })()}
                     </div>
                   </div>
                 </div>
