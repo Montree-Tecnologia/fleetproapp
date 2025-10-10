@@ -496,6 +496,12 @@ export default function Vehicles() {
                     <span className="text-muted-foreground">Valor de Compra:</span>
                     <p className="font-medium">{formatCurrency(viewingVehicle.purchaseValue)}</p>
                   </div>
+                  {viewingVehicle.weight && (
+                    <div>
+                      <span className="text-muted-foreground">Peso:</span>
+                      <p className="font-medium">{viewingVehicle.weight} toneladas</p>
+                    </div>
+                  )}
                   {viewingVehicle.crlvDocument && (
                     <div className="col-span-2">
                       <span className="text-muted-foreground">Documento CRLV:</span>
