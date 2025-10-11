@@ -58,9 +58,11 @@ export interface Vehicle {
 
 export interface Refueling {
   id: string;
-  vehicleId: string;
+  vehicleId?: string;
+  refrigerationUnitId?: string;
   date: string;
-  km: number;
+  km?: number;
+  usageHours?: number;
   liters: number;
   pricePerLiter: number;
   totalValue: number;
@@ -99,6 +101,8 @@ export interface RefrigerationUnit {
   status: 'active' | 'defective' | 'maintenance' | 'sold';
   previousStatus?: 'active' | 'defective' | 'maintenance';
   initialUsageHours?: number;
+  currentUsageHours?: number;
+  fuelType?: string;
   saleInfo?: RefrigerationSale;
 }
 

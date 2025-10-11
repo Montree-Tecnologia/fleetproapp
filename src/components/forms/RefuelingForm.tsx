@@ -27,7 +27,7 @@ import {
 import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Refueling, Vehicle, Driver, Supplier } from '@/hooks/useMockData';
+import { Refueling, Vehicle, Driver, Supplier, RefrigerationUnit } from '@/hooks/useMockData';
 import { useState } from 'react';
 import {
   Command,
@@ -39,16 +39,32 @@ import {
 } from '@/components/ui/command';
 
 const refuelingSchema = z.object({
-  vehicleId: z.string().min(1, 'Veículo é obrigatório'),
+  entityType: z.enum(['vehicle', 'refrigeration']),
+  vehicleId: z.string().optional(),
+  refrigerationUnitId: z.string().optional(),
   date: z.date({
     required_error: 'Data é obrigatória',
   }),
-  km: z.number().min(0, 'KM deve ser positivo'),
+  km: z.number().min(0, 'KM deve ser positivo').optional(),
+  usageHours: z.number().min(0, 'Horas de uso devem ser positivas').optional(),
   liters: z.number().min(0.1, 'Litros deve ser maior que 0'),
   pricePerLiter: z.number().min(0.01, 'Preço por litro deve ser maior que 0'),
-  fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Gasolina', 'Etanol', 'GNV', 'Biometano']),
+  fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Gasolina', 'Etanol', 'GNV', 'Biometano', 'Outro']),
   supplierId: z.string().min(1, 'Posto é obrigatório'),
   driver: z.string().min(1, 'Motorista é obrigatório'),
+}).refine((data) => {
+  // Se for veículo, precisa ter vehicleId e km
+  if (data.entityType === 'vehicle' && !data.vehicleId) {
+    return false;
+  }
+  // Se for refrigeração, precisa ter refrigerationUnitId e usageHours
+  if (data.entityType === 'refrigeration' && !data.refrigerationUnitId) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Selecione um veículo ou equipamento de refrigeração',
+  path: ['vehicleId'],
 });
 
 type RefuelingFormData = z.infer<typeof refuelingSchema>;
@@ -59,14 +75,16 @@ interface RefuelingFormProps {
   vehicles: Vehicle[];
   drivers: Driver[];
   suppliers: Supplier[];
+  refrigerationUnits: RefrigerationUnit[];
   initialData?: Refueling;
 }
 
-export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers, initialData }: RefuelingFormProps) {
+export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers, refrigerationUnits, initialData }: RefuelingFormProps) {
   const gasStations = suppliers.filter(s => s.type === 'gas_station' && s.active);
   const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>(initialData?.paymentReceipt);
   const [fiscalNote, setFiscalNote] = useState<string | undefined>(initialData?.fiscalNote);
   const [openVehicle, setOpenVehicle] = useState(false);
+  const [openRefrigeration, setOpenRefrigeration] = useState(false);
   const [openDriver, setOpenDriver] = useState(false);
   const [openSupplier, setOpenSupplier] = useState(false);
   
@@ -77,20 +95,30 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     v.status !== 'sold'
   );
   
+  // Filtrar equipamentos de refrigeração ativos com tipo de combustível
+  const activeRefrigerationUnits = refrigerationUnits.filter(r => 
+    r.status !== 'sold' && r.fuelType
+  );
+  
   const form = useForm<RefuelingFormData>({
     resolver: zodResolver(refuelingSchema),
     defaultValues: initialData ? {
+      entityType: initialData.vehicleId ? 'vehicle' : 'refrigeration',
       vehicleId: initialData.vehicleId,
+      refrigerationUnitId: initialData.refrigerationUnitId,
       date: new Date(initialData.date),
       km: initialData.km,
+      usageHours: initialData.usageHours,
       liters: initialData.liters,
       pricePerLiter: initialData.pricePerLiter,
       fuelType: initialData.fuelType as any,
       supplierId: initialData.supplierId,
       driver: initialData.driver,
     } : {
+      entityType: 'vehicle',
       date: new Date(),
       km: 0,
+      usageHours: 0,
       liters: 0,
       pricePerLiter: 0,
       fuelType: 'Diesel S10',
@@ -99,6 +127,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
 
   const watchLiters = form.watch('liters');
   const watchPricePerLiter = form.watch('pricePerLiter');
+  const watchEntityType = form.watch('entityType');
   const totalValue = watchLiters * watchPricePerLiter;
 
   const handlePaymentReceiptUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,21 +161,34 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   };
 
   const handleSubmit = (data: RefuelingFormData) => {
-    const vehicle = vehicles.find(v => v.id === data.vehicleId);
-    
-    if (vehicle && data.km < vehicle.currentKm) {
-      form.setError('km', { 
-        message: `KM deve ser maior ou igual ao KM atual do veículo (${vehicle.currentKm.toLocaleString('pt-BR')})` 
-      });
-      return;
+    if (data.entityType === 'vehicle') {
+      const vehicle = vehicles.find(v => v.id === data.vehicleId);
+      
+      if (vehicle && data.km && data.km < vehicle.currentKm) {
+        form.setError('km', { 
+          message: `KM deve ser maior ou igual ao KM atual do veículo (${vehicle.currentKm.toLocaleString('pt-BR')})` 
+        });
+        return;
+      }
+    } else if (data.entityType === 'refrigeration') {
+      const unit = refrigerationUnits.find(u => u.id === data.refrigerationUnitId);
+      
+      if (unit && data.usageHours && unit.currentUsageHours && data.usageHours < unit.currentUsageHours) {
+        form.setError('usageHours', { 
+          message: `Horas devem ser maiores ou iguais às horas atuais (${unit.currentUsageHours.toLocaleString('pt-BR')})` 
+        });
+        return;
+      }
     }
 
     const totalValue = data.liters * data.pricePerLiter;
 
     onSubmit({
       vehicleId: data.vehicleId,
+      refrigerationUnitId: data.refrigerationUnitId,
       date: format(data.date, 'yyyy-MM-dd'),
       km: data.km,
+      usageHours: data.usageHours,
       liters: data.liters,
       pricePerLiter: data.pricePerLiter,
       totalValue: totalValue,
@@ -161,78 +203,176 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="entityType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tipo de Abastecimento *</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="vehicle">Veículo</SelectItem>
+                  <SelectItem value="refrigeration">Equipamento de Refrigeração</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
         <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="vehicleId"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Veículo *</FormLabel>
-                <Popover open={openVehicle} onOpenChange={setOpenVehicle}>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value
-                          ? (() => {
-                              const vehicle = tractionVehicles.find(v => v.id === field.value);
-                              return vehicle ? `${vehicle.plate} - ${vehicle.model}` : "Selecione o veículo";
-                            })()
-                          : "Selecione o veículo"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[400px] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Buscar veículo..." />
-                      <CommandList>
-                        <CommandEmpty>Nenhum veículo encontrado.</CommandEmpty>
-                        <CommandGroup>
-                          {tractionVehicles.map((vehicle) => (
-                            <CommandItem
-                              key={vehicle.id}
-                              value={`${vehicle.plate} ${vehicle.model} ${vehicle.vehicleType} ${vehicle.ownerBranch}`}
-                              onSelect={() => {
-                                form.setValue("vehicleId", vehicle.id);
-                                setOpenVehicle(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  vehicle.id === field.value ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              <div className="flex flex-col gap-1">
-                                <div className="font-semibold">
-                                  {vehicle.plate} - {vehicle.model} ({vehicle.vehicleType})
+          {watchEntityType === 'vehicle' && (
+            <FormField
+              control={form.control}
+              name="vehicleId"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Veículo *</FormLabel>
+                  <Popover open={openVehicle} onOpenChange={setOpenVehicle}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? (() => {
+                                const vehicle = tractionVehicles.find(v => v.id === field.value);
+                                return vehicle ? `${vehicle.plate} - ${vehicle.model}` : "Selecione o veículo";
+                              })()
+                            : "Selecione o veículo"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Buscar veículo..." />
+                        <CommandList>
+                          <CommandEmpty>Nenhum veículo encontrado.</CommandEmpty>
+                          <CommandGroup>
+                            {tractionVehicles.map((vehicle) => (
+                              <CommandItem
+                                key={vehicle.id}
+                                value={`${vehicle.plate} ${vehicle.model} ${vehicle.vehicleType} ${vehicle.ownerBranch}`}
+                                onSelect={() => {
+                                  form.setValue("vehicleId", vehicle.id);
+                                  setOpenVehicle(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    vehicle.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col gap-1">
+                                  <div className="font-semibold">
+                                    {vehicle.plate} - {vehicle.model} ({vehicle.vehicleType})
+                                  </div>
+                                  <div className="text-xs text-muted-foreground flex items-center gap-2">
+                                    <span>Proprietária: {vehicle.ownerBranch}</span>
+                                    <span>•</span>
+                                    <span className={vehicle.status === 'active' ? 'text-green-600' : vehicle.status === 'maintenance' ? 'text-yellow-600' : 'text-muted-foreground'}>
+                                      Status: {vehicle.status === 'active' ? 'Ativo' : vehicle.status === 'maintenance' ? 'Manutenção' : vehicle.status === 'inactive' ? 'Inativo' : 'Vendido'}
+                                    </span>
+                                  </div>
                                 </div>
-                                <div className="text-xs text-muted-foreground flex items-center gap-2">
-                                  <span>Proprietária: {vehicle.ownerBranch}</span>
-                                  <span>•</span>
-                                  <span className={vehicle.status === 'active' ? 'text-green-600' : vehicle.status === 'maintenance' ? 'text-yellow-600' : 'text-muted-foreground'}>
-                                    Status: {vehicle.status === 'active' ? 'Ativo' : vehicle.status === 'maintenance' ? 'Manutenção' : vehicle.status === 'inactive' ? 'Inativo' : 'Vendido'}
-                                  </span>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {watchEntityType === 'refrigeration' && (
+            <FormField
+              control={form.control}
+              name="refrigerationUnitId"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Equipamento de Refrigeração *</FormLabel>
+                  <Popover open={openRefrigeration} onOpenChange={setOpenRefrigeration}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? (() => {
+                                const unit = activeRefrigerationUnits.find(u => u.id === field.value);
+                                return unit ? `${unit.brand} ${unit.model} - SN: ${unit.serialNumber}` : "Selecione o equipamento";
+                              })()
+                            : "Selecione o equipamento"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Buscar equipamento..." />
+                        <CommandList>
+                          <CommandEmpty>Nenhum equipamento encontrado.</CommandEmpty>
+                          <CommandGroup>
+                            {activeRefrigerationUnits.map((unit) => (
+                              <CommandItem
+                                key={unit.id}
+                                value={`${unit.brand} ${unit.model} ${unit.serialNumber}`}
+                                onSelect={() => {
+                                  form.setValue("refrigerationUnitId", unit.id);
+                                  setOpenRefrigeration(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    unit.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col gap-1">
+                                  <div className="font-semibold">
+                                    {unit.brand} {unit.model}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    SN: {unit.serialNumber} | Combustível: {unit.fuelType}
+                                    {unit.vehicleId && (() => {
+                                      const vehicle = vehicles.find(v => v.id === unit.vehicleId);
+                                      return vehicle ? ` | Veículo: ${vehicle.plate}` : '';
+                                    })()}
+                                  </div>
                                 </div>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}
@@ -275,23 +415,45 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="km"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>KM Atual *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {watchEntityType === 'vehicle' && (
+            <FormField
+              control={form.control}
+              name="km"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>KM Atual *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {watchEntityType === 'refrigeration' && (
+            <FormField
+              control={form.control}
+              name="usageHours"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Horas de Uso Atuais *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      {...field} 
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}
@@ -313,6 +475,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     <SelectItem value="Etanol">Etanol</SelectItem>
                     <SelectItem value="GNV">GNV</SelectItem>
                     <SelectItem value="Biometano">Biometano</SelectItem>
+                    <SelectItem value="Outro">Outro</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

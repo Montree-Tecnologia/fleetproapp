@@ -42,7 +42,7 @@ import { RefuelingForm } from '@/components/forms/RefuelingForm';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Refuelings() {
-  const { refuelings, vehicles, drivers, suppliers, addRefueling, updateRefueling, deleteRefueling } = useMockData();
+  const { refuelings, vehicles, drivers, suppliers, refrigerationUnits, addRefueling, updateRefueling, deleteRefueling } = useMockData();
   const { isAdmin } = usePermissions();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -61,6 +61,7 @@ export default function Refuelings() {
   const allVehicles = vehicles();
   const allDrivers = drivers();
   const allSuppliers = suppliers();
+  const allRefrigerationUnits = refrigerationUnits();
 
   // Filtrar apenas veículos de tração
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
@@ -173,6 +174,7 @@ export default function Refuelings() {
               vehicles={tractionVehicles}
               drivers={allDrivers}
               suppliers={allSuppliers}
+              refrigerationUnits={allRefrigerationUnits}
               initialData={editingRefueling}
             />
           </DialogContent>
