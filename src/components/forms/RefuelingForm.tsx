@@ -508,7 +508,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
               name="usageHours"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Horas de Uso Atuais *</FormLabel>
+                  <FormLabel>Horímetro - Atual *</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
