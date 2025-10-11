@@ -162,11 +162,9 @@ export default function Companies() {
                   <Badge variant={company.type === 'matriz' ? 'default' : 'secondary'}>
                     {company.type === 'matriz' ? 'Matriz' : 'Filial'}
                   </Badge>
-                  {!company.active && (
-                    <Badge variant="outline">
-                      Inativa
-                    </Badge>
-                  )}
+                  <Badge variant={company.active ? "default" : "destructive"} className={company.active ? "bg-green-600 hover:bg-green-700" : ""}>
+                    {company.active ? 'Ativa' : 'Inativa'}
+                  </Badge>
                 </div>
               </div>
               <CardTitle className="mt-4">{company.name}</CardTitle>

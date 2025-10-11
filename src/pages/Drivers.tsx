@@ -495,18 +495,18 @@ export default function Drivers() {
                   <div className="space-y-1">
                     <CardTitle className="flex items-center gap-2">
                       {driver.name}
-                      {!driver.active && (
-                        <Badge variant="outline" className="text-xs">
-                          Inativo
-                        </Badge>
-                      )}
                     </CardTitle>
                     <CardDescription className="flex items-center gap-1">
                       <IdCard className="h-3 w-3" />
                       {driver.cpf}
                     </CardDescription>
                   </div>
-                  <Badge variant={cnhStatus.variant}>{cnhStatus.status}</Badge>
+                  <div className="flex flex-col gap-1 items-end">
+                    <Badge variant={driver.active ? "default" : "destructive"} className={driver.active ? "bg-green-600 hover:bg-green-700" : ""}>
+                      {driver.active ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                    <Badge variant={cnhStatus.variant}>{cnhStatus.status}</Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">

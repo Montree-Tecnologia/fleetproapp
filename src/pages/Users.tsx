@@ -548,18 +548,18 @@ export default function Users() {
                 <div className="space-y-1">
                   <CardTitle className="flex items-center gap-2">
                     {user.name}
-                    {!user.active && (
-                      <Badge variant="outline" className="text-xs">
-                        Inativo
-                      </Badge>
-                    )}
                   </CardTitle>
                   <CardDescription className="flex items-center gap-1">
                     <Mail className="h-3 w-3" />
                     {user.email}
                   </CardDescription>
                 </div>
-                {getRoleBadge(user.role)}
+                <div className="flex flex-col gap-1 items-end">
+                  {getRoleBadge(user.role)}
+                  <Badge variant={user.active ? "default" : "destructive"} className={user.active ? "bg-green-600 hover:bg-green-700" : ""}>
+                    {user.active ? 'Ativo' : 'Inativo'}
+                  </Badge>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">

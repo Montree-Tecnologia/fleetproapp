@@ -126,13 +126,13 @@ export default function Refrigeration() {
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      active: { label: 'Ativo', className: 'bg-success text-success-foreground' },
-      defective: { label: 'Defeito', className: 'bg-destructive text-destructive-foreground' },
-      maintenance: { label: 'Manutenção', className: 'bg-warning text-warning-foreground' },
-      sold: { label: 'Vendido', className: 'bg-muted text-muted-foreground' }
+      active: { label: 'Ativo', variant: 'default' as const, className: 'bg-green-600 hover:bg-green-700' },
+      defective: { label: 'Defeito', variant: 'destructive' as const, className: '' },
+      maintenance: { label: 'Manutenção', variant: 'outline' as const, className: 'border-yellow-500 text-yellow-600' },
+      sold: { label: 'Vendido', variant: 'secondary' as const, className: '' }
     };
-    const variant = variants[status as keyof typeof variants];
-    return <Badge className={variant.className}>{variant.label}</Badge>;
+    const config = variants[status as keyof typeof variants];
+    return <Badge variant={config.variant} className={config.className}>{config.label}</Badge>;
   };
 
   const handleStatusChange = (unitId: string, newStatus: string, hasVehicle: boolean) => {

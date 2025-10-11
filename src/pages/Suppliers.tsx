@@ -185,11 +185,9 @@ export default function Suppliers() {
                 </div>
                 <div className="flex items-center gap-2">
                   {getTypeBadge(supplier.type)}
-                  {!supplier.active && (
-                    <Badge variant="secondary" className="bg-muted">
-                      Inativo
-                    </Badge>
-                  )}
+                  <Badge variant={supplier.active ? "default" : "destructive"} className={supplier.active ? "bg-green-600 hover:bg-green-700" : ""}>
+                    {supplier.active ? 'Ativo' : 'Inativo'}
+                  </Badge>
                 </div>
               </div>
             </CardHeader>
