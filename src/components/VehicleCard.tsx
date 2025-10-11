@@ -61,6 +61,7 @@ export function VehicleCard({
 }: VehicleCardProps) {
   const [showAddComposition, setShowAddComposition] = useState(false);
   const [openDriver, setOpenDriver] = useState(false);
+  const [openComposition, setOpenComposition] = useState(false);
   
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
@@ -231,23 +232,50 @@ export function VehicleCard({
             
             {showAddComposition && availableTrailers.length > 0 && (
               <div className="mb-2">
-                <Select
-                  onValueChange={(trailerId) => {
-                    handleAddComposition(vehicle.id, trailerId);
-                    setShowAddComposition(false);
-                  }}
-                >
-                  <SelectTrigger className="w-full h-8 text-xs">
-                    <SelectValue placeholder="Selecione um reboque" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableTrailers.map((trailer) => (
-                      <SelectItem key={trailer.id} value={trailer.id}>
-                        {trailer.plate} - {trailer.vehicleType} ({trailer.axles} eixos)
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openComposition} onOpenChange={setOpenComposition}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-full h-8 text-xs justify-between"
+                    >
+                      <span>Selecione um reboque</span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar reboque..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum reboque disponível.</CommandEmpty>
+                        <CommandGroup>
+                          {availableTrailers.map((trailer) => (
+                            <CommandItem
+                              key={trailer.id}
+                              value={`${trailer.plate} ${trailer.vehicleType} ${trailer.brand} ${trailer.model}`}
+                              onSelect={() => {
+                                handleAddComposition(vehicle.id, trailer.id);
+                                setShowAddComposition(false);
+                                setOpenComposition(false);
+                              }}
+                            >
+                              <Check className="mr-2 h-4 w-4 opacity-0" />
+                              <div className="flex flex-col gap-0.5">
+                                <div className="font-semibold">
+                                  {trailer.plate} - {trailer.vehicleType}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {trailer.brand} {trailer.model} | {trailer.axles} eixos
+                                  {trailer.weight && ` | ${trailer.weight} ton`}
+                                </div>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             )}
             
