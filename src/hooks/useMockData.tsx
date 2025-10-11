@@ -1034,6 +1034,13 @@ export function useMockData() {
   }, []);
   const updateDriver = useCallback((id: string, data: Partial<Driver>) => {
     setDrivers(prev => prev.map(d => d.id === id ? { ...d, ...data } : d));
+    
+    // Se o motorista foi inativado, desvincular de todos os veículos
+    if (data.active === false) {
+      setVehicles(prev => prev.map(v => 
+        v.driverId === id ? { ...v, driverId: undefined } : v
+      ));
+    }
   }, []);
   const deleteDriver = useCallback((id: string) => {
     setDrivers(prev => prev.filter(d => d.id !== id));

@@ -6,6 +6,7 @@ interface User {
   email: string;
   role: 'admin' | 'manager' | 'operator';
   company: string;
+  active?: boolean;
 }
 
 interface AuthContextType {
@@ -26,7 +27,8 @@ const mockUsers: Record<string, { password: string; user: User }> = {
       name: 'Administrador',
       email: 'admin@frota.com',
       role: 'admin',
-      company: 'Transportadora Matriz'
+      company: 'Transportadora Matriz',
+      active: true,
     }
   },
   'gestor@frota.com': {
@@ -36,7 +38,8 @@ const mockUsers: Record<string, { password: string; user: User }> = {
       name: 'João Silva',
       email: 'gestor@frota.com',
       role: 'manager',
-      company: 'Transportadora Matriz'
+      company: 'Transportadora Matriz',
+      active: true,
     }
   }
 };
@@ -55,6 +58,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const mockUser = mockUsers[email];
     
     if (mockUser && mockUser.password === password) {
+      // Verificar se o usuário está ativo
+      if (mockUser.user.active === false) {
+        return false; // Usuário inativo não pode fazer login
+      }
+      
       setUser(mockUser.user);
       localStorage.setItem('fleet_user', JSON.stringify(mockUser.user));
       return true;
