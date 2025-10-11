@@ -2,9 +2,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Truck, Pencil, Trash2, Eye, DollarSign, Link2, Plus, X } from 'lucide-react';
+import { Truck, Pencil, Trash2, Eye, DollarSign, Link2, Plus, X, Check, ChevronsUpDown } from 'lucide-react';
 import { Vehicle } from '@/hooks/useMockData';
 import { useState } from 'react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -46,6 +60,7 @@ export function VehicleCard({
   isAdmin,
 }: VehicleCardProps) {
   const [showAddComposition, setShowAddComposition] = useState(false);
+  const [openDriver, setOpenDriver] = useState(false);
   
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
@@ -332,23 +347,77 @@ export function VehicleCard({
         {!['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'].includes(vehicle.vehicleType) && (
           <div className="pt-3 border-t border-border">
             <span className="text-sm text-muted-foreground mb-2 block">Vincular Motorista:</span>
-            <Select
-              value={vehicle.driverId || 'none'}
-              onValueChange={(value) => handleDriverChange(vehicle.id, value)}
-              disabled={vehicle.status === 'sold'}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sem motorista</SelectItem>
-                {availableDrivers.map((driver) => (
-                  <SelectItem key={driver.id} value={driver.id}>
-                    {driver.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={openDriver} onOpenChange={setOpenDriver}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  disabled={vehicle.status === 'sold'}
+                  className={cn(
+                    "w-full justify-between",
+                    !vehicle.driverId && "text-muted-foreground"
+                  )}
+                >
+                  {vehicle.driverId
+                    ? (() => {
+                        const driver = allDrivers.find(d => d.id === vehicle.driverId);
+                        return driver ? driver.name : "Sem motorista";
+                      })()
+                    : "Sem motorista"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[350px] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Buscar motorista..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhum motorista encontrado.</CommandEmpty>
+                    <CommandGroup>
+                      <CommandItem
+                        value="none"
+                        onSelect={() => {
+                          handleDriverChange(vehicle.id, 'none');
+                          setOpenDriver(false);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            !vehicle.driverId ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        Sem motorista
+                      </CommandItem>
+                      {availableDrivers.map((driver) => (
+                        <CommandItem
+                          key={driver.id}
+                          value={`${driver.name} ${driver.cpf}`}
+                          onSelect={() => {
+                            handleDriverChange(vehicle.id, driver.id);
+                            setOpenDriver(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              driver.id === vehicle.driverId ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <div className="flex flex-col gap-0.5">
+                            <div className="font-semibold">
+                              {driver.name}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              CPF: {driver.cpf}
+                            </div>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
 
