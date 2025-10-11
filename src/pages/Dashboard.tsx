@@ -1,9 +1,14 @@
+import { useState } from 'react';
 import { useMockData } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Truck, TrendingUp, Fuel, Activity, Snowflake } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
+  const [showWorstVehicles, setShowWorstVehicles] = useState(false);
+  const [showWorstRefrigeration, setShowWorstRefrigeration] = useState(false);
+  
   const { 
     getDashboardStats, 
     getDashboardStatsForRefrigeration,
@@ -168,8 +173,15 @@ export default function Dashboard() {
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle>Top 5 Veículos por Consumo</CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowWorstVehicles(!showWorstVehicles)}
+                >
+                  {showWorstVehicles ? 'Menos Econômicos' : 'Mais Econômicos'}
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -195,7 +207,7 @@ export default function Dashboard() {
                       return { ...vehicle, avgConsumption };
                     })
                     .filter(v => v.avgConsumption > 0)
-                    .sort((a, b) => a.avgConsumption - b.avgConsumption)
+                    .sort((a, b) => showWorstVehicles ? a.avgConsumption - b.avgConsumption : b.avgConsumption - a.avgConsumption)
                     .slice(0, 5)
                     .map((vehicle) => (
                       <div key={vehicle.id} className="flex items-center justify-between">
@@ -334,8 +346,15 @@ export default function Dashboard() {
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle>Top 5 Equipamentos por Consumo</CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowWorstRefrigeration(!showWorstRefrigeration)}
+                >
+                  {showWorstRefrigeration ? 'Menos Econômicos' : 'Mais Econômicos'}
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -361,7 +380,7 @@ export default function Dashboard() {
                       return { ...unit, avgConsumption };
                     })
                     .filter(u => u.avgConsumption > 0)
-                    .sort((a, b) => b.avgConsumption - a.avgConsumption)
+                    .sort((a, b) => showWorstRefrigeration ? b.avgConsumption - a.avgConsumption : a.avgConsumption - b.avgConsumption)
                     .slice(0, 5)
                     .map((unit) => (
                       <div key={unit.id} className="flex items-center justify-between">
