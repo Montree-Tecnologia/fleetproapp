@@ -315,23 +315,20 @@ export function VehicleCard({
                   <p className="text-xs text-muted-foreground">
                     Total de eixos: {vehicle.axles + (vehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
                   </p>
-                  {vehicle.weight && (
-                    <p className="text-xs text-muted-foreground">
-                      Peso do conjunto: {(
-                        vehicle.weight + 
-                        linkedTrailers.reduce((sum, trailer) => sum + (trailer?.weight || 0), 0)
-                      ).toFixed(1)} ton
-                    </p>
-                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Peso do conjunto: {
+                      (vehicle.weight || 0) + linkedTrailers.reduce((sum, trailer) => sum + (trailer?.weight || 0), 0) > 0
+                        ? ((vehicle.weight || 0) + linkedTrailers.reduce((sum, trailer) => sum + (trailer?.weight || 0), 0)).toFixed(1) + ' ton'
+                        : 'N/A'
+                    }
+                  </p>
                 </div>
               </div>
             ) : (
               <div className="text-xs text-muted-foreground">
                 <p>Nenhuma composição vinculada</p>
                 <p className="mt-1">Total de eixos: {vehicle.axles}</p>
-                {vehicle.weight && (
-                  <p className="mt-1">Peso: {vehicle.weight} ton</p>
-                )}
+                <p className="mt-1">Peso: {vehicle.weight ? `${vehicle.weight} ton` : 'N/A'}</p>
               </div>
             )}
           </div>
