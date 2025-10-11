@@ -100,6 +100,7 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
         city: data.city,
         state: data.state,
         matrizId: data.type === 'filial' ? data.matrizId : undefined,
+        active: true,
       });
       toast({
         title: 'Empresa cadastrada',

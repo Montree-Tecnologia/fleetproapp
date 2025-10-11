@@ -139,6 +139,7 @@ export interface Company {
   city: string;
   state: string;
   matrizId?: string;
+  active: boolean;
 }
 
 // Mock Data
@@ -989,6 +990,7 @@ const mockCompanies: Company[] = [
     cnpj: '12.345.678/0001-90',
     city: 'São Paulo',
     state: 'SP',
+    active: true,
   },
   {
     id: '2',
@@ -998,6 +1000,7 @@ const mockCompanies: Company[] = [
     city: 'Rio de Janeiro',
     state: 'RJ',
     matrizId: '1',
+    active: true,
   },
   {
     id: '3',
@@ -1007,6 +1010,7 @@ const mockCompanies: Company[] = [
     city: 'Belo Horizonte',
     state: 'MG',
     matrizId: '1',
+    active: true,
   },
 ];
 

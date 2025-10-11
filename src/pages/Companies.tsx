@@ -21,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Building2, MapPin, Plus, Pencil, Trash2, Search } from 'lucide-react';
+import { Building2, MapPin, Plus, Pencil, Trash2, Search, Power } from 'lucide-react';
 import { CompanyForm } from '@/components/forms/CompanyForm';
 import { useMockData, Company } from '@/hooks/useMockData';
 import { useToast } from '@/hooks/use-toast';
@@ -75,6 +75,14 @@ export default function Companies() {
     if (!open) {
       setEditingCompany(null);
     }
+  };
+
+  const handleToggleActive = (companyId: string, currentStatus: boolean) => {
+    updateCompany(companyId, { active: !currentStatus });
+    toast({
+      title: currentStatus ? 'Empresa inativada' : 'Empresa ativada',
+      description: 'Status atualizado com sucesso.',
+    });
   };
 
   return (
@@ -150,9 +158,16 @@ export default function Companies() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <Building2 className="h-8 w-8 text-primary" />
-                <Badge variant={company.type === 'matriz' ? 'default' : 'secondary'}>
-                  {company.type === 'matriz' ? 'Matriz' : 'Filial'}
-                </Badge>
+                <div className="flex gap-2">
+                  <Badge variant={company.type === 'matriz' ? 'default' : 'secondary'}>
+                    {company.type === 'matriz' ? 'Matriz' : 'Filial'}
+                  </Badge>
+                  {!company.active && (
+                    <Badge variant="outline">
+                      Inativa
+                    </Badge>
+                  )}
+                </div>
               </div>
               <CardTitle className="mt-4">{company.name}</CardTitle>
               <CardDescription>{company.cnpj}</CardDescription>
@@ -174,11 +189,18 @@ export default function Companies() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex-1"
                   onClick={() => handleEdit(company)}
                 >
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Editar
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant={company.active ? 'destructive' : 'default'}
+                  className="flex-1"
+                  onClick={() => handleToggleActive(company.id, company.active)}
+                >
+                  <Power className="h-4 w-4 mr-2" />
+                  {company.active ? 'Inativar' : 'Ativar'}
                 </Button>
                 <Button
                   size="sm"

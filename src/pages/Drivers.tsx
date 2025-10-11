@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil, Eye, Upload, X, Search } from 'lucide-react';
+import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil, Eye, Upload, X, Search, Power } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -195,7 +195,7 @@ export default function Drivers() {
   const handleToggleActive = (driverId: string, currentStatus: boolean) => {
     updateDriver(driverId, { active: !currentStatus });
     toast({
-      title: currentStatus ? 'Motorista desativado' : 'Motorista ativado',
+      title: currentStatus ? 'Motorista inativado' : 'Motorista ativado',
       description: 'Status atualizado com sucesso.',
     });
   };
@@ -529,11 +529,9 @@ export default function Drivers() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="flex-1"
                     onClick={() => handleViewDetails(driver)}
                   >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Detalhes
+                    <Eye className="h-4 w-4" />
                   </Button>
                   <Button
                     size="sm"
@@ -541,6 +539,15 @@ export default function Drivers() {
                     onClick={() => handleEdit(driver)}
                   >
                     <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={driver.active ? 'destructive' : 'default'}
+                    className="flex-1"
+                    onClick={() => handleToggleActive(driver.id, driver.active)}
+                  >
+                    <Power className="h-4 w-4 mr-2" />
+                    {driver.active ? 'Inativar' : 'Ativar'}
                   </Button>
                   <Button
                     size="sm"
