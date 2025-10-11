@@ -1,4 +1,4 @@
-import { Outlet, useNavigate, NavLink } from 'react-router-dom';
+import { Outlet, useNavigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { Button } from '@/components/ui/button';
@@ -15,33 +15,60 @@ import {
   Building2,
   UserCog,
   IdCard,
-  Settings
+  Settings,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 import { useState } from 'react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 
 export function Layout() {
   const { user, logout } = useAuth();
   const { hasPermission } = usePermissions();
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [cadastrosOpen, setCadastrosOpen] = useState(true);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const allNavItems = [
-    { to: '/', icon: LayoutDashboard, label: 'Dashboard', permission: 'view_dashboard' as const },
+  // Dashboard item (outside cadastros group)
+  const dashboardItem = { 
+    to: '/', 
+    icon: LayoutDashboard, 
+    label: 'Dashboard', 
+    permission: 'view_dashboard' as const 
+  };
+
+  // Cadastros items
+  const cadastrosItems = [
     { to: '/vehicles', icon: Truck, label: 'Frota', permission: 'manage_vehicles' as const },
     { to: '/drivers', icon: IdCard, label: 'Motoristas', permission: 'manage_vehicles' as const },
     { to: '/suppliers', icon: Users, label: 'Fornecedores', permission: 'manage_suppliers' as const },
     { to: '/refrigeration', icon: Snowflake, label: 'Refrigeração', permission: 'manage_refrigeration' as const },
-    { to: '/refuelings', icon: Fuel, label: 'Abastecimentos', permission: 'manage_refuelings' as const },
     { to: '/companies', icon: Building2, label: 'Empresas', permission: 'manage_companies' as const },
     { to: '/users', icon: UserCog, label: 'Usuários', permission: 'manage_users' as const },
   ];
 
-  const navItems = allNavItems.filter((item) => hasPermission(item.permission));
+  // Refuelings item (outside cadastros group)
+  const refuelingsItem = { 
+    to: '/refuelings', 
+    icon: Fuel, 
+    label: 'Abastecimentos', 
+    permission: 'manage_refuelings' as const 
+  };
+
+  const filteredCadastrosItems = cadastrosItems.filter((item) => hasPermission(item.permission));
+
+  // Check if any cadastros route is active
+  const isCadastrosRouteActive = cadastrosItems.some(item => location.pathname === item.to);
 
   const getRoleBadgeVariant = (role: string) => {
     if (role === 'admin') return 'default';
@@ -84,12 +111,12 @@ export function Layout() {
         <Separator className="bg-sidebar-border" />
 
         {/* Navigation */}
-        <nav className="flex-1 p-2 space-y-1">
-          {navItems.map((item) => (
+        <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+          {/* Dashboard */}
+          {hasPermission(dashboardItem.permission) && (
             <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/'}
+              to={dashboardItem.to}
+              end
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
                   isActive
@@ -98,10 +125,72 @@ export function Layout() {
                 }`
               }
             >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
-              {sidebarOpen && <span>{item.label}</span>}
+              <dashboardItem.icon className="h-5 w-5 flex-shrink-0" />
+              {sidebarOpen && <span>{dashboardItem.label}</span>}
             </NavLink>
-          ))}
+          )}
+
+          {/* Cadastros Collapsible Group */}
+          {filteredCadastrosItems.length > 0 && (
+            <Collapsible
+              open={cadastrosOpen}
+              onOpenChange={setCadastrosOpen}
+              className="space-y-1"
+            >
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent/50 px-3 py-2"
+                >
+                  {cadastrosOpen ? (
+                    <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 flex-shrink-0" />
+                  )}
+                  {sidebarOpen && (
+                    <span className="ml-2 font-medium">CADASTROS</span>
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-1">
+                {filteredCadastrosItems.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+                        sidebarOpen ? 'ml-4' : ''
+                      } ${
+                        isActive
+                          ? 'bg-sidebar-accent text-sidebar-primary font-medium'
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                      }`
+                    }
+                  >
+                    <item.icon className="h-5 w-5 flex-shrink-0" />
+                    {sidebarOpen && <span>{item.label}</span>}
+                  </NavLink>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
+          {/* Abastecimentos (Refuelings) */}
+          {hasPermission(refuelingsItem.permission) && (
+            <NavLink
+              to={refuelingsItem.to}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+                  isActive
+                    ? 'bg-sidebar-accent text-sidebar-primary font-medium'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                }`
+              }
+            >
+              <refuelingsItem.icon className="h-5 w-5 flex-shrink-0" />
+              {sidebarOpen && <span>{refuelingsItem.label}</span>}
+            </NavLink>
+          )}
         </nav>
 
         <Separator className="bg-sidebar-border" />
