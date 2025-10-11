@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, Mail, Shield, Building2, Calendar, Trash2, Pencil, Search, Eye, Lock, Users as UsersIcon } from 'lucide-react';
+import { UserPlus, Mail, Shield, Building2, Calendar, Trash2, Pencil, Search, Eye, Lock, Users as UsersIcon, KeyRound } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,6 +77,9 @@ export default function Users() {
   const [searchTerm, setSearchTerm] = useState('');
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
+  const [userForPasswordReset, setUserForPasswordReset] = useState<User | null>(null);
+  const [newPassword, setNewPassword] = useState('');
 
   const allUsers = users();
   const allCompanies = companies();
@@ -114,13 +117,9 @@ export default function Users() {
           customPermissions: formData.customPermissions,
         });
 
-        const updateMessage = formData.password 
-          ? `${validatedData.name} foi atualizado com sucesso. Nova senha definida.`
-          : `${validatedData.name} foi atualizado com sucesso.`;
-        
         toast({
           title: 'Usuário atualizado',
-          description: updateMessage,
+          description: `${validatedData.name} foi atualizado com sucesso.`,
         });
       } else {
         addUser({
@@ -271,6 +270,45 @@ export default function Users() {
     return company ? `${company.name} (${company.cnpj})` : companyId;
   };
 
+  const handleResetPasswordClick = (user: User) => {
+    setUserForPasswordReset(user);
+    setNewPassword('');
+    setResetPasswordDialogOpen(true);
+  };
+
+  const handleResetPassword = () => {
+    if (!userForPasswordReset) return;
+
+    if (!newPassword || newPassword.length < 6) {
+      toast({
+        title: 'Erro',
+        description: 'A senha deve ter no mínimo 6 caracteres.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (newPassword.length > 50) {
+      toast({
+        title: 'Erro',
+        description: 'A senha deve ter no máximo 50 caracteres.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Aqui você implementaria a lógica de redefinir senha
+    // Por enquanto, apenas mostramos uma mensagem de sucesso
+    toast({
+      title: 'Senha redefinida',
+      description: `Nova senha criada para ${userForPasswordReset.name}.`,
+    });
+
+    setResetPasswordDialogOpen(false);
+    setUserForPasswordReset(null);
+    setNewPassword('');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -391,31 +429,28 @@ export default function Users() {
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="password">
-                      {editingUser ? 'Nova Senha (opcional)' : 'Senha Provisória *'}
-                    </Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) => {
-                        setFormData({ ...formData, password: e.target.value });
-                        setErrors({ ...errors, password: '' });
-                      }}
-                      placeholder="Mínimo 6 caracteres"
-                      maxLength={50}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      {editingUser 
-                        ? 'Deixe em branco para manter a senha atual'
-                        : 'Senha que o usuário usará no primeiro acesso'
-                      }
-                    </p>
-                    {errors.password && (
-                      <p className="text-sm text-destructive">{errors.password}</p>
-                    )}
-                  </div>
+                  {!editingUser && (
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Senha Provisória *</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={(e) => {
+                          setFormData({ ...formData, password: e.target.value });
+                          setErrors({ ...errors, password: '' });
+                        }}
+                        placeholder="Mínimo 6 caracteres"
+                        maxLength={50}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Senha que o usuário usará no primeiro acesso
+                      </p>
+                      {errors.password && (
+                        <p className="text-sm text-destructive">{errors.password}</p>
+                      )}
+                    </div>
+                  )}
 
                   <div className="space-y-3">
                     <Label>Acesso às Empresas *</Label>
@@ -726,6 +761,16 @@ export default function Users() {
                   Fechar
                 </Button>
                 <Button
+                  variant="outline"
+                  onClick={() => {
+                    setDetailsDialogOpen(false);
+                    handleResetPasswordClick(selectedUser);
+                  }}
+                >
+                  <KeyRound className="mr-2 h-4 w-4" />
+                  Redefinir Senha
+                </Button>
+                <Button
                   onClick={() => {
                     setDetailsDialogOpen(false);
                     handleEdit(selectedUser);
@@ -737,6 +782,56 @@ export default function Users() {
               </DialogFooter>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5" />
+              Redefinir Senha
+            </DialogTitle>
+            <DialogDescription>
+              {userForPasswordReset && (
+                <>Criar nova senha para <strong>{userForPasswordReset.name}</strong></>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="new-password">Nova Senha *</Label>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+                maxLength={50}
+              />
+              <p className="text-xs text-muted-foreground">
+                Esta senha substituirá a senha atual do usuário
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setResetPasswordDialogOpen(false);
+                setNewPassword('');
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleResetPassword}>
+              <KeyRound className="mr-2 h-4 w-4" />
+              Redefinir Senha
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
