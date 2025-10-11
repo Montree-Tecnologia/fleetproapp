@@ -34,7 +34,7 @@ export interface Vehicle {
   modelYear: number;
   color: string;
   vehicleType: 'Truck' | 'Baú' | 'Carreta' | 'Graneleiro' | 'Container' | 'Caçamba' | 'Cavalo Mecânico' | 'Baú Frigorífico' | 'Toco' | 'VUC' | '3/4' | 'Sider' | 'Prancha' | 'Tanque' | 'Cegonheiro' | 'Bitruck' | 'Rodotrem';
-  status: 'active' | 'maintenance' | 'inactive' | 'sold';
+  status: 'active' | 'defective' | 'maintenance' | 'inactive' | 'sold';
   purchaseKm: number;
   currentKm: number;
   fuelType: 'Diesel S10' | 'Diesel S500' | 'Arla 32' | 'Arla 42' | 'Etanol' | 'Gasolina' | 'GNV' | 'Biometano';
@@ -53,7 +53,7 @@ export interface Vehicle {
   crlvDocument?: string;
   purchaseInvoice?: string;
   saleInfo?: VehicleSale;
-  previousStatus?: 'active' | 'maintenance' | 'inactive';
+  previousStatus?: 'active' | 'defective' | 'maintenance' | 'inactive';
 }
 
 export interface Refueling {

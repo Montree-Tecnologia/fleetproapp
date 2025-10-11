@@ -202,7 +202,7 @@ const vehicleSchema = z.object({
   modelYear: z.number().min(1900).max(new Date().getFullYear() + 1),
   color: z.string().min(1, 'Cor é obrigatória'),
   vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Cavalo Mecânico', 'Baú Frigorífico', 'Toco', 'VUC', '3/4', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Bitruck', 'Rodotrem']),
-  status: z.enum(['active', 'maintenance', 'inactive', 'sold']),
+  status: z.enum(['active', 'defective', 'maintenance', 'inactive', 'sold']),
   purchaseKm: z.number().min(0),
   fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Arla 42', 'Etanol', 'Gasolina', 'GNV', 'Biometano']),
   axles: z.number().min(1).max(20),

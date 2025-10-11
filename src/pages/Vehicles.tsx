@@ -66,6 +66,7 @@ export default function Vehicles() {
   const getStatusBadge = (status: string) => {
     const variants = {
       active: { label: 'Ativo', variant: 'default' as const, className: 'bg-green-600 hover:bg-green-700' },
+      defective: { label: 'Defeito', variant: 'destructive' as const, className: '' },
       maintenance: { label: 'Manutenção', variant: undefined, className: 'bg-yellow-500 text-white' },
       inactive: { label: 'Inativo', variant: 'destructive' as const, className: '' },
       sold: { label: 'Vendido', variant: undefined, className: 'bg-gray-500 text-white' }
@@ -145,12 +146,13 @@ export default function Vehicles() {
 
     const trailerTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
     const isTrailer = trailerTypes.includes(vehicle.vehicleType);
-    const isInactiveOrMaintenance = newStatus === 'inactive' || newStatus === 'maintenance';
+    const isInactiveOrMaintenance = newStatus === 'inactive' || newStatus === 'maintenance' || newStatus === 'defective';
 
-    updateVehicle(vehicleId, { status: newStatus as 'active' | 'maintenance' | 'inactive' });
+    updateVehicle(vehicleId, { status: newStatus as 'active' | 'maintenance' | 'inactive' | 'defective' });
     
     const statusLabels = {
       active: 'Ativo',
+      defective: 'Defeito',
       maintenance: 'Manutenção',
       inactive: 'Inativo'
     };

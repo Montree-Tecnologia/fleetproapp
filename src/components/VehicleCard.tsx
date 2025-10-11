@@ -461,6 +461,7 @@ export function VehicleCard({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="active">Ativo</SelectItem>
+                <SelectItem value="defective">Defeito</SelectItem>
                 <SelectItem value="maintenance">Manutenção</SelectItem>
                 <SelectItem value="inactive">Inativo</SelectItem>
               </SelectContent>
