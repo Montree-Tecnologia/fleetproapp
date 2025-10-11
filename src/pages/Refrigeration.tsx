@@ -776,6 +776,30 @@ export default function Refrigeration() {
                   <Pencil className="h-4 w-4 mr-2" />
                   Editar
                 </Button>
+                {viewingUnit.status !== 'sold' && (
+                  <Select
+                    value={viewingUnit.status}
+                    onValueChange={(value) => {
+                      const hasVehicle = !!viewingUnit.vehicleId;
+                      handleStatusChange(viewingUnit.id, value, hasVehicle);
+                      setViewingUnit({ ...viewingUnit, status: value as any });
+                    }}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Ativo</SelectItem>
+                      <SelectItem value="defective">Defeito</SelectItem>
+                      <SelectItem value="maintenance" disabled={!!viewingUnit.vehicleId}>
+                        Manutenção {viewingUnit.vehicleId && '(Desvinc. veículo)'}
+                      </SelectItem>
+                      <SelectItem value="inactive" disabled={!!viewingUnit.vehicleId}>
+                        Inativo {viewingUnit.vehicleId && '(Desvinc. veículo)'}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
           )}

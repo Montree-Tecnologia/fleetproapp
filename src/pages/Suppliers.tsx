@@ -375,6 +375,15 @@ export default function Suppliers() {
                   <Pencil className="h-4 w-4 mr-2" />
                   Editar
                 </Button>
+                <Button
+                  variant={viewingSupplier.active ? 'destructive' : 'default'}
+                  onClick={() => {
+                    handleToggleActive(viewingSupplier);
+                    setViewingSupplier({ ...viewingSupplier, active: !viewingSupplier.active });
+                  }}
+                >
+                  {viewingSupplier.active ? 'Inativar' : 'Ativar'}
+                </Button>
               </div>
             </div>
           )}

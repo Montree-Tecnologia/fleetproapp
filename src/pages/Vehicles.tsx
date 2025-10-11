@@ -743,6 +743,25 @@ export default function Vehicles() {
                   <Pencil className="h-4 w-4 mr-2" />
                   Editar
                 </Button>
+                {viewingVehicle.status !== 'sold' && (
+                  <Select
+                    value={viewingVehicle.status}
+                    onValueChange={(value) => {
+                      handleStatusChange(viewingVehicle.id, value);
+                      setViewingVehicle({ ...viewingVehicle, status: value as any });
+                    }}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Ativo</SelectItem>
+                      <SelectItem value="defective">Defeito</SelectItem>
+                      <SelectItem value="maintenance">Manutenção</SelectItem>
+                      <SelectItem value="inactive">Inativo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
           )}

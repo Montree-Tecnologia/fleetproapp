@@ -220,6 +220,15 @@ export default function Companies() {
                   <Pencil className="h-4 w-4 mr-2" />
                   Editar
                 </Button>
+                <Button
+                  variant={viewingCompany.active ? 'destructive' : 'default'}
+                  onClick={() => {
+                    handleToggleActive(viewingCompany.id, viewingCompany.active);
+                    setViewingCompany({ ...viewingCompany, active: !viewingCompany.active });
+                  }}
+                >
+                  {viewingCompany.active ? 'Inativar' : 'Ativar'}
+                </Button>
               </div>
             </div>
           )}
