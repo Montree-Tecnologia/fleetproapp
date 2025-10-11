@@ -50,11 +50,13 @@ export default function Refuelings() {
   const [editingRefueling, setEditingRefueling] = useState<any>(null);
   const [deletingRefueling, setDeletingRefueling] = useState<any>(null);
   const [viewingRefueling, setViewingRefueling] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'vehicles' | 'refrigeration'>('vehicles');
   
   // Filtros avançados
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [selectedVehicle, setSelectedVehicle] = useState<string>('all');
+  const [selectedRefrigerationUnit, setSelectedRefrigerationUnit] = useState<string>('all');
   const [selectedDriver, setSelectedDriver] = useState<string>('all');
   const [selectedSupplier, setSelectedSupplier] = useState<string>('all');
   
@@ -114,12 +116,13 @@ export default function Refuelings() {
     setStartDate(undefined);
     setEndDate(undefined);
     setSelectedVehicle('all');
+    setSelectedRefrigerationUnit('all');
     setSelectedDriver('all');
     setSelectedSupplier('all');
   };
 
   const hasActiveFilters = startDate || endDate || selectedVehicle !== 'all' || 
-    selectedDriver !== 'all' || selectedSupplier !== 'all';
+    selectedRefrigerationUnit !== 'all' || selectedDriver !== 'all' || selectedSupplier !== 'all';
 
   // Separar abastecimentos de veículos e equipamentos de refrigeração
   const vehicleRefuelings = allRefuelings.filter(r => r.vehicleId);
@@ -166,6 +169,9 @@ export default function Refuelings() {
         if (refuelingDate > endOfDay) return false;
       }
       
+      // Filtro de equipamento de refrigeração
+      if (selectedRefrigerationUnit !== 'all' && refueling.refrigerationUnitId !== selectedRefrigerationUnit) return false;
+      
       // Filtro de motorista
       if (selectedDriver !== 'all' && refueling.driver !== selectedDriver) return false;
       
@@ -210,6 +216,20 @@ export default function Refuelings() {
         </Dialog>
       </div>
 
+      {/* Abas de Tipo */}
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'vehicles' | 'refrigeration')} className="space-y-4">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="vehicles" className="flex items-center gap-2">
+            <Truck className="h-4 w-4" />
+            Veículos ({filteredVehicleRefuelings.length})
+          </TabsTrigger>
+          <TabsTrigger value="refrigeration" className="flex items-center gap-2">
+            <Snowflake className="h-4 w-4" />
+            Refrigeração ({filteredRefrigerationRefuelings.length})
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       {/* Filtros Avançados */}
       <Card>
         <CardHeader>
@@ -228,7 +248,7 @@ export default function Refuelings() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className={`grid grid-cols-1 md:grid-cols-2 ${activeTab === 'vehicles' ? 'lg:grid-cols-5' : 'lg:grid-cols-5'} gap-4`}>
             {/* Filtro de Data Inicial */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Data Inicial</label>
@@ -286,23 +306,42 @@ export default function Refuelings() {
               </Popover>
             </div>
 
-            {/* Filtro de Veículo */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Veículo</label>
-              <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  {tractionVehicles.map((vehicle) => (
-                    <SelectItem key={vehicle.id} value={vehicle.id}>
-                      {vehicle.plate} - {vehicle.model}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Filtro de Veículo ou Equipamento */}
+            {activeTab === 'vehicles' ? (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Veículo</label>
+                <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    {tractionVehicles.map((vehicle) => (
+                      <SelectItem key={vehicle.id} value={vehicle.id}>
+                        {vehicle.plate} - {vehicle.model}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Equipamento</label>
+                <Select value={selectedRefrigerationUnit} onValueChange={setSelectedRefrigerationUnit}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    {allRefrigerationUnits.map((unit) => (
+                      <SelectItem key={unit.id} value={unit.id}>
+                        {unit.brand} {unit.model} - SN: {unit.serialNumber}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Filtro de Motorista */}
             <div className="space-y-2">
@@ -343,20 +382,8 @@ export default function Refuelings() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="vehicles" className="space-y-4">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="vehicles" className="flex items-center gap-2">
-            <Truck className="h-4 w-4" />
-            Veículos ({filteredVehicleRefuelings.length})
-          </TabsTrigger>
-          <TabsTrigger value="refrigeration" className="flex items-center gap-2">
-            <Snowflake className="h-4 w-4" />
-            Refrigeração ({filteredRefrigerationRefuelings.length})
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Abastecimentos de Veículos */}
-        <TabsContent value="vehicles">
+      {/* Abastecimentos de Veículos */}
+      {activeTab === 'vehicles' && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -443,10 +470,10 @@ export default function Refuelings() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
+      )}
 
-        {/* Abastecimentos de Equipamentos de Refrigeração */}
-        <TabsContent value="refrigeration">
+      {/* Abastecimentos de Equipamentos de Refrigeração */}
+      {activeTab === 'refrigeration' && (
           <Card>
             <CardHeader>
               <CardTitle>
@@ -536,8 +563,7 @@ export default function Refuelings() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+      )}
 
       <AlertDialog open={!!deletingRefueling} onOpenChange={(open) => !open && setDeletingRefueling(null)}>
         <AlertDialogContent>
