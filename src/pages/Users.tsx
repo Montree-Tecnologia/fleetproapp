@@ -43,7 +43,7 @@ const userSchema = z.object({
   name: z.string().trim().min(3, 'Nome deve ter no mínimo 3 caracteres').max(100, 'Nome muito longo'),
   email: z.string().trim().email('E-mail inválido').max(255, 'E-mail muito longo'),
   role: z.enum(['admin', 'manager', 'operator']),
-  company: z.string().trim().min(1, 'Empresa é obrigatória').max(100, 'Nome muito longo'),
+  company: z.string().trim().min(1, 'Selecione a empresa de vínculo').max(100, 'Nome muito longo'),
 });
 
 export default function Users() {
@@ -65,7 +65,7 @@ export default function Users() {
     name: '',
     email: '',
     role: 'manager',
-    company: 'Transportadora Matriz',
+    company: '',
     linkedCompanies: [],
     hasAccessToAllCompanies: false,
     customPermissions: {},
@@ -156,7 +156,7 @@ export default function Users() {
       name: '',
       email: '',
       role: 'manager',
-      company: 'Transportadora Matriz',
+      company: '',
       linkedCompanies: [],
       hasAccessToAllCompanies: false,
       customPermissions: {},
@@ -332,17 +332,28 @@ export default function Users() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="company">Empresa</Label>
-                    <Input
-                      id="company"
+                    <Label htmlFor="company">Empresa (Vínculo Empregatício) *</Label>
+                    <Select
                       value={formData.company}
-                      onChange={(e) => {
-                        setFormData({ ...formData, company: e.target.value });
+                      onValueChange={(value) => {
+                        setFormData({ ...formData, company: value });
                         setErrors({ ...errors, company: '' });
                       }}
-                      placeholder="Nome da empresa"
-                      maxLength={100}
-                    />
+                    >
+                      <SelectTrigger id="company">
+                        <SelectValue placeholder="Selecione a empresa de vínculo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {allCompanies.map((company) => (
+                          <SelectItem key={company.id} value={company.id}>
+                            {company.name} - {company.cnpj}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      Matriz/Filial de vínculo empregatício do usuário
+                    </p>
                     {errors.company && (
                       <p className="text-sm text-destructive">{errors.company}</p>
                     )}
