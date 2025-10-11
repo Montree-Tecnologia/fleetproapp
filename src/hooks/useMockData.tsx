@@ -48,6 +48,7 @@ export interface Vehicle {
   compositionAxles?: number[];
   purchaseDate: string;
   purchaseValue: number;
+  supplierId?: string;
   images?: string[];
   crlvDocument?: string;
   purchaseInvoice?: string;

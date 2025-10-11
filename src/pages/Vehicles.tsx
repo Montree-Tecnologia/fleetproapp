@@ -37,12 +37,13 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function Vehicles() {
-  const { vehicles, drivers, refuelings, companies, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale } = useMockData();
+  const { vehicles, drivers, refuelings, companies, suppliers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale } = useMockData();
   const { isAdmin } = usePermissions();
   const allVehicles = vehicles();
   const allDrivers = drivers();
   const allRefuelings = refuelings();
   const allCompanies = companies();
+  const allSuppliers = suppliers();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -334,6 +335,7 @@ export default function Vehicles() {
             initialData={editingVehicle || undefined}
             availableVehicles={allVehicles}
             companies={allCompanies}
+            suppliers={allSuppliers}
             onSubmit={(data) => {
               if (editingVehicle) {
                 updateVehicle(editingVehicle.id, data);

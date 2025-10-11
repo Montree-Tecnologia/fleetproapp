@@ -28,7 +28,7 @@ import { CalendarIcon, Plus, X, Upload, Image as ImageIcon, FileText } from 'luc
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useState, useMemo, useEffect } from 'react';
-import { Vehicle, Company } from '@/hooks/useMockData';
+import { Vehicle, Company, Supplier } from '@/hooks/useMockData';
 import { Badge } from '@/components/ui/badge';
 
 // Mapeamento de marcas para modelos de veículos de tração
@@ -202,6 +202,7 @@ const vehicleSchema = z.object({
   purchaseDate: z.date(),
   purchaseValue: z.number().min(0),
   ownerBranch: z.string().min(1, 'Matriz/Filial proprietária é obrigatória'),
+  supplierId: z.string().optional(),
 });
 
 type VehicleFormData = z.infer<typeof vehicleSchema>;
@@ -212,9 +213,10 @@ interface VehicleFormProps {
   initialData?: Vehicle;
   availableVehicles?: Vehicle[];
   companies: Company[];
+  suppliers: Supplier[];
 }
 
-export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles = [], companies }: VehicleFormProps) {
+export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles = [], companies, suppliers }: VehicleFormProps) {
   const [selectedBranches, setSelectedBranches] = useState<string[]>(
     initialData?.branches || ['Matriz']
   );
@@ -228,6 +230,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
   const [newCompositionAxles, setNewCompositionAxles] = useState<number | ''>('');
   const [newCompositionVehicleId, setNewCompositionVehicleId] = useState<string>('');
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
+  const [selectedSupplier, setSelectedSupplier] = useState<string | undefined>(initialData?.supplierId);
   const [vehicleImages, setVehicleImages] = useState<string[]>(initialData?.images || []);
   const [crlvDocument, setCrlvDocument] = useState<string | undefined>(initialData?.crlvDocument);
   const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
@@ -300,6 +303,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       fuelType: 'Diesel S10',
       purchaseDate: new Date(),
       ownerBranch: 'Matriz',
+      supplierId: undefined,
     },
   });
 
@@ -405,6 +409,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       driverId: vehicleCategory !== 'trailer' ? selectedDriver : undefined,
       purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd'),
       purchaseValue: data.purchaseValue,
+      supplierId: selectedSupplier,
       images: vehicleImages.length > 0 ? vehicleImages : undefined,
       crlvDocument: crlvDocument,
       purchaseInvoice: purchaseInvoice,
@@ -1060,6 +1065,26 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 </FormItem>
               )}
             />
+            
+            <div>
+              <FormLabel>Fornecedor</FormLabel>
+              <Select
+                value={selectedSupplier || 'none'}
+                onValueChange={(value) => setSelectedSupplier(value === 'none' ? undefined : value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o fornecedor" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop')).map((supplier) => (
+                    <SelectItem key={supplier.id} value={supplier.id}>
+                      {supplier.fantasyName} - {supplier.city}/{supplier.state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </>
         ) : (
           <>
@@ -1110,6 +1135,26 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 </FormItem>
               )}
             />
+            
+            <div>
+              <FormLabel>Fornecedor</FormLabel>
+              <Select
+                value={selectedSupplier || 'none'}
+                onValueChange={(value) => setSelectedSupplier(value === 'none' ? undefined : value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o fornecedor" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop')).map((supplier) => (
+                    <SelectItem key={supplier.id} value={supplier.id}>
+                      {supplier.fantasyName} - {supplier.city}/{supplier.state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </>
         )}
 
