@@ -82,6 +82,22 @@ export function VehicleCard({
     v.hasComposition && 
     v.compositionPlates?.includes(vehicle.plate)
   ) : [];
+  
+  // Verifica se deve mostrar a etiqueta "Refrigerado"
+  const isRefrigerated = (() => {
+    // Se o próprio veículo tem equipamento de refrigeração (exceto cavalo mecânico sem composição)
+    const hasOwnRefrigeration = getRefrigerationUnit(vehicle.id);
+    if (hasOwnRefrigeration && vehicle.vehicleType !== 'Cavalo Mecânico') {
+      return true;
+    }
+    
+    // Se é cavalo mecânico com composição refrigerada
+    if (vehicle.vehicleType === 'Cavalo Mecânico' && vehicle.hasComposition && linkedTrailers.length > 0) {
+      return linkedTrailers.some(trailer => trailer && getRefrigerationUnit(trailer.id));
+    }
+    
+    return false;
+  })();
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -105,7 +121,7 @@ export function VehicleCard({
           </div>
           <div className="flex flex-col gap-2 items-end">
             {getStatusBadge(vehicle.status)}
-            {getRefrigerationUnit(vehicle.id) && (
+            {isRefrigerated && (
               <Badge variant="outline" className="bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20">
                 Refrigerado
               </Badge>

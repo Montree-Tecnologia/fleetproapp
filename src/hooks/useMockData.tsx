@@ -905,7 +905,7 @@ const mockRefuelings: Refueling[] = [
 const mockRefrigerationUnits: RefrigerationUnit[] = [
   {
     id: '1',
-    vehicleId: '1',
+    vehicleId: '4', // Sider XYZ-1111 (reboque vinculado ao cavalo mecânico ABC-1234)
     companyId: '1',
     brand: 'Thermo King',
     model: 'SLXi-300',
@@ -914,11 +914,13 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     minTemp: -25,
     maxTemp: -18,
     installDate: '2022-03-20',
+    purchaseDate: '2022-03-15',
+    purchaseValue: 85000,
     status: 'active'
   },
   {
     id: '2',
-    vehicleId: '2',
+    vehicleId: '2', // Bitruck DEF-5678
     companyId: '1',
     brand: 'Carrier',
     model: 'Supra 950',
@@ -927,6 +929,8 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     minTemp: 0,
     maxTemp: 8,
     installDate: '2021-09-01',
+    purchaseDate: '2021-08-25',
+    purchaseValue: 72000,
     status: 'active'
   },
   {
@@ -940,6 +944,51 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     maxTemp: -15,
     installDate: '2023-05-15',
     status: 'maintenance'
+  },
+  {
+    id: '4',
+    vehicleId: '3', // Truck GHI-9012
+    companyId: '2',
+    brand: 'Carrier',
+    model: 'Xarios 600',
+    serialNumber: 'CR567890',
+    type: 'freezer',
+    minTemp: -22,
+    maxTemp: -18,
+    installDate: '2023-01-15',
+    purchaseDate: '2023-01-10',
+    purchaseValue: 90000,
+    status: 'active'
+  },
+  {
+    id: '5',
+    vehicleId: '7', // VUC PQR-4567
+    companyId: '1',
+    brand: 'Thermo King',
+    model: 'V-300',
+    serialNumber: 'TK234567',
+    type: 'cooled',
+    minTemp: 2,
+    maxTemp: 8,
+    installDate: '2023-02-15',
+    purchaseDate: '2023-02-10',
+    purchaseValue: 45000,
+    status: 'active'
+  },
+  {
+    id: '6',
+    vehicleId: '8', // 3/4 STU-5678
+    companyId: '3',
+    brand: 'Carrier',
+    model: 'Pulsor Max',
+    serialNumber: 'CR890123',
+    type: 'climatized',
+    minTemp: 15,
+    maxTemp: 25,
+    installDate: '2022-06-20',
+    purchaseDate: '2022-06-15',
+    purchaseValue: 38000,
+    status: 'active'
   }
 ];
 
