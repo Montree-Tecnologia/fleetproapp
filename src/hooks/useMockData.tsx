@@ -101,6 +101,23 @@ export interface Supplier {
   branches: string[];
 }
 
+export type ModulePermission = {
+  view: boolean;
+  edit: boolean;
+  delete: boolean;
+};
+
+export type UserPermissions = {
+  dashboard?: { view: boolean };
+  vehicles?: ModulePermission;
+  drivers?: ModulePermission;
+  refuelings?: ModulePermission;
+  refrigeration?: ModulePermission;
+  suppliers?: ModulePermission;
+  companies?: ModulePermission;
+  users?: ModulePermission;
+};
+
 export interface User {
   id: string;
   name: string;
@@ -109,6 +126,7 @@ export interface User {
   company: string;
   active: boolean;
   createdAt: string;
+  customPermissions?: UserPermissions;
 }
 
 export interface Company {

@@ -34,6 +34,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { PermissionsManager } from '@/components/PermissionsManager';
+import { UserPermissions } from '@/hooks/useMockData';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const userSchema = z.object({
   name: z.string().trim().min(3, 'Nome deve ter no mínimo 3 caracteres').max(100, 'Nome muito longo'),
@@ -54,11 +57,13 @@ export default function Users() {
     email: string;
     role: 'admin' | 'manager' | 'operator';
     company: string;
+    customPermissions: UserPermissions;
   }>({
     name: '',
     email: '',
     role: 'manager',
     company: 'Transportadora Matriz',
+    customPermissions: {},
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [searchTerm, setSearchTerm] = useState('');
@@ -82,6 +87,7 @@ export default function Users() {
           email: validatedData.email,
           role: validatedData.role,
           company: validatedData.company,
+          customPermissions: formData.customPermissions,
         });
 
         toast({
@@ -95,6 +101,7 @@ export default function Users() {
           role: validatedData.role,
           company: validatedData.company,
           active: true,
+          customPermissions: formData.customPermissions,
         });
 
         toast({
@@ -124,6 +131,7 @@ export default function Users() {
       email: user.email,
       role: user.role,
       company: user.company,
+      customPermissions: user.customPermissions || {},
     });
     setErrors({});
     setOpen(true);
@@ -137,6 +145,7 @@ export default function Users() {
       email: '',
       role: 'manager',
       company: 'Transportadora Matriz',
+      customPermissions: {},
     });
     setErrors({});
   };
@@ -211,7 +220,7 @@ export default function Users() {
               Novo Usuário
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
             <form onSubmit={handleSubmit}>
               <DialogHeader>
                 <DialogTitle>{editingUser ? 'Editar Usuário' : 'Criar Novo Usuário'}</DialogTitle>
@@ -220,83 +229,98 @@ export default function Users() {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nome Completo</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => {
-                      setFormData({ ...formData, name: e.target.value });
-                      setErrors({ ...errors, name: '' });
-                    }}
-                    placeholder="João da Silva"
-                    maxLength={100}
-                  />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">{errors.name}</p>
-                  )}
-                </div>
+              <Tabs defaultValue="basic" className="py-4">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="basic">Informações Básicas</TabsTrigger>
+                  <TabsTrigger value="permissions">Permissões</TabsTrigger>
+                </TabsList>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">E-mail</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => {
-                      setFormData({ ...formData, email: e.target.value });
-                      setErrors({ ...errors, email: '' });
-                    }}
-                    placeholder="joao@empresa.com"
-                    maxLength={255}
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email}</p>
-                  )}
-                </div>
+                <TabsContent value="basic" className="space-y-4 mt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nome Completo</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => {
+                        setFormData({ ...formData, name: e.target.value });
+                        setErrors({ ...errors, name: '' });
+                      }}
+                      placeholder="João da Silva"
+                      maxLength={100}
+                    />
+                    {errors.name && (
+                      <p className="text-sm text-destructive">{errors.name}</p>
+                    )}
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="role">Perfil</Label>
-                  <Select
-                    value={formData.role}
-                    onValueChange={(value: 'admin' | 'manager' | 'operator') =>
-                      setFormData({ ...formData, role: value })
-                    }
-                  >
-                    <SelectTrigger id="role">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="manager">Gestor</SelectItem>
-                      <SelectItem value="operator">Operador</SelectItem>
-                      <SelectItem value="admin">Administrador</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    {formData.role === 'admin' && 'Acesso total ao sistema'}
-                    {formData.role === 'manager' && 'Acesso operacional completo'}
-                    {formData.role === 'operator' && 'Acesso limitado às operações'}
-                  </p>
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-mail</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => {
+                        setFormData({ ...formData, email: e.target.value });
+                        setErrors({ ...errors, email: '' });
+                      }}
+                      placeholder="joao@empresa.com"
+                      maxLength={255}
+                    />
+                    {errors.email && (
+                      <p className="text-sm text-destructive">{errors.email}</p>
+                    )}
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="company">Empresa</Label>
-                  <Input
-                    id="company"
-                    value={formData.company}
-                    onChange={(e) => {
-                      setFormData({ ...formData, company: e.target.value });
-                      setErrors({ ...errors, company: '' });
-                    }}
-                    placeholder="Nome da empresa"
-                    maxLength={100}
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Perfil</Label>
+                    <Select
+                      value={formData.role}
+                      onValueChange={(value: 'admin' | 'manager' | 'operator') =>
+                        setFormData({ ...formData, role: value })
+                      }
+                    >
+                      <SelectTrigger id="role">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="manager">Gestor</SelectItem>
+                        <SelectItem value="operator">Operador</SelectItem>
+                        <SelectItem value="admin">Administrador</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      {formData.role === 'admin' && 'Acesso total ao sistema'}
+                      {formData.role === 'manager' && 'Acesso operacional completo'}
+                      {formData.role === 'operator' && 'Acesso limitado às operações'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Empresa</Label>
+                    <Input
+                      id="company"
+                      value={formData.company}
+                      onChange={(e) => {
+                        setFormData({ ...formData, company: e.target.value });
+                        setErrors({ ...errors, company: '' });
+                      }}
+                      placeholder="Nome da empresa"
+                      maxLength={100}
+                    />
+                    {errors.company && (
+                      <p className="text-sm text-destructive">{errors.company}</p>
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="permissions" className="mt-4">
+                  <PermissionsManager
+                    permissions={formData.customPermissions}
+                    onChange={(permissions) => setFormData({ ...formData, customPermissions: permissions })}
+                    role={formData.role}
                   />
-                  {errors.company && (
-                    <p className="text-sm text-destructive">{errors.company}</p>
-                  )}
-                </div>
-              </div>
+                </TabsContent>
+              </Tabs>
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={handleDialogClose}>
