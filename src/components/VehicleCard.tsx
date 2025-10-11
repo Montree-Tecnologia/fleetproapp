@@ -511,7 +511,8 @@ export function VehicleCard({
           ) : isAdmin() ? (
             <Button
               size="sm"
-              variant="secondary"
+              variant="outline"
+              className="flex-1"
               onClick={() => handleReverseSale(vehicle)}
             >
               <DollarSign className="h-4 w-4 mr-2" />

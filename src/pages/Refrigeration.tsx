@@ -548,7 +548,8 @@ export default function Refrigeration() {
                       </Button>
                       <Button
                         size="sm"
-                        variant="secondary"
+                        variant="outline"
+                        className="flex-1"
                         onClick={() => handleReverseSale(unit.id, `${unit.brand} ${unit.model}`)}
                       >
                         <Undo2 className="h-4 w-4 mr-2" />
