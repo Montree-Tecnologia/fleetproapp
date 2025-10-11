@@ -82,6 +82,7 @@ interface RefrigerationFormProps {
 export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, companies, initialData }: RefrigerationFormProps) {
   const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
   const [openSupplier, setOpenSupplier] = useState(false);
+  const [openVehicle, setOpenVehicle] = useState(false);
   
   // Filtrar apenas fornecedores ativos dos tipos refrigeration_equipment e other
   const activeSuppliers = suppliers.filter(s => s.active && (s.type === 'refrigeration_equipment' || s.type === 'other'));
@@ -177,30 +178,84 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
             )}
           />
 
-         <FormField
+          <FormField
             control={form.control}
             name="vehicleId"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex flex-col">
                 <FormLabel>Veículo</FormLabel>
-                <Select 
-                  onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)} 
-                  value={field.value || 'none'}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sem vínculo" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="none">Sem vínculo</SelectItem>
-                    {vehicles.map((vehicle) => (
-                      <SelectItem key={vehicle.id} value={vehicle.id}>
-                        {vehicle.plate} - {vehicle.model}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openVehicle} onOpenChange={setOpenVehicle}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value && field.value !== 'none'
+                          ? (() => {
+                              const vehicle = vehicles.find(v => v.id === field.value);
+                              return vehicle ? `${vehicle.plate} - ${vehicle.model}` : "Sem vínculo";
+                            })()
+                          : "Sem vínculo"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar veículo..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum veículo encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="none"
+                            onSelect={() => {
+                              form.setValue("vehicleId", undefined);
+                              setOpenVehicle(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                !field.value || field.value === 'none' ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            Sem vínculo
+                          </CommandItem>
+                          {vehicles.map((vehicle) => (
+                            <CommandItem
+                              key={vehicle.id}
+                              value={`${vehicle.plate} ${vehicle.model} ${vehicle.brand} ${vehicle.vehicleType}`}
+                              onSelect={() => {
+                                form.setValue("vehicleId", vehicle.id);
+                                setOpenVehicle(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  vehicle.id === field.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col gap-1">
+                                <div className="font-semibold">
+                                  {vehicle.plate} - {vehicle.model}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {vehicle.brand} | {vehicle.vehicleType}
+                                </div>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}
