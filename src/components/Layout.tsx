@@ -14,7 +14,8 @@ import {
   Menu,
   Building2,
   UserCog,
-  IdCard
+  IdCard,
+  Settings
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -105,10 +106,28 @@ export function Layout() {
 
         <Separator className="bg-sidebar-border" />
 
-        {/* User Section */}
-        <div className="p-4">
+        {/* Footer - Fixed Section */}
+        <div className="p-2 space-y-1">
+          {/* Settings Button - Always visible */}
+          <NavLink
+            to="/settings"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+                isActive
+                  ? 'bg-sidebar-accent text-sidebar-primary font-medium'
+                  : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+              }`
+            }
+          >
+            <Settings className="h-5 w-5 flex-shrink-0" />
+            {sidebarOpen && <span>Configurações</span>}
+          </NavLink>
+
+          <Separator className="bg-sidebar-border my-2" />
+
+          {/* User Info - Only visible when sidebar is open */}
           {sidebarOpen && user && (
-            <div className="mb-3 space-y-2">
+            <div className="px-3 py-2 space-y-1">
               <p className="text-sm font-medium text-sidebar-foreground">{user.name}</p>
               <p className="text-xs text-sidebar-foreground/60">{user.company}</p>
               <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
@@ -116,6 +135,8 @@ export function Layout() {
               </Badge>
             </div>
           )}
+
+          {/* Logout Button */}
           <Button
             variant="ghost"
             onClick={handleLogout}
