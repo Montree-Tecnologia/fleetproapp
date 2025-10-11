@@ -82,6 +82,8 @@ export interface RefrigerationUnit {
   installDate: string;
   purchaseDate?: string;
   purchaseValue?: number;
+  supplierId?: string;
+  purchaseInvoice?: string;
   status: 'active' | 'defective' | 'maintenance' | 'sold';
 }
 

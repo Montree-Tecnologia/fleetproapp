@@ -24,10 +24,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Upload, X, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { RefrigerationUnit, Vehicle } from '@/hooks/useMockData';
+import { RefrigerationUnit, Vehicle, Supplier } from '@/hooks/useMockData';
+import { useState } from 'react';
 
 const refrigerationSchema = z.object({
   vehicleId: z.string().optional(),
@@ -43,6 +44,7 @@ const refrigerationSchema = z.object({
   }),
   purchaseDate: z.date().optional(),
   purchaseValue: z.number().min(0).optional(),
+  supplierId: z.string().optional(),
 }).refine((data) => data.maxTemp > data.minTemp, {
   message: 'Temperatura máxima deve ser maior que a mínima',
   path: ['maxTemp'],
@@ -63,10 +65,13 @@ interface RefrigerationFormProps {
   onSubmit: (data: Omit<RefrigerationUnit, 'id'>) => void;
   onCancel: () => void;
   vehicles: Vehicle[];
+  suppliers: Supplier[];
   initialData?: RefrigerationUnit;
 }
 
-export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }: RefrigerationFormProps) {
+export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, initialData }: RefrigerationFormProps) {
+  const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
+
   const form = useForm<RefrigerationFormData>({
     resolver: zodResolver(refrigerationSchema),
     defaultValues: initialData ? {
@@ -81,6 +86,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }:
       installDate: new Date(initialData.installDate),
       purchaseDate: initialData.purchaseDate ? new Date(initialData.purchaseDate) : undefined,
       purchaseValue: initialData.purchaseValue,
+      supplierId: initialData.supplierId,
     } : {
       type: 'freezer',
       minTemp: -18,
@@ -89,6 +95,21 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }:
       installDate: new Date(),
     },
   });
+
+  const handlePurchaseInvoiceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPurchaseInvoice(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePurchaseInvoice = () => {
+    setPurchaseInvoice(undefined);
+  };
 
   const handleSubmit = (data: RefrigerationFormData) => {
     onSubmit({
@@ -103,6 +124,8 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }:
       installDate: format(data.installDate, 'yyyy-MM-dd'),
       purchaseDate: data.purchaseDate ? format(data.purchaseDate, 'yyyy-MM-dd') : undefined,
       purchaseValue: data.purchaseValue,
+      supplierId: data.supplierId,
+      purchaseInvoice: purchaseInvoice,
     });
   };
 
@@ -374,6 +397,84 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }:
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="supplierId"
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>Fornecedor de Compra</FormLabel>
+                <Select 
+                  onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)} 
+                  value={field.value || 'none'}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o fornecedor" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="none">Nenhum</SelectItem>
+                    {suppliers.map((supplier) => (
+                      <SelectItem key={supplier.id} value={supplier.id}>
+                        {supplier.fantasyName} - {supplier.city}/{supplier.state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div>
+          <FormLabel>Nota Fiscal de Compra</FormLabel>
+          <div className="mt-2 space-y-2">
+            {purchaseInvoice ? (
+              <div className="relative">
+                {purchaseInvoice.startsWith('data:image') ? (
+                  <img
+                    src={purchaseInvoice}
+                    alt="Nota Fiscal"
+                    className="w-full h-40 object-cover rounded-lg border border-border"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                    <FileText className="h-5 w-5" />
+                    <span className="text-sm">Nota Fiscal de Compra anexada</span>
+                  </div>
+                )}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 h-8 w-8"
+                  onClick={removePurchaseInvoice}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handlePurchaseInvoiceUpload}
+                  className="hidden"
+                  id="purchase-invoice-upload"
+                />
+                <label htmlFor="purchase-invoice-upload">
+                  <Button type="button" variant="outline" className="w-full" asChild>
+                    <span className="cursor-pointer">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Anexar Nota Fiscal de Compra
+                    </span>
+                  </Button>
+                </label>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="flex justify-end gap-3 pt-4">

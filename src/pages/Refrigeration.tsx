@@ -33,7 +33,7 @@ import { RefrigerationForm } from '@/components/forms/RefrigerationForm';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Refrigeration() {
-  const { refrigerationUnits, vehicles, addRefrigerationUnit, updateRefrigerationUnit, deleteRefrigerationUnit } = useMockData();
+  const { refrigerationUnits, vehicles, suppliers, addRefrigerationUnit, updateRefrigerationUnit, deleteRefrigerationUnit } = useMockData();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<RefrigerationUnit | null>(null);
@@ -44,6 +44,7 @@ export default function Refrigeration() {
   const [searchTerm, setSearchTerm] = useState('');
   const allUnits = refrigerationUnits();
   const allVehicles = vehicles();
+  const allSuppliers = suppliers();
 
   const handleSubmit = (data: any) => {
     if (editingUnit) {
@@ -202,6 +203,7 @@ export default function Refrigeration() {
               onSubmit={handleSubmit}
               onCancel={handleDialogClose}
               vehicles={allVehicles}
+              suppliers={allSuppliers}
               initialData={editingUnit}
             />
           </DialogContent>
