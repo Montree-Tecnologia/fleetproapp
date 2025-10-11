@@ -729,6 +729,21 @@ export default function Vehicles() {
                   </div>
                 </div>
               )}
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setDetailsDialogOpen(false);
+                    if (viewingVehicle) {
+                      handleEdit(viewingVehicle);
+                    }
+                  }}
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
