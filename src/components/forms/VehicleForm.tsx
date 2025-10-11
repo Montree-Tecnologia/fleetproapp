@@ -229,6 +229,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
   const [vehicleImages, setVehicleImages] = useState<string[]>(initialData?.images || []);
   const [crlvDocument, setCrlvDocument] = useState<string | undefined>(initialData?.crlvDocument);
+  const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>(initialData?.brand);
   const [ownerBranch, setOwnerBranch] = useState<string>(
     initialData?.ownerBranch || 'Matriz'
@@ -363,6 +364,21 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     setCrlvDocument(undefined);
   };
 
+  const handlePurchaseInvoiceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPurchaseInvoice(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePurchaseInvoice = () => {
+    setPurchaseInvoice(undefined);
+  };
+
 
   const handleSubmit = (data: VehicleFormData) => {
     onSubmit({
@@ -390,6 +406,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       purchaseValue: data.purchaseValue,
       images: vehicleImages.length > 0 ? vehicleImages : undefined,
       crlvDocument: crlvDocument,
+      purchaseInvoice: purchaseInvoice,
     });
   };
 
@@ -1274,6 +1291,55 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     <span className="cursor-pointer">
                       <Upload className="h-4 w-4 mr-2" />
                       Anexar CRLV
+                    </span>
+                  </Button>
+                </label>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <FormLabel>Nota Fiscal de Compra</FormLabel>
+          <div className="mt-2 space-y-2">
+            {purchaseInvoice ? (
+              <div className="relative">
+                {purchaseInvoice.startsWith('data:image') ? (
+                  <img
+                    src={purchaseInvoice}
+                    alt="Nota Fiscal"
+                    className="w-full h-40 object-cover rounded-lg border border-border"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                    <FileText className="h-5 w-5" />
+                    <span className="text-sm">Nota Fiscal de Compra anexada</span>
+                  </div>
+                )}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 h-8 w-8"
+                  onClick={removePurchaseInvoice}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handlePurchaseInvoiceUpload}
+                  className="hidden"
+                  id="purchase-invoice-upload"
+                />
+                <label htmlFor="purchase-invoice-upload">
+                  <Button type="button" variant="outline" className="w-full" asChild>
+                    <span className="cursor-pointer">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Anexar Nota Fiscal de Compra
                     </span>
                   </Button>
                 </label>

@@ -50,6 +50,7 @@ export interface Vehicle {
   purchaseValue: number;
   images?: string[];
   crlvDocument?: string;
+  purchaseInvoice?: string;
   saleInfo?: VehicleSale;
   previousStatus?: 'active' | 'maintenance' | 'inactive';
 }
