@@ -643,22 +643,42 @@ export default function Refrigeration() {
 
               <div>
                 <h3 className="font-semibold mb-3">Especificações Técnicas</h3>
-                <div className="p-4 bg-chart-1/5 rounded-lg border border-chart-1/20">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Thermometer className="h-6 w-6 text-chart-1" />
-                    <div>
-                      <p className="font-semibold">Faixa de Temperatura Operacional</p>
-                      <p className="text-sm text-muted-foreground">Capacidade de refrigeração do equipamento</p>
+                <div className="space-y-4">
+                  <div className="p-4 bg-chart-1/5 rounded-lg border border-chart-1/20">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Thermometer className="h-6 w-6 text-chart-1" />
+                      <div>
+                        <p className="font-semibold">Faixa de Temperatura Operacional</p>
+                        <p className="text-sm text-muted-foreground">Capacidade de refrigeração do equipamento</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Temperatura Mínima:</span>
+                        <p className="text-xl font-bold text-chart-1">{viewingUnit.minTemp}°C</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Temperatura Máxima:</span>
+                        <p className="text-xl font-bold text-chart-1">{viewingUnit.maxTemp}°C</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Temperatura Mínima:</span>
-                      <p className="text-xl font-bold text-chart-1">{viewingUnit.minTemp}°C</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Temperatura Máxima:</span>
-                      <p className="text-xl font-bold text-chart-1">{viewingUnit.maxTemp}°C</p>
+
+                  <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Horímetro - Compra:</span>
+                        <p className="text-lg font-semibold">{(viewingUnit.initialUsageHours || 0).toLocaleString('pt-BR')} h</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Horímetro - Atual:</span>
+                        <p className="text-lg font-semibold text-primary">
+                          {(() => {
+                            const stats = getRefrigerationStats(viewingUnit.id, viewingUnit.initialUsageHours || 0);
+                            return stats.currentUsageHours.toLocaleString('pt-BR');
+                          })()} h
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
