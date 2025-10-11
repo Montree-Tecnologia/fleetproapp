@@ -580,6 +580,74 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
 
           <FormField
             control={form.control}
+            name="supplierId"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Posto *</FormLabel>
+                <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value
+                          ? (() => {
+                              const supplier = gasStations.find(s => s.id === field.value);
+                              return supplier ? supplier.fantasyName : "Selecione o posto";
+                            })()
+                          : "Selecione o posto"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar posto..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum posto encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          {gasStations.map((supplier) => (
+                            <CommandItem
+                              key={supplier.id}
+                              value={`${supplier.fantasyName} ${supplier.cnpj} ${supplier.city} ${supplier.state}`}
+                              onSelect={() => {
+                                form.setValue("supplierId", supplier.id);
+                                setOpenSupplier(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  supplier.id === field.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col gap-1">
+                                <div className="font-semibold">
+                                  {supplier.fantasyName}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  CNPJ: {supplier.cnpj} | {supplier.city}/{supplier.state}
+                                </div>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="pricePerLiter"
             render={({ field }) => (
               <FormItem>
@@ -650,77 +718,6 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
               currency: 'BRL' 
             })}
           </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="supplierId"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Posto *</FormLabel>
-                <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value
-                          ? (() => {
-                              const supplier = gasStations.find(s => s.id === field.value);
-                              return supplier ? supplier.fantasyName : "Selecione o posto";
-                            })()
-                          : "Selecione o posto"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[400px] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Buscar posto..." />
-                      <CommandList>
-                        <CommandEmpty>Nenhum posto encontrado.</CommandEmpty>
-                        <CommandGroup>
-                          {gasStations.map((supplier) => (
-                            <CommandItem
-                              key={supplier.id}
-                              value={`${supplier.fantasyName} ${supplier.cnpj} ${supplier.city} ${supplier.state}`}
-                              onSelect={() => {
-                                form.setValue("supplierId", supplier.id);
-                                setOpenSupplier(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  supplier.id === field.value ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              <div className="flex flex-col gap-1">
-                                <div className="font-semibold">
-                                  {supplier.fantasyName}
-                                </div>
-                                <div className="text-xs text-muted-foreground">
-                                  CNPJ: {supplier.cnpj} | {supplier.city}/{supplier.state}
-                                </div>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
         </div>
 
         <div className="grid grid-cols-2 gap-4">
