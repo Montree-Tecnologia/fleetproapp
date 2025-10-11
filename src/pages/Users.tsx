@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, Mail, Shield, Building2, Calendar, Trash2, Pencil, Search } from 'lucide-react';
+import { UserPlus, Mail, Shield, Building2, Calendar, Trash2, Pencil, Search, Eye, Lock, Users as UsersIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,7 +44,7 @@ const userSchema = z.object({
   email: z.string().trim().email('E-mail inválido').max(255, 'E-mail muito longo'),
   role: z.enum(['admin', 'manager', 'operator']),
   company: z.string().trim().min(1, 'Selecione a empresa de vínculo').max(100, 'Nome muito longo'),
-  password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').max(50, 'Senha muito longa'),
+  password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').max(50, 'Senha muito longa').optional().or(z.literal('')),
 });
 
 export default function Users() {
@@ -75,6 +75,8 @@ export default function Users() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const allUsers = users();
   const allCompanies = companies();
@@ -83,12 +85,18 @@ export default function Users() {
     e.preventDefault();
     
     try {
-      // Validar senha apenas ao criar usuário novo
-      const schemaToUse = editingUser 
-        ? userSchema.omit({ password: true })
-        : userSchema;
+      // Validação customizada para senha
+      if (!editingUser && (!formData.password || formData.password.length < 6)) {
+        setErrors({ password: 'Senha deve ter no mínimo 6 caracteres' });
+        return;
+      }
       
-      const validatedData = schemaToUse.parse(formData);
+      if (formData.password && formData.password.length > 50) {
+        setErrors({ password: 'Senha muito longa' });
+        return;
+      }
+      
+      const validatedData = userSchema.parse(formData);
       
       if (allUsers.some(u => u.email === validatedData.email && u.id !== editingUser?.id)) {
         setErrors({ email: 'E-mail já cadastrado' });
@@ -106,9 +114,13 @@ export default function Users() {
           customPermissions: formData.customPermissions,
         });
 
+        const updateMessage = formData.password 
+          ? `${validatedData.name} foi atualizado com sucesso. Nova senha definida.`
+          : `${validatedData.name} foi atualizado com sucesso.`;
+        
         toast({
           title: 'Usuário atualizado',
-          description: `${validatedData.name} foi atualizado com sucesso.`,
+          description: updateMessage,
         });
       } else {
         addUser({
@@ -249,6 +261,16 @@ export default function Users() {
     );
   };
 
+  const handleViewDetails = (user: User) => {
+    setSelectedUser(user);
+    setDetailsDialogOpen(true);
+  };
+
+  const getCompanyName = (companyId: string) => {
+    const company = allCompanies.find(c => c.id === companyId);
+    return company ? `${company.name} (${company.cnpj})` : companyId;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -369,28 +391,31 @@ export default function Users() {
                     )}
                   </div>
 
-                  {!editingUser && (
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Senha Provisória *</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) => {
-                          setFormData({ ...formData, password: e.target.value });
-                          setErrors({ ...errors, password: '' });
-                        }}
-                        placeholder="Mínimo 6 caracteres"
-                        maxLength={50}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Senha que o usuário usará no primeiro acesso
-                      </p>
-                      {errors.password && (
-                        <p className="text-sm text-destructive">{errors.password}</p>
-                      )}
-                    </div>
-                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="password">
+                      {editingUser ? 'Nova Senha (opcional)' : 'Senha Provisória *'}
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => {
+                        setFormData({ ...formData, password: e.target.value });
+                        setErrors({ ...errors, password: '' });
+                      }}
+                      placeholder="Mínimo 6 caracteres"
+                      maxLength={50}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {editingUser 
+                        ? 'Deixe em branco para manter a senha atual'
+                        : 'Senha que o usuário usará no primeiro acesso'
+                      }
+                    </p>
+                    {errors.password && (
+                      <p className="text-sm text-destructive">{errors.password}</p>
+                    )}
+                  </div>
 
                   <div className="space-y-3">
                     <Label>Acesso às Empresas *</Label>
@@ -518,7 +543,16 @@ export default function Users() {
                 <Button
                   size="sm"
                   variant="outline"
+                  onClick={() => handleViewDetails(user)}
+                  title="Ver detalhes"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
                   onClick={() => handleEdit(user)}
+                  title="Editar"
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
@@ -534,6 +568,7 @@ export default function Users() {
                   size="sm"
                   variant="destructive"
                   onClick={() => handleDeleteClick(user.id, user.name)}
+                  title="Excluir"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -558,6 +593,152 @@ export default function Users() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          {selectedUser && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  {selectedUser.name}
+                  {!selectedUser.active && (
+                    <Badge variant="outline" className="text-xs">
+                      Inativo
+                    </Badge>
+                  )}
+                </DialogTitle>
+                <DialogDescription>
+                  Detalhes completos do usuário
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-6 py-4">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    Informações Básicas
+                  </h3>
+                  
+                  <div className="grid grid-cols-2 gap-4 pl-6">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Nome Completo</Label>
+                      <p className="text-sm font-medium">{selectedUser.name}</p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-xs text-muted-foreground">E-mail</Label>
+                      <p className="text-sm font-medium flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        {selectedUser.email}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Perfil</Label>
+                      <div className="mt-1">
+                        {getRoleBadge(selectedUser.role)}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Status</Label>
+                      <p className="text-sm font-medium">
+                        {selectedUser.active ? '✓ Ativo' : '✗ Inativo'}
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Data de Cadastro</Label>
+                      <p className="text-sm font-medium flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(selectedUser.createdAt).toLocaleDateString('pt-BR')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
+                    Vínculo Empregatício
+                  </h3>
+                  
+                  <div className="pl-6">
+                    <Label className="text-xs text-muted-foreground">Empresa de Vínculo</Label>
+                    <p className="text-sm font-medium">{getCompanyName(selectedUser.company)}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold flex items-center gap-2">
+                    <UsersIcon className="h-4 w-4" />
+                    Acesso às Empresas
+                  </h3>
+                  
+                  <div className="pl-6 space-y-2">
+                    {selectedUser.hasAccessToAllCompanies ? (
+                      <div className="p-3 bg-primary/5 rounded-md border border-primary/20">
+                        <p className="text-sm font-medium">✓ Todas as Empresas</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Acesso total a todas empresas atuais e futuras
+                        </p>
+                      </div>
+                    ) : selectedUser.linkedCompanies && selectedUser.linkedCompanies.length > 0 ? (
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">
+                          Empresas Vinculadas ({selectedUser.linkedCompanies.length})
+                        </Label>
+                        <div className="space-y-1">
+                          {selectedUser.linkedCompanies.map((companyId) => (
+                            <div key={companyId} className="text-sm p-2 bg-muted/50 rounded">
+                              • {getCompanyName(companyId)}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        Nenhuma empresa vinculada
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {selectedUser.customPermissions && Object.keys(selectedUser.customPermissions).length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold flex items-center gap-2">
+                      <Lock className="h-4 w-4" />
+                      Permissões Personalizadas
+                    </h3>
+                    
+                    <div className="pl-6 text-sm text-muted-foreground">
+                      Este usuário possui permissões personalizadas configuradas
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setDetailsDialogOpen(false)}
+                >
+                  Fechar
+                </Button>
+                <Button
+                  onClick={() => {
+                    setDetailsDialogOpen(false);
+                    handleEdit(selectedUser);
+                  }}
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Editar
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
