@@ -337,10 +337,10 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                                   <div className="font-semibold">
                                     {vehicle.plate} - {vehicle.model} ({vehicle.vehicleType})
                                   </div>
-                                  <div className="text-xs text-muted-foreground flex items-center gap-2">
+                                  <div className="text-xs text-foreground/70 flex items-center gap-2">
                                     <span>Proprietária: {vehicle.ownerBranch}</span>
                                     <span>•</span>
-                                    <span className={vehicle.status === 'active' ? 'text-green-600' : vehicle.status === 'maintenance' ? 'text-yellow-600' : 'text-muted-foreground'}>
+                                    <span className={vehicle.status === 'active' ? 'text-green-600' : vehicle.status === 'maintenance' ? 'text-yellow-600' : 'text-foreground/70'}>
                                       Status: {vehicle.status === 'active' ? 'Ativo' : vehicle.status === 'maintenance' ? 'Manutenção' : vehicle.status === 'inactive' ? 'Inativo' : 'Vendido'}
                                     </span>
                                     {vehicle.driverId && (() => {
@@ -420,7 +420,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                                   <div className="font-semibold">
                                     {unit.brand} {unit.model}
                                   </div>
-                                  <div className="text-xs text-muted-foreground">
+                                  <div className="text-xs text-foreground/70">
                                     SN: {unit.serialNumber} | Combustível: {unit.fuelType}
                                     {unit.vehicleId && (() => {
                                       const vehicle = vehicles.find(v => v.id === unit.vehicleId);
