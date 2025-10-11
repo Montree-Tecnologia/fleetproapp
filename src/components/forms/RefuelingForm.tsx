@@ -621,7 +621,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                                 <div className="font-semibold">
                                   {supplier.fantasyName}
                                 </div>
-                                <div className="text-xs text-muted-foreground">
+                                <div className="text-xs text-foreground/70">
                                   CNPJ: {supplier.cnpj} | {supplier.city}/{supplier.state}
                                 </div>
                               </div>
