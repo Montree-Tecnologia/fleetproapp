@@ -91,17 +91,22 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
     });
   };
 
-  const toggleBranch = (branch: string) => {
-    if (selectedBranches.includes(branch)) {
+  const toggleBranch = (branchName: string) => {
+    if (selectedBranches.includes(branchName)) {
       if (selectedBranches.length > 1) {
-        setSelectedBranches(selectedBranches.filter(b => b !== branch));
+        setSelectedBranches(selectedBranches.filter(b => b !== branchName));
       }
     } else {
-      setSelectedBranches([...selectedBranches, branch]);
+      setSelectedBranches([...selectedBranches, branchName]);
     }
   };
 
-  const availableBranches = ['Matriz', 'Filial SP', 'Filial RJ', 'Filial MG'];
+  const availableBranches = [
+    { name: 'Matriz', cnpj: '12.345.678/0001-90' },
+    { name: 'Filial SP', cnpj: '12.345.678/0002-71' },
+    { name: 'Filial RJ', cnpj: '12.345.678/0003-52' },
+    { name: 'Filial MG', cnpj: '12.345.678/0004-33' }
+  ];
 
   return (
     <Form {...form}>
@@ -277,15 +282,16 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
 
         <div>
           <FormLabel>Filiais Vinculadas *</FormLabel>
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div className="flex flex-col gap-2 mt-2">
             {availableBranches.map((branch) => (
               <Badge
-                key={branch}
-                variant={selectedBranches.includes(branch) ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => toggleBranch(branch)}
+                key={branch.name}
+                variant={selectedBranches.includes(branch.name) ? "default" : "outline"}
+                className="cursor-pointer justify-start py-2 px-3"
+                onClick={() => toggleBranch(branch.name)}
               >
-                {branch}
+                <span className="font-medium">{branch.name}</span>
+                <span className="ml-2 text-xs opacity-70">- {branch.cnpj}</span>
               </Badge>
             ))}
           </div>
