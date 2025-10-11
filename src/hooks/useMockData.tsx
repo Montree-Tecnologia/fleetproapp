@@ -1534,6 +1534,54 @@ export function useMockData() {
     };
   }, [vehicles, refuelings]);
 
+  // Dashboard Stats for Refrigeration
+  const getDashboardStatsForRefrigeration = useCallback(() => {
+    const activeUnits = refrigerationUnits.filter(u => u.status === 'active').length;
+    const maintenanceUnits = refrigerationUnits.filter(u => u.status === 'maintenance').length;
+    const defectiveUnits = refrigerationUnits.filter(u => u.status === 'defective').length;
+    
+    const thisMonthRefuelings = refuelings.filter(r => {
+      if (!r.refrigerationUnitId) return false;
+      const refuelDate = new Date(r.date);
+      const now = new Date();
+      return refuelDate.getMonth() === now.getMonth() && refuelDate.getFullYear() === now.getFullYear();
+    });
+    
+    const totalFuelCost = thisMonthRefuelings.reduce((sum, r) => sum + r.totalValue, 0);
+    const totalLiters = thisMonthRefuelings.reduce((sum, r) => sum + r.liters, 0);
+    
+    // Calculate average consumption (liters/hour)
+    let totalConsumption = 0;
+    let consumptionCount = 0;
+    
+    refrigerationUnits.forEach(unit => {
+      const unitRefuelings = refuelings
+        .filter(r => r.refrigerationUnitId === unit.id)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      
+      for (let i = 1; i < unitRefuelings.length; i++) {
+        const hoursDiff = (unitRefuelings[i].usageHours || 0) - (unitRefuelings[i - 1].usageHours || 0);
+        const liters = unitRefuelings[i].liters;
+        if (hoursDiff > 0 && liters > 0) {
+          totalConsumption += liters / hoursDiff;
+          consumptionCount++;
+        }
+      }
+    });
+    
+    const avgConsumption = consumptionCount > 0 ? totalConsumption / consumptionCount : 0;
+
+    return {
+      totalUnits: refrigerationUnits.length,
+      activeUnits,
+      maintenanceUnits,
+      defectiveUnits,
+      totalFuelCost,
+      avgConsumption: avgConsumption.toFixed(2),
+      availability: refrigerationUnits.length > 0 ? ((activeUnits / refrigerationUnits.length) * 100).toFixed(1) : '0'
+    };
+  }, [refrigerationUnits, refuelings]);
+
   return {
     // Drivers
     drivers: getDrivers,
@@ -1587,6 +1635,7 @@ export function useMockData() {
     deleteCompany,
     
     // Dashboard
-    getDashboardStats
+    getDashboardStats,
+    getDashboardStatsForRefrigeration
   };
 }

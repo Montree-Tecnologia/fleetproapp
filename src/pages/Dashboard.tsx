@@ -1,39 +1,81 @@
 import { useMockData } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Truck, TrendingUp, Fuel, Activity } from 'lucide-react';
+import { Truck, TrendingUp, Fuel, Activity, Snowflake } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function Dashboard() {
-  const { getDashboardStats, vehicles, refuelings, suppliers } = useMockData();
-  const stats = getDashboardStats();
+  const { 
+    getDashboardStats, 
+    getDashboardStatsForRefrigeration,
+    vehicles, 
+    refuelings, 
+    suppliers,
+    refrigerationUnits 
+  } = useMockData();
+  
+  const vehicleStats = getDashboardStats();
+  const refrigerationStats = getDashboardStatsForRefrigeration();
   const allVehicles = vehicles();
   const allRefuelings = refuelings();
   const allSuppliers = suppliers();
+  const allRefrigerationUnits = refrigerationUnits();
 
-  const statCards = [
+  const vehicleStatCards = [
     {
       title: 'Total de Veículos',
-      value: stats.totalVehicles,
+      value: vehicleStats.totalVehicles,
       icon: Truck,
-      description: `${stats.activeVehicles} ativos`,
+      description: `${vehicleStats.activeVehicles} ativos`,
       color: 'text-chart-1'
     },
     {
       title: 'Disponibilidade',
-      value: `${stats.availability}%`,
+      value: `${vehicleStats.availability}%`,
       icon: Activity,
       description: 'Taxa de disponibilidade',
       color: 'text-chart-2'
     },
     {
       title: 'Consumo Médio',
-      value: `${stats.avgConsumption} km/L`,
+      value: `${vehicleStats.avgConsumption} km/L`,
       icon: TrendingUp,
       description: 'Média da frota',
       color: 'text-chart-3'
     },
     {
       title: 'Custo Combustível',
-      value: `R$ ${stats.totalFuelCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      value: `R$ ${vehicleStats.totalFuelCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      icon: Fuel,
+      description: 'Mês atual',
+      color: 'text-chart-4'
+    }
+  ];
+
+  const refrigerationStatCards = [
+    {
+      title: 'Total de Equipamentos',
+      value: refrigerationStats.totalUnits,
+      icon: Snowflake,
+      description: `${refrigerationStats.activeUnits} ativos`,
+      color: 'text-chart-1'
+    },
+    {
+      title: 'Disponibilidade',
+      value: `${refrigerationStats.availability}%`,
+      icon: Activity,
+      description: 'Taxa de disponibilidade',
+      color: 'text-chart-2'
+    },
+    {
+      title: 'Consumo Médio',
+      value: `${refrigerationStats.avgConsumption} L/h`,
+      icon: TrendingUp,
+      description: 'Média dos equipamentos',
+      color: 'text-chart-3'
+    },
+    {
+      title: 'Custo Combustível',
+      value: `R$ ${refrigerationStats.totalFuelCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
       icon: Fuel,
       description: 'Mês atual',
       color: 'text-chart-4'
@@ -45,159 +87,324 @@ export default function Dashboard() {
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Dashboard Operacional</h2>
         <p className="text-muted-foreground">
-          Visão geral da sua frota em tempo real
+          Visão geral da sua operação em tempo real
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+      <Tabs defaultValue="vehicles" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="vehicles">Veículos</TabsTrigger>
+          <TabsTrigger value="refrigeration">Equipamentos de Refrigeração</TabsTrigger>
+        </TabsList>
+
+        {/* Vehicles Tab */}
+        <TabsContent value="vehicles" className="space-y-6">
+          {/* Stats Cards */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {vehicleStatCards.map((stat) => (
+              <Card key={stat.title}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    {stat.title}
+                  </CardTitle>
+                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {stat.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Status Distribution */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Status da Frota</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Ativos</span>
+                      <span className="text-sm text-muted-foreground">{vehicleStats.activeVehicles}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-chart-2 h-2 rounded-full"
+                        style={{ width: `${(vehicleStats.activeVehicles / vehicleStats.totalVehicles) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Em Manutenção</span>
+                      <span className="text-sm text-muted-foreground">{vehicleStats.maintenanceVehicles}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-chart-3 h-2 rounded-full"
+                        style={{ width: `${(vehicleStats.maintenanceVehicles / vehicleStats.totalVehicles) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Inativos</span>
+                      <span className="text-sm text-muted-foreground">{vehicleStats.inactiveVehicles}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-muted-foreground h-2 rounded-full"
+                        style={{ width: `${(vehicleStats.inactiveVehicles / vehicleStats.totalVehicles) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Top 5 Veículos por Consumo</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {allVehicles
+                    .map((vehicle) => {
+                      const vehicleRefuelings = allRefuelings
+                        .filter(r => r.vehicleId === vehicle.id)
+                        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                      
+                      let totalConsumption = 0;
+                      let consumptionCount = 0;
+
+                      for (let i = 1; i < vehicleRefuelings.length; i++) {
+                        const kmDiff = (vehicleRefuelings[i].km || 0) - (vehicleRefuelings[i - 1].km || 0);
+                        const liters = vehicleRefuelings[i].liters;
+                        if (kmDiff > 0 && liters > 0) {
+                          totalConsumption += kmDiff / liters;
+                          consumptionCount++;
+                        }
+                      }
+
+                      const avgConsumption = consumptionCount > 0 ? totalConsumption / consumptionCount : 0;
+                      return { ...vehicle, avgConsumption };
+                    })
+                    .filter(v => v.avgConsumption > 0)
+                    .sort((a, b) => a.avgConsumption - b.avgConsumption)
+                    .slice(0, 5)
+                    .map((vehicle) => (
+                      <div key={vehicle.id} className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">{vehicle.plate}</p>
+                          <p className="text-xs text-muted-foreground">{vehicle.model}</p>
+                        </div>
+                        <span className="text-sm font-bold">
+                          {vehicle.avgConsumption.toFixed(2)} km/L
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent Refuelings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Últimos Abastecimentos</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">
-                {stat.description}
-              </p>
+              <div className="space-y-4">
+                {allRefuelings
+                  .filter(r => r.vehicleId)
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .slice(0, 5)
+                  .map((refueling) => {
+                    const vehicle = allVehicles.find(v => v.id === refueling.vehicleId);
+                    const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
+                    return (
+                      <div key={refueling.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
+                        <div>
+                          <p className="text-sm font-medium">{vehicle?.plate}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {refueling.liters}L • {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold">
+                            R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(refueling.date).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
+        </TabsContent>
 
-      {/* Status Distribution */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Status da Frota</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Ativos</span>
-                  <span className="text-sm text-muted-foreground">{stats.activeVehicles}</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div
-                    className="bg-chart-2 h-2 rounded-full"
-                    style={{ width: `${(stats.activeVehicles / stats.totalVehicles) * 100}%` }}
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Em Manutenção</span>
-                  <span className="text-sm text-muted-foreground">{stats.maintenanceVehicles}</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div
-                    className="bg-chart-3 h-2 rounded-full"
-                    style={{ width: `${(stats.maintenanceVehicles / stats.totalVehicles) * 100}%` }}
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Inativos</span>
-                  <span className="text-sm text-muted-foreground">{stats.inactiveVehicles}</span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div
-                    className="bg-muted-foreground h-2 rounded-full"
-                    style={{ width: `${(stats.inactiveVehicles / stats.totalVehicles) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Top 5 Veículos por Consumo</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {allVehicles
-                .map((vehicle) => {
-                  const vehicleRefuelings = allRefuelings
-                    .filter(r => r.vehicleId === vehicle.id)
-                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-                  
-                  let totalConsumption = 0;
-                  let consumptionCount = 0;
-
-                  for (let i = 1; i < vehicleRefuelings.length; i++) {
-                    const kmDiff = vehicleRefuelings[i].km - vehicleRefuelings[i - 1].km;
-                    const liters = vehicleRefuelings[i].liters;
-                    if (kmDiff > 0 && liters > 0) {
-                      totalConsumption += kmDiff / liters;
-                      consumptionCount++;
-                    }
-                  }
-
-                  const avgConsumption = consumptionCount > 0 ? totalConsumption / consumptionCount : 0;
-                  return { ...vehicle, avgConsumption };
-                })
-                .filter(v => v.avgConsumption > 0)
-                .sort((a, b) => a.avgConsumption - b.avgConsumption)
-                .slice(0, 5)
-                .map((vehicle) => (
-                  <div key={vehicle.id} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">{vehicle.plate}</p>
-                      <p className="text-xs text-muted-foreground">{vehicle.model}</p>
-                    </div>
-                    <span className="text-sm font-bold">
-                      {vehicle.avgConsumption.toFixed(2)} km/L
-                    </span>
-                  </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Refuelings */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Últimos Abastecimentos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {allRefuelings
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-              .slice(0, 5)
-              .map((refueling) => {
-                const vehicle = allVehicles.find(v => v.id === refueling.vehicleId);
-                const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
-                return (
-                  <div key={refueling.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
-                    <div>
-                      <p className="text-sm font-medium">{vehicle?.plate}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {refueling.liters}L • {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold">
-                        R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(refueling.date).toLocaleDateString('pt-BR')}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
+        {/* Refrigeration Tab */}
+        <TabsContent value="refrigeration" className="space-y-6">
+          {/* Stats Cards */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {refrigerationStatCards.map((stat) => (
+              <Card key={stat.title}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    {stat.title}
+                  </CardTitle>
+                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {stat.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Status Distribution */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Status dos Equipamentos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Ativos</span>
+                      <span className="text-sm text-muted-foreground">{refrigerationStats.activeUnits}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-chart-2 h-2 rounded-full"
+                        style={{ width: `${(refrigerationStats.activeUnits / refrigerationStats.totalUnits) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Em Manutenção</span>
+                      <span className="text-sm text-muted-foreground">{refrigerationStats.maintenanceUnits}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-chart-3 h-2 rounded-full"
+                        style={{ width: `${(refrigerationStats.maintenanceUnits / refrigerationStats.totalUnits) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Defeituosos</span>
+                      <span className="text-sm text-muted-foreground">{refrigerationStats.defectiveUnits}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-destructive h-2 rounded-full"
+                        style={{ width: `${(refrigerationStats.defectiveUnits / refrigerationStats.totalUnits) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Top 5 Equipamentos por Consumo</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {allRefrigerationUnits
+                    .map((unit) => {
+                      const unitRefuelings = allRefuelings
+                        .filter(r => r.refrigerationUnitId === unit.id)
+                        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                      
+                      let totalConsumption = 0;
+                      let consumptionCount = 0;
+
+                      for (let i = 1; i < unitRefuelings.length; i++) {
+                        const hoursDiff = (unitRefuelings[i].usageHours || 0) - (unitRefuelings[i - 1].usageHours || 0);
+                        const liters = unitRefuelings[i].liters;
+                        if (hoursDiff > 0 && liters > 0) {
+                          totalConsumption += liters / hoursDiff;
+                          consumptionCount++;
+                        }
+                      }
+
+                      const avgConsumption = consumptionCount > 0 ? totalConsumption / consumptionCount : 0;
+                      return { ...unit, avgConsumption };
+                    })
+                    .filter(u => u.avgConsumption > 0)
+                    .sort((a, b) => b.avgConsumption - a.avgConsumption)
+                    .slice(0, 5)
+                    .map((unit) => (
+                      <div key={unit.id} className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">{unit.serialNumber}</p>
+                          <p className="text-xs text-muted-foreground">{unit.brand} {unit.model}</p>
+                        </div>
+                        <span className="text-sm font-bold">
+                          {unit.avgConsumption.toFixed(2)} L/h
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent Refuelings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Últimos Abastecimentos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {allRefuelings
+                  .filter(r => r.refrigerationUnitId)
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .slice(0, 5)
+                  .map((refueling) => {
+                    const unit = allRefrigerationUnits.find(u => u.id === refueling.refrigerationUnitId);
+                    const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
+                    return (
+                      <div key={refueling.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
+                        <div>
+                          <p className="text-sm font-medium">{unit?.serialNumber}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {refueling.liters}L • {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold">
+                            R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(refueling.date).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
