@@ -37,7 +37,7 @@ export interface Vehicle {
   status: 'active' | 'maintenance' | 'inactive' | 'sold';
   purchaseKm: number;
   currentKm: number;
-  fuelType: 'Diesel S10' | 'Diesel S500' | 'Arla 32' | 'Arla 42' | 'Etanol' | 'Gasolina';
+  fuelType: 'Diesel S10' | 'Diesel S500' | 'Arla 32' | 'Arla 42' | 'Etanol' | 'Gasolina' | 'GNV' | 'Biometano';
   axles: number;
   weight?: number;
   branches: string[];
