@@ -21,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Building2, MapPin, Plus, Pencil, Trash2, Search, Power } from 'lucide-react';
+import { Building2, MapPin, Plus, Pencil, Trash2, Search, Power, Eye } from 'lucide-react';
 import { CompanyForm } from '@/components/forms/CompanyForm';
 import { useMockData, Company } from '@/hooks/useMockData';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +31,8 @@ export default function Companies() {
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [viewingCompany, setViewingCompany] = useState<Company | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const { companies, updateCompany, deleteCompany } = useMockData();
   const { toast } = useToast();
@@ -85,6 +87,15 @@ export default function Companies() {
     });
   };
 
+  const handleViewDetails = (company: Company) => {
+    setViewingCompany(company);
+    setDetailsDialogOpen(true);
+  };
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('pt-BR');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -132,6 +143,75 @@ export default function Companies() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Empresa - {viewingCompany?.name}</DialogTitle>
+            <DialogDescription>
+              Informações completas da empresa
+            </DialogDescription>
+          </DialogHeader>
+
+          {viewingCompany && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold mb-3">Informações Básicas</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Nome:</span>
+                    <p className="font-medium">{viewingCompany.name}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">CNPJ:</span>
+                    <p className="font-medium font-mono">{viewingCompany.cnpj}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Tipo:</span>
+                    <p className="font-medium">
+                      <Badge variant={viewingCompany.type === 'matriz' ? 'default' : 'secondary'}>
+                        {viewingCompany.type === 'matriz' ? 'Matriz' : 'Filial'}
+                      </Badge>
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <p className="font-medium">
+                      <Badge variant={viewingCompany.active ? "default" : "destructive"} className={viewingCompany.active ? "bg-green-600 hover:bg-green-700" : ""}>
+                        {viewingCompany.active ? 'Ativa' : 'Inativa'}
+                      </Badge>
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Cidade:</span>
+                    <p className="font-medium">{viewingCompany.city}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Estado:</span>
+                    <p className="font-medium">{viewingCompany.state}</p>
+                  </div>
+                  {viewingCompany.type === 'filial' && viewingCompany.matrizId && (
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground">Matriz:</span>
+                      <p className="font-medium">
+                        {allCompanies.find(c => c.id === viewingCompany.matrizId)?.name || 'Não encontrada'}
+                      </p>
+                    </div>
+                  )}
+                  {viewingCompany.type === 'matriz' && (
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground">Filiais Vinculadas:</span>
+                      <p className="font-medium">
+                        {getCompanyBranches(viewingCompany.id)} {getCompanyBranches(viewingCompany.id) === 1 ? 'filial' : 'filiais'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -187,6 +267,15 @@ export default function Companies() {
                 <Button
                   size="sm"
                   variant="outline"
+                  className="flex-1"
+                  onClick={() => handleViewDetails(company)}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Detalhes
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
                   onClick={() => handleEdit(company)}
                 >
                   <Pencil className="h-4 w-4" />
@@ -194,11 +283,9 @@ export default function Companies() {
                 <Button
                   size="sm"
                   variant={company.active ? 'outline' : 'default'}
-                  className="flex-1"
                   onClick={() => handleToggleActive(company.id, company.active)}
                 >
-                  <Power className="h-4 w-4 mr-2" />
-                  {company.active ? 'Inativar' : 'Ativar'}
+                  <Power className="h-4 w-4" />
                 </Button>
                 <Button
                   size="sm"
