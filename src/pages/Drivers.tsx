@@ -372,7 +372,7 @@ export default function Drivers() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Filiais Vinculadas</Label>
+                  <Label>Matriz/Filiais Vinculadas</Label>
                   <div className="flex flex-wrap gap-2 p-3 border rounded-md">
                     {['Matriz', 'Filial SP', 'Filial RJ', 'Filial MG'].map((branch) => (
                       <Badge
@@ -668,7 +668,7 @@ export default function Drivers() {
               </div>
 
               <div>
-                <h3 className="font-semibold mb-3">Filiais Vinculadas</h3>
+                <h3 className="font-semibold mb-3">Matriz/Filiais Vinculadas</h3>
                 <div className="flex flex-wrap gap-2">
                   {viewingDriver.branches.map((branch, index) => (
                     <Badge key={index} variant="secondary">

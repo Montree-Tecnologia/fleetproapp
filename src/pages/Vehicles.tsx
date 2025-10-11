@@ -573,7 +573,7 @@ export default function Vehicles() {
                     </div>
                   </div>
                   <div>
-                    <span className="text-muted-foreground text-sm">Filiais Vinculadas:</span>
+                    <span className="text-muted-foreground text-sm">Matriz/Filiais Vinculadas:</span>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {viewingVehicle.branches.map((branch, index) => (
                         <Badge key={index} variant="secondary">

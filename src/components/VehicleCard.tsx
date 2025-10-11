@@ -202,7 +202,7 @@ export function VehicleCard({
             </div>
           )}
           <div className="col-span-2">
-            <span className="text-muted-foreground">Filiais Vinculadas:</span>
+            <span className="text-muted-foreground">Matriz/Filiais Vinculadas:</span>
             <div className="flex flex-wrap gap-1 mt-1">
               {vehicle.branches.map((branch, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">

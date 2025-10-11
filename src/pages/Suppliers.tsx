@@ -214,7 +214,7 @@ export default function Suppliers() {
               </div>
 
               <div className="pt-3 border-t border-border">
-                <p className="text-sm text-muted-foreground mb-2">Filiais Vinculadas:</p>
+                <p className="text-sm text-muted-foreground mb-2">Matriz/Filiais Vinculadas:</p>
                 <div className="flex flex-wrap gap-1">
                   {supplier.branches.map((branch, idx) => (
                     <Badge key={idx} variant="outline" className="text-xs">
@@ -354,7 +354,7 @@ export default function Suppliers() {
               </div>
 
               <div>
-                <h3 className="font-semibold mb-3">Filiais Vinculadas</h3>
+                <h3 className="font-semibold mb-3">Matriz/Filiais Vinculadas</h3>
                 <div className="flex flex-wrap gap-2">
                   {viewingSupplier.branches.map((branch, index) => (
                     <Badge key={index} variant="secondary">

@@ -408,7 +408,7 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
         </div>
 
         <div>
-          <FormLabel>Filiais Vinculadas *</FormLabel>
+          <FormLabel>Matriz/Filiais Vinculadas *</FormLabel>
           <div className="flex flex-col gap-2 mt-2">
             {availableBranches.map((branch) => (
               <Badge

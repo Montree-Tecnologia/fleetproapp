@@ -285,7 +285,7 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
         </div>
 
         <div>
-          <FormLabel>Filiais Vinculadas *</FormLabel>
+          <FormLabel>Matriz/Filiais Vinculadas *</FormLabel>
           <div className="flex flex-wrap gap-2 mt-2">
             {availableBranches.map((branch) => (
               <Badge
