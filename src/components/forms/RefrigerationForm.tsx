@@ -73,6 +73,9 @@ interface RefrigerationFormProps {
 
 export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, companies, initialData }: RefrigerationFormProps) {
   const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
+  
+  // Filtrar apenas fornecedores ativos
+  const activeSuppliers = suppliers.filter(s => s.active);
 
   const form = useForm<RefrigerationFormData>({
     resolver: zodResolver(refrigerationSchema),
@@ -445,7 +448,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="none">Nenhum</SelectItem>
-                    {suppliers.map((supplier) => (
+                    {activeSuppliers.map((supplier) => (
                       <SelectItem key={supplier.id} value={supplier.id}>
                         {supplier.fantasyName} - {supplier.city}/{supplier.state}
                       </SelectItem>

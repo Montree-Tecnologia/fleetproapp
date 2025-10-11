@@ -55,7 +55,7 @@ interface RefuelingFormProps {
 }
 
 export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers, initialData }: RefuelingFormProps) {
-  const gasStations = suppliers.filter(s => s.type === 'gas_station');
+  const gasStations = suppliers.filter(s => s.type === 'gas_station' && s.active);
   const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>(initialData?.paymentReceipt);
   const [fiscalNote, setFiscalNote] = useState<string | undefined>(initialData?.fiscalNote);
   

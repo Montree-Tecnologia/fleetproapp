@@ -89,6 +89,7 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
       phone: data.phone,
       contactPerson: data.contactPerson,
       branches: selectedBranches,
+      active: initialData?.active ?? true,
     });
   };
 

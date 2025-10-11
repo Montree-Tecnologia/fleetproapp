@@ -100,6 +100,7 @@ export interface Supplier {
   phone?: string;
   contactPerson?: string;
   branches: string[];
+  active: boolean;
 }
 
 export type ModulePermission = {
@@ -950,7 +951,8 @@ const mockSuppliers: Supplier[] = [
     brand: 'Petrobras',
     city: 'São Paulo',
     state: 'SP',
-    branches: ['Matriz', 'Filial SP']
+    branches: ['Matriz', 'Filial SP'],
+    active: true
   },
   {
     id: '2',
@@ -961,7 +963,8 @@ const mockSuppliers: Supplier[] = [
     brand: 'Shell',
     city: 'Campinas',
     state: 'SP',
-    branches: ['Matriz']
+    branches: ['Matriz'],
+    active: true
   }
 ];
 

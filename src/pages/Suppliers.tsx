@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Building, MapPin, Pencil, Trash2, Eye, Search } from 'lucide-react';
+import { Plus, Building, MapPin, Pencil, Trash2, Eye, Search, Power } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -110,6 +110,14 @@ export default function Suppliers() {
     return labels[type as keyof typeof labels];
   };
 
+  const handleToggleActive = (supplier: Supplier) => {
+    updateSupplier(supplier.id, { active: !supplier.active });
+    toast({
+      title: supplier.active ? 'Fornecedor inativado' : 'Fornecedor ativado',
+      description: `${supplier.fantasyName} foi ${supplier.active ? 'inativado' : 'ativado'} com sucesso.`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -175,7 +183,14 @@ export default function Suppliers() {
                     <p className="text-xs text-muted-foreground">{supplier.name}</p>
                   </div>
                 </div>
-                {getTypeBadge(supplier.type)}
+                <div className="flex items-center gap-2">
+                  {getTypeBadge(supplier.type)}
+                  {!supplier.active && (
+                    <Badge variant="secondary" className="bg-muted">
+                      Inativo
+                    </Badge>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -209,6 +224,14 @@ export default function Suppliers() {
                 >
                   <Eye className="h-4 w-4 mr-2" />
                   Detalhes
+                </Button>
+                <Button
+                  size="sm"
+                  variant={supplier.active ? "outline" : "default"}
+                  onClick={() => handleToggleActive(supplier)}
+                  title={supplier.active ? 'Inativar fornecedor' : 'Ativar fornecedor'}
+                >
+                  <Power className="h-4 w-4" />
                 </Button>
                 <Button
                   size="sm"
@@ -276,6 +299,14 @@ export default function Suppliers() {
                     <span className="text-muted-foreground">Tipo:</span>
                     <div className="mt-1">
                       {getTypeBadge(viewingSupplier.type)}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <div className="mt-1">
+                      <Badge variant={viewingSupplier.active ? "default" : "secondary"}>
+                        {viewingSupplier.active ? 'Ativo' : 'Inativo'}
+                      </Badge>
                     </div>
                   </div>
                   {viewingSupplier.brand && (
