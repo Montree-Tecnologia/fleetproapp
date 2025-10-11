@@ -528,7 +528,10 @@ export default function Refuelings() {
                                 driver.name === selectedDriver ? "opacity-100" : "opacity-0"
                               )}
                             />
-                            {driver.name}
+                            <div className="flex flex-col">
+                              <span>{driver.name}</span>
+                              <span className="text-xs text-muted-foreground">{driver.cpf}</span>
+                            </div>
                           </CommandItem>
                         ))}
                       </CommandGroup>
