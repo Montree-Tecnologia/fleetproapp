@@ -63,9 +63,10 @@ export function VehicleCard({
   const [openDriver, setOpenDriver] = useState(false);
   const [openComposition, setOpenComposition] = useState(false);
   
-  const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
+  const allTractionTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
-  const isTractionVehicle = tractionVehicleTypes.includes(vehicle.vehicleType);
+  const isTractionVehicle = vehicle.vehicleType === 'Cavalo Mecânico'; // Apenas Cavalo Mecânico pode receber composições
+  const canShowConsumption = allTractionTypes.includes(vehicle.vehicleType); // Todos veículos de tração mostram consumo
   const isTrailerVehicle = trailerVehicleTypes.includes(vehicle.vehicleType);
   
   // Motoristas disponíveis (não vinculados a outros veículos)
@@ -94,7 +95,7 @@ export function VehicleCard({
   
   // Encontra os veículos de tração que têm este reboque vinculado (para veículos de reboque)
   const linkedToTractionVehicles = isTrailerVehicle ? allVehicles.filter(v => 
-    tractionVehicleTypes.includes(v.vehicleType) &&
+    v.vehicleType === 'Cavalo Mecânico' && // Apenas Cavalo Mecânico pode ter composições
     v.hasComposition && 
     v.compositionPlates?.includes(vehicle.plate)
   ) : [];
@@ -170,7 +171,7 @@ export function VehicleCard({
             <span className="text-muted-foreground">Proprietária:</span>
             <p className="font-medium">{vehicle.ownerBranch}</p>
           </div>
-          {(isTractionVehicle || isTrailerVehicle) && (
+          {(canShowConsumption || isTrailerVehicle) && (
             <>
               <div>
                 <span className="text-muted-foreground">KM Rodados:</span>
@@ -182,7 +183,7 @@ export function VehicleCard({
               </div>
             </>
           )}
-          {isTractionVehicle && (
+          {canShowConsumption && (
             <div>
               <span className="text-muted-foreground">Consumo Médio:</span>
               <p className="font-medium">
