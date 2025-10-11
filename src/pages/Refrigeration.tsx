@@ -53,7 +53,6 @@ export default function Refrigeration() {
     vehicles, 
     suppliers, 
     companies, 
-    refuelings,
     addRefrigerationUnit, 
     updateRefrigerationUnit, 
     deleteRefrigerationUnit,
@@ -75,35 +74,6 @@ export default function Refrigeration() {
   const allVehicles = vehicles();
   const allSuppliers = suppliers();
   const allCompanies = companies();
-  const allRefuelings = refuelings();
-
-  // Função para calcular horímetro atual e consumo
-  const getRefrigerationStats = (unitId: string, initialHours: number = 0) => {
-    const unitRefuelings = allRefuelings
-      .filter(r => r.refrigerationUnitId === unitId)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    
-    if (unitRefuelings.length === 0) {
-      return {
-        currentUsageHours: initialHours,
-        consumption: 0
-      };
-    }
-
-    // Pegar o último abastecimento para horímetro atual
-    const lastRefueling = unitRefuelings[unitRefuelings.length - 1];
-    const currentUsageHours = lastRefueling.usageHours || initialHours;
-
-    // Calcular consumo total
-    const totalLiters = unitRefuelings.reduce((sum, r) => sum + r.liters, 0);
-    const hoursUsed = currentUsageHours - initialHours;
-    const consumption = hoursUsed > 0 ? totalLiters / hoursUsed : 0;
-
-    return {
-      currentUsageHours,
-      consumption
-    };
-  };
 
   const handleSubmit = (data: any) => {
     if (editingUnit) {
@@ -322,7 +292,6 @@ export default function Refrigeration() {
           })
           .map((unit) => {
           const vehicle = allVehicles.find(v => v.id === unit.vehicleId);
-          const stats = getRefrigerationStats(unit.id, unit.initialUsageHours || 0);
           return (
             <Card key={unit.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -346,21 +315,6 @@ export default function Refrigeration() {
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Building2 className="h-4 w-4" />
                   <span>{getCompanyName(unit.companyId)}</span>
-                </div>
-                
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <div className="p-2 bg-accent/10 rounded-lg">
-                    <p className="text-muted-foreground mb-1">Horímetro - Compra</p>
-                    <p className="font-semibold">{(unit.initialUsageHours || 0).toLocaleString('pt-BR')} h</p>
-                  </div>
-                  <div className="p-2 bg-accent/10 rounded-lg">
-                    <p className="text-muted-foreground mb-1">Horímetro - Atual</p>
-                    <p className="font-semibold">{stats.currentUsageHours.toLocaleString('pt-BR')} h</p>
-                  </div>
-                  <div className="p-2 bg-accent/10 rounded-lg">
-                    <p className="text-muted-foreground mb-1">Consumo (l/h)</p>
-                    <p className="font-semibold">{stats.consumption > 0 ? stats.consumption.toFixed(2) : '0.00'}</p>
-                  </div>
                 </div>
                 
                 <div className="flex items-center gap-2 p-3 bg-accent/10 rounded-lg">
@@ -520,7 +474,7 @@ export default function Refrigeration() {
                           <p className="font-medium">{unit.saleInfo?.saleDate ? formatDate(unit.saleInfo.saleDate) : '-'}</p>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Horímetro - Venda:</span>
+                          <span className="text-muted-foreground">Horas de Uso:</span>
                           <p className="font-medium">{unit.saleInfo?.usageHours.toLocaleString('pt-BR')} h</p>
                         </div>
                       </div>
@@ -712,7 +666,7 @@ export default function Refrigeration() {
                         <p className="font-medium">{formatDate(viewingUnit.saleInfo.saleDate)}</p>
                       </div>
                       <div>
-                        <span className="text-muted-foreground">Horímetro - Venda:</span>
+                        <span className="text-muted-foreground">Horas de Uso:</span>
                         <p className="font-medium">{viewingUnit.saleInfo.usageHours.toLocaleString('pt-BR')} h</p>
                       </div>
                       <div className="col-span-2">
