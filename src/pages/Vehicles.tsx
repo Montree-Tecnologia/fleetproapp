@@ -442,25 +442,17 @@ export default function Vehicles() {
                     <span className="text-muted-foreground">Modelo:</span>
                     <p className="font-medium">{viewingVehicle.model}</p>
                   </div>
-                          <div>
-                            <span className="text-muted-foreground">Ano:</span>
-                            <p className="font-medium">
-                              {viewingVehicle.manufacturingYear && viewingVehicle.modelYear
-                                ? `${viewingVehicle.manufacturingYear}/${viewingVehicle.modelYear.toString().slice(-2)}`
-                                : 'N/A'}
-                            </p>
-                          </div>
+                  <div>
+                    <span className="text-muted-foreground">Ano:</span>
+                    <p className="font-medium">
+                      {viewingVehicle.manufacturingYear && viewingVehicle.modelYear
+                        ? `${viewingVehicle.manufacturingYear}/${viewingVehicle.modelYear.toString().slice(-2)}`
+                        : 'N/A'}
+                    </p>
+                  </div>
                   <div>
                     <span className="text-muted-foreground">Cor:</span>
                     <p className="font-medium">{viewingVehicle.color}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Status:</span>
-                    <p className="font-medium inline-flex">{getStatusBadge(viewingVehicle.status)}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">KM Atual:</span>
-                    <p className="font-medium">{viewingVehicle.currentKm.toLocaleString('pt-BR')}</p>
                   </div>
                   {tractionVehicleTypes.includes(viewingVehicle.vehicleType) && (
                     <div>
@@ -475,8 +467,17 @@ export default function Vehicles() {
                       </p>
                     </div>
                   )}
+                  <div>
+                    <span className="text-muted-foreground">KM Atual:</span>
+                    <p className="font-medium">{viewingVehicle.currentKm.toLocaleString('pt-BR')}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <p className="font-medium inline-flex">{getStatusBadge(viewingVehicle.status)}</p>
+                  </div>
                 </div>
               </div>
+
 
               <div>
                 <h3 className="font-semibold mb-3">Documentação</h3>
