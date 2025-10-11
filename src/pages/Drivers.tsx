@@ -696,7 +696,7 @@ export default function Drivers() {
                     setViewingDriver({ ...viewingDriver, active: !viewingDriver.active });
                   }}
                 >
-                  {viewingDriver.active ? 'Desativar' : 'Ativar'}
+                  {viewingDriver.active ? 'Inativar' : 'Ativar'}
                 </Button>
               </div>
             </div>

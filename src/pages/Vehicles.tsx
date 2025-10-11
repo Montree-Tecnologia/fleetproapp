@@ -66,7 +66,7 @@ export default function Vehicles() {
   const getStatusBadge = (status: string) => {
     const variants = {
       active: { label: 'Ativo', variant: 'default' as const, className: 'bg-green-600 hover:bg-green-700' },
-      maintenance: { label: 'Manutenção', variant: undefined, className: 'bg-warning text-warning-foreground' },
+      maintenance: { label: 'Manutenção', variant: undefined, className: 'bg-yellow-500 text-white' },
       inactive: { label: 'Inativo', variant: 'destructive' as const, className: '' },
       sold: { label: 'Vendido', variant: undefined, className: 'bg-gray-500 text-white' }
     };

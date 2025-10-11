@@ -488,14 +488,13 @@ export function VehicleCard({
                 <Pencil className="h-4 w-4" />
               </Button>
               {isAdmin() && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleSellVehicle(vehicle)}
-                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                >
-                  <DollarSign className="h-4 w-4" />
-                </Button>
+              <Button
+                size="sm"
+                variant="default"
+                onClick={() => handleSellVehicle(vehicle)}
+              >
+                <DollarSign className="h-4 w-4" />
+              </Button>
               )}
               <Button
                 size="sm"
@@ -508,9 +507,8 @@ export function VehicleCard({
           ) : isAdmin() ? (
             <Button
               size="sm"
-              variant="outline"
+              variant="secondary"
               onClick={() => handleReverseSale(vehicle)}
-              className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
             >
               <DollarSign className="h-4 w-4 mr-2" />
               Reverter Venda

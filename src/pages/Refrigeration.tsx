@@ -186,11 +186,18 @@ export default function Refrigeration() {
     const variants = {
       active: { label: 'Ativo', variant: 'default' as const, className: 'bg-green-600 hover:bg-green-700' },
       defective: { label: 'Defeito', variant: 'destructive' as const, className: '' },
-      maintenance: { label: 'Manutenção', variant: 'outline' as const, className: 'border-yellow-500 text-yellow-600' },
-      sold: { label: 'Vendido', variant: 'secondary' as const, className: '' }
+      maintenance: { label: 'Manutenção', variant: undefined, className: 'bg-yellow-500 text-white' },
+      inactive: { label: 'Inativo', variant: 'destructive' as const, className: '' },
+      sold: { label: 'Vendido', variant: undefined, className: 'bg-gray-500 text-white' }
     };
     const config = variants[status as keyof typeof variants];
-    return <Badge variant={config.variant} className={config.className}>{config.label}</Badge>;
+    if (config.variant && config.className) {
+      return <Badge variant={config.variant} className={config.className}>{config.label}</Badge>;
+    } else if (config.variant) {
+      return <Badge variant={config.variant}>{config.label}</Badge>;
+    } else {
+      return <Badge className={config.className}>{config.label}</Badge>;
+    }
   };
 
   const handleStatusChange = (unitId: string, newStatus: string, hasVehicle: boolean) => {
@@ -538,7 +545,7 @@ export default function Refrigeration() {
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="secondary"
                         onClick={() => handleReverseSale(unit.id, `${unit.brand} ${unit.model}`)}
                       >
                         <Undo2 className="h-4 w-4 mr-2" />
