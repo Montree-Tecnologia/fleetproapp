@@ -73,6 +73,7 @@ export interface Refueling {
 export interface RefrigerationUnit {
   id: string;
   vehicleId?: string;
+  companyId: string;
   brand: string;
   model: string;
   serialNumber: string;
@@ -902,6 +903,7 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
   {
     id: '1',
     vehicleId: '1',
+    companyId: '1',
     brand: 'Thermo King',
     model: 'SLXi-300',
     serialNumber: 'TK123456',
@@ -914,6 +916,7 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
   {
     id: '2',
     vehicleId: '2',
+    companyId: '1',
     brand: 'Carrier',
     model: 'Supra 950',
     serialNumber: 'CR789012',
@@ -925,6 +928,7 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
   },
   {
     id: '3',
+    companyId: '2',
     brand: 'Thermo King',
     model: 'T-Series',
     serialNumber: 'TK456789',

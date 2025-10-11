@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search } from 'lucide-react';
+import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -33,7 +33,7 @@ import { RefrigerationForm } from '@/components/forms/RefrigerationForm';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Refrigeration() {
-  const { refrigerationUnits, vehicles, suppliers, addRefrigerationUnit, updateRefrigerationUnit, deleteRefrigerationUnit } = useMockData();
+  const { refrigerationUnits, vehicles, suppliers, companies, addRefrigerationUnit, updateRefrigerationUnit, deleteRefrigerationUnit } = useMockData();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<RefrigerationUnit | null>(null);
@@ -45,6 +45,7 @@ export default function Refrigeration() {
   const allUnits = refrigerationUnits();
   const allVehicles = vehicles();
   const allSuppliers = suppliers();
+  const allCompanies = companies();
 
   const handleSubmit = (data: any) => {
     if (editingUnit) {
@@ -112,6 +113,11 @@ export default function Refrigeration() {
       climatized: 'Climatizado'
     };
     return labels[type as keyof typeof labels];
+  };
+
+  const getCompanyName = (companyId: string) => {
+    const company = allCompanies.find(c => c.id === companyId);
+    return company ? company.name : 'Empresa não encontrada';
   };
 
   const formatDate = (date: string) => {
@@ -204,6 +210,7 @@ export default function Refrigeration() {
               onCancel={handleDialogClose}
               vehicles={allVehicles}
               suppliers={allSuppliers}
+              companies={allCompanies}
               initialData={editingUnit}
             />
           </DialogContent>
@@ -252,6 +259,11 @@ export default function Refrigeration() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Building2 className="h-4 w-4" />
+                  <span>{getCompanyName(unit.companyId)}</span>
+                </div>
+                
                 <div className="flex items-center gap-2 p-3 bg-accent/10 rounded-lg">
                   <Thermometer className="h-5 w-5 text-chart-1" />
                   <div className="flex-1">

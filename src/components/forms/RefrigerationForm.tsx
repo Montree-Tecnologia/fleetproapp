@@ -27,11 +27,12 @@ import {
 import { CalendarIcon, Upload, X, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { RefrigerationUnit, Vehicle, Supplier } from '@/hooks/useMockData';
+import { RefrigerationUnit, Vehicle, Supplier, Company } from '@/hooks/useMockData';
 import { useState } from 'react';
 
 const refrigerationSchema = z.object({
   vehicleId: z.string().optional(),
+  companyId: z.string().min(1, 'Empresa é obrigatória'),
   brand: z.string().min(1, 'Marca é obrigatória'),
   model: z.string().min(1, 'Modelo é obrigatório'),
   serialNumber: z.string().min(1, 'Número de série é obrigatório'),
@@ -66,16 +67,18 @@ interface RefrigerationFormProps {
   onCancel: () => void;
   vehicles: Vehicle[];
   suppliers: Supplier[];
+  companies: Company[];
   initialData?: RefrigerationUnit;
 }
 
-export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, initialData }: RefrigerationFormProps) {
+export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, companies, initialData }: RefrigerationFormProps) {
   const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
 
   const form = useForm<RefrigerationFormData>({
     resolver: zodResolver(refrigerationSchema),
     defaultValues: initialData ? {
       vehicleId: initialData.vehicleId,
+      companyId: initialData.companyId,
       brand: initialData.brand,
       model: initialData.model,
       serialNumber: initialData.serialNumber,
@@ -88,6 +91,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, ini
       purchaseValue: initialData.purchaseValue,
       supplierId: initialData.supplierId,
     } : {
+      companyId: '',
       type: 'freezer',
       minTemp: -18,
       maxTemp: -15,
@@ -114,6 +118,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, ini
   const handleSubmit = (data: RefrigerationFormData) => {
     onSubmit({
       vehicleId: data.vehicleId,
+      companyId: data.companyId,
       brand: data.brand,
       model: data.model,
       serialNumber: data.serialNumber,
@@ -135,6 +140,31 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, ini
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="companyId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Empresa *</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a empresa" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {companies.map((company) => (
+                      <SelectItem key={company.id} value={company.id}>
+                        {company.name} - {company.cnpj}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
          <FormField
             control={form.control}
             name="vehicleId"
