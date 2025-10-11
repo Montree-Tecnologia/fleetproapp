@@ -507,7 +507,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
             name="initialUsageHours"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Horas de Uso de Compra</FormLabel>
+                <FormLabel>Horímetro - Compra</FormLabel>
                 <FormControl>
                   <Input 
                     type="number" 
