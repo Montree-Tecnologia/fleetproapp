@@ -146,6 +146,18 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Defeituosos</span>
+                      <span className="text-sm text-muted-foreground">{vehicleStats.defectiveVehicles}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-destructive h-2 rounded-full"
+                        style={{ width: `${(vehicleStats.defectiveVehicles / vehicleStats.totalVehicles) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium">Em Manutenção</span>
                       <span className="text-sm text-muted-foreground">{vehicleStats.maintenanceVehicles}</span>
                     </div>

@@ -1510,6 +1510,8 @@ export function useMockData() {
   const getDashboardStats = useCallback(() => {
     const activeVehicles = vehicles.filter(v => v.status === 'active').length;
     const maintenanceVehicles = vehicles.filter(v => v.status === 'maintenance').length;
+    const defectiveVehicles = vehicles.filter(v => v.status === 'defective').length;
+    const inactiveVehicles = vehicles.filter(v => v.status === 'inactive').length;
     const totalKm = vehicles.reduce((sum, v) => sum + v.currentKm, 0);
     
     const thisMonthRefuelings = refuelings.filter(r => {
@@ -1526,11 +1528,12 @@ export function useMockData() {
       totalVehicles: vehicles.length,
       activeVehicles,
       maintenanceVehicles,
-      inactiveVehicles: vehicles.filter(v => v.status === 'inactive').length,
+      defectiveVehicles,
+      inactiveVehicles,
       totalKm,
       totalFuelCost,
       avgConsumption: avgConsumption.toFixed(2),
-      availability: ((activeVehicles / vehicles.length) * 100).toFixed(1)
+      availability: vehicles.length > 0 ? ((activeVehicles / vehicles.length) * 100).toFixed(1) : '0'
     };
   }, [vehicles, refuelings]);
 
