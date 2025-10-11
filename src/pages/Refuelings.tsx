@@ -5,7 +5,7 @@ import mockupPaymentReceipt from '@/assets/mockup-payment-receipt.jpg';
 import mockupFiscalNote from '@/assets/mockup-fiscal-note.jpg';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText, Truck, Snowflake } from 'lucide-react';
+import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText, Truck, Snowflake, Search, Check, ChevronsUpDown } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -19,6 +19,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -59,6 +67,11 @@ export default function Refuelings() {
   const [selectedRefrigerationUnit, setSelectedRefrigerationUnit] = useState<string>('all');
   const [selectedDriver, setSelectedDriver] = useState<string>('all');
   const [selectedSupplier, setSelectedSupplier] = useState<string>('all');
+  
+  // Estados para controlar popovers dos filtros
+  const [openVehicleFilter, setOpenVehicleFilter] = useState(false);
+  const [openRefrigerationFilter, setOpenRefrigerationFilter] = useState(false);
+  const [openDriverFilter, setOpenDriverFilter] = useState(false);
   
   const allRefuelings = refuelings();
   const allVehicles = vehicles();
@@ -310,55 +323,208 @@ export default function Refuelings() {
             {activeTab === 'vehicles' ? (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Veículo</label>
-                <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todos" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    {tractionVehicles.map((vehicle) => (
-                      <SelectItem key={vehicle.id} value={vehicle.id}>
-                        {vehicle.plate} - {vehicle.model}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openVehicleFilter} onOpenChange={setOpenVehicleFilter}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "w-full justify-between",
+                        selectedVehicle === 'all' && "text-muted-foreground"
+                      )}
+                    >
+                      {selectedVehicle === 'all' ? (
+                        <span>Todos</span>
+                      ) : (
+                        (() => {
+                          const vehicle = tractionVehicles.find(v => v.id === selectedVehicle);
+                          return vehicle ? `${vehicle.plate} - ${vehicle.model}` : 'Todos';
+                        })()
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar veículo..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum veículo encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="all"
+                            onSelect={() => {
+                              setSelectedVehicle('all');
+                              setOpenVehicleFilter(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedVehicle === 'all' ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            Todos
+                          </CommandItem>
+                          {tractionVehicles.map((vehicle) => (
+                            <CommandItem
+                              key={vehicle.id}
+                              value={`${vehicle.plate} ${vehicle.model}`}
+                              onSelect={() => {
+                                setSelectedVehicle(vehicle.id);
+                                setOpenVehicleFilter(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  vehicle.id === selectedVehicle ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {vehicle.plate} - {vehicle.model}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             ) : (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Equipamento</label>
-                <Select value={selectedRefrigerationUnit} onValueChange={setSelectedRefrigerationUnit}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todos" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    {allRefrigerationUnits.map((unit) => (
-                      <SelectItem key={unit.id} value={unit.id}>
-                        {unit.brand} {unit.model} - SN: {unit.serialNumber}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openRefrigerationFilter} onOpenChange={setOpenRefrigerationFilter}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "w-full justify-between",
+                        selectedRefrigerationUnit === 'all' && "text-muted-foreground"
+                      )}
+                    >
+                      {selectedRefrigerationUnit === 'all' ? (
+                        <span>Todos</span>
+                      ) : (
+                        (() => {
+                          const unit = allRefrigerationUnits.find(u => u.id === selectedRefrigerationUnit);
+                          return unit ? `${unit.brand} ${unit.model} - SN: ${unit.serialNumber}` : 'Todos';
+                        })()
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar equipamento..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum equipamento encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="all"
+                            onSelect={() => {
+                              setSelectedRefrigerationUnit('all');
+                              setOpenRefrigerationFilter(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedRefrigerationUnit === 'all' ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            Todos
+                          </CommandItem>
+                          {allRefrigerationUnits.map((unit) => (
+                            <CommandItem
+                              key={unit.id}
+                              value={`${unit.brand} ${unit.model} ${unit.serialNumber}`}
+                              onSelect={() => {
+                                setSelectedRefrigerationUnit(unit.id);
+                                setOpenRefrigerationFilter(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  unit.id === selectedRefrigerationUnit ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {unit.brand} {unit.model} - SN: {unit.serialNumber}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
             )}
 
             {/* Filtro de Motorista */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Motorista</label>
-              <Select value={selectedDriver} onValueChange={setSelectedDriver}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  {allDrivers.map((driver) => (
-                    <SelectItem key={driver.id} value={driver.name}>
-                      {driver.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={openDriverFilter} onOpenChange={setOpenDriverFilter}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className={cn(
+                      "w-full justify-between",
+                      selectedDriver === 'all' && "text-muted-foreground"
+                    )}
+                  >
+                    {selectedDriver === 'all' ? (
+                      <span>Todos</span>
+                    ) : (
+                      selectedDriver
+                    )}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Buscar motorista..." />
+                    <CommandList>
+                      <CommandEmpty>Nenhum motorista encontrado.</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="all"
+                          onSelect={() => {
+                            setSelectedDriver('all');
+                            setOpenDriverFilter(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedDriver === 'all' ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          Todos
+                        </CommandItem>
+                        {allDrivers.map((driver) => (
+                          <CommandItem
+                            key={driver.id}
+                            value={`${driver.name} ${driver.cpf}`}
+                            onSelect={() => {
+                              setSelectedDriver(driver.name);
+                              setOpenDriverFilter(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                driver.name === selectedDriver ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {driver.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Filtro de Fornecedor */}
