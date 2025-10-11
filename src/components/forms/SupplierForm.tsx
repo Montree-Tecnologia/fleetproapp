@@ -30,6 +30,8 @@ const supplierSchema = z.object({
   brand: z.string().optional(),
   city: z.string().min(1, 'Cidade é obrigatória'),
   state: z.string().length(2, 'UF deve ter 2 caracteres'),
+  phone: z.string().optional(),
+  contactPerson: z.string().optional(),
 });
 
 type SupplierFormData = z.infer<typeof supplierSchema>;
@@ -55,6 +57,8 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
       brand: initialData.brand,
       city: initialData.city,
       state: initialData.state,
+      phone: initialData.phone,
+      contactPerson: initialData.contactPerson,
     } : {
       type: 'gas_station',
     },
@@ -81,6 +85,8 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
       brand: data.brand,
       city: data.city,
       state: data.state.toUpperCase(),
+      phone: data.phone,
+      contactPerson: data.contactPerson,
       branches: selectedBranches,
     });
   };
@@ -227,6 +233,40 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
                     maxLength={2}
                     {...field}
                     onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Telefone</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="(11) 98765-4321" 
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="contactPerson"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Pessoa de Contato</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Nome do responsável" 
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />

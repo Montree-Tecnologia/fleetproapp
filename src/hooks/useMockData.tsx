@@ -92,6 +92,8 @@ export interface Supplier {
   brand?: string;
   city: string;
   state: string;
+  phone?: string;
+  contactPerson?: string;
   branches: string[];
 }
 
