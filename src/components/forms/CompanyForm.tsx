@@ -43,6 +43,10 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
   const { toast } = useToast();
   const allCompanies = companies();
   const matrizes = allCompanies.filter(c => c.type === 'matriz');
+  
+  // Se não há nenhuma empresa cadastrada e não está editando, deve ser matriz
+  const isFirstCompany = allCompanies.length === 0 && !initialData;
+  const hasMatriz = matrizes.length > 0;
 
   const form = useForm<CompanyFormValues>({
     resolver: zodResolver(companySchema),
@@ -54,7 +58,7 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
       state: initialData.state,
       matrizId: initialData.matrizId || '',
     } : {
-      type: 'filial',
+      type: isFirstCompany ? 'matriz' : 'filial',
       name: '',
       cnpj: '',
       city: '',
@@ -79,6 +83,26 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
   const watchType = form.watch('type');
 
   const onSubmit = (data: CompanyFormValues) => {
+    // Validação: primeiro cadastro deve ser matriz
+    if (!initialData && allCompanies.length === 0 && data.type !== 'matriz') {
+      toast({
+        title: 'Erro de validação',
+        description: 'O primeiro cadastro deve ser obrigatoriamente uma Matriz.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validação: não pode criar filial sem matriz
+    if (data.type === 'filial' && !hasMatriz) {
+      toast({
+        title: 'Erro de validação',
+        description: 'É necessário cadastrar uma Matriz antes de criar Filiais.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (initialData) {
       updateCompany(initialData.id, {
         type: data.type,
@@ -131,7 +155,11 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Tipo</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select 
+                onValueChange={field.onChange} 
+                defaultValue={field.value}
+                disabled={isFirstCompany}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o tipo" />
@@ -139,9 +167,16 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="matriz">Matriz</SelectItem>
-                  <SelectItem value="filial">Filial</SelectItem>
+                  <SelectItem value="filial" disabled={!hasMatriz}>
+                    Filial {!hasMatriz && '(Cadastre uma matriz primeiro)'}
+                  </SelectItem>
                 </SelectContent>
               </Select>
+              {isFirstCompany && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  O primeiro cadastro deve ser obrigatoriamente uma Matriz
+                </p>
+              )}
               <FormMessage />
             </FormItem>
           )}
