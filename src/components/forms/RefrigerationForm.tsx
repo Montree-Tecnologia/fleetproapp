@@ -24,11 +24,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, Upload, X, FileText } from 'lucide-react';
+import { CalendarIcon, Upload, X, FileText, Check, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { RefrigerationUnit, Vehicle, Supplier, Company } from '@/hooks/useMockData';
 import { useState } from 'react';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 
 const refrigerationSchema = z.object({
   vehicleId: z.string().optional(),
@@ -73,6 +81,7 @@ interface RefrigerationFormProps {
 
 export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, companies, initialData }: RefrigerationFormProps) {
   const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
+  const [openSupplier, setOpenSupplier] = useState(false);
   
   // Filtrar apenas fornecedores ativos dos tipos refrigeration_equipment e other
   const activeSuppliers = suppliers.filter(s => s.active && (s.type === 'refrigeration_equipment' || s.type === 'other'));
@@ -435,26 +444,80 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
             control={form.control}
             name="supplierId"
             render={({ field }) => (
-              <FormItem className="col-span-2">
+              <FormItem className="col-span-2 flex flex-col">
                 <FormLabel>Fornecedor de Compra</FormLabel>
-                <Select 
-                  onValueChange={(value) => field.onChange(value === 'none' ? undefined : value)} 
-                  value={field.value || 'none'}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o fornecedor" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="none">Nenhum</SelectItem>
-                    {activeSuppliers.map((supplier) => (
-                      <SelectItem key={supplier.id} value={supplier.id}>
-                        {supplier.fantasyName} - {supplier.city}/{supplier.state}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value && field.value !== 'none'
+                          ? (() => {
+                              const supplier = activeSuppliers.find(s => s.id === field.value);
+                              return supplier ? supplier.fantasyName : "Selecione o fornecedor";
+                            })()
+                          : "Selecione o fornecedor"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[500px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar fornecedor..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum fornecedor encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="none"
+                            onSelect={() => {
+                              form.setValue("supplierId", undefined);
+                              setOpenSupplier(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                !field.value || field.value === 'none' ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            Nenhum
+                          </CommandItem>
+                          {activeSuppliers.map((supplier) => (
+                            <CommandItem
+                              key={supplier.id}
+                              value={`${supplier.fantasyName} ${supplier.cnpj || supplier.cpf} ${supplier.city} ${supplier.state}`}
+                              onSelect={() => {
+                                form.setValue("supplierId", supplier.id);
+                                setOpenSupplier(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  supplier.id === field.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col gap-1">
+                                <div className="font-semibold">
+                                  {supplier.fantasyName || supplier.name}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {supplier.cnpj ? `CNPJ: ${supplier.cnpj}` : `CPF: ${supplier.cpf}`} | {supplier.city}/{supplier.state}
+                                </div>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}

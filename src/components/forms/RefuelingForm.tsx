@@ -24,11 +24,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, FileText, Upload, X } from 'lucide-react';
+import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Refueling, Vehicle, Driver, Supplier } from '@/hooks/useMockData';
 import { useState } from 'react';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 
 const refuelingSchema = z.object({
   vehicleId: z.string().min(1, 'Veículo é obrigatório'),
@@ -58,6 +66,9 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   const gasStations = suppliers.filter(s => s.type === 'gas_station' && s.active);
   const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>(initialData?.paymentReceipt);
   const [fiscalNote, setFiscalNote] = useState<string | undefined>(initialData?.fiscalNote);
+  const [openVehicle, setOpenVehicle] = useState(false);
+  const [openDriver, setOpenDriver] = useState(false);
+  const [openSupplier, setOpenSupplier] = useState(false);
   
   // Filtrar apenas veículos de tração
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
@@ -155,33 +166,69 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
             control={form.control}
             name="vehicleId"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex flex-col">
                 <FormLabel>Veículo *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o veículo" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="max-h-[300px]">
-                    {tractionVehicles.map((vehicle) => (
-                      <SelectItem key={vehicle.id} value={vehicle.id} className="py-3">
-                        <div className="flex flex-col gap-1">
-                          <div className="font-semibold">
-                            {vehicle.plate} - {vehicle.model} ({vehicle.vehicleType})
-                          </div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-2">
-                            <span>Proprietária: {vehicle.ownerBranch}</span>
-                            <span>•</span>
-                            <span className={vehicle.status === 'active' ? 'text-green-600' : vehicle.status === 'maintenance' ? 'text-yellow-600' : 'text-muted-foreground'}>
-                              Status: {vehicle.status === 'active' ? 'Ativo' : vehicle.status === 'maintenance' ? 'Manutenção' : vehicle.status === 'inactive' ? 'Inativo' : 'Vendido'}
-                            </span>
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openVehicle} onOpenChange={setOpenVehicle}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value
+                          ? (() => {
+                              const vehicle = tractionVehicles.find(v => v.id === field.value);
+                              return vehicle ? `${vehicle.plate} - ${vehicle.model}` : "Selecione o veículo";
+                            })()
+                          : "Selecione o veículo"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar veículo..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum veículo encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          {tractionVehicles.map((vehicle) => (
+                            <CommandItem
+                              key={vehicle.id}
+                              value={`${vehicle.plate} ${vehicle.model} ${vehicle.vehicleType} ${vehicle.ownerBranch}`}
+                              onSelect={() => {
+                                form.setValue("vehicleId", vehicle.id);
+                                setOpenVehicle(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  vehicle.id === field.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col gap-1">
+                                <div className="font-semibold">
+                                  {vehicle.plate} - {vehicle.model} ({vehicle.vehicleType})
+                                </div>
+                                <div className="text-xs text-muted-foreground flex items-center gap-2">
+                                  <span>Proprietária: {vehicle.ownerBranch}</span>
+                                  <span>•</span>
+                                  <span className={vehicle.status === 'active' ? 'text-green-600' : vehicle.status === 'maintenance' ? 'text-yellow-600' : 'text-muted-foreground'}>
+                                    Status: {vehicle.status === 'active' ? 'Ativo' : vehicle.status === 'maintenance' ? 'Manutenção' : vehicle.status === 'inactive' ? 'Inativo' : 'Vendido'}
+                                  </span>
+                                </div>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}
@@ -327,29 +374,65 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
             control={form.control}
             name="supplierId"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex flex-col">
                 <FormLabel>Posto *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o posto" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="max-h-[300px]">
-                    {gasStations.map((supplier) => (
-                      <SelectItem key={supplier.id} value={supplier.id} className="py-3">
-                        <div className="flex flex-col gap-1">
-                          <div className="font-semibold">
-                            {supplier.fantasyName}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            CNPJ: {supplier.cnpj} | {supplier.city}/{supplier.state}
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value
+                          ? (() => {
+                              const supplier = gasStations.find(s => s.id === field.value);
+                              return supplier ? supplier.fantasyName : "Selecione o posto";
+                            })()
+                          : "Selecione o posto"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar posto..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum posto encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          {gasStations.map((supplier) => (
+                            <CommandItem
+                              key={supplier.id}
+                              value={`${supplier.fantasyName} ${supplier.cnpj} ${supplier.city} ${supplier.state}`}
+                              onSelect={() => {
+                                form.setValue("supplierId", supplier.id);
+                                setOpenSupplier(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  supplier.id === field.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col gap-1">
+                                <div className="font-semibold">
+                                  {supplier.fantasyName}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  CNPJ: {supplier.cnpj} | {supplier.city}/{supplier.state}
+                                </div>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}
@@ -359,29 +442,60 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
             control={form.control}
             name="driver"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex flex-col">
                 <FormLabel>Motorista *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o motorista" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="max-h-[300px]">
-                    {drivers.map((driver) => (
-                      <SelectItem key={driver.id} value={driver.name} className="py-3">
-                        <div className="flex flex-col gap-1">
-                          <div className="font-semibold">
-                            {driver.name}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            CPF: {driver.cpf}
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={openDriver} onOpenChange={setOpenDriver}>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className={cn(
+                          "justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value || "Selecione o motorista"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar motorista..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum motorista encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          {drivers.map((driver) => (
+                            <CommandItem
+                              key={driver.id}
+                              value={`${driver.name} ${driver.cpf}`}
+                              onSelect={() => {
+                                form.setValue("driver", driver.name);
+                                setOpenDriver(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  driver.name === field.value ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col gap-1">
+                                <div className="font-semibold">
+                                  {driver.name}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  CPF: {driver.cpf}
+                                </div>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}

@@ -24,12 +24,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, Plus, X, Upload, Image as ImageIcon, FileText } from 'lucide-react';
+import { CalendarIcon, Plus, X, Upload, Image as ImageIcon, FileText, Check, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useState, useMemo, useEffect } from 'react';
 import { Vehicle, Company, Supplier } from '@/hooks/useMockData';
 import { Badge } from '@/components/ui/badge';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 
 // Mapeamento de marcas para modelos de veículos de tração
 const TRACTION_BRAND_MODELS: Record<string, string[]> = {
@@ -231,6 +239,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
   const [newCompositionVehicleId, setNewCompositionVehicleId] = useState<string>('');
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
   const [selectedSupplier, setSelectedSupplier] = useState<string | undefined>(initialData?.supplierId);
+  const [openSupplier, setOpenSupplier] = useState(false);
   const [vehicleImages, setVehicleImages] = useState<string[]>(initialData?.images || []);
   const [crlvDocument, setCrlvDocument] = useState<string | undefined>(initialData?.crlvDocument);
   const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
@@ -1066,24 +1075,78 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
               )}
             />
             
-            <div>
-              <FormLabel>Fornecedor</FormLabel>
-              <Select
-                value={selectedSupplier || 'none'}
-                onValueChange={(value) => setSelectedSupplier(value === 'none' ? undefined : value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o fornecedor" />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="none">Nenhum</SelectItem>
-                  {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
-                    <SelectItem key={supplier.id} value={supplier.id}>
-                      {supplier.fantasyName} - {supplier.city}/{supplier.state}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">Fornecedor</label>
+              <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className={cn(
+                      "justify-between",
+                      !selectedSupplier && "text-muted-foreground"
+                    )}
+                  >
+                    {selectedSupplier && selectedSupplier !== 'none'
+                      ? (() => {
+                          const supplier = suppliers.find(s => s.id === selectedSupplier);
+                          return supplier ? supplier.fantasyName : "Selecione o fornecedor";
+                        })()
+                      : "Selecione o fornecedor"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[500px] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Buscar fornecedor..." />
+                    <CommandList>
+                      <CommandEmpty>Nenhum fornecedor encontrado.</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="none"
+                          onSelect={() => {
+                            setSelectedSupplier(undefined);
+                            setOpenSupplier(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              !selectedSupplier || selectedSupplier === 'none' ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          Nenhum
+                        </CommandItem>
+                        {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
+                          <CommandItem
+                            key={supplier.id}
+                            value={`${supplier.fantasyName} ${supplier.cnpj || supplier.cpf} ${supplier.city} ${supplier.state}`}
+                            onSelect={() => {
+                              setSelectedSupplier(supplier.id);
+                              setOpenSupplier(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                supplier.id === selectedSupplier ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            <div className="flex flex-col gap-1">
+                              <div className="font-semibold">
+                                {supplier.fantasyName || supplier.name}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {supplier.cnpj ? `CNPJ: ${supplier.cnpj}` : `CPF: ${supplier.cpf}`} | {supplier.city}/{supplier.state}
+                              </div>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </>
         ) : (
@@ -1136,24 +1199,78 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
               )}
             />
             
-            <div>
-              <FormLabel>Fornecedor</FormLabel>
-              <Select
-                value={selectedSupplier || 'none'}
-                onValueChange={(value) => setSelectedSupplier(value === 'none' ? undefined : value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o fornecedor" />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="none">Nenhum</SelectItem>
-                  {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
-                    <SelectItem key={supplier.id} value={supplier.id}>
-                      {supplier.fantasyName} - {supplier.city}/{supplier.state}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">Fornecedor</label>
+              <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className={cn(
+                      "justify-between",
+                      !selectedSupplier && "text-muted-foreground"
+                    )}
+                  >
+                    {selectedSupplier && selectedSupplier !== 'none'
+                      ? (() => {
+                          const supplier = suppliers.find(s => s.id === selectedSupplier);
+                          return supplier ? supplier.fantasyName : "Selecione o fornecedor";
+                        })()
+                      : "Selecione o fornecedor"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[500px] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Buscar fornecedor..." />
+                    <CommandList>
+                      <CommandEmpty>Nenhum fornecedor encontrado.</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="none"
+                          onSelect={() => {
+                            setSelectedSupplier(undefined);
+                            setOpenSupplier(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              !selectedSupplier || selectedSupplier === 'none' ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          Nenhum
+                        </CommandItem>
+                        {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
+                          <CommandItem
+                            key={supplier.id}
+                            value={`${supplier.fantasyName} ${supplier.cnpj || supplier.cpf} ${supplier.city} ${supplier.state}`}
+                            onSelect={() => {
+                              setSelectedSupplier(supplier.id);
+                              setOpenSupplier(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                supplier.id === selectedSupplier ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            <div className="flex flex-col gap-1">
+                              <div className="font-semibold">
+                                {supplier.fantasyName || supplier.name}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {supplier.cnpj ? `CNPJ: ${supplier.cnpj}` : `CPF: ${supplier.cpf}`} | {supplier.city}/{supplier.state}
+                              </div>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </>
         )}
