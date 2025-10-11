@@ -56,6 +56,8 @@ export default function Vehicles() {
   const [vehicleToSell, setVehicleToSell] = useState<Vehicle | null>(null);
   const [reverseSaleDialogOpen, setReverseSaleDialogOpen] = useState(false);
   const [vehicleToReverseSale, setVehicleToReverseSale] = useState<Vehicle | null>(null);
+  const [statusChangeDialogOpen, setStatusChangeDialogOpen] = useState(false);
+  const [vehicleToChangeStatus, setVehicleToChangeStatus] = useState<{ vehicleId: string; plate: string; newStatus: string; currentStatus: string } | null>(null);
 
   const getDriverName = (driverId?: string) => {
     if (!driverId) return null;
@@ -140,7 +142,18 @@ export default function Vehicles() {
     }
   };
 
-  const handleStatusChange = (vehicleId: string, newStatus: string) => {
+  const handleStatusChange = (vehicleId: string, plate: string, newStatus: string, currentStatus: string) => {
+    // Abre o diálogo de confirmação apenas se está ativando ou inativando
+    if (newStatus === 'active' || newStatus === 'inactive') {
+      setVehicleToChangeStatus({ vehicleId, plate, newStatus, currentStatus });
+      setStatusChangeDialogOpen(true);
+    } else {
+      // Para outros status (manutenção, defeito), aplica diretamente
+      confirmStatusChange(vehicleId, newStatus);
+    }
+  };
+
+  const confirmStatusChange = (vehicleId: string, newStatus: string) => {
     const vehicle = allVehicles.find(v => v.id === vehicleId);
     if (!vehicle) return;
 
@@ -173,6 +186,9 @@ export default function Vehicles() {
     if (!isTrailer && isInactiveOrMaintenance && vehicle.hasComposition && vehicle.compositionPlates) {
       toast.info(`Status das composições acopladas também alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`);
     }
+
+    setStatusChangeDialogOpen(false);
+    setVehicleToChangeStatus(null);
   };
 
   const handleDriverChange = (vehicleId: string, driverId: string) => {
@@ -365,6 +381,23 @@ export default function Vehicles() {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={statusChangeDialogOpen} onOpenChange={setStatusChangeDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar alteração de status</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja {vehicleToChangeStatus?.newStatus === 'active' ? 'ativar' : 'inativar'} o veículo <strong>{vehicleToChangeStatus?.plate}</strong>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => vehicleToChangeStatus && confirmStatusChange(vehicleToChangeStatus.vehicleId, vehicleToChangeStatus.newStatus)}>
+              {vehicleToChangeStatus?.newStatus === 'active' ? 'Ativar' : 'Inativar'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -747,7 +780,7 @@ export default function Vehicles() {
                   <Select
                     value={viewingVehicle.status}
                     onValueChange={(value) => {
-                      handleStatusChange(viewingVehicle.id, value);
+                      handleStatusChange(viewingVehicle.id, viewingVehicle.plate, value, viewingVehicle.status);
                       setViewingVehicle({ ...viewingVehicle, status: value as any });
                     }}
                   >

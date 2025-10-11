@@ -64,6 +64,8 @@ export default function Drivers() {
   const [driverToDelete, setDriverToDelete] = useState<{ id: string; name: string } | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [viewingDriver, setViewingDriver] = useState<Driver | null>(null);
+  const [toggleActiveDialogOpen, setToggleActiveDialogOpen] = useState(false);
+  const [driverToToggle, setDriverToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     cpf: '',
@@ -192,12 +194,26 @@ export default function Drivers() {
     setErrors({});
   };
 
-  const handleToggleActive = (driverId: string, currentStatus: boolean) => {
-    updateDriver(driverId, { active: !currentStatus });
-    toast({
-      title: currentStatus ? 'Motorista inativado' : 'Motorista ativado',
-      description: 'Status atualizado com sucesso.',
-    });
+  const handleToggleActive = (driverId: string, driverName: string, currentStatus: boolean) => {
+    setDriverToToggle({ id: driverId, name: driverName, currentStatus });
+    setToggleActiveDialogOpen(true);
+  };
+
+  const confirmToggleActive = () => {
+    if (driverToToggle) {
+      updateDriver(driverToToggle.id, { active: !driverToToggle.currentStatus });
+      toast({
+        title: driverToToggle.currentStatus ? 'Motorista inativado' : 'Motorista ativado',
+        description: 'Status atualizado com sucesso.',
+      });
+      setToggleActiveDialogOpen(false);
+      setDriverToToggle(null);
+      
+      // Atualiza o motorista sendo visualizado se estiver aberto
+      if (viewingDriver && viewingDriver.id === driverToToggle.id) {
+        setViewingDriver({ ...viewingDriver, active: !driverToToggle.currentStatus });
+      }
+    }
   };
 
   const handleDeleteClick = (driverId: string, driverName: string) => {
@@ -544,7 +560,7 @@ export default function Drivers() {
                     size="sm"
                     variant={driver.active ? 'outline' : 'default'}
                     className="flex-1"
-                    onClick={() => handleToggleActive(driver.id, driver.active)}
+                    onClick={() => handleToggleActive(driver.id, driver.name, driver.active)}
                   >
                     <Power className="h-4 w-4 mr-2" />
                     {driver.active ? 'Inativar' : 'Ativar'}
@@ -575,6 +591,23 @@ export default function Drivers() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={toggleActiveDialogOpen} onOpenChange={setToggleActiveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar {driverToToggle?.currentStatus ? 'inativação' : 'ativação'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja {driverToToggle?.currentStatus ? 'inativar' : 'ativar'} o motorista <strong>{driverToToggle?.name}</strong>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmToggleActive}>
+              {driverToToggle?.currentStatus ? 'Inativar' : 'Ativar'}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -692,8 +725,8 @@ export default function Drivers() {
                 <Button
                   variant={viewingDriver.active ? 'destructive' : 'default'}
                   onClick={() => {
-                    handleToggleActive(viewingDriver.id, viewingDriver.active);
-                    setViewingDriver({ ...viewingDriver, active: !viewingDriver.active });
+                    setDetailsDialogOpen(false);
+                    handleToggleActive(viewingDriver.id, viewingDriver.name, viewingDriver.active);
                   }}
                 >
                   {viewingDriver.active ? 'Inativar' : 'Ativar'}

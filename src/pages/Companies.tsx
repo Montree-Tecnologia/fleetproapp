@@ -34,6 +34,8 @@ export default function Companies() {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [viewingCompany, setViewingCompany] = useState<Company | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [toggleActiveDialogOpen, setToggleActiveDialogOpen] = useState(false);
+  const [companyToToggle, setCompanyToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
   const { companies, updateCompany, deleteCompany } = useMockData();
   const { toast } = useToast();
   const allCompanies = companies();
@@ -79,12 +81,26 @@ export default function Companies() {
     }
   };
 
-  const handleToggleActive = (companyId: string, currentStatus: boolean) => {
-    updateCompany(companyId, { active: !currentStatus });
-    toast({
-      title: currentStatus ? 'Empresa inativada' : 'Empresa ativada',
-      description: 'Status atualizado com sucesso.',
-    });
+  const handleToggleActive = (companyId: string, companyName: string, currentStatus: boolean) => {
+    setCompanyToToggle({ id: companyId, name: companyName, currentStatus });
+    setToggleActiveDialogOpen(true);
+  };
+
+  const confirmToggleActive = () => {
+    if (companyToToggle) {
+      updateCompany(companyToToggle.id, { active: !companyToToggle.currentStatus });
+      toast({
+        title: companyToToggle.currentStatus ? 'Empresa inativada' : 'Empresa ativada',
+        description: 'Status atualizado com sucesso.',
+      });
+      setToggleActiveDialogOpen(false);
+      setCompanyToToggle(null);
+      
+      // Atualiza a empresa sendo visualizada se estiver aberta
+      if (viewingCompany && viewingCompany.id === companyToToggle.id) {
+        setViewingCompany({ ...viewingCompany, active: !companyToToggle.currentStatus });
+      }
+    }
   };
 
   const handleViewDetails = (company: Company) => {
@@ -140,6 +156,23 @@ export default function Companies() {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={toggleActiveDialogOpen} onOpenChange={setToggleActiveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar {companyToToggle?.currentStatus ? 'inativação' : 'ativação'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja {companyToToggle?.currentStatus ? 'inativar' : 'ativar'} a empresa <strong>{companyToToggle?.name}</strong>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmToggleActive}>
+              {companyToToggle?.currentStatus ? 'Inativar' : 'Ativar'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -224,8 +257,8 @@ export default function Companies() {
                 <Button
                   variant={viewingCompany.active ? 'destructive' : 'default'}
                   onClick={() => {
-                    handleToggleActive(viewingCompany.id, viewingCompany.active);
-                    setViewingCompany({ ...viewingCompany, active: !viewingCompany.active });
+                    setDetailsDialogOpen(false);
+                    handleToggleActive(viewingCompany.id, viewingCompany.name, viewingCompany.active);
                   }}
                 >
                   {viewingCompany.active ? 'Inativar' : 'Ativar'}
@@ -306,7 +339,7 @@ export default function Companies() {
                 <Button
                   size="sm"
                   variant={company.active ? 'outline' : 'default'}
-                  onClick={() => handleToggleActive(company.id, company.active)}
+                  onClick={() => handleToggleActive(company.id, company.name, company.active)}
                 >
                   <Power className="h-4 w-4" />
                 </Button>

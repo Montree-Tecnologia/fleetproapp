@@ -71,6 +71,10 @@ export default function Refrigeration() {
   const [openVehicleLink, setOpenVehicleLink] = useState<{[key: string]: boolean}>({});
   const [saleDialogOpen, setSaleDialogOpen] = useState(false);
   const [sellingUnit, setSellingUnit] = useState<RefrigerationUnit | null>(null);
+  const [reverseSaleDialogOpen, setReverseSaleDialogOpen] = useState(false);
+  const [unitToReverseSale, setUnitToReverseSale] = useState<RefrigerationUnit | null>(null);
+  const [statusChangeDialogOpen, setStatusChangeDialogOpen] = useState(false);
+  const [unitToChangeStatus, setUnitToChangeStatus] = useState<{ unitId: string; serialNumber: string; newStatus: string; currentStatus: string; hasVehicle: boolean } | null>(null);
   const allUnits = refrigerationUnits();
   const allVehicles = vehicles();
   const allSuppliers = suppliers();
@@ -200,7 +204,7 @@ export default function Refrigeration() {
     }
   };
 
-  const handleStatusChange = (unitId: string, newStatus: string, hasVehicle: boolean) => {
+  const handleStatusChange = (unitId: string, serialNumber: string, newStatus: string, currentStatus: string, hasVehicle: boolean) => {
     // Validação: se vinculado a veículo, só permite active ou defective
     if (hasVehicle && newStatus !== 'active' && newStatus !== 'defective') {
       toast({
@@ -211,6 +215,17 @@ export default function Refrigeration() {
       return;
     }
     
+    // Abre o diálogo de confirmação apenas se está ativando ou inativando
+    if (newStatus === 'active' || newStatus === 'inactive') {
+      setUnitToChangeStatus({ unitId, serialNumber, newStatus, currentStatus, hasVehicle });
+      setStatusChangeDialogOpen(true);
+    } else {
+      // Para outros status (manutenção, defeito), aplica diretamente
+      confirmStatusChange(unitId, newStatus);
+    }
+  };
+
+  const confirmStatusChange = (unitId: string, newStatus: string) => {
     updateRefrigerationUnit(unitId, { status: newStatus as any });
     const statusLabels = {
       active: 'Ativo',
@@ -222,6 +237,9 @@ export default function Refrigeration() {
       title: 'Status atualizado',
       description: `Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`,
     });
+    
+    setStatusChangeDialogOpen(false);
+    setUnitToChangeStatus(null);
   };
 
   const handleVehicleLink = (unitId: string, vehicleId: string) => {
@@ -460,7 +478,7 @@ export default function Refrigeration() {
                       <p className="text-sm text-muted-foreground mb-2">Alterar Status:</p>
                       <Select
                         value={unit.status}
-                        onValueChange={(value) => handleStatusChange(unit.id, value, !!unit.vehicleId)}
+                        onValueChange={(value) => handleStatusChange(unit.id, unit.serialNumber, value, unit.status, !!unit.vehicleId)}
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -592,6 +610,23 @@ export default function Refrigeration() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={statusChangeDialogOpen} onOpenChange={setStatusChangeDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar alteração de status</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja {unitToChangeStatus?.newStatus === 'active' ? 'ativar' : 'inativar'} o equipamento <strong>{unitToChangeStatus?.serialNumber}</strong>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => unitToChangeStatus && confirmStatusChange(unitToChangeStatus.unitId, unitToChangeStatus.newStatus)}>
+              {unitToChangeStatus?.newStatus === 'active' ? 'Ativar' : 'Inativar'}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -801,7 +836,7 @@ export default function Refrigeration() {
                     value={viewingUnit.status}
                     onValueChange={(value) => {
                       const hasVehicle = !!viewingUnit.vehicleId;
-                      handleStatusChange(viewingUnit.id, value, hasVehicle);
+                      handleStatusChange(viewingUnit.id, viewingUnit.serialNumber, value, viewingUnit.status, hasVehicle);
                       setViewingUnit({ ...viewingUnit, status: value as any });
                     }}
                   >

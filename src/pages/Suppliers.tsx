@@ -35,6 +35,8 @@ export default function Suppliers() {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [viewingSupplier, setViewingSupplier] = useState<Supplier | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [toggleActiveDialogOpen, setToggleActiveDialogOpen] = useState(false);
+  const [supplierToToggle, setSupplierToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
   const allSuppliers = suppliers();
   const allCompanies = companies();
 
@@ -115,11 +117,25 @@ export default function Suppliers() {
   };
 
   const handleToggleActive = (supplier: Supplier) => {
-    updateSupplier(supplier.id, { active: !supplier.active });
-    toast({
-      title: supplier.active ? 'Fornecedor inativado' : 'Fornecedor ativado',
-      description: `${supplier.fantasyName} foi ${supplier.active ? 'inativado' : 'ativado'} com sucesso.`,
-    });
+    setSupplierToToggle({ id: supplier.id, name: supplier.fantasyName || supplier.name, currentStatus: supplier.active });
+    setToggleActiveDialogOpen(true);
+  };
+
+  const confirmToggleActive = () => {
+    if (supplierToToggle) {
+      updateSupplier(supplierToToggle.id, { active: !supplierToToggle.currentStatus });
+      toast({
+        title: supplierToToggle.currentStatus ? 'Fornecedor inativado' : 'Fornecedor ativado',
+        description: `${supplierToToggle.name} foi ${supplierToToggle.currentStatus ? 'inativado' : 'ativado'} com sucesso.`,
+      });
+      setToggleActiveDialogOpen(false);
+      setSupplierToToggle(null);
+      
+      // Atualiza o fornecedor sendo visualizado se estiver aberto
+      if (viewingSupplier && viewingSupplier.id === supplierToToggle.id) {
+        setViewingSupplier({ ...viewingSupplier, active: !supplierToToggle.currentStatus });
+      }
+    }
   };
 
   return (
@@ -278,6 +294,23 @@ export default function Suppliers() {
         </AlertDialogContent>
       </AlertDialog>
 
+      <AlertDialog open={toggleActiveDialogOpen} onOpenChange={setToggleActiveDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar {supplierToToggle?.currentStatus ? 'inativação' : 'ativação'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja {supplierToToggle?.currentStatus ? 'inativar' : 'ativar'} o fornecedor <strong>{supplierToToggle?.name}</strong>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmToggleActive}>
+              {supplierToToggle?.currentStatus ? 'Inativar' : 'Ativar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -378,8 +411,8 @@ export default function Suppliers() {
                 <Button
                   variant={viewingSupplier.active ? 'destructive' : 'default'}
                   onClick={() => {
+                    setDetailsDialogOpen(false);
                     handleToggleActive(viewingSupplier);
-                    setViewingSupplier({ ...viewingSupplier, active: !viewingSupplier.active });
                   }}
                 >
                   {viewingSupplier.active ? 'Inativar' : 'Ativar'}

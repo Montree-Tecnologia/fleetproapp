@@ -29,7 +29,7 @@ interface VehicleCardProps {
   allVehicles: Vehicle[];
   getAvailableDrivers: (currentVehicleId: string) => any[];
   handleDriverChange: (vehicleId: string, driverId: string) => void;
-  handleStatusChange: (vehicleId: string, status: string) => void;
+  handleStatusChange: (vehicleId: string, plate: string, status: string, currentStatus: string) => void;
   handleViewDetails: (vehicle: Vehicle) => void;
   handleEdit: (vehicle: Vehicle) => void;
   handleSellVehicle: (vehicle: Vehicle) => void;
@@ -457,7 +457,7 @@ export function VehicleCard({
             <span className="text-sm text-muted-foreground mb-2 block">Alterar Status:</span>
             <Select
               value={vehicle.status}
-              onValueChange={(value) => handleStatusChange(vehicle.id, value)}
+              onValueChange={(value) => handleStatusChange(vehicle.id, vehicle.plate, value, vehicle.status)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
