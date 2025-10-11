@@ -54,6 +54,7 @@ const refrigerationSchema = z.object({
   purchaseDate: z.date().optional(),
   purchaseValue: z.number().min(0).optional(),
   supplierId: z.string().optional(),
+  initialUsageHours: z.number().min(0, 'Horas de uso não podem ser negativas').max(999999, 'Valor muito alto').optional(),
 }).refine((data) => data.maxTemp > data.minTemp, {
   message: 'Temperatura máxima deve ser maior que a mínima',
   path: ['maxTemp'],
@@ -103,6 +104,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
       purchaseDate: initialData.purchaseDate ? new Date(initialData.purchaseDate) : undefined,
       purchaseValue: initialData.purchaseValue,
       supplierId: initialData.supplierId,
+      initialUsageHours: initialData.initialUsageHours,
     } : {
       companyId: '',
       type: 'freezer',
@@ -110,6 +112,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
       maxTemp: -15,
       status: 'maintenance',
       installDate: new Date(),
+      initialUsageHours: 0,
     },
   });
 
@@ -144,6 +147,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
       purchaseValue: data.purchaseValue,
       supplierId: data.supplierId,
       purchaseInvoice: purchaseInvoice,
+      initialUsageHours: data.initialUsageHours,
     });
   };
 
@@ -486,6 +490,27 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                     step="0.01"
                     min="0"
                     placeholder="0,00"
+                    {...field} 
+                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="initialUsageHours"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Horas de Uso Inicial</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    step="1"
+                    min="0"
+                    placeholder="0"
                     {...field} 
                     onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                   />

@@ -87,6 +87,7 @@ export interface RefrigerationUnit {
   supplierId?: string;
   purchaseInvoice?: string;
   status: 'active' | 'defective' | 'maintenance' | 'sold';
+  initialUsageHours?: number;
 }
 
 export interface Supplier {
