@@ -163,10 +163,21 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                       <SelectValue placeholder="Selecione o veículo" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="max-h-[300px]">
                     {tractionVehicles.map((vehicle) => (
-                      <SelectItem key={vehicle.id} value={vehicle.id}>
-                        {vehicle.plate} - {vehicle.model}
+                      <SelectItem key={vehicle.id} value={vehicle.id} className="py-3">
+                        <div className="flex flex-col gap-1">
+                          <div className="font-semibold">
+                            {vehicle.plate} - {vehicle.model} ({vehicle.vehicleType})
+                          </div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-2">
+                            <span>Proprietária: {vehicle.ownerBranch}</span>
+                            <span>•</span>
+                            <span className={vehicle.status === 'active' ? 'text-green-600' : vehicle.status === 'maintenance' ? 'text-yellow-600' : 'text-muted-foreground'}>
+                              Status: {vehicle.status === 'active' ? 'Ativo' : vehicle.status === 'maintenance' ? 'Manutenção' : vehicle.status === 'inactive' ? 'Inativo' : 'Vendido'}
+                            </span>
+                          </div>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
