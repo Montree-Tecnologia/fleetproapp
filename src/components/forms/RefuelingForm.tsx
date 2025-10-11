@@ -24,7 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown } from 'lucide-react';
+import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown, Truck, Snowflake } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Refueling, Vehicle, Driver, Supplier, RefrigerationUnit } from '@/hooks/useMockData';
@@ -247,17 +247,46 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
           render={({ field }) => (
             <FormItem>
               <FormLabel>Tipo de Abastecimento *</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="vehicle">Veículo</SelectItem>
-                  <SelectItem value="refrigeration">Equipamento de Refrigeração</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    field.onChange('vehicle');
+                    form.setValue('refrigerationUnitId', undefined);
+                    form.setValue('usageHours', undefined);
+                  }}
+                  className={`p-4 border-2 rounded-lg transition-all text-center ${
+                    field.value === 'vehicle'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-center mb-2">
+                    <Truck className="h-8 w-8" />
+                  </div>
+                  <div className="font-semibold mb-1">Veículo</div>
+                  <div className="text-xs text-muted-foreground">Caminhões e veículos de tração</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    field.onChange('refrigeration');
+                    form.setValue('vehicleId', undefined);
+                    form.setValue('km', undefined);
+                  }}
+                  className={`p-4 border-2 rounded-lg transition-all text-center ${
+                    field.value === 'refrigeration'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-center mb-2">
+                    <Snowflake className="h-8 w-8" />
+                  </div>
+                  <div className="font-semibold mb-1">Equipamento de Refrigeração</div>
+                  <div className="text-xs text-muted-foreground">Equipamentos de refrigeração da frota</div>
+                </button>
+              </div>
               <FormMessage />
             </FormItem>
           )}
