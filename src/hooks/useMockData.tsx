@@ -180,6 +180,83 @@ const mockDrivers: Driver[] = [
     active: true,
     branches: ['Filial SP'],
     cnhDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
+  },
+  {
+    id: '4',
+    name: 'Roberto Silva',
+    cpf: '321.654.987-00',
+    birthDate: '1987-03-12',
+    cnhCategory: 'E',
+    cnhValidity: '2026-11-30',
+    active: true,
+    branches: ['Matriz', 'Filial SP'],
+    cnhDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
+  },
+  {
+    id: '5',
+    name: 'Marcos Costa',
+    cpf: '789.123.456-00',
+    birthDate: '1992-09-25',
+    cnhCategory: 'E',
+    cnhValidity: '2027-05-18',
+    active: true,
+    branches: ['Filial RJ'],
+    cnhDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
+  },
+  {
+    id: '6',
+    name: 'Fernando Oliveira',
+    cpf: '654.321.987-00',
+    birthDate: '1986-12-08',
+    cnhCategory: 'E',
+    cnhValidity: '2026-09-22',
+    active: true,
+    branches: ['Matriz'],
+    cnhDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
+  },
+  {
+    id: '7',
+    name: 'Lucas Almeida',
+    cpf: '147.258.369-00',
+    birthDate: '1991-06-14',
+    cnhCategory: 'D',
+    cnhValidity: '2027-12-10',
+    active: true,
+    branches: ['Filial SP', 'Filial RJ'],
+    cnhDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
+  },
+  {
+    id: '8',
+    name: 'Rafael Souza',
+    cpf: '369.258.147-00',
+    birthDate: '1989-04-20',
+    cnhCategory: 'E',
+    cnhValidity: '2026-07-15',
+    active: true,
+    branches: ['Matriz', 'Filial RJ'],
+    cnhDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
+  },
+  {
+    id: '9',
+    name: 'André Ferreira',
+    cpf: '258.147.369-00',
+    birthDate: '1993-11-03',
+    cnhCategory: 'C',
+    cnhValidity: '2028-01-25',
+    active: true,
+    branches: ['Filial SP'],
+    cnhDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
+  },
+  {
+    id: '10',
+    name: 'Gustavo Rodrigues',
+    cpf: '741.852.963-00',
+    birthDate: '1984-02-18',
+    cnhCategory: 'E',
+    cnhValidity: '2026-04-30',
+    active: true,
+    branches: ['Matriz'],
+    cnhDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
   }
 ];
 
