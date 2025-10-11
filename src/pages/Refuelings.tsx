@@ -5,7 +5,8 @@ import mockupPaymentReceipt from '@/assets/mockup-payment-receipt.jpg';
 import mockupFiscalNote from '@/assets/mockup-fiscal-note.jpg';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText } from 'lucide-react';
+import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText, Truck, Snowflake } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -120,7 +121,11 @@ export default function Refuelings() {
   const hasActiveFilters = startDate || endDate || selectedVehicle !== 'all' || 
     selectedDriver !== 'all' || selectedSupplier !== 'all';
 
-  const filteredRefuelings = allRefuelings
+  // Separar abastecimentos de veículos e equipamentos de refrigeração
+  const vehicleRefuelings = allRefuelings.filter(r => r.vehicleId);
+  const refrigerationRefuelings = allRefuelings.filter(r => r.refrigerationUnitId);
+
+  const filteredVehicleRefuelings = vehicleRefuelings
     .filter((refueling) => {
       const refuelingDate = new Date(refueling.date);
       
@@ -136,6 +141,30 @@ export default function Refuelings() {
       
       // Filtro de veículo
       if (selectedVehicle !== 'all' && refueling.vehicleId !== selectedVehicle) return false;
+      
+      // Filtro de motorista
+      if (selectedDriver !== 'all' && refueling.driver !== selectedDriver) return false;
+      
+      // Filtro de fornecedor
+      if (selectedSupplier !== 'all' && refueling.supplierId !== selectedSupplier) return false;
+      
+      return true;
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const filteredRefrigerationRefuelings = refrigerationRefuelings
+    .filter((refueling) => {
+      const refuelingDate = new Date(refueling.date);
+      
+      // Filtro de data inicial
+      if (startDate && refuelingDate < startDate) return false;
+      
+      // Filtro de data final
+      if (endDate) {
+        const endOfDay = new Date(endDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        if (refuelingDate > endOfDay) return false;
+      }
       
       // Filtro de motorista
       if (selectedDriver !== 'all' && refueling.driver !== selectedDriver) return false;
@@ -314,92 +343,201 @@ export default function Refuelings() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Histórico de Abastecimentos
-            {hasActiveFilters && (
-              <span className="ml-2 text-sm font-normal text-muted-foreground">
-                ({filteredRefuelings.length} {filteredRefuelings.length === 1 ? 'resultado' : 'resultados'})
-              </span>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {filteredRefuelings.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                Nenhum abastecimento encontrado com os filtros aplicados.
-              </div>
-            ) : (
-              filteredRefuelings.map((refueling) => {
-                const vehicle = allVehicles.find(v => v.id === refueling.vehicleId);
-                const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
-                return (
-                  <div
-                    key={refueling.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors cursor-pointer"
-                    onClick={() => setViewingRefueling(refueling)}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-chart-4/10 rounded-lg flex items-center justify-center">
-                        <Fuel className="h-6 w-6 text-chart-4" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{vehicle?.plate} - {vehicle?.model}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Motorista: {refueling.driver} • {refueling.km.toLocaleString('pt-BR')} km • {refueling.fuelType}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <p className="font-bold text-lg">
-                          R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {refueling.liters}L × R$ {refueling.pricePerLiter.toFixed(2)}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(refueling.date).toLocaleDateString('pt-BR', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                          })}
-                        </p>
-                      </div>
-                      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                        {isAdmin() && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEdit(refueling)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setDeletingRefueling(refueling)}
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
+      <Tabs defaultValue="vehicles" className="space-y-4">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="vehicles" className="flex items-center gap-2">
+            <Truck className="h-4 w-4" />
+            Veículos ({filteredVehicleRefuelings.length})
+          </TabsTrigger>
+          <TabsTrigger value="refrigeration" className="flex items-center gap-2">
+            <Snowflake className="h-4 w-4" />
+            Refrigeração ({filteredRefrigerationRefuelings.length})
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Abastecimentos de Veículos */}
+        <TabsContent value="vehicles">
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Histórico de Abastecimentos - Veículos
+                {hasActiveFilters && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    ({filteredVehicleRefuelings.length} {filteredVehicleRefuelings.length === 1 ? 'resultado' : 'resultados'})
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredVehicleRefuelings.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Nenhum abastecimento de veículo encontrado com os filtros aplicados.
                   </div>
-                );
-              })
-            )}
-          </div>
-        </CardContent>
-      </Card>
+                ) : (
+                  filteredVehicleRefuelings.map((refueling) => {
+                    const vehicle = allVehicles.find(v => v.id === refueling.vehicleId);
+                    const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
+                    return (
+                      <div
+                        key={refueling.id}
+                        className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors cursor-pointer"
+                        onClick={() => setViewingRefueling(refueling)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-chart-4/10 rounded-lg flex items-center justify-center">
+                            <Fuel className="h-6 w-6 text-chart-4" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{vehicle?.plate} - {vehicle?.model}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Motorista: {refueling.driver} • {refueling.km?.toLocaleString('pt-BR')} km • {refueling.fuelType}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="font-bold text-lg">
+                              R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {refueling.liters}L × R$ {refueling.pricePerLiter.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {new Date(refueling.date).toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                              })}
+                            </p>
+                          </div>
+                          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                            {isAdmin() && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleEdit(refueling)}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setDeletingRefueling(refueling)}
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Abastecimentos de Equipamentos de Refrigeração */}
+        <TabsContent value="refrigeration">
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Histórico de Abastecimentos - Equipamentos de Refrigeração
+                {hasActiveFilters && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    ({filteredRefrigerationRefuelings.length} {filteredRefrigerationRefuelings.length === 1 ? 'resultado' : 'resultados'})
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {filteredRefrigerationRefuelings.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Nenhum abastecimento de equipamento de refrigeração encontrado com os filtros aplicados.
+                  </div>
+                ) : (
+                  filteredRefrigerationRefuelings.map((refueling) => {
+                    const unit = allRefrigerationUnits.find(u => u.id === refueling.refrigerationUnitId);
+                    const vehicle = unit?.vehicleId ? allVehicles.find(v => v.id === unit.vehicleId) : null;
+                    const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
+                    return (
+                      <div
+                        key={refueling.id}
+                        className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors cursor-pointer"
+                        onClick={() => setViewingRefueling(refueling)}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                            <Snowflake className="h-6 w-6 text-blue-500" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{unit?.brand} {unit?.model} - SN: {unit?.serialNumber}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {vehicle ? `Veículo: ${vehicle.plate}` : 'Sem veículo vinculado'} • 
+                              {refueling.driver && ` Motorista: ${refueling.driver} • `}
+                              {refueling.usageHours?.toLocaleString('pt-BR')}h • {refueling.fuelType}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="font-bold text-lg">
+                              R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {refueling.liters}L × R$ {refueling.pricePerLiter.toFixed(2)}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {new Date(refueling.date).toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                              })}
+                            </p>
+                          </div>
+                          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                            {isAdmin() && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleEdit(refueling)}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setDeletingRefueling(refueling)}
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       <AlertDialog open={!!deletingRefueling} onOpenChange={(open) => !open && setDeletingRefueling(null)}>
         <AlertDialogContent>
