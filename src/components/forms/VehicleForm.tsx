@@ -28,7 +28,7 @@ import { CalendarIcon, Plus, X, Upload, Image as ImageIcon, FileText } from 'luc
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useState, useMemo, useEffect } from 'react';
-import { Vehicle } from '@/hooks/useMockData';
+import { Vehicle, Company } from '@/hooks/useMockData';
 import { Badge } from '@/components/ui/badge';
 
 // Mapeamento de marcas para modelos de veículos de tração
@@ -211,9 +211,10 @@ interface VehicleFormProps {
   onCancel: () => void;
   initialData?: Vehicle;
   availableVehicles?: Vehicle[];
+  companies: Company[];
 }
 
-export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles = [] }: VehicleFormProps) {
+export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles = [], companies }: VehicleFormProps) {
   const [selectedBranches, setSelectedBranches] = useState<string[]>(
     initialData?.branches || ['Matriz']
   );
@@ -436,12 +437,8 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     }
   };
 
-  const availableBranches = [
-    { name: 'Matriz', cnpj: '12.345.678/0001-90' },
-    { name: 'Filial SP', cnpj: '12.345.678/0002-71' },
-    { name: 'Filial RJ', cnpj: '12.345.678/0003-52' },
-    { name: 'Filial MG', cnpj: '12.345.678/0004-33' }
-  ];
+  // Filtrar apenas empresas ativas
+  const availableBranches = companies.filter(c => c.active);
 
   return (
     <Form {...form}>
@@ -1053,7 +1050,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     </FormControl>
                     <SelectContent>
                       {availableBranches.map((branch) => (
-                        <SelectItem key={branch.name} value={branch.name}>
+                        <SelectItem key={branch.id} value={branch.id}>
                           {branch.name} - {branch.cnpj}
                         </SelectItem>
                       ))}
@@ -1103,7 +1100,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     </FormControl>
                     <SelectContent>
                       {availableBranches.map((branch) => (
-                        <SelectItem key={branch.name} value={branch.name}>
+                        <SelectItem key={branch.id} value={branch.id}>
                           {branch.name} - {branch.cnpj}
                         </SelectItem>
                       ))}
@@ -1122,10 +1119,10 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
           <div className="flex flex-wrap gap-2 mt-2">
             {availableBranches.map((branch) => (
               <Badge
-                key={branch.name}
-                variant={selectedBranches.includes(branch.name) ? "default" : "outline"}
+                key={branch.id}
+                variant={selectedBranches.includes(branch.id) ? "default" : "outline"}
                 className="cursor-pointer"
-                onClick={() => toggleBranch(branch.name)}
+                onClick={() => toggleBranch(branch.id)}
               >
                 {branch.name}
               </Badge>

@@ -26,7 +26,7 @@ import { SupplierForm } from '@/components/forms/SupplierForm';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Suppliers() {
-  const { suppliers, addSupplier, updateSupplier, deleteSupplier } = useMockData();
+  const { suppliers, companies, addSupplier, updateSupplier, deleteSupplier } = useMockData();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
@@ -36,6 +36,7 @@ export default function Suppliers() {
   const [viewingSupplier, setViewingSupplier] = useState<Supplier | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const allSuppliers = suppliers();
+  const allCompanies = companies();
 
   const handleSubmit = (data: any) => {
     if (editingSupplier) {
@@ -134,6 +135,7 @@ export default function Suppliers() {
               onSubmit={handleSubmit}
               onCancel={handleDialogClose}
               initialData={editingSupplier}
+              companies={allCompanies}
             />
           </DialogContent>
         </Dialog>

@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
-import { Supplier } from '@/hooks/useMockData';
+import { Supplier, Company } from '@/hooks/useMockData';
 
 const supplierSchema = z.object({
   cnpj: z.string().regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, 'CNPJ inválido (formato: 00.000.000/0000-00)'),
@@ -40,9 +40,10 @@ interface SupplierFormProps {
   onSubmit: (data: Omit<Supplier, 'id'>) => void;
   onCancel: () => void;
   initialData?: Supplier;
+  companies: Company[];
 }
 
-export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormProps) {
+export function SupplierForm({ onSubmit, onCancel, initialData, companies }: SupplierFormProps) {
   const [selectedBranches, setSelectedBranches] = useState<string[]>(
     initialData?.branches || ['Matriz']
   );
@@ -91,22 +92,18 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
     });
   };
 
-  const toggleBranch = (branchName: string) => {
-    if (selectedBranches.includes(branchName)) {
+  const toggleBranch = (branchId: string) => {
+    if (selectedBranches.includes(branchId)) {
       if (selectedBranches.length > 1) {
-        setSelectedBranches(selectedBranches.filter(b => b !== branchName));
+        setSelectedBranches(selectedBranches.filter(b => b !== branchId));
       }
     } else {
-      setSelectedBranches([...selectedBranches, branchName]);
+      setSelectedBranches([...selectedBranches, branchId]);
     }
   };
 
-  const availableBranches = [
-    { name: 'Matriz', cnpj: '12.345.678/0001-90' },
-    { name: 'Filial SP', cnpj: '12.345.678/0002-71' },
-    { name: 'Filial RJ', cnpj: '12.345.678/0003-52' },
-    { name: 'Filial MG', cnpj: '12.345.678/0004-33' }
-  ];
+  // Filtrar apenas empresas ativas
+  const availableBranches = companies.filter(c => c.active);
 
   return (
     <Form {...form}>
@@ -285,10 +282,10 @@ export function SupplierForm({ onSubmit, onCancel, initialData }: SupplierFormPr
           <div className="flex flex-col gap-2 mt-2">
             {availableBranches.map((branch) => (
               <Badge
-                key={branch.name}
-                variant={selectedBranches.includes(branch.name) ? "default" : "outline"}
+                key={branch.id}
+                variant={selectedBranches.includes(branch.id) ? "default" : "outline"}
                 className="cursor-pointer justify-start py-2 px-3"
-                onClick={() => toggleBranch(branch.name)}
+                onClick={() => toggleBranch(branch.id)}
               >
                 <span className="font-medium">{branch.name}</span>
                 <span className="ml-2 text-xs opacity-70">- {branch.cnpj}</span>

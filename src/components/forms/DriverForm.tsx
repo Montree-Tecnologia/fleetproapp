@@ -27,7 +27,7 @@ import {
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Driver } from '@/hooks/useMockData';
+import { Driver, Company } from '@/hooks/useMockData';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 
@@ -50,9 +50,10 @@ interface DriverFormProps {
   onCancel: () => void;
   initialData?: Driver;
   existingCpfs?: string[];
+  companies: Company[];
 }
 
-export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [] }: DriverFormProps) {
+export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [], companies }: DriverFormProps) {
   const [selectedBranches, setSelectedBranches] = useState<string[]>(
     initialData?.branches || ['Matriz']
   );
@@ -116,7 +117,8 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [] 
     }
   };
 
-  const availableBranches = ['Matriz', 'Filial SP', 'Filial RJ', 'Filial MG'];
+  // Filtrar apenas empresas ativas
+  const availableBranches = companies.filter(c => c.active);
 
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, '');
@@ -287,12 +289,12 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [] 
           <div className="flex flex-wrap gap-2 mt-2">
             {availableBranches.map((branch) => (
               <Badge
-                key={branch}
-                variant={selectedBranches.includes(branch) ? "default" : "outline"}
+                key={branch.id}
+                variant={selectedBranches.includes(branch.id) ? "default" : "outline"}
                 className="cursor-pointer"
-                onClick={() => toggleBranch(branch)}
+                onClick={() => toggleBranch(branch.id)}
               >
-                {branch}
+                {branch.name}
               </Badge>
             ))}
           </div>
