@@ -347,8 +347,8 @@ export default function Refrigeration() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-2 items-end">
-                    {getTypeBadge(unit.type)}
                     {getStatusBadge(unit.status)}
+                    {getTypeBadge(unit.type)}
                   </div>
                 </div>
               </CardHeader>
