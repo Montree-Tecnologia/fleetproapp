@@ -44,6 +44,7 @@ const userSchema = z.object({
   email: z.string().trim().email('E-mail inválido').max(255, 'E-mail muito longo'),
   role: z.enum(['admin', 'manager', 'operator']),
   company: z.string().trim().min(1, 'Selecione a empresa de vínculo').max(100, 'Nome muito longo'),
+  password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').max(50, 'Senha muito longa'),
 });
 
 export default function Users() {
@@ -58,6 +59,7 @@ export default function Users() {
     email: string;
     role: 'admin' | 'manager' | 'operator';
     company: string;
+    password: string;
     linkedCompanies: string[];
     hasAccessToAllCompanies: boolean;
     customPermissions: UserPermissions;
@@ -66,6 +68,7 @@ export default function Users() {
     email: '',
     role: 'manager',
     company: '',
+    password: '',
     linkedCompanies: [],
     hasAccessToAllCompanies: false,
     customPermissions: {},
@@ -80,7 +83,12 @@ export default function Users() {
     e.preventDefault();
     
     try {
-      const validatedData = userSchema.parse(formData);
+      // Validar senha apenas ao criar usuário novo
+      const schemaToUse = editingUser 
+        ? userSchema.omit({ password: true })
+        : userSchema;
+      
+      const validatedData = schemaToUse.parse(formData);
       
       if (allUsers.some(u => u.email === validatedData.email && u.id !== editingUser?.id)) {
         setErrors({ email: 'E-mail já cadastrado' });
@@ -116,7 +124,7 @@ export default function Users() {
 
         toast({
           title: 'Usuário criado',
-          description: `${validatedData.name} foi adicionado com sucesso.`,
+          description: `${validatedData.name} foi adicionado com sucesso. Senha provisória definida.`,
         });
       }
 
@@ -141,6 +149,7 @@ export default function Users() {
       email: user.email,
       role: user.role,
       company: user.company,
+      password: '',
       linkedCompanies: user.linkedCompanies || [],
       hasAccessToAllCompanies: user.hasAccessToAllCompanies || false,
       customPermissions: user.customPermissions || {},
@@ -157,6 +166,7 @@ export default function Users() {
       email: '',
       role: 'manager',
       company: '',
+      password: '',
       linkedCompanies: [],
       hasAccessToAllCompanies: false,
       customPermissions: {},
@@ -358,6 +368,29 @@ export default function Users() {
                       <p className="text-sm text-destructive">{errors.company}</p>
                     )}
                   </div>
+
+                  {!editingUser && (
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Senha Provisória *</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={(e) => {
+                          setFormData({ ...formData, password: e.target.value });
+                          setErrors({ ...errors, password: '' });
+                        }}
+                        placeholder="Mínimo 6 caracteres"
+                        maxLength={50}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Senha que o usuário usará no primeiro acesso
+                      </p>
+                      {errors.password && (
+                        <p className="text-sm text-destructive">{errors.password}</p>
+                      )}
+                    </div>
+                  )}
 
                   <div className="space-y-3">
                     <Label>Acesso às Empresas *</Label>
