@@ -115,7 +115,10 @@ export function VehicleCard({
     return false;
   })();
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className={cn(
+      "hover:shadow-lg transition-shadow",
+      vehicle.status === 'sold' && "opacity-60 grayscale"
+    )}>
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">

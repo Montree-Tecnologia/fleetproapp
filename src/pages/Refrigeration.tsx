@@ -331,7 +331,10 @@ export default function Refrigeration() {
           const vehicle = allVehicles.find(v => v.id === unit.vehicleId);
           const stats = getRefrigerationStats(unit.id, unit.initialUsageHours || 0);
           return (
-            <Card key={unit.id} className="hover:shadow-lg transition-shadow">
+            <Card key={unit.id} className={cn(
+              "hover:shadow-lg transition-shadow",
+              unit.status === 'sold' && "opacity-60 grayscale"
+            )}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
