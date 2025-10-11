@@ -65,13 +65,16 @@ export default function Refuelings() {
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [selectedVehicle, setSelectedVehicle] = useState<string>('all');
   const [selectedRefrigerationUnit, setSelectedRefrigerationUnit] = useState<string>('all');
+  const [selectedVehicleInRefrigeration, setSelectedVehicleInRefrigeration] = useState<string>('all');
   const [selectedDriver, setSelectedDriver] = useState<string>('all');
   const [selectedSupplier, setSelectedSupplier] = useState<string>('all');
   
   // Estados para controlar popovers dos filtros
   const [openVehicleFilter, setOpenVehicleFilter] = useState(false);
   const [openRefrigerationFilter, setOpenRefrigerationFilter] = useState(false);
+  const [openVehicleInRefrigerationFilter, setOpenVehicleInRefrigerationFilter] = useState(false);
   const [openDriverFilter, setOpenDriverFilter] = useState(false);
+  const [openSupplierFilter, setOpenSupplierFilter] = useState(false);
   
   const allRefuelings = refuelings();
   const allVehicles = vehicles();
@@ -130,12 +133,14 @@ export default function Refuelings() {
     setEndDate(undefined);
     setSelectedVehicle('all');
     setSelectedRefrigerationUnit('all');
+    setSelectedVehicleInRefrigeration('all');
     setSelectedDriver('all');
     setSelectedSupplier('all');
   };
 
   const hasActiveFilters = startDate || endDate || selectedVehicle !== 'all' || 
-    selectedRefrigerationUnit !== 'all' || selectedDriver !== 'all' || selectedSupplier !== 'all';
+    selectedRefrigerationUnit !== 'all' || selectedVehicleInRefrigeration !== 'all' || 
+    selectedDriver !== 'all' || selectedSupplier !== 'all';
 
   // Separar abastecimentos de veículos e equipamentos de refrigeração
   const vehicleRefuelings = allRefuelings.filter(r => r.vehicleId);
@@ -184,6 +189,12 @@ export default function Refuelings() {
       
       // Filtro de equipamento de refrigeração
       if (selectedRefrigerationUnit !== 'all' && refueling.refrigerationUnitId !== selectedRefrigerationUnit) return false;
+      
+      // Filtro de veículo (vinculado ao equipamento)
+      if (selectedVehicleInRefrigeration !== 'all') {
+        const unit = allRefrigerationUnits.find(u => u.id === refueling.refrigerationUnitId);
+        if (!unit || unit.vehicleId !== selectedVehicleInRefrigeration) return false;
+      }
       
       // Filtro de motorista
       if (selectedDriver !== 'all' && refueling.driver !== selectedDriver) return false;
@@ -261,7 +272,7 @@ export default function Refuelings() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className={`grid grid-cols-1 md:grid-cols-2 ${activeTab === 'vehicles' ? 'lg:grid-cols-5' : 'lg:grid-cols-5'} gap-4`}>
+          <div className={`grid grid-cols-1 md:grid-cols-2 ${activeTab === 'vehicles' ? 'lg:grid-cols-5' : 'lg:grid-cols-6'} gap-4`}>
             {/* Filtro de Data Inicial */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Data Inicial</label>
@@ -527,22 +538,149 @@ export default function Refuelings() {
               </Popover>
             </div>
 
+            {/* Filtro de Veículo (na aba refrigeração) */}
+            {activeTab === 'refrigeration' && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Veículo</label>
+                <Popover open={openVehicleInRefrigerationFilter} onOpenChange={setOpenVehicleInRefrigerationFilter}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "w-full justify-between",
+                        selectedVehicleInRefrigeration === 'all' && "text-muted-foreground"
+                      )}
+                    >
+                      {selectedVehicleInRefrigeration === 'all' ? (
+                        <span>Todos</span>
+                      ) : (
+                        (() => {
+                          const vehicle = allVehicles.find(v => v.id === selectedVehicleInRefrigeration);
+                          return vehicle ? `${vehicle.plate} - ${vehicle.model}` : 'Todos';
+                        })()
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[300px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar veículo..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum veículo encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="all"
+                            onSelect={() => {
+                              setSelectedVehicleInRefrigeration('all');
+                              setOpenVehicleInRefrigerationFilter(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedVehicleInRefrigeration === 'all' ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            Todos
+                          </CommandItem>
+                          {allVehicles.map((vehicle) => (
+                            <CommandItem
+                              key={vehicle.id}
+                              value={`${vehicle.plate} ${vehicle.model}`}
+                              onSelect={() => {
+                                setSelectedVehicleInRefrigeration(vehicle.id);
+                                setOpenVehicleInRefrigerationFilter(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  vehicle.id === selectedVehicleInRefrigeration ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {vehicle.plate} - {vehicle.model}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
+
             {/* Filtro de Fornecedor */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Fornecedor</label>
-              <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  {allSuppliers.filter(s => s.type === 'gas_station').map((supplier) => (
-                    <SelectItem key={supplier.id} value={supplier.id}>
-                      {supplier.fantasyName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={openSupplierFilter} onOpenChange={setOpenSupplierFilter}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className={cn(
+                      "w-full justify-between",
+                      selectedSupplier === 'all' && "text-muted-foreground"
+                    )}
+                  >
+                    {selectedSupplier === 'all' ? (
+                      <span>Todos</span>
+                    ) : (
+                      (() => {
+                        const supplier = allSuppliers.find(s => s.id === selectedSupplier);
+                        return supplier ? supplier.fantasyName : 'Todos';
+                      })()
+                    )}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[350px] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Buscar fornecedor..." />
+                    <CommandList>
+                      <CommandEmpty>Nenhum fornecedor encontrado.</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="all"
+                          onSelect={() => {
+                            setSelectedSupplier('all');
+                            setOpenSupplierFilter(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedSupplier === 'all' ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          Todos
+                        </CommandItem>
+                        {allSuppliers.filter(s => s.type === 'gas_station').map((supplier) => (
+                          <CommandItem
+                            key={supplier.id}
+                            value={`${supplier.fantasyName} ${supplier.cnpj}`}
+                            onSelect={() => {
+                              setSelectedSupplier(supplier.id);
+                              setOpenSupplierFilter(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                supplier.id === selectedSupplier ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            <div className="flex flex-col gap-1">
+                              <div className="font-medium">{supplier.fantasyName}</div>
+                              <div className="text-xs text-muted-foreground">CNPJ: {supplier.cnpj}</div>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </CardContent>
