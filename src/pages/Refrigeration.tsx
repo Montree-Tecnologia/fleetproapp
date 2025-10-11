@@ -740,7 +740,7 @@ export default function Refrigeration() {
                 setSaleDialogOpen(false);
                 setSellingUnit(null);
               }}
-              currentUsageHours={sellingUnit.initialUsageHours || 0}
+              initialUsageHours={sellingUnit.initialUsageHours || 0}
             />
           )}
         </DialogContent>

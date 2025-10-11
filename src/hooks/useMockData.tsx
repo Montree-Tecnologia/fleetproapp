@@ -101,7 +101,6 @@ export interface RefrigerationUnit {
   status: 'active' | 'defective' | 'maintenance' | 'sold';
   previousStatus?: 'active' | 'defective' | 'maintenance';
   initialUsageHours?: number;
-  currentUsageHours?: number;
   fuelType?: string;
   saleInfo?: RefrigerationSale;
 }

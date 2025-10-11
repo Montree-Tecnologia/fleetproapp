@@ -47,10 +47,10 @@ export interface RefrigerationSale {
 interface RefrigerationSaleFormProps {
   onSubmit: (data: RefrigerationSale) => void;
   onCancel: () => void;
-  currentUsageHours: number;
+  initialUsageHours: number;
 }
 
-export function RefrigerationSaleForm({ onSubmit, onCancel, currentUsageHours }: RefrigerationSaleFormProps) {
+export function RefrigerationSaleForm({ onSubmit, onCancel, initialUsageHours }: RefrigerationSaleFormProps) {
   const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>();
   const [transferDocument, setTransferDocument] = useState<string | undefined>();
   
@@ -58,7 +58,7 @@ export function RefrigerationSaleForm({ onSubmit, onCancel, currentUsageHours }:
     resolver: zodResolver(saleSchema),
     defaultValues: {
       saleDate: new Date(),
-      usageHours: currentUsageHours,
+      usageHours: initialUsageHours,
       salePrice: 0,
     },
   });
@@ -94,9 +94,9 @@ export function RefrigerationSaleForm({ onSubmit, onCancel, currentUsageHours }:
   };
 
   const handleSubmit = (data: RefrigerationSaleFormData) => {
-    if (data.usageHours < currentUsageHours) {
+    if (data.usageHours < initialUsageHours) {
       form.setError('usageHours', { 
-        message: `Horas de uso devem ser maiores ou iguais às horas atuais (${currentUsageHours.toLocaleString('pt-BR')})` 
+        message: `Horas de uso devem ser maiores ou iguais às horas de compra (${initialUsageHours.toLocaleString('pt-BR')})` 
       });
       return;
     }

@@ -204,15 +204,6 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
         });
         return;
       }
-    } else if (data.entityType === 'refrigeration') {
-      const unit = refrigerationUnits.find(u => u.id === data.refrigerationUnitId);
-      
-      if (unit && data.usageHours && unit.currentUsageHours && data.usageHours < unit.currentUsageHours) {
-        form.setError('usageHours', { 
-          message: `Horas devem ser maiores ou iguais às horas atuais (${unit.currentUsageHours.toLocaleString('pt-BR')})` 
-        });
-        return;
-      }
     }
 
     const totalValue = data.liters * data.pricePerLiter;

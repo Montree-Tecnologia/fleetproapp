@@ -55,7 +55,6 @@ const refrigerationSchema = z.object({
   purchaseValue: z.number().min(0).optional(),
   supplierId: z.string().optional(),
   initialUsageHours: z.number().min(0, 'Horas de uso não podem ser negativas').max(999999, 'Valor muito alto').optional(),
-  currentUsageHours: z.number().min(0, 'Horas de uso não podem ser negativas').max(999999, 'Valor muito alto').optional(),
   fuelType: z.string().optional(),
 }).refine((data) => data.maxTemp > data.minTemp, {
   message: 'Temperatura máxima deve ser maior que a mínima',
@@ -107,7 +106,6 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
       purchaseValue: initialData.purchaseValue,
       supplierId: initialData.supplierId,
       initialUsageHours: initialData.initialUsageHours,
-      currentUsageHours: initialData.currentUsageHours,
       fuelType: initialData.fuelType,
     } : {
       companyId: '',
@@ -117,7 +115,6 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
       status: 'maintenance',
       installDate: new Date(),
       initialUsageHours: 0,
-      currentUsageHours: 0,
     },
   });
 
@@ -153,7 +150,6 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
       supplierId: data.supplierId,
       purchaseInvoice: purchaseInvoice,
       initialUsageHours: data.initialUsageHours,
-      currentUsageHours: data.currentUsageHours,
       fuelType: data.fuelType,
     });
   };
@@ -511,28 +507,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
             name="initialUsageHours"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Horas de Uso Inicial</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    step="1"
-                    min="0"
-                    placeholder="0"
-                    {...field} 
-                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="currentUsageHours"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Horas de Uso Atuais</FormLabel>
+                <FormLabel>Horas de Uso de Compra</FormLabel>
                 <FormControl>
                   <Input 
                     type="number" 
