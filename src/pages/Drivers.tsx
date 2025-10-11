@@ -542,7 +542,7 @@ export default function Drivers() {
                   </Button>
                   <Button
                     size="sm"
-                    variant={driver.active ? 'destructive' : 'default'}
+                    variant={driver.active ? 'secondary' : 'default'}
                     className="flex-1"
                     onClick={() => handleToggleActive(driver.id, driver.active)}
                   >
