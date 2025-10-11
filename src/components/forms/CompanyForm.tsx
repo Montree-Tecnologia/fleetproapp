@@ -36,9 +36,10 @@ type CompanyFormValues = z.infer<typeof companySchema>;
 interface CompanyFormProps {
   initialData?: Company;
   onSuccess: () => void;
+  onCancel?: () => void;
 }
 
-export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
+export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormProps) {
   const { addCompany, updateCompany, companies } = useMockData();
   const { toast } = useToast();
   const allCompanies = companies();
@@ -278,6 +279,11 @@ export function CompanyForm({ initialData, onSuccess }: CompanyFormProps) {
         </div>
 
         <div className="flex justify-end gap-2">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancelar
+            </Button>
+          )}
           <Button type="submit">Salvar</Button>
         </div>
       </form>

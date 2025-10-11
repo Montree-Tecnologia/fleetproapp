@@ -121,7 +121,8 @@ export default function Companies() {
             </DialogHeader>
             <CompanyForm 
               initialData={editingCompany || undefined}
-              onSuccess={() => handleDialogClose(false)} 
+              onSuccess={() => handleDialogClose(false)}
+              onCancel={() => handleDialogClose(false)}
             />
           </DialogContent>
         </Dialog>
