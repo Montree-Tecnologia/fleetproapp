@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2 } from 'lucide-react';
+import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2, Check, ChevronsUpDown } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -31,6 +44,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { RefrigerationForm } from '@/components/forms/RefrigerationForm';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 export default function Refrigeration() {
   const { refrigerationUnits, vehicles, suppliers, companies, addRefrigerationUnit, updateRefrigerationUnit, deleteRefrigerationUnit } = useMockData();
@@ -42,6 +56,7 @@ export default function Refrigeration() {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [viewingUnit, setViewingUnit] = useState<RefrigerationUnit | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [openVehicleLink, setOpenVehicleLink] = useState<{[key: string]: boolean}>({});
   const allUnits = refrigerationUnits();
   const allVehicles = vehicles();
   const allSuppliers = suppliers();
@@ -276,22 +291,73 @@ export default function Refrigeration() {
 
                 <div className="pt-3 border-t border-border">
                   <p className="text-sm text-muted-foreground mb-2">Vincular a Veículo:</p>
-                  <Select
-                    value={unit.vehicleId || 'none'}
-                    onValueChange={(value) => handleVehicleLink(unit.id, value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sem vínculo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">Sem vínculo</SelectItem>
-                      {allVehicles.map((vehicle) => (
-                        <SelectItem key={vehicle.id} value={vehicle.id}>
-                          {vehicle.plate} - {vehicle.model}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={openVehicleLink[unit.id] || false} onOpenChange={(open) => setOpenVehicleLink({...openVehicleLink, [unit.id]: open})}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {unit.vehicleId
+                          ? (() => {
+                              const vehicle = allVehicles.find(v => v.id === unit.vehicleId);
+                              return vehicle ? `${vehicle.plate} - ${vehicle.model}` : "Sem vínculo";
+                            })()
+                          : "Sem vínculo"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Buscar veículo por placa..." />
+                        <CommandList>
+                          <CommandEmpty>Nenhum veículo encontrado.</CommandEmpty>
+                          <CommandGroup>
+                            <CommandItem
+                              value="none"
+                              onSelect={() => {
+                                handleVehicleLink(unit.id, 'none');
+                                setOpenVehicleLink({...openVehicleLink, [unit.id]: false});
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  !unit.vehicleId ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              Sem vínculo
+                            </CommandItem>
+                            {allVehicles.map((vehicle) => (
+                              <CommandItem
+                                key={vehicle.id}
+                                value={`${vehicle.plate} ${vehicle.model} ${vehicle.brand} ${vehicle.vehicleType}`}
+                                onSelect={() => {
+                                  handleVehicleLink(unit.id, vehicle.id);
+                                  setOpenVehicleLink({...openVehicleLink, [unit.id]: false});
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    vehicle.id === unit.vehicleId ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex flex-col gap-0.5">
+                                  <div className="font-semibold">
+                                    {vehicle.plate}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {vehicle.brand} {vehicle.model} | {vehicle.vehicleType}
+                                  </div>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div className="pt-3 border-t border-border">
