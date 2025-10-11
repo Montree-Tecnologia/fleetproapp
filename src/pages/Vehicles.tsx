@@ -390,14 +390,7 @@ export default function Vehicles() {
 
       <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="relative">
-            <div className="absolute top-0 right-0">
-              {viewingVehicle && (
-                <div className="scale-125">
-                  {getStatusBadge(viewingVehicle.status)}
-                </div>
-              )}
-            </div>
+          <DialogHeader>
             <DialogTitle>Detalhes do Veículo - {viewingVehicle?.plate}</DialogTitle>
             <DialogDescription>
               Informações completas do veículo
@@ -460,6 +453,10 @@ export default function Vehicles() {
                   <div>
                     <span className="text-muted-foreground">Cor:</span>
                     <p className="font-medium">{viewingVehicle.color}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <p className="font-medium inline-flex">{getStatusBadge(viewingVehicle.status)}</p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">KM Atual:</span>
