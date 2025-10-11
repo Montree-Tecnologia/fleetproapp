@@ -174,8 +174,8 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
                     <SelectItem value="gas_station">Posto de Combustível</SelectItem>
                     <SelectItem value="workshop">Oficina</SelectItem>
                     <SelectItem value="dealer">Concessionária</SelectItem>
-                    <SelectItem value="parts_store">Loja de Peças e Componentes</SelectItem>
-                    <SelectItem value="tire_store">Loja de Pneus</SelectItem>
+                    <SelectItem value="parts_store">Peças e Componentes</SelectItem>
+                    <SelectItem value="tire_store">Pneus</SelectItem>
                     <SelectItem value="refrigeration_equipment">Equipamentos de Refrigeração</SelectItem>
                     <SelectItem value="other">Outros</SelectItem>
                   </SelectContent>

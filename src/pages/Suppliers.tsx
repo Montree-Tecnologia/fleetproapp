@@ -106,8 +106,8 @@ export default function Suppliers() {
       gas_station: 'Posto de Combustível',
       workshop: 'Oficina',
       dealer: 'Concessionária',
-      parts_store: 'Loja de Peças e Componentes',
-      tire_store: 'Loja de Pneus',
+      parts_store: 'Peças e Componentes',
+      tire_store: 'Pneus',
       refrigeration_equipment: 'Equipamentos de Refrigeração',
       other: 'Outros'
     };
