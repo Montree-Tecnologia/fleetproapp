@@ -130,6 +130,23 @@ export function Layout() {
             </NavLink>
           )}
 
+          {/* Abastecimentos (Refuelings) */}
+          {hasPermission(refuelingsItem.permission) && (
+            <NavLink
+              to={refuelingsItem.to}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+                  isActive
+                    ? 'bg-sidebar-accent text-sidebar-primary font-medium'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+                }`
+              }
+            >
+              <refuelingsItem.icon className="h-5 w-5 flex-shrink-0" />
+              {sidebarOpen && <span>{refuelingsItem.label}</span>}
+            </NavLink>
+          )}
+
           {/* Cadastros Collapsible Group */}
           {filteredCadastrosItems.length > 0 && (
             <Collapsible
@@ -173,23 +190,6 @@ export function Layout() {
                 ))}
               </CollapsibleContent>
             </Collapsible>
-          )}
-
-          {/* Abastecimentos (Refuelings) */}
-          {hasPermission(refuelingsItem.permission) && (
-            <NavLink
-              to={refuelingsItem.to}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                  isActive
-                    ? 'bg-sidebar-accent text-sidebar-primary font-medium'
-                    : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
-                }`
-              }
-            >
-              <refuelingsItem.icon className="h-5 w-5 flex-shrink-0" />
-              {sidebarOpen && <span>{refuelingsItem.label}</span>}
-            </NavLink>
           )}
         </nav>
 
