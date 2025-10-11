@@ -1077,7 +1077,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
                   <SelectItem value="none">Nenhum</SelectItem>
-                  {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop')).map((supplier) => (
+                  {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
                     <SelectItem key={supplier.id} value={supplier.id}>
                       {supplier.fantasyName} - {supplier.city}/{supplier.state}
                     </SelectItem>
@@ -1147,7 +1147,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 </SelectTrigger>
                 <SelectContent className="bg-background z-50">
                   <SelectItem value="none">Nenhum</SelectItem>
-                  {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop')).map((supplier) => (
+                  {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
                     <SelectItem key={supplier.id} value={supplier.id}>
                       {supplier.fantasyName} - {supplier.city}/{supplier.state}
                     </SelectItem>
