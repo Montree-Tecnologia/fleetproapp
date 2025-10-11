@@ -367,10 +367,17 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                       <SelectValue placeholder="Selecione o motorista" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="max-h-[300px]">
                     {drivers.map((driver) => (
-                      <SelectItem key={driver.id} value={driver.name}>
-                        {driver.name}
+                      <SelectItem key={driver.id} value={driver.name} className="py-3">
+                        <div className="flex flex-col gap-1">
+                          <div className="font-semibold">
+                            {driver.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            CPF: {driver.cpf}
+                          </div>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
