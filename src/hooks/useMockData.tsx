@@ -273,6 +273,61 @@ const mockDrivers: Driver[] = [
     active: true,
     branches: ['Matriz'],
     cnhDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
+  },
+  {
+    id: '11',
+    name: 'Thiago Mendes',
+    cpf: '852.963.741-00',
+    birthDate: '1990-08-12',
+    cnhCategory: 'E',
+    cnhValidity: '2027-02-14',
+    active: true,
+    branches: ['Filial MG'],
+    cnhDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
+  },
+  {
+    id: '12',
+    name: 'Diego Martins',
+    cpf: '963.741.852-00',
+    birthDate: '1988-12-30',
+    cnhCategory: 'E',
+    cnhValidity: '2026-10-05',
+    active: true,
+    branches: ['Filial RJ', 'Filial MG'],
+    cnhDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
+  },
+  {
+    id: '13',
+    name: 'Paulo Henrique',
+    cpf: '159.753.486-00',
+    birthDate: '1986-04-22',
+    cnhCategory: 'E',
+    cnhValidity: '2028-06-18',
+    active: true,
+    branches: ['Matriz', 'Filial SP', 'Filial RJ'],
+    cnhDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
+  },
+  {
+    id: '14',
+    name: 'Vinícius Araújo',
+    cpf: '357.159.246-00',
+    birthDate: '1992-01-17',
+    cnhCategory: 'D',
+    cnhValidity: '2027-08-25',
+    active: false,
+    branches: ['Filial SP'],
+    cnhDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
+  },
+  {
+    id: '15',
+    name: 'Bruno Cardoso',
+    cpf: '246.135.789-00',
+    birthDate: '1987-09-09',
+    cnhCategory: 'E',
+    cnhValidity: '2026-12-12',
+    active: false,
+    branches: ['Matriz'],
+    cnhDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
   }
 ];
 
@@ -839,9 +894,49 @@ const mockVehicles: Vehicle[] = [
     compositionAxles: [3],
     purchaseDate: '2023-06-05',
     purchaseValue: 710000,
+    supplierId: '5',
     images: [
       'https://images.unsplash.com/photo-1622021142947-da7dedc7c39a?w=800&q=80'
-    ]
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
+  },
+  {
+    id: '22',
+    plate: 'IJK-9012',
+    chassis: '9BWZZZ377VT004272',
+    renavam: '00123456810',
+    brand: 'Mercedes-Benz',
+    model: 'Actros 2651',
+    manufacturingYear: 2019,
+    modelYear: 2020,
+    color: 'Azul',
+    vehicleType: 'Cavalo Mecânico',
+    status: 'sold',
+    purchaseKm: 180000,
+    currentKm: 285000,
+    fuelType: 'Diesel S10',
+    axles: 3,
+    weight: 8.2,
+    branches: ['Matriz'],
+    ownerBranch: 'Matriz',
+    hasComposition: false,
+    purchaseDate: '2020-05-10',
+    purchaseValue: 520000,
+    supplierId: '5',
+    previousStatus: 'active',
+    images: [
+      'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&q=80'
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80',
+    saleInfo: {
+      buyerName: 'Logística Brasil Transportes Ltda',
+      buyerCpfCnpj: '78.912.345/0001-67',
+      saleDate: '2024-10-15',
+      km: 285000,
+      salePrice: 380000,
+      paymentReceipt: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
+      transferDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
+    }
   }
 ];
 
@@ -992,6 +1087,204 @@ const mockRefuelings: Refueling[] = [
     fuelType: 'Diesel S500',
     supplierId: '2',
     driver: 'João Pereira'
+  },
+  // Abastecimentos do veículo 17 (TUV-4567)
+  {
+    id: '13',
+    vehicleId: '17',
+    date: '2025-01-16',
+    km: 68000,
+    liters: 330,
+    pricePerLiter: 5.91,
+    totalValue: 1950.30,
+    fuelType: 'Diesel S10',
+    supplierId: '3',
+    driver: 'Carlos Santos'
+  },
+  {
+    id: '14',
+    vehicleId: '17',
+    date: '2025-01-09',
+    km: 66200,
+    liters: 325,
+    pricePerLiter: 5.94,
+    totalValue: 1930.50,
+    fuelType: 'Diesel S10',
+    supplierId: '10',
+    driver: 'Carlos Santos'
+  },
+  {
+    id: '15',
+    vehicleId: '17',
+    date: '2025-01-02',
+    km: 64500,
+    liters: 320,
+    pricePerLiter: 5.87,
+    totalValue: 1878.40,
+    fuelType: 'Diesel S10',
+    supplierId: '11',
+    driver: 'Carlos Santos'
+  },
+  // Abastecimentos do veículo 19 (ZAB-6789)
+  {
+    id: '16',
+    vehicleId: '19',
+    date: '2025-01-15',
+    km: 168000,
+    liters: 340,
+    pricePerLiter: 5.88,
+    totalValue: 1999.20,
+    fuelType: 'Diesel S10',
+    supplierId: '3',
+    driver: 'Thiago Mendes'
+  },
+  {
+    id: '17',
+    vehicleId: '19',
+    date: '2025-01-08',
+    km: 165800,
+    liters: 335,
+    pricePerLiter: 5.92,
+    totalValue: 1983.20,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Thiago Mendes'
+  },
+  {
+    id: '18',
+    vehicleId: '19',
+    date: '2025-01-01',
+    km: 163600,
+    liters: 330,
+    pricePerLiter: 5.85,
+    totalValue: 1930.50,
+    fuelType: 'Diesel S10',
+    supplierId: '3',
+    driver: 'Thiago Mendes'
+  },
+  // Abastecimentos de equipamento de refrigeração 1
+  {
+    id: '19',
+    refrigerationUnitId: '1',
+    date: '2025-01-14',
+    usageHours: 3250,
+    liters: 25,
+    pricePerLiter: 6.20,
+    totalValue: 155.00,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Carlos Santos'
+  },
+  {
+    id: '20',
+    refrigerationUnitId: '1',
+    date: '2025-01-07',
+    usageHours: 3180,
+    liters: 24,
+    pricePerLiter: 6.25,
+    totalValue: 150.00,
+    fuelType: 'Diesel S10',
+    supplierId: '10',
+    driver: 'Carlos Santos'
+  },
+  {
+    id: '21',
+    refrigerationUnitId: '1',
+    date: '2024-12-31',
+    usageHours: 3115,
+    liters: 23,
+    pricePerLiter: 6.18,
+    totalValue: 142.14,
+    fuelType: 'Diesel S10',
+    supplierId: '11',
+    driver: 'Carlos Santos'
+  },
+  // Abastecimentos de equipamento de refrigeração 2
+  {
+    id: '22',
+    refrigerationUnitId: '2',
+    date: '2025-01-13',
+    usageHours: 4580,
+    liters: 22,
+    pricePerLiter: 6.22,
+    totalValue: 136.84,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Pedro Lima'
+  },
+  {
+    id: '23',
+    refrigerationUnitId: '2',
+    date: '2025-01-06',
+    usageHours: 4515,
+    liters: 21,
+    pricePerLiter: 6.28,
+    totalValue: 131.88,
+    fuelType: 'Diesel S10',
+    supplierId: '3',
+    driver: 'Pedro Lima'
+  },
+  {
+    id: '24',
+    refrigerationUnitId: '2',
+    date: '2024-12-30',
+    usageHours: 4450,
+    liters: 22,
+    pricePerLiter: 6.15,
+    totalValue: 135.30,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Pedro Lima'
+  },
+  // Abastecimentos do veículo 4 (JKL-2345)
+  {
+    id: '25',
+    vehicleId: '4',
+    date: '2025-01-11',
+    km: 98500,
+    liters: 300,
+    pricePerLiter: 5.90,
+    totalValue: 1770.00,
+    fuelType: 'Diesel S10',
+    supplierId: '10',
+    driver: 'Roberto Silva'
+  },
+  {
+    id: '26',
+    vehicleId: '4',
+    date: '2025-01-04',
+    km: 96800,
+    liters: 295,
+    pricePerLiter: 5.93,
+    totalValue: 1749.35,
+    fuelType: 'Diesel S10',
+    supplierId: '11',
+    driver: 'Roberto Silva'
+  },
+  // Abastecimentos do veículo 5 (MNO-3456)
+  {
+    id: '27',
+    vehicleId: '5',
+    date: '2025-01-10',
+    km: 142000,
+    liters: 310,
+    pricePerLiter: 5.89,
+    totalValue: 1825.90,
+    fuelType: 'Diesel S10',
+    supplierId: '3',
+    driver: 'Marcos Costa'
+  },
+  {
+    id: '28',
+    vehicleId: '5',
+    date: '2025-01-03',
+    km: 140200,
+    liters: 305,
+    pricePerLiter: 5.92,
+    totalValue: 1805.60,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Marcos Costa'
   }
 ];
 
@@ -1009,6 +1302,9 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     installDate: '2022-03-20',
     purchaseDate: '2022-03-15',
     purchaseValue: 85000,
+    supplierId: '9',
+    initialUsageHours: 2800,
+    fuelType: 'Diesel S10',
     status: 'active'
   },
   {
@@ -1024,6 +1320,9 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     installDate: '2021-09-01',
     purchaseDate: '2021-08-25',
     purchaseValue: 72000,
+    supplierId: '9',
+    initialUsageHours: 4200,
+    fuelType: 'Diesel S10',
     status: 'active'
   },
   {
@@ -1036,6 +1335,11 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     minTemp: -20,
     maxTemp: -15,
     installDate: '2023-05-15',
+    purchaseDate: '2023-05-10',
+    purchaseValue: 78000,
+    supplierId: '9',
+    initialUsageHours: 850,
+    fuelType: 'Diesel S10',
     status: 'maintenance'
   },
   {
@@ -1051,6 +1355,9 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     installDate: '2023-01-15',
     purchaseDate: '2023-01-10',
     purchaseValue: 90000,
+    supplierId: '9',
+    initialUsageHours: 1200,
+    fuelType: 'Diesel S10',
     status: 'active'
   },
   {
@@ -1066,6 +1373,9 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     installDate: '2023-02-15',
     purchaseDate: '2023-02-10',
     purchaseValue: 45000,
+    supplierId: '9',
+    initialUsageHours: 950,
+    fuelType: 'Diesel S10',
     status: 'active'
   },
   {
@@ -1081,7 +1391,88 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     installDate: '2022-06-20',
     purchaseDate: '2022-06-15',
     purchaseValue: 38000,
+    supplierId: '9',
+    initialUsageHours: 2100,
+    fuelType: 'Diesel S10',
     status: 'active'
+  },
+  {
+    id: '7',
+    companyId: '1',
+    brand: 'Thermo King',
+    model: 'SLXe Spectrum',
+    serialNumber: 'TK987654',
+    type: 'freezer',
+    minTemp: -28,
+    maxTemp: -20,
+    installDate: '2024-01-10',
+    purchaseDate: '2024-01-05',
+    purchaseValue: 95000,
+    supplierId: '9',
+    initialUsageHours: 150,
+    fuelType: 'Diesel S10',
+    status: 'inactive'
+  },
+  {
+    id: '8',
+    vehicleId: '13', // Baú Frigorífico HIJ-1234
+    companyId: '2',
+    brand: 'Carrier',
+    model: 'Vector 1950',
+    serialNumber: 'CR654321',
+    type: 'freezer',
+    minTemp: -25,
+    maxTemp: -18,
+    installDate: '2021-08-15',
+    purchaseDate: '2021-08-10',
+    purchaseValue: 105000,
+    supplierId: '9',
+    initialUsageHours: 5200,
+    fuelType: 'Diesel S10',
+    status: 'active'
+  },
+  {
+    id: '9',
+    companyId: '3',
+    brand: 'Thermo King',
+    model: 'C-Series',
+    serialNumber: 'TK345678',
+    type: 'cooled',
+    minTemp: -5,
+    maxTemp: 5,
+    installDate: '2023-11-20',
+    purchaseDate: '2023-11-15',
+    purchaseValue: 68000,
+    supplierId: '9',
+    initialUsageHours: 320,
+    fuelType: 'Diesel S10',
+    status: 'defective'
+  },
+  {
+    id: '10',
+    companyId: '1',
+    brand: 'Carrier',
+    model: 'Supra 850',
+    serialNumber: 'CR246813',
+    type: 'climatized',
+    minTemp: 12,
+    maxTemp: 22,
+    installDate: '2022-12-05',
+    purchaseDate: '2022-12-01',
+    purchaseValue: 52000,
+    supplierId: '9',
+    initialUsageHours: 1850,
+    fuelType: 'Diesel S10',
+    status: 'sold',
+    previousStatus: 'active',
+    saleInfo: {
+      buyerName: 'Transportes Sul Ltda',
+      buyerCpfCnpj: '45.678.912/0001-34',
+      saleDate: '2024-11-10',
+      usageHours: 2450,
+      salePrice: 38000,
+      paymentReceipt: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
+    }
   }
 ];
 
@@ -1109,6 +1500,143 @@ const mockSuppliers: Supplier[] = [
     state: 'SP',
     branches: ['Matriz'],
     active: true
+  },
+  {
+    id: '3',
+    cnpj: '45.678.912/0001-34',
+    name: 'Ipiranga Produtos de Petróleo S.A.',
+    fantasyName: 'Posto Ipiranga Dutra',
+    type: 'gas_station',
+    brand: 'Ipiranga',
+    city: 'Rio de Janeiro',
+    state: 'RJ',
+    phone: '(21) 3456-7890',
+    contactPerson: 'Maria Santos',
+    branches: ['Filial RJ'],
+    active: true
+  },
+  {
+    id: '4',
+    cnpj: '78.912.345/0001-67',
+    name: 'Oficina Mecânica Total Truck',
+    fantasyName: 'Total Truck',
+    type: 'workshop',
+    city: 'São Paulo',
+    state: 'SP',
+    phone: '(11) 4567-8901',
+    contactPerson: 'Roberto Mecânico',
+    branches: ['Matriz', 'Filial SP'],
+    active: true
+  },
+  {
+    id: '5',
+    cnpj: '32.165.498/0001-89',
+    name: 'Volvo do Brasil',
+    fantasyName: 'Concessionária Volvo SP',
+    type: 'dealer',
+    brand: 'Volvo',
+    city: 'São Paulo',
+    state: 'SP',
+    phone: '(11) 5678-9012',
+    contactPerson: 'Carlos Vendas',
+    branches: ['Matriz', 'Filial SP', 'Filial RJ'],
+    active: true
+  },
+  {
+    id: '6',
+    cnpj: '65.432.198/0001-12',
+    name: 'Scania Brasil',
+    fantasyName: 'Concessionária Scania',
+    type: 'dealer',
+    brand: 'Scania',
+    city: 'Campinas',
+    state: 'SP',
+    phone: '(19) 6789-0123',
+    contactPerson: 'Paulo Vendedor',
+    branches: ['Matriz'],
+    active: true
+  },
+  {
+    id: '7',
+    cnpj: '98.732.165/0001-45',
+    name: 'Auto Peças Brasil Ltda',
+    fantasyName: 'Auto Peças Express',
+    type: 'parts_store',
+    city: 'Belo Horizonte',
+    state: 'MG',
+    phone: '(31) 7890-1234',
+    contactPerson: 'Ana Peças',
+    branches: ['Filial MG'],
+    active: true
+  },
+  {
+    id: '8',
+    cnpj: '14.725.836/0001-78',
+    name: 'Pneus Michelin do Brasil',
+    fantasyName: 'Michelin Center',
+    type: 'tire_store',
+    brand: 'Michelin',
+    city: 'São Paulo',
+    state: 'SP',
+    phone: '(11) 8901-2345',
+    contactPerson: 'José Pneus',
+    branches: ['Matriz', 'Filial SP', 'Filial RJ', 'Filial MG'],
+    active: true
+  },
+  {
+    id: '9',
+    cnpj: '36.925.814/0001-90',
+    name: 'Thermo King Brasil',
+    fantasyName: 'Thermo King Refrigeração',
+    type: 'refrigeration_equipment',
+    brand: 'Thermo King',
+    city: 'São Paulo',
+    state: 'SP',
+    phone: '(11) 9012-3456',
+    contactPerson: 'Ricardo Técnico',
+    branches: ['Matriz', 'Filial SP'],
+    active: true
+  },
+  {
+    id: '10',
+    cnpj: '75.318.426/0001-23',
+    name: 'BR Distribuidora de Combustíveis',
+    fantasyName: 'Posto BR Via Anhanguera',
+    type: 'gas_station',
+    brand: 'BR',
+    city: 'Jundiaí',
+    state: 'SP',
+    phone: '(11) 2345-6789',
+    contactPerson: 'Fernanda Gerente',
+    branches: ['Filial SP'],
+    active: true
+  },
+  {
+    id: '11',
+    cnpj: '84.629.513/0001-56',
+    name: 'Raízen Combustíveis',
+    fantasyName: 'Posto Shell Raposo',
+    type: 'gas_station',
+    brand: 'Shell',
+    city: 'São Paulo',
+    state: 'SP',
+    phone: '(11) 3456-7891',
+    contactPerson: 'Marcos Frentista',
+    branches: ['Matriz', 'Filial SP'],
+    active: true
+  },
+  {
+    id: '12',
+    cnpj: '95.174.826/0001-67',
+    name: 'Oficina Diesel Power',
+    fantasyName: 'Diesel Power Manutenção',
+    type: 'workshop',
+    city: 'Rio de Janeiro',
+    state: 'RJ',
+    phone: '(21) 4567-8902',
+    contactPerson: 'André Mecânico',
+    branches: ['Filial RJ'],
+    active: false
   }
 ];
 
@@ -1162,6 +1690,36 @@ const mockCompanies: Company[] = [
     state: 'MG',
     matrizId: '1',
     active: true,
+  },
+  {
+    id: '4',
+    type: 'filial',
+    name: 'Filial São Paulo - Guarulhos',
+    cnpj: '12.345.678/0004-33',
+    city: 'Guarulhos',
+    state: 'SP',
+    matrizId: '1',
+    active: true,
+  },
+  {
+    id: '5',
+    type: 'filial',
+    name: 'Filial Curitiba',
+    cnpj: '12.345.678/0005-14',
+    city: 'Curitiba',
+    state: 'PR',
+    matrizId: '1',
+    active: true,
+  },
+  {
+    id: '6',
+    type: 'filial',
+    name: 'Filial Campinas',
+    cnpj: '12.345.678/0006-95',
+    city: 'Campinas',
+    state: 'SP',
+    matrizId: '1',
+    active: false,
   },
 ];
 
