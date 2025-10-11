@@ -558,11 +558,11 @@ export default function Users() {
                 </Button>
                 <Button
                   size="sm"
-                  variant={user.active ? 'outline' : 'default'}
+                  variant={user.active ? 'destructive' : 'default'}
                   className="flex-1"
                   onClick={() => handleToggleActive(user.id, user.active)}
                 >
-                  {user.active ? 'Desativar' : 'Ativar'}
+                  {user.active ? 'Inativar' : 'Ativar'}
                 </Button>
                 <Button
                   size="sm"
