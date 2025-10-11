@@ -21,17 +21,44 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 import { Supplier, Company } from '@/hooks/useMockData';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const supplierSchema = z.object({
-  cnpj: z.string().regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, 'CNPJ inválido (formato: 00.000.000/0000-00)'),
-  name: z.string().min(3, 'Razão social deve ter no mínimo 3 caracteres'),
-  fantasyName: z.string().min(3, 'Nome fantasia deve ter no mínimo 3 caracteres'),
-  type: z.enum(['gas_station', 'workshop', 'dealer', 'parts_store', 'tire_store']),
+  documentType: z.enum(['cnpj', 'cpf']).optional(),
+  cnpj: z.string().optional(),
+  cpf: z.string().optional(),
+  name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
+  fantasyName: z.string().optional(),
+  type: z.enum(['gas_station', 'workshop', 'dealer', 'parts_store', 'tire_store', 'refrigeration_equipment', 'other']),
   brand: z.string().optional(),
   city: z.string().min(1, 'Cidade é obrigatória'),
   state: z.string().length(2, 'UF deve ter 2 caracteres'),
   phone: z.string().optional(),
   contactPerson: z.string().optional(),
+}).refine((data) => {
+  // Valida CNPJ ou CPF dependendo do tipo
+  if (data.type === 'other') {
+    if (data.documentType === 'cpf') {
+      return data.cpf && /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(data.cpf);
+    } else {
+      return data.cnpj && /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/.test(data.cnpj);
+    }
+  } else {
+    return data.cnpj && /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/.test(data.cnpj);
+  }
+}, {
+  message: 'Documento inválido',
+  path: ['cnpj'],
+}).refine((data) => {
+  // Valida nome fantasia apenas para tipos que não sejam "other" com CPF
+  if (data.type === 'other' && data.documentType === 'cpf') {
+    return true; // Nome fantasia não é obrigatório
+  } else {
+    return data.fantasyName && data.fantasyName.length >= 3;
+  }
+}, {
+  message: 'Nome fantasia deve ter no mínimo 3 caracteres',
+  path: ['fantasyName'],
 });
 
 type SupplierFormData = z.infer<typeof supplierSchema>;
@@ -47,11 +74,16 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
   const [selectedBranches, setSelectedBranches] = useState<string[]>(
     initialData?.branches || ['Matriz']
   );
+  const [documentType, setDocumentType] = useState<'cnpj' | 'cpf'>(
+    initialData?.cpf ? 'cpf' : 'cnpj'
+  );
 
   const form = useForm<SupplierFormData>({
     resolver: zodResolver(supplierSchema),
     defaultValues: initialData ? {
+      documentType: initialData.cpf ? 'cpf' : 'cnpj',
       cnpj: initialData.cnpj,
+      cpf: initialData.cpf,
       name: initialData.name,
       fantasyName: initialData.fantasyName,
       type: initialData.type,
@@ -61,9 +93,13 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
       phone: initialData.phone,
       contactPerson: initialData.contactPerson,
     } : {
+      documentType: 'cnpj',
       type: 'gas_station',
     },
   });
+
+  const watchType = form.watch('type');
+  const isOtherType = watchType === 'other';
 
   const formatCNPJ = (value: string) => {
     const numbers = value.replace(/\D/g, '');
@@ -77,11 +113,23 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
     return value;
   };
 
+  const formatCPF = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 11) {
+      return numbers
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    }
+    return value;
+  };
+
   const handleSubmit = (data: SupplierFormData) => {
     onSubmit({
-      cnpj: data.cnpj,
+      cnpj: data.documentType === 'cnpj' ? data.cnpj : undefined,
+      cpf: data.documentType === 'cpf' ? data.cpf : undefined,
       name: data.name,
-      fantasyName: data.fantasyName,
+      fantasyName: (data.type === 'other' && data.documentType === 'cpf') ? undefined : data.fantasyName,
       type: data.type,
       brand: data.brand,
       city: data.city,
@@ -112,28 +160,9 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="cnpj"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CNPJ *</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="00.000.000/0000-00" 
-                    {...field}
-                    onChange={(e) => field.onChange(formatCNPJ(e.target.value))}
-                    maxLength={18}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="type"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-2">
                 <FormLabel>Tipo *</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
@@ -141,18 +170,98 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="bg-background z-50">
                     <SelectItem value="gas_station">Posto de Combustível</SelectItem>
                     <SelectItem value="workshop">Oficina</SelectItem>
                     <SelectItem value="dealer">Concessionária</SelectItem>
                     <SelectItem value="parts_store">Loja de Peças e Componentes</SelectItem>
                     <SelectItem value="tire_store">Loja de Pneus</SelectItem>
+                    <SelectItem value="refrigeration_equipment">Equipamentos de Refrigeração</SelectItem>
+                    <SelectItem value="other">Outros</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          {isOtherType && (
+            <FormField
+              control={form.control}
+              name="documentType"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>Tipo de Documento *</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setDocumentType(value as 'cnpj' | 'cpf');
+                      }}
+                      defaultValue={field.value}
+                      className="flex gap-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="cnpj" id="cnpj" />
+                        <label htmlFor="cnpj" className="text-sm font-medium cursor-pointer">
+                          CNPJ
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="cpf" id="cpf" />
+                        <label htmlFor="cpf" className="text-sm font-medium cursor-pointer">
+                          CPF
+                        </label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {(!isOtherType || documentType === 'cnpj') && (
+            <FormField
+              control={form.control}
+              name="cnpj"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>CNPJ *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="00.000.000/0000-00" 
+                      {...field}
+                      onChange={(e) => field.onChange(formatCNPJ(e.target.value))}
+                      maxLength={18}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {isOtherType && documentType === 'cpf' && (
+            <FormField
+              control={form.control}
+              name="cpf"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>CPF *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="000.000.000-00" 
+                      {...field}
+                      onChange={(e) => field.onChange(formatCPF(e.target.value))}
+                      maxLength={14}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           {form.watch('type') === 'gas_station' && (
             <FormField
@@ -167,7 +276,7 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
                         <SelectValue placeholder="Selecione a bandeira" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-background z-50">
                       <SelectItem value="Petrobras">Petrobras</SelectItem>
                       <SelectItem value="Shell">Shell</SelectItem>
                       <SelectItem value="Ipiranga">Ipiranga</SelectItem>
@@ -182,33 +291,53 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
             />
           )}
 
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>Razão Social *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Empresa LTDA" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {(!isOtherType || documentType === 'cnpj') && (
+            <>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Razão Social *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Empresa LTDA" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormField
-            control={form.control}
-            name="fantasyName"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>Nome Fantasia *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nome do estabelecimento" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              <FormField
+                control={form.control}
+                name="fantasyName"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Nome Fantasia *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nome do estabelecimento" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
+
+          {isOtherType && documentType === 'cpf' && (
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel>Nome *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nome completo" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}

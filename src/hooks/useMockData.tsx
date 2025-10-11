@@ -91,10 +91,11 @@ export interface RefrigerationUnit {
 
 export interface Supplier {
   id: string;
-  cnpj: string;
+  cnpj?: string;
+  cpf?: string;
   name: string;
-  fantasyName: string;
-  type: 'gas_station' | 'workshop' | 'dealer' | 'parts_store' | 'tire_store';
+  fantasyName?: string;
+  type: 'gas_station' | 'workshop' | 'dealer' | 'parts_store' | 'tire_store' | 'refrigeration_equipment' | 'other';
   brand?: string;
   city: string;
   state: string;

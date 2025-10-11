@@ -93,10 +93,12 @@ export default function Suppliers() {
       workshop: { label: 'Oficina', className: 'bg-chart-5 text-white' },
       dealer: { label: 'Concessionária', className: 'bg-chart-1 text-white' },
       parts_store: { label: 'Peças', className: 'bg-chart-2 text-white' },
-      tire_store: { label: 'Pneus', className: 'bg-chart-3 text-white' }
+      tire_store: { label: 'Pneus', className: 'bg-chart-3 text-white' },
+      refrigeration_equipment: { label: 'Refrigeração', className: 'bg-chart-6 text-white' },
+      other: { label: 'Outros', className: 'bg-muted text-foreground' }
     };
     const variant = variants[type as keyof typeof variants];
-    return <Badge className={variant.className}>{variant.label}</Badge>;
+    return variant ? <Badge className={variant.className}>{variant.label}</Badge> : null;
   };
 
   const getTypeLabel = (type: string) => {
@@ -105,7 +107,9 @@ export default function Suppliers() {
       workshop: 'Oficina',
       dealer: 'Concessionária',
       parts_store: 'Loja de Peças e Componentes',
-      tire_store: 'Loja de Pneus'
+      tire_store: 'Loja de Pneus',
+      refrigeration_equipment: 'Equipamentos de Refrigeração',
+      other: 'Outros'
     };
     return labels[type as keyof typeof labels];
   };
@@ -164,9 +168,10 @@ export default function Suppliers() {
           .filter(supplier => {
             const search = searchTerm.toLowerCase();
             return (
-              supplier.fantasyName.toLowerCase().includes(search) ||
+              (supplier.fantasyName?.toLowerCase().includes(search)) ||
               supplier.name.toLowerCase().includes(search) ||
-              supplier.cnpj.includes(search) ||
+              (supplier.cnpj?.includes(search)) ||
+              (supplier.cpf?.includes(search)) ||
               supplier.city.toLowerCase().includes(search)
             );
           })
@@ -179,8 +184,12 @@ export default function Suppliers() {
                     <Building className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <CardTitle className="text-base">{supplier.fantasyName}</CardTitle>
-                    <p className="text-xs text-muted-foreground">{supplier.name}</p>
+                    <CardTitle className="text-base">
+                      {supplier.fantasyName || supplier.name}
+                    </CardTitle>
+                    {supplier.fantasyName && (
+                      <p className="text-xs text-muted-foreground">{supplier.name}</p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -197,7 +206,9 @@ export default function Suppliers() {
                   <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
                   <div>
                     <p className="font-medium">{supplier.city}, {supplier.state}</p>
-                    <p className="text-xs text-muted-foreground">CNPJ: {supplier.cnpj}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {supplier.cnpj ? `CNPJ: ${supplier.cnpj}` : `CPF: ${supplier.cpf}`}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -281,18 +292,30 @@ export default function Suppliers() {
               <div>
                 <h3 className="font-semibold mb-3">Informações Básicas</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
+                  {viewingSupplier.fantasyName && (
+                    <div>
+                      <span className="text-muted-foreground">Nome Fantasia:</span>
+                      <p className="font-medium">{viewingSupplier.fantasyName}</p>
+                    </div>
+                  )}
                   <div>
-                    <span className="text-muted-foreground">Nome Fantasia:</span>
-                    <p className="font-medium">{viewingSupplier.fantasyName}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Razão Social:</span>
+                    <span className="text-muted-foreground">
+                      {viewingSupplier.cpf ? 'Nome:' : 'Razão Social:'}
+                    </span>
                     <p className="font-medium">{viewingSupplier.name}</p>
                   </div>
-                  <div>
-                    <span className="text-muted-foreground">CNPJ:</span>
-                    <p className="font-medium font-mono">{viewingSupplier.cnpj}</p>
-                  </div>
+                  {viewingSupplier.cnpj && (
+                    <div>
+                      <span className="text-muted-foreground">CNPJ:</span>
+                      <p className="font-medium font-mono">{viewingSupplier.cnpj}</p>
+                    </div>
+                  )}
+                  {viewingSupplier.cpf && (
+                    <div>
+                      <span className="text-muted-foreground">CPF:</span>
+                      <p className="font-medium font-mono">{viewingSupplier.cpf}</p>
+                    </div>
+                  )}
                   <div>
                     <span className="text-muted-foreground">Tipo:</span>
                     <div className="mt-1">
