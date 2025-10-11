@@ -145,7 +145,7 @@ export default function Refrigeration() {
 
   const getCompanyName = (companyId: string) => {
     const company = allCompanies.find(c => c.id === companyId);
-    return company ? company.name : 'Empresa não encontrada';
+    return company ? `${company.name} - ${company.cnpj}` : 'Empresa não encontrada';
   };
 
   const formatDate = (date: string) => {
