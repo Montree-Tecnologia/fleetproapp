@@ -2070,6 +2070,7 @@ export function useMockData() {
     const maintenanceVehicles = vehicles.filter(v => v.status === 'maintenance').length;
     const defectiveVehicles = vehicles.filter(v => v.status === 'defective').length;
     const inactiveVehicles = vehicles.filter(v => v.status === 'inactive').length;
+    const soldVehicles = vehicles.filter(v => v.status === 'sold').length;
     const totalKm = vehicles.reduce((sum, v) => sum + v.currentKm, 0);
     
     const thisMonthRefuelings = refuelings.filter(r => {
@@ -2082,16 +2083,20 @@ export function useMockData() {
     const totalLiters = thisMonthRefuelings.reduce((sum, r) => sum + r.liters, 0);
     const avgConsumption = totalLiters > 0 ? totalKm / totalLiters : 0;
 
+    // Veículos disponíveis (excluindo vendidos)
+    const availableVehicles = vehicles.filter(v => v.status !== 'sold').length;
+
     return {
       totalVehicles: vehicles.length,
       activeVehicles,
       maintenanceVehicles,
       defectiveVehicles,
       inactiveVehicles,
+      soldVehicles,
       totalKm,
       totalFuelCost,
       avgConsumption: avgConsumption.toFixed(2),
-      availability: vehicles.length > 0 ? ((activeVehicles / vehicles.length) * 100).toFixed(1) : '0'
+      availability: availableVehicles > 0 ? ((activeVehicles / availableVehicles) * 100).toFixed(1) : '0'
     };
   }, [vehicles, refuelings]);
 
@@ -2101,6 +2106,7 @@ export function useMockData() {
     const maintenanceUnits = refrigerationUnits.filter(u => u.status === 'maintenance').length;
     const defectiveUnits = refrigerationUnits.filter(u => u.status === 'defective').length;
     const inactiveUnits = refrigerationUnits.filter(u => u.status === 'inactive').length;
+    const soldUnits = refrigerationUnits.filter(u => u.status === 'sold').length;
     
     const thisMonthRefuelings = refuelings.filter(r => {
       if (!r.refrigerationUnitId) return false;
@@ -2133,15 +2139,19 @@ export function useMockData() {
     
     const avgConsumption = consumptionCount > 0 ? totalConsumption / consumptionCount : 0;
 
+    // Equipamentos disponíveis (excluindo vendidos)
+    const availableUnits = refrigerationUnits.filter(u => u.status !== 'sold').length;
+
     return {
       totalUnits: refrigerationUnits.length,
       activeUnits,
       maintenanceUnits,
       defectiveUnits,
       inactiveUnits,
+      soldUnits,
       totalFuelCost,
       avgConsumption: avgConsumption.toFixed(2),
-      availability: refrigerationUnits.length > 0 ? ((activeUnits / refrigerationUnits.length) * 100).toFixed(1) : '0'
+      availability: availableUnits > 0 ? ((activeUnits / availableUnits) * 100).toFixed(1) : '0'
     };
   }, [refrigerationUnits, refuelings]);
 

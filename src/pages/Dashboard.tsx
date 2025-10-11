@@ -180,6 +180,18 @@ export default function Dashboard() {
                       />
                     </div>
                   </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Vendidos</span>
+                      <span className="text-sm text-muted-foreground">{vehicleStats.soldVehicles}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-chart-5 h-2 rounded-full"
+                        style={{ width: `${(vehicleStats.soldVehicles / vehicleStats.totalVehicles) * 100}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -350,6 +362,18 @@ export default function Dashboard() {
                       <div
                         className="bg-muted-foreground h-2 rounded-full"
                         style={{ width: `${(refrigerationStats.inactiveUnits / refrigerationStats.totalUnits) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Vendidos</span>
+                      <span className="text-sm text-muted-foreground">{refrigerationStats.soldUnits}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-chart-5 h-2 rounded-full"
+                        style={{ width: `${(refrigerationStats.soldUnits / refrigerationStats.totalUnits) * 100}%` }}
                       />
                     </div>
                   </div>
