@@ -416,13 +416,15 @@ const mockVehicles: Vehicle[] = [
     hasComposition: false,
     purchaseDate: '2023-01-10',
     purchaseValue: 720000,
+    supplierId: '5',
     images: [
       'https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=800&q=80',
       'https://images.unsplash.com/photo-1615529162924-f7e4e5e9e9b4?w=800&q=80',
       'https://images.unsplash.com/photo-1622021142947-da7dedc7c39a?w=800&q=80',
       'https://images.unsplash.com/photo-1570560258091-1a8f8b8c7dfc?w=800&q=80'
     ],
-    crlvDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
+    crlvDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
   },
   {
     id: '4',
@@ -446,9 +448,12 @@ const mockVehicles: Vehicle[] = [
     hasComposition: false,
     purchaseDate: '2020-05-10',
     purchaseValue: 180000,
+    supplierId: '4',
     images: [
       'https://images.unsplash.com/photo-1586281380614-7c7f351b5c37?w=800&q=80'
-    ]
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
   },
   {
     id: '5',
@@ -472,9 +477,12 @@ const mockVehicles: Vehicle[] = [
     hasComposition: false,
     purchaseDate: '2022-07-15',
     purchaseValue: 220000,
+    supplierId: '4',
     images: [
       'https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?w=800&q=80'
-    ]
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
   },
   {
     id: '6',
@@ -498,9 +506,12 @@ const mockVehicles: Vehicle[] = [
     hasComposition: false,
     purchaseDate: '2021-09-20',
     purchaseValue: 195000,
+    supplierId: '4',
     images: [
       'https://images.unsplash.com/photo-1615529182904-14819c35db37?w=800&q=80'
-    ]
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
   },
   {
     id: '7',
@@ -521,13 +532,16 @@ const mockVehicles: Vehicle[] = [
     weight: 5.0,
     branches: ['Matriz'],
     ownerBranch: 'Matriz',
-    driverId: '1',
+    driverId: '4',
     hasComposition: false,
     purchaseDate: '2023-02-10',
     purchaseValue: 280000,
+    supplierId: '6',
     images: [
       'https://images.unsplash.com/photo-1570560258091-1a8f8b8c7dfc?w=800&q=80'
-    ]
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
   },
   {
     id: '8',
@@ -548,13 +562,16 @@ const mockVehicles: Vehicle[] = [
     weight: 8.0,
     branches: ['Filial RJ'],
     ownerBranch: 'Filial RJ',
-    driverId: '2',
+    driverId: '5',
     hasComposition: false,
     purchaseDate: '2022-06-15',
     purchaseValue: 240000,
+    supplierId: '6',
     images: [
       'https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=800&q=80'
-    ]
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
   },
   {
     id: '9',
@@ -578,9 +595,12 @@ const mockVehicles: Vehicle[] = [
     hasComposition: false,
     purchaseDate: '2021-11-05',
     purchaseValue: 175000,
+    supplierId: '4',
     images: [
       'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
-    ]
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
   },
   {
     id: '10',
@@ -605,9 +625,12 @@ const mockVehicles: Vehicle[] = [
     hasComposition: false,
     purchaseDate: '2023-03-20',
     purchaseValue: 320000,
+    supplierId: '6',
     images: [
       'https://images.unsplash.com/photo-1615529162924-f7e4e5e9e9b4?w=800&q=80'
-    ]
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
   },
   {
     id: '11',
@@ -631,9 +654,12 @@ const mockVehicles: Vehicle[] = [
     hasComposition: false,
     purchaseDate: '2022-08-10',
     purchaseValue: 240000,
+    supplierId: '4',
     images: [
       'https://images.unsplash.com/photo-1622021142947-da7dedc7c39a?w=800&q=80'
-    ]
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
   },
   {
     id: '12',
