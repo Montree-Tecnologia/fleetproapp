@@ -294,12 +294,12 @@ export default function Companies() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <Building2 className="h-8 w-8 text-primary" />
-                <div className="flex flex-col items-end gap-1">
-                  <Badge variant={company.active ? "default" : "destructive"} className={company.active ? "bg-green-600 hover:bg-green-700" : ""}>
-                    {company.active ? 'Ativa' : 'Inativa'}
-                  </Badge>
+                <div className="flex gap-2">
                   <Badge variant={company.type === 'matriz' ? 'default' : 'secondary'}>
                     {company.type === 'matriz' ? 'Matriz' : 'Filial'}
+                  </Badge>
+                  <Badge variant={company.active ? "default" : "destructive"} className={company.active ? "bg-green-600 hover:bg-green-700" : ""}>
+                    {company.active ? 'Ativa' : 'Inativa'}
                   </Badge>
                 </div>
               </div>
