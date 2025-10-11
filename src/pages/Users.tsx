@@ -37,6 +37,7 @@ import { z } from 'zod';
 import { PermissionsManager } from '@/components/PermissionsManager';
 import { UserPermissions } from '@/hooks/useMockData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const userSchema = z.object({
   name: z.string().trim().min(3, 'Nome deve ter no mínimo 3 caracteres').max(100, 'Nome muito longo'),
@@ -46,7 +47,7 @@ const userSchema = z.object({
 });
 
 export default function Users() {
-  const { users, addUser, updateUser, deleteUser } = useMockData();
+  const { users, addUser, updateUser, deleteUser, companies } = useMockData();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -57,18 +58,23 @@ export default function Users() {
     email: string;
     role: 'admin' | 'manager' | 'operator';
     company: string;
+    linkedCompanies: string[];
+    hasAccessToAllCompanies: boolean;
     customPermissions: UserPermissions;
   }>({
     name: '',
     email: '',
     role: 'manager',
     company: 'Transportadora Matriz',
+    linkedCompanies: [],
+    hasAccessToAllCompanies: false,
     customPermissions: {},
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [searchTerm, setSearchTerm] = useState('');
 
   const allUsers = users();
+  const allCompanies = companies();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +93,8 @@ export default function Users() {
           email: validatedData.email,
           role: validatedData.role,
           company: validatedData.company,
+          linkedCompanies: formData.linkedCompanies,
+          hasAccessToAllCompanies: formData.hasAccessToAllCompanies,
           customPermissions: formData.customPermissions,
         });
 
@@ -100,6 +108,8 @@ export default function Users() {
           email: validatedData.email,
           role: validatedData.role,
           company: validatedData.company,
+          linkedCompanies: formData.linkedCompanies,
+          hasAccessToAllCompanies: formData.hasAccessToAllCompanies,
           active: true,
           customPermissions: formData.customPermissions,
         });
@@ -131,6 +141,8 @@ export default function Users() {
       email: user.email,
       role: user.role,
       company: user.company,
+      linkedCompanies: user.linkedCompanies || [],
+      hasAccessToAllCompanies: user.hasAccessToAllCompanies || false,
       customPermissions: user.customPermissions || {},
     });
     setErrors({});
@@ -145,9 +157,33 @@ export default function Users() {
       email: '',
       role: 'manager',
       company: 'Transportadora Matriz',
+      linkedCompanies: [],
+      hasAccessToAllCompanies: false,
       customPermissions: {},
     });
     setErrors({});
+  };
+
+  const toggleCompany = (companyId: string) => {
+    if (formData.linkedCompanies.includes(companyId)) {
+      setFormData({
+        ...formData,
+        linkedCompanies: formData.linkedCompanies.filter(id => id !== companyId),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        linkedCompanies: [...formData.linkedCompanies, companyId],
+      });
+    }
+  };
+
+  const toggleAllCompanies = (checked: boolean) => {
+    setFormData({
+      ...formData,
+      hasAccessToAllCompanies: checked,
+      linkedCompanies: checked ? [] : formData.linkedCompanies,
+    });
   };
 
   const handleToggleActive = (userId: string, currentStatus: boolean) => {
@@ -310,6 +346,54 @@ export default function Users() {
                     {errors.company && (
                       <p className="text-sm text-destructive">{errors.company}</p>
                     )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label>Acesso às Empresas *</Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2 p-3 bg-primary/5 rounded-md border border-primary/20">
+                        <Checkbox
+                          id="all-companies"
+                          checked={formData.hasAccessToAllCompanies}
+                          onCheckedChange={(checked) => toggleAllCompanies(checked as boolean)}
+                        />
+                        <Label
+                          htmlFor="all-companies"
+                          className="text-sm font-medium cursor-pointer flex-1"
+                        >
+                          Todas as Empresas
+                          <span className="block text-xs text-muted-foreground font-normal mt-0.5">
+                            Acesso a todas empresas atuais e futuras
+                          </span>
+                        </Label>
+                      </div>
+
+                      {!formData.hasAccessToAllCompanies && (
+                        <div className="space-y-2 mt-3">
+                          <p className="text-sm text-muted-foreground">Ou selecione empresas específicas:</p>
+                          <div className="max-h-[200px] overflow-y-auto space-y-2 p-2 border rounded-md">
+                            {allCompanies.map((company) => (
+                              <div key={company.id} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`company-${company.id}`}
+                                  checked={formData.linkedCompanies.includes(company.id)}
+                                  onCheckedChange={() => toggleCompany(company.id)}
+                                />
+                                <Label
+                                  htmlFor={`company-${company.id}`}
+                                  className="text-sm cursor-pointer flex-1"
+                                >
+                                  {company.name}
+                                  <span className="text-xs text-muted-foreground ml-2">
+                                    ({company.cnpj})
+                                  </span>
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </TabsContent>
 

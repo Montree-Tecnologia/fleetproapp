@@ -123,7 +123,9 @@ export interface User {
   name: string;
   email: string;
   role: 'admin' | 'manager' | 'operator';
-  company: string;
+  company: string; // Manter para compatibilidade, mas será deprecated
+  linkedCompanies?: string[]; // IDs das empresas vinculadas
+  hasAccessToAllCompanies?: boolean; // Se true, tem acesso a todas
   active: boolean;
   createdAt: string;
   customPermissions?: UserPermissions;
