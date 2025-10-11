@@ -176,11 +176,11 @@ export default function Dashboard() {
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle>Top 5 Veículos por Consumo</CardTitle>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => setShowWorstVehicles(!showWorstVehicles)}
                 >
-                  {showWorstVehicles ? 'Menos Econômicos' : 'Mais Econômicos'}
+                  {showWorstVehicles ? 'Mais Econômicos' : 'Menos Econômicos'}
                 </Button>
               </CardHeader>
               <CardContent>
@@ -349,11 +349,11 @@ export default function Dashboard() {
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle>Top 5 Equipamentos por Consumo</CardTitle>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => setShowWorstRefrigeration(!showWorstRefrigeration)}
                 >
-                  {showWorstRefrigeration ? 'Menos Econômicos' : 'Mais Econômicos'}
+                  {showWorstRefrigeration ? 'Mais Econômicos' : 'Menos Econômicos'}
                 </Button>
               </CardHeader>
               <CardContent>
