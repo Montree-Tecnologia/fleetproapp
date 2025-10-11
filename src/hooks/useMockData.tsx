@@ -80,6 +80,8 @@ export interface RefrigerationUnit {
   minTemp: number;
   maxTemp: number;
   installDate: string;
+  purchaseDate?: string;
+  purchaseValue?: number;
   status: 'active' | 'defective' | 'maintenance' | 'sold';
 }
 

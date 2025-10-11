@@ -41,6 +41,8 @@ const refrigerationSchema = z.object({
   installDate: z.date({
     required_error: 'Data de instalação é obrigatória',
   }),
+  purchaseDate: z.date().optional(),
+  purchaseValue: z.number().min(0).optional(),
 }).refine((data) => data.maxTemp > data.minTemp, {
   message: 'Temperatura máxima deve ser maior que a mínima',
   path: ['maxTemp'],
@@ -77,6 +79,8 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }:
       maxTemp: initialData.maxTemp,
       status: initialData.status,
       installDate: new Date(initialData.installDate),
+      purchaseDate: initialData.purchaseDate ? new Date(initialData.purchaseDate) : undefined,
+      purchaseValue: initialData.purchaseValue,
     } : {
       type: 'freezer',
       minTemp: -18,
@@ -97,6 +101,8 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }:
       maxTemp: data.maxTemp,
       status: data.status,
       installDate: format(data.installDate, 'yyyy-MM-dd'),
+      purchaseDate: data.purchaseDate ? format(data.purchaseDate, 'yyyy-MM-dd') : undefined,
+      purchaseValue: data.purchaseValue,
     });
   };
 
@@ -300,6 +306,68 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, initialData }:
                     step="0.1"
                     {...field} 
                     onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="purchaseDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Data de Compra</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "dd/MM/yyyy")
+                        ) : (
+                          <span>Selecione a data</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) => date > new Date()}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="purchaseValue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Valor de Compra (R$)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    step="0.01"
+                    min="0"
+                    placeholder="0,00"
+                    {...field} 
+                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
                   />
                 </FormControl>
                 <FormMessage />
