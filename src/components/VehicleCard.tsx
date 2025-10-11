@@ -67,6 +67,8 @@ export function VehicleCard({
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
   const isTractionVehicle = tractionVehicleTypes.includes(vehicle.vehicleType);
   const isTrailerVehicle = trailerVehicleTypes.includes(vehicle.vehicleType);
+  const canHaveCompositions = vehicle.vehicleType === 'Cavalo Mecânico'; // Apenas Cavalo Mecânico pode ter composições
+  const showCompositionsSection = isTractionVehicle; // Mostrar seção para todos os tipos de tração
   
   // Motoristas disponíveis (não vinculados a outros veículos)
   const availableDrivers = getAvailableDrivers(vehicle.id);
@@ -213,11 +215,11 @@ export function VehicleCard({
           </div>
         </div>
         
-        {isTractionVehicle && (
+        {showCompositionsSection && (
           <div className="pt-3 border-t border-border">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-muted-foreground">Composições:</span>
-              {vehicle.status !== 'sold' && vehicle.status === 'active' && (
+              {canHaveCompositions && vehicle.status !== 'sold' && vehicle.status === 'active' && (
                 <Button
                   size="sm"
                   variant="ghost"
@@ -233,7 +235,7 @@ export function VehicleCard({
               )}
             </div>
             
-            {showAddComposition && availableTrailers.length > 0 && (
+            {canHaveCompositions && showAddComposition && availableTrailers.length > 0 && (
               <div className="mb-2">
                 <Popover open={openComposition} onOpenChange={setOpenComposition}>
                   <PopoverTrigger asChild>
