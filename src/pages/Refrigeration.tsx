@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2, Check, ChevronsUpDown } from 'lucide-react';
+import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2, Check, ChevronsUpDown, DollarSign, Undo2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -43,11 +43,22 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { RefrigerationForm } from '@/components/forms/RefrigerationForm';
+import { RefrigerationSaleForm, RefrigerationSale } from '@/components/forms/RefrigerationSaleForm';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 export default function Refrigeration() {
-  const { refrigerationUnits, vehicles, suppliers, companies, addRefrigerationUnit, updateRefrigerationUnit, deleteRefrigerationUnit } = useMockData();
+  const { 
+    refrigerationUnits, 
+    vehicles, 
+    suppliers, 
+    companies, 
+    addRefrigerationUnit, 
+    updateRefrigerationUnit, 
+    deleteRefrigerationUnit,
+    sellRefrigerationUnit,
+    reverseRefrigerationSale
+  } = useMockData();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [editingUnit, setEditingUnit] = useState<RefrigerationUnit | null>(null);
@@ -57,6 +68,8 @@ export default function Refrigeration() {
   const [viewingUnit, setViewingUnit] = useState<RefrigerationUnit | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [openVehicleLink, setOpenVehicleLink] = useState<{[key: string]: boolean}>({});
+  const [saleDialogOpen, setSaleDialogOpen] = useState(false);
+  const [sellingUnit, setSellingUnit] = useState<RefrigerationUnit | null>(null);
   const allUnits = refrigerationUnits();
   const allVehicles = vehicles();
   const allSuppliers = suppliers();
@@ -197,6 +210,31 @@ export default function Refrigeration() {
         description: actualVehicleId ? 'Equipamento vinculado ao veículo' : 'Equipamento desvinculado',
       });
     }
+  };
+
+  const handleSellClick = (unit: RefrigerationUnit) => {
+    setSellingUnit(unit);
+    setSaleDialogOpen(true);
+  };
+
+  const handleSaleSubmit = (saleData: RefrigerationSale) => {
+    if (sellingUnit) {
+      sellRefrigerationUnit(sellingUnit.id, saleData);
+      toast({
+        title: 'Venda registrada',
+        description: `Equipamento ${sellingUnit.brand} ${sellingUnit.model} vendido com sucesso.`,
+      });
+      setSaleDialogOpen(false);
+      setSellingUnit(null);
+    }
+  };
+
+  const handleReverseSale = (unitId: string, unitName: string) => {
+    reverseRefrigerationSale(unitId);
+    toast({
+      title: 'Venda revertida',
+      description: `Venda de ${unitName} foi revertida.`,
+    });
   };
 
   return (
@@ -360,53 +398,109 @@ export default function Refrigeration() {
                   </Popover>
                 </div>
 
-                <div className="pt-3 border-t border-border">
-                  <p className="text-sm text-muted-foreground mb-2">Alterar Status:</p>
-                  <Select
-                    value={unit.status}
-                    onValueChange={(value) => handleStatusChange(unit.id, value, !!unit.vehicleId)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Ativo</SelectItem>
-                      <SelectItem value="defective">Defeito</SelectItem>
-                      {!unit.vehicleId && (
-                        <>
-                          <SelectItem value="maintenance">Manutenção</SelectItem>
-                          <SelectItem value="sold">Vendido</SelectItem>
-                        </>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {unit.status !== 'sold' && (
+                  <>
+                    <div className="pt-3 border-t border-border">
+                      <p className="text-sm text-muted-foreground mb-2">Alterar Status:</p>
+                      <Select
+                        value={unit.status}
+                        onValueChange={(value) => handleStatusChange(unit.id, value, !!unit.vehicleId)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Ativo</SelectItem>
+                          <SelectItem value="defective">Defeito</SelectItem>
+                          {!unit.vehicleId && (
+                            <>
+                              <SelectItem value="maintenance">Manutenção</SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => handleViewDetails(unit)}
-                  >
-                    <Eye className="h-4 w-4 mr-2" />
-                    Detalhes
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEdit(unit)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDeleteClick(unit.id, `${unit.brand} ${unit.model}`)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => handleViewDetails(unit)}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Detalhes
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(unit)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => handleSellClick(unit)}
+                      >
+                        <DollarSign className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteClick(unit.id, `${unit.brand} ${unit.model}`)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </>
+                )}
+
+                {unit.status === 'sold' && (
+                  <>
+                    <div className="pt-3 border-t border-border bg-muted/50 p-3 rounded-lg">
+                      <p className="text-sm font-semibold mb-2">Informações da Venda</p>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Comprador:</span>
+                          <p className="font-medium">{unit.saleInfo?.buyerName}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Valor:</span>
+                          <p className="font-medium">R$ {unit.saleInfo?.salePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Data:</span>
+                          <p className="font-medium">{unit.saleInfo?.saleDate ? formatDate(unit.saleInfo.saleDate) : '-'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Horas de Uso:</span>
+                          <p className="font-medium">{unit.saleInfo?.usageHours.toLocaleString('pt-BR')} h</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => handleViewDetails(unit)}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Detalhes
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleReverseSale(unit.id, `${unit.brand} ${unit.model}`)}
+                      >
+                        <Undo2 className="h-4 w-4 mr-2" />
+                        Reverter Venda
+                      </Button>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           );
@@ -554,6 +648,66 @@ export default function Refrigeration() {
                 )}
               </div>
 
+              {viewingUnit.saleInfo && (
+                <div>
+                  <h3 className="font-semibold mb-3">Informações da Venda</h3>
+                  <div className="p-4 bg-muted rounded-lg border border-border">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Comprador:</span>
+                        <p className="font-medium">{viewingUnit.saleInfo.buyerName}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">CPF/CNPJ:</span>
+                        <p className="font-medium font-mono">{viewingUnit.saleInfo.buyerCpfCnpj}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Data da Venda:</span>
+                        <p className="font-medium">{formatDate(viewingUnit.saleInfo.saleDate)}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Horas de Uso:</span>
+                        <p className="font-medium">{viewingUnit.saleInfo.usageHours.toLocaleString('pt-BR')} h</p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-muted-foreground">Preço de Venda:</span>
+                        <p className="text-xl font-bold text-green-600">
+                          R$ {viewingUnit.saleInfo.salePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </p>
+                      </div>
+                      {viewingUnit.saleInfo.paymentReceipt && (
+                        <div className="col-span-2">
+                          <span className="text-muted-foreground">Comprovante de Recebimento:</span>
+                          {viewingUnit.saleInfo.paymentReceipt.startsWith('data:image') ? (
+                            <img
+                              src={viewingUnit.saleInfo.paymentReceipt}
+                              alt="Comprovante"
+                              className="mt-2 w-full max-w-md h-48 object-cover rounded-lg border"
+                            />
+                          ) : (
+                            <p className="text-sm text-green-600 mt-1">✓ Anexado</p>
+                          )}
+                        </div>
+                      )}
+                      {viewingUnit.saleInfo.transferDocument && (
+                        <div className="col-span-2">
+                          <span className="text-muted-foreground">Nota Fiscal de Venda:</span>
+                          {viewingUnit.saleInfo.transferDocument.startsWith('data:image') ? (
+                            <img
+                              src={viewingUnit.saleInfo.transferDocument}
+                              alt="Nota Fiscal"
+                              className="mt-2 w-full max-w-md h-48 object-cover rounded-lg border"
+                            />
+                          ) : (
+                            <p className="text-sm text-green-600 mt-1">✓ Anexado</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button
                   variant="outline"
@@ -567,6 +721,27 @@ export default function Refrigeration() {
                 </Button>
               </div>
             </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={saleDialogOpen} onOpenChange={setSaleDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Registrar Venda de Equipamento</DialogTitle>
+            <DialogDescription>
+              {sellingUnit && `${sellingUnit.brand} ${sellingUnit.model} - SN: ${sellingUnit.serialNumber}`}
+            </DialogDescription>
+          </DialogHeader>
+          {sellingUnit && (
+            <RefrigerationSaleForm
+              onSubmit={handleSaleSubmit}
+              onCancel={() => {
+                setSaleDialogOpen(false);
+                setSellingUnit(null);
+              }}
+              currentUsageHours={sellingUnit.initialUsageHours || 0}
+            />
           )}
         </DialogContent>
       </Dialog>

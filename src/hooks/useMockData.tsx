@@ -71,6 +71,16 @@ export interface Refueling {
   fiscalNote?: string;
 }
 
+export interface RefrigerationSale {
+  buyerName: string;
+  buyerCpfCnpj: string;
+  saleDate: string;
+  usageHours: number;
+  salePrice: number;
+  paymentReceipt?: string;
+  transferDocument?: string;
+}
+
 export interface RefrigerationUnit {
   id: string;
   vehicleId?: string;
@@ -87,7 +97,9 @@ export interface RefrigerationUnit {
   supplierId?: string;
   purchaseInvoice?: string;
   status: 'active' | 'defective' | 'maintenance' | 'sold';
+  previousStatus?: 'active' | 'defective' | 'maintenance';
   initialUsageHours?: number;
+  saleInfo?: RefrigerationSale;
 }
 
 export interface Supplier {
@@ -1416,6 +1428,33 @@ export function useMockData() {
   const deleteRefrigerationUnit = useCallback((id: string) => {
     setRefrigerationUnits(prev => prev.filter(u => u.id !== id));
   }, []);
+  
+  const sellRefrigerationUnit = useCallback((id: string, saleData: RefrigerationSale) => {
+    setRefrigerationUnits(prev => prev.map(u => 
+      u.id === id 
+        ? { 
+            ...u, 
+            previousStatus: u.status as 'active' | 'defective' | 'maintenance',
+            status: 'sold' as const, 
+            saleInfo: saleData,
+            vehicleId: undefined
+          } 
+        : u
+    ));
+  }, []);
+  
+  const reverseRefrigerationSale = useCallback((id: string) => {
+    setRefrigerationUnits(prev => prev.map(u => 
+      u.id === id 
+        ? { 
+            ...u, 
+            status: (u.previousStatus || 'maintenance') as 'active' | 'defective' | 'maintenance',
+            saleInfo: undefined,
+            previousStatus: undefined
+          } 
+        : u
+    ));
+  }, []);
 
   // Suppliers
   const getSuppliers = useCallback(() => suppliers, [suppliers]);
@@ -1522,6 +1561,8 @@ export function useMockData() {
     addRefrigerationUnit,
     updateRefrigerationUnit,
     deleteRefrigerationUnit,
+    sellRefrigerationUnit,
+    reverseRefrigerationSale,
     
     // Suppliers
     suppliers: getSuppliers,
