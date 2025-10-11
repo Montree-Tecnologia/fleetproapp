@@ -213,7 +213,7 @@ export default function Users() {
           </p>
         </div>
 
-        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
               <UserPlus className="mr-2 h-4 w-4" />
