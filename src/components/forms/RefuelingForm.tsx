@@ -335,10 +335,17 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                       <SelectValue placeholder="Selecione o posto" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent className="max-h-[300px]">
                     {gasStations.map((supplier) => (
-                      <SelectItem key={supplier.id} value={supplier.id}>
-                        {supplier.fantasyName} - {supplier.city}/{supplier.state}
+                      <SelectItem key={supplier.id} value={supplier.id} className="py-3">
+                        <div className="flex flex-col gap-1">
+                          <div className="font-semibold">
+                            {supplier.fantasyName}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            CNPJ: {supplier.cnpj} | {supplier.city}/{supplier.state}
+                          </div>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
