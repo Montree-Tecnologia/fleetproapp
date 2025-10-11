@@ -98,8 +98,8 @@ export interface RefrigerationUnit {
   purchaseValue?: number;
   supplierId?: string;
   purchaseInvoice?: string;
-  status: 'active' | 'defective' | 'maintenance' | 'sold';
-  previousStatus?: 'active' | 'defective' | 'maintenance';
+  status: 'active' | 'defective' | 'maintenance' | 'inactive' | 'sold';
+  previousStatus?: 'active' | 'defective' | 'maintenance' | 'inactive';
   initialUsageHours?: number;
   fuelType?: string;
   saleInfo?: RefrigerationSale;
@@ -1539,6 +1539,7 @@ export function useMockData() {
     const activeUnits = refrigerationUnits.filter(u => u.status === 'active').length;
     const maintenanceUnits = refrigerationUnits.filter(u => u.status === 'maintenance').length;
     const defectiveUnits = refrigerationUnits.filter(u => u.status === 'defective').length;
+    const inactiveUnits = refrigerationUnits.filter(u => u.status === 'inactive').length;
     
     const thisMonthRefuelings = refuelings.filter(r => {
       if (!r.refrigerationUnitId) return false;
@@ -1576,6 +1577,7 @@ export function useMockData() {
       activeUnits,
       maintenanceUnits,
       defectiveUnits,
+      inactiveUnits,
       totalFuelCost,
       avgConsumption: avgConsumption.toFixed(2),
       availability: refrigerationUnits.length > 0 ? ((activeUnits / refrigerationUnits.length) * 100).toFixed(1) : '0'

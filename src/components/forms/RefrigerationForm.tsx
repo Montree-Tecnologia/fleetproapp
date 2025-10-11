@@ -47,7 +47,7 @@ const refrigerationSchema = z.object({
   type: z.enum(['freezer', 'cooled', 'climatized']),
   minTemp: z.number().min(-50, 'Temperatura mínima inválida').max(50, 'Temperatura mínima inválida'),
   maxTemp: z.number().min(-50, 'Temperatura máxima inválida').max(50, 'Temperatura máxima inválida'),
-  status: z.enum(['active', 'defective', 'maintenance', 'sold']),
+  status: z.enum(['active', 'defective', 'maintenance', 'inactive', 'sold']),
   installDate: z.date({
     required_error: 'Data de instalação é obrigatória',
   }),
