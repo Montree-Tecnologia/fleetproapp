@@ -193,7 +193,7 @@ export default function Companies() {
                 </Button>
                 <Button
                   size="sm"
-                  variant={company.active ? 'secondary' : 'default'}
+                  variant={company.active ? 'outline' : 'default'}
                   className="flex-1"
                   onClick={() => handleToggleActive(company.id, company.active)}
                 >

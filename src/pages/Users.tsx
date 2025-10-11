@@ -593,7 +593,7 @@ export default function Users() {
                 </Button>
                 <Button
                   size="sm"
-                  variant={user.active ? 'secondary' : 'default'}
+                  variant={user.active ? 'outline' : 'default'}
                   className="flex-1"
                   onClick={() => handleToggleActive(user.id, user.active)}
                 >
