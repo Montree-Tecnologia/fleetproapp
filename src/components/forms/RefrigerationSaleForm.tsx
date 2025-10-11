@@ -190,7 +190,7 @@ export function RefrigerationSaleForm({ onSubmit, onCancel, initialUsageHours }:
             name="usageHours"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Horas de Uso na Venda *</FormLabel>
+                <FormLabel>Horímetro - Venda *</FormLabel>
                 <FormControl>
                   <Input 
                     type="number" 
