@@ -196,6 +196,20 @@ export default function Vehicles() {
     
     // Verifica se o motorista já está vinculado a outro veículo
     if (actualDriverId) {
+      const driver = allDrivers.find(d => d.id === actualDriverId);
+      
+      // Verifica se a CNH está vencida
+      if (driver) {
+        const cnhValidity = new Date(driver.cnhValidity);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (cnhValidity < today) {
+          toast.error(`Não é possível vincular ${driver.name}. CNH vencida desde ${cnhValidity.toLocaleDateString('pt-BR')}`);
+          return;
+        }
+      }
+      
       const driverInUse = allVehicles.find(v => 
         v.id !== vehicleId && 
         v.driverId === actualDriverId &&
@@ -219,8 +233,15 @@ export default function Vehicles() {
   };
 
   const getAvailableDrivers = (currentVehicleId: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
     return allDrivers.filter(driver => {
       if (!driver.active) return false;
+      
+      // Verifica se a CNH está vencida
+      const cnhValidity = new Date(driver.cnhValidity);
+      if (cnhValidity < today) return false;
       
       // Verifica se o motorista já está vinculado a outro veículo ativo
       const isLinkedToOther = allVehicles.some(v => 

@@ -379,6 +379,23 @@ export function VehicleCard({
         {!['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'].includes(vehicle.vehicleType) && (
           <div className="pt-3 border-t border-border">
             <span className="text-sm text-muted-foreground mb-2 block">Vincular Motorista:</span>
+            {vehicle.driverId && (() => {
+              const driver = allDrivers.find(d => d.id === vehicle.driverId);
+              if (driver) {
+                const cnhValidity = new Date(driver.cnhValidity);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (cnhValidity < today) {
+                  return (
+                    <div className="mb-2 p-2 bg-destructive/10 border border-destructive/20 rounded-md">
+                      <p className="text-xs text-destructive font-medium">⚠️ CNH do motorista vencida desde {cnhValidity.toLocaleDateString('pt-BR')}</p>
+                    </div>
+                  );
+                }
+              }
+              return null;
+            })()}
             <Popover open={openDriver} onOpenChange={setOpenDriver}>
               <PopoverTrigger asChild>
                 <Button
