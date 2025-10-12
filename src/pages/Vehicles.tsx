@@ -212,42 +212,6 @@ export default function Vehicles() {
   const handleDriverChange = (vehicleId: string, driverId: string) => {
     const actualDriverId = driverId === 'none' ? undefined : driverId;
     
-    // Verifica se o motorista já está vinculado a outro veículo
-    if (actualDriverId) {
-      const driver = allDrivers.find(d => d.id === actualDriverId);
-      
-      // Verifica se a CNH está vencida
-      if (driver) {
-        const cnhValidity = new Date(driver.cnhValidity);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        if (cnhValidity < today) {
-          toast({
-            variant: 'destructive',
-            title: 'CNH vencida',
-            description: `Não é possível vincular ${driver.name}. CNH vencida desde ${cnhValidity.toLocaleDateString('pt-BR')}.`,
-          });
-          return;
-        }
-      }
-      
-      const driverInUse = allVehicles.find(v => 
-        v.id !== vehicleId && 
-        v.driverId === actualDriverId &&
-        v.status !== 'sold'
-      );
-      
-      if (driverInUse) {
-        toast({
-          variant: 'destructive',
-          title: 'Motorista em uso',
-          description: `Motorista já está vinculado ao veículo ${driverInUse.plate}.`,
-        });
-        return;
-      }
-    }
-    
     updateVehicle(vehicleId, { driverId: actualDriverId });
     
     if (actualDriverId) {
@@ -265,24 +229,9 @@ export default function Vehicles() {
   };
 
   const getAvailableDrivers = (currentVehicleId: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
     return allDrivers.filter(driver => {
       if (!driver.active) return false;
-      
-      // Verifica se a CNH está vencida
-      const cnhValidity = new Date(driver.cnhValidity);
-      if (cnhValidity < today) return false;
-      
-      // Verifica se o motorista já está vinculado a outro veículo ativo
-      const isLinkedToOther = allVehicles.some(v => 
-        v.id !== currentVehicleId && 
-        v.driverId === driver.id &&
-        v.status !== 'sold'
-      );
-      
-      return !isLinkedToOther;
+      return true;
     });
   };
 
