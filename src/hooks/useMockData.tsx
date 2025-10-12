@@ -1535,6 +1535,128 @@ const mockRefuelings: Refueling[] = [
     supplierId: '10',
     driver: 'Roberto Silva'
   },
+  // Abastecimentos de equipamento de refrigeração 6
+  {
+    id: '120',
+    refrigerationUnitId: '6',
+    date: '2025-01-13',
+    usageHours: 2650,
+    liters: 21,
+    pricePerLiter: 6.32,
+    totalValue: 132.72,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Ana Silva'
+  },
+  {
+    id: '121',
+    refrigerationUnitId: '6',
+    date: '2025-01-06',
+    usageHours: 2585,
+    liters: 20,
+    pricePerLiter: 6.28,
+    totalValue: 125.60,
+    fuelType: 'Diesel S10',
+    supplierId: '10',
+    driver: 'Ana Silva'
+  },
+  {
+    id: '122',
+    refrigerationUnitId: '6',
+    date: '2024-12-30',
+    usageHours: 2520,
+    liters: 21,
+    pricePerLiter: 6.18,
+    totalValue: 129.78,
+    fuelType: 'Diesel S10',
+    supplierId: '11',
+    driver: 'Ana Silva'
+  },
+  {
+    id: '123',
+    refrigerationUnitId: '6',
+    date: '2024-12-23',
+    usageHours: 2455,
+    liters: 20,
+    pricePerLiter: 6.20,
+    totalValue: 124.00,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Ana Silva'
+  },
+  {
+    id: '124',
+    refrigerationUnitId: '6',
+    date: '2024-12-16',
+    usageHours: 2390,
+    liters: 21,
+    pricePerLiter: 6.15,
+    totalValue: 129.15,
+    fuelType: 'Diesel S10',
+    supplierId: '10',
+    driver: 'Ana Silva'
+  },
+  // Abastecimentos de equipamento de refrigeração 8
+  {
+    id: '125',
+    refrigerationUnitId: '8',
+    date: '2025-01-14',
+    usageHours: 5780,
+    liters: 26,
+    pricePerLiter: 6.25,
+    totalValue: 162.50,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Fernando Costa'
+  },
+  {
+    id: '126',
+    refrigerationUnitId: '8',
+    date: '2025-01-07',
+    usageHours: 5705,
+    liters: 25,
+    pricePerLiter: 6.28,
+    totalValue: 157.00,
+    fuelType: 'Diesel S10',
+    supplierId: '3',
+    driver: 'Fernando Costa'
+  },
+  {
+    id: '127',
+    refrigerationUnitId: '8',
+    date: '2024-12-31',
+    usageHours: 5630,
+    liters: 26,
+    pricePerLiter: 6.18,
+    totalValue: 160.68,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Fernando Costa'
+  },
+  {
+    id: '128',
+    refrigerationUnitId: '8',
+    date: '2024-12-24',
+    usageHours: 5555,
+    liters: 25,
+    pricePerLiter: 6.20,
+    totalValue: 155.00,
+    fuelType: 'Diesel S10',
+    supplierId: '3',
+    driver: 'Fernando Costa'
+  },
+  {
+    id: '129',
+    refrigerationUnitId: '8',
+    date: '2024-12-17',
+    usageHours: 5480,
+    liters: 26,
+    pricePerLiter: 6.22,
+    totalValue: 161.72,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Fernando Costa'
+  },
   // Abastecimentos do veículo 4 (JKL-2345)
   {
     id: '25',
