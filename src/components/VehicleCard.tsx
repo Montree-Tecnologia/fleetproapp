@@ -174,10 +174,6 @@ export function VehicleCard({
             <span className="text-muted-foreground">Combustível:</span>
             <p className="font-medium">{vehicle.fuelType}</p>
           </div>
-          <div>
-            <span className="text-muted-foreground">Proprietária:</span>
-            <p className="font-medium">{vehicle.ownerBranch}</p>
-          </div>
           {(isTractionVehicle || isTrailerVehicle) && (
             <>
               <div>
@@ -190,6 +186,10 @@ export function VehicleCard({
               </div>
             </>
           )}
+          <div>
+            <span className="text-muted-foreground">Proprietária:</span>
+            <p className="font-medium">{vehicle.ownerBranch}</p>
+          </div>
           {isTractionVehicle && (
             <div>
               <span className="text-muted-foreground">Consumo Médio:</span>
