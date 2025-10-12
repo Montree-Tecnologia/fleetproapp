@@ -514,7 +514,7 @@ export default function Refrigeration() {
                       </Button>
                       <Button
                         size="sm"
-                        variant="default"
+                        variant="outline"
                         onClick={() => handleSellClick(unit)}
                       >
                         <DollarSign className="h-4 w-4" />

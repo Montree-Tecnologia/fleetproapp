@@ -493,7 +493,7 @@ export function VehicleCard({
               {isAdmin() && (
               <Button
                 size="sm"
-                variant="default"
+                variant="outline"
                 onClick={() => handleSellVehicle(vehicle)}
               >
                 <DollarSign className="h-4 w-4" />
