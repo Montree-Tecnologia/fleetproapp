@@ -2515,9 +2515,9 @@ export function useMockData() {
     let consumptionCount = 0;
     
     vehicles.forEach(vehicle => {
-      // Pular reboques e veículos sem motor próprio (Container, Baú, Carreta, etc)
+      // Pular reboques, veículos sem motor próprio e veículos vendidos
       const trailerTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
-      if (trailerTypes.includes(vehicle.vehicleType)) return;
+      if (trailerTypes.includes(vehicle.vehicleType) || vehicle.status === 'sold') return;
       
       const vehicleRefuelings = refuelings
         .filter(r => r.vehicleId === vehicle.id)
@@ -2586,6 +2586,9 @@ export function useMockData() {
     let consumptionCount = 0;
     
     refrigerationUnits.forEach(unit => {
+      // Pular equipamentos vendidos
+      if (unit.status === 'sold') return;
+      
       const unitRefuelings = refuelings
         .filter(r => r.refrigerationUnitId === unit.id)
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
