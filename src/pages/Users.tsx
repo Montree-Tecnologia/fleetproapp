@@ -312,13 +312,14 @@ export default function Users() {
 
   return (
     <div className="space-y-4 lg:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Usuários</h2>
-          <p className="text-sm lg:text-base text-muted-foreground">
-            Gerencie usuários e permissões do sistema
-          </p>
-        </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Usuários</h2>
+            <p className="text-sm lg:text-base text-muted-foreground">
+              Gerencie usuários e permissões do sistema
+            </p>
+          </div>
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -520,6 +521,8 @@ export default function Users() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
+      </div>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -829,7 +832,6 @@ export default function Users() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
     </div>
   );
 }
