@@ -1234,7 +1234,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '19',
     refrigerationUnitId: '1',
-    date: '2025-01-14',
+    date: '2025-10-09',
     usageHours: 3250,
     liters: 25,
     pricePerLiter: 6.20,
@@ -1246,7 +1246,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '20',
     refrigerationUnitId: '1',
-    date: '2025-01-07',
+    date: '2025-10-02',
     usageHours: 3180,
     liters: 24,
     pricePerLiter: 6.25,
@@ -1258,7 +1258,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '21',
     refrigerationUnitId: '1',
-    date: '2024-12-31',
+    date: '2025-09-26',
     usageHours: 3115,
     liters: 23,
     pricePerLiter: 6.18,
@@ -1270,7 +1270,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '101',
     refrigerationUnitId: '1',
-    date: '2024-12-24',
+    date: '2025-09-19',
     usageHours: 3050,
     liters: 22,
     pricePerLiter: 6.15,
@@ -1282,7 +1282,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '102',
     refrigerationUnitId: '1',
-    date: '2024-12-17',
+    date: '2025-09-12',
     usageHours: 2985,
     liters: 23,
     pricePerLiter: 6.22,
@@ -1295,7 +1295,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '22',
     refrigerationUnitId: '2',
-    date: '2025-01-13',
+    date: '2025-10-08',
     usageHours: 4580,
     liters: 22,
     pricePerLiter: 6.22,
@@ -1307,7 +1307,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '23',
     refrigerationUnitId: '2',
-    date: '2025-01-06',
+    date: '2025-10-01',
     usageHours: 4515,
     liters: 21,
     pricePerLiter: 6.28,
@@ -1319,7 +1319,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '24',
     refrigerationUnitId: '2',
-    date: '2024-12-30',
+    date: '2025-09-25',
     usageHours: 4450,
     liters: 22,
     pricePerLiter: 6.15,
@@ -1331,7 +1331,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '103',
     refrigerationUnitId: '2',
-    date: '2024-12-23',
+    date: '2025-09-18',
     usageHours: 4385,
     liters: 21,
     pricePerLiter: 6.18,
@@ -1343,7 +1343,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '104',
     refrigerationUnitId: '2',
-    date: '2024-12-16',
+    date: '2025-09-11',
     usageHours: 4320,
     liters: 22,
     pricePerLiter: 6.20,
@@ -1356,7 +1356,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '105',
     refrigerationUnitId: '3',
-    date: '2025-01-15',
+    date: '2025-10-10',
     usageHours: 1580,
     liters: 18,
     pricePerLiter: 6.25,
@@ -1368,7 +1368,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '106',
     refrigerationUnitId: '3',
-    date: '2025-01-08',
+    date: '2025-10-03',
     usageHours: 1525,
     liters: 17,
     pricePerLiter: 6.28,
@@ -1380,7 +1380,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '107',
     refrigerationUnitId: '3',
-    date: '2025-01-01',
+    date: '2025-09-27',
     usageHours: 1470,
     liters: 18,
     pricePerLiter: 6.15,
@@ -1392,7 +1392,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '108',
     refrigerationUnitId: '3',
-    date: '2024-12-25',
+    date: '2025-09-20',
     usageHours: 1415,
     liters: 17,
     pricePerLiter: 6.18,
@@ -1404,7 +1404,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '109',
     refrigerationUnitId: '3',
-    date: '2024-12-18',
+    date: '2025-09-13',
     usageHours: 1360,
     liters: 18,
     pricePerLiter: 6.22,
@@ -1417,7 +1417,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '110',
     refrigerationUnitId: '4',
-    date: '2025-01-12',
+    date: '2025-10-07',
     usageHours: 2180,
     liters: 20,
     pricePerLiter: 6.30,
@@ -1429,7 +1429,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '111',
     refrigerationUnitId: '4',
-    date: '2025-01-05',
+    date: '2025-09-30',
     usageHours: 2120,
     liters: 19,
     pricePerLiter: 6.25,
@@ -1441,7 +1441,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '112',
     refrigerationUnitId: '4',
-    date: '2024-12-29',
+    date: '2025-09-24',
     usageHours: 2060,
     liters: 20,
     pricePerLiter: 6.18,
@@ -1453,7 +1453,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '113',
     refrigerationUnitId: '4',
-    date: '2024-12-22',
+    date: '2025-09-17',
     usageHours: 2000,
     liters: 19,
     pricePerLiter: 6.20,
@@ -1465,7 +1465,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '114',
     refrigerationUnitId: '4',
-    date: '2024-12-15',
+    date: '2025-09-10',
     usageHours: 1940,
     liters: 20,
     pricePerLiter: 6.15,
@@ -1478,7 +1478,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '115',
     refrigerationUnitId: '5',
-    date: '2025-01-11',
+    date: '2025-10-06',
     usageHours: 3820,
     liters: 24,
     pricePerLiter: 6.28,
@@ -1490,7 +1490,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '116',
     refrigerationUnitId: '5',
-    date: '2025-01-04',
+    date: '2025-09-29',
     usageHours: 3750,
     liters: 23,
     pricePerLiter: 6.22,
@@ -1502,7 +1502,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '117',
     refrigerationUnitId: '5',
-    date: '2024-12-28',
+    date: '2025-09-23',
     usageHours: 3680,
     liters: 24,
     pricePerLiter: 6.15,
@@ -1514,7 +1514,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '118',
     refrigerationUnitId: '5',
-    date: '2024-12-21',
+    date: '2025-09-16',
     usageHours: 3610,
     liters: 23,
     pricePerLiter: 6.18,
@@ -1526,7 +1526,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '119',
     refrigerationUnitId: '5',
-    date: '2024-12-14',
+    date: '2025-09-09',
     usageHours: 3540,
     liters: 24,
     pricePerLiter: 6.20,
@@ -1539,7 +1539,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '120',
     refrigerationUnitId: '6',
-    date: '2025-01-13',
+    date: '2025-10-08',
     usageHours: 2650,
     liters: 21,
     pricePerLiter: 6.32,
@@ -1551,7 +1551,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '121',
     refrigerationUnitId: '6',
-    date: '2025-01-06',
+    date: '2025-10-01',
     usageHours: 2585,
     liters: 20,
     pricePerLiter: 6.28,
@@ -1563,7 +1563,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '122',
     refrigerationUnitId: '6',
-    date: '2024-12-30',
+    date: '2025-09-25',
     usageHours: 2520,
     liters: 21,
     pricePerLiter: 6.18,
@@ -1575,7 +1575,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '123',
     refrigerationUnitId: '6',
-    date: '2024-12-23',
+    date: '2025-09-18',
     usageHours: 2455,
     liters: 20,
     pricePerLiter: 6.20,
@@ -1587,7 +1587,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '124',
     refrigerationUnitId: '6',
-    date: '2024-12-16',
+    date: '2025-09-11',
     usageHours: 2390,
     liters: 21,
     pricePerLiter: 6.15,
@@ -1600,7 +1600,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '125',
     refrigerationUnitId: '8',
-    date: '2025-01-14',
+    date: '2025-10-09',
     usageHours: 5780,
     liters: 26,
     pricePerLiter: 6.25,
@@ -1612,7 +1612,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '126',
     refrigerationUnitId: '8',
-    date: '2025-01-07',
+    date: '2025-10-02',
     usageHours: 5705,
     liters: 25,
     pricePerLiter: 6.28,
@@ -1624,7 +1624,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '127',
     refrigerationUnitId: '8',
-    date: '2024-12-31',
+    date: '2025-09-26',
     usageHours: 5630,
     liters: 26,
     pricePerLiter: 6.18,
@@ -1636,7 +1636,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '128',
     refrigerationUnitId: '8',
-    date: '2024-12-24',
+    date: '2025-09-19',
     usageHours: 5555,
     liters: 25,
     pricePerLiter: 6.20,
@@ -1648,7 +1648,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '129',
     refrigerationUnitId: '8',
-    date: '2024-12-17',
+    date: '2025-09-12',
     usageHours: 5480,
     liters: 26,
     pricePerLiter: 6.22,
