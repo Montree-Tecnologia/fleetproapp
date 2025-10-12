@@ -57,6 +57,22 @@ const mockUsers: Record<string, { password: string; user: User }> = {
       isFirstAccess: false,
       matrizConfigured: true,
     }
+  },
+  'novoadmin@frota.com': {
+    password: '123456',
+    user: {
+      id: '3',
+      name: 'Maria Oliveira',
+      email: 'novoadmin@frota.com',
+      role: 'admin',
+      company: 'Minha Transportadora',
+      companyId: 'matriz-novo',
+      companyCnpj: '',
+      linkedCompanyIds: ['matriz-novo'],
+      active: true,
+      isFirstAccess: true,
+      matrizConfigured: false,
+    }
   }
 };
 
