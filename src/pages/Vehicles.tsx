@@ -35,11 +35,12 @@ import { VehicleSaleForm, VehicleSale } from '@/components/forms/VehicleSaleForm
 import { VehicleCard } from '@/components/VehicleCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Vehicles() {
   const { vehicles, drivers, refuelings, companies, suppliers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale } = useMockData();
   const { isAdmin } = usePermissions();
+  const { toast } = useToast();
   const allVehicles = vehicles();
   const allDrivers = drivers();
   const allRefuelings = refuelings();
@@ -102,7 +103,10 @@ export default function Vehicles() {
   const confirmDelete = () => {
     if (vehicleToDelete) {
       deleteVehicle(vehicleToDelete.id);
-      toast.success(`Veículo ${vehicleToDelete.plate} excluído com sucesso!`);
+      toast({
+        title: 'Veículo excluído',
+        description: `${vehicleToDelete.plate} foi removido com sucesso.`,
+      });
       setVehicleToDelete(null);
       setDeleteDialogOpen(false);
     }
@@ -116,7 +120,10 @@ export default function Vehicles() {
   const handleConfirmSale = (saleData: VehicleSale) => {
     if (vehicleToSell) {
       sellVehicle(vehicleToSell.id, saleData);
-      toast.success(`Veículo ${vehicleToSell.plate} vendido com sucesso!`);
+      toast({
+        title: 'Veículo vendido',
+        description: `${vehicleToSell.plate} foi vendido com sucesso.`,
+      });
       setVehicleToSell(null);
       setSaleDialogOpen(false);
     }
@@ -130,7 +137,10 @@ export default function Vehicles() {
   const confirmReverseSale = () => {
     if (vehicleToReverseSale) {
       reverseSale(vehicleToReverseSale.id);
-      toast.success(`Venda do veículo ${vehicleToReverseSale.plate} revertida com sucesso!`);
+      toast({
+        title: 'Venda revertida',
+        description: `Venda do veículo ${vehicleToReverseSale.plate} foi revertida com sucesso.`,
+      });
       setVehicleToReverseSale(null);
       setReverseSaleDialogOpen(false);
     }
@@ -171,7 +181,10 @@ export default function Vehicles() {
       inactive: 'Inativo'
     };
     
-    toast.success(`Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`);
+    toast({
+      title: 'Status alterado',
+      description: `Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}.`,
+    });
 
     // Notifica sobre desvinculação automática de reboque
     if (isTrailer && isInactiveOrMaintenance) {
@@ -179,13 +192,17 @@ export default function Vehicles() {
         v.hasComposition && v.compositionPlates?.includes(vehicle.plate)
       );
       if (tractionVehicles.length > 0) {
-        toast.info('Veículo desvinculado automaticamente das composições');
+        toast({
+          description: 'Veículo desvinculado automaticamente das composições.',
+        });
       }
     }
 
     // Notifica sobre alteração de status das composições
     if (!isTrailer && isInactiveOrMaintenance && vehicle.hasComposition && vehicle.compositionPlates) {
-      toast.info(`Status das composições acopladas também alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`);
+      toast({
+        description: `Status das composições acopladas também alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}.`,
+      });
     }
 
     setStatusChangeDialogOpen(false);
@@ -206,7 +223,11 @@ export default function Vehicles() {
         today.setHours(0, 0, 0, 0);
         
         if (cnhValidity < today) {
-          toast.error(`Não é possível vincular ${driver.name}. CNH vencida desde ${cnhValidity.toLocaleDateString('pt-BR')}`);
+          toast({
+            variant: 'destructive',
+            title: 'CNH vencida',
+            description: `Não é possível vincular ${driver.name}. CNH vencida desde ${cnhValidity.toLocaleDateString('pt-BR')}.`,
+          });
           return;
         }
       }
@@ -218,7 +239,11 @@ export default function Vehicles() {
       );
       
       if (driverInUse) {
-        toast.error(`Motorista já está vinculado ao veículo ${driverInUse.plate}`);
+        toast({
+          variant: 'destructive',
+          title: 'Motorista em uso',
+          description: `Motorista já está vinculado ao veículo ${driverInUse.plate}.`,
+        });
         return;
       }
     }
@@ -227,9 +252,15 @@ export default function Vehicles() {
     
     if (actualDriverId) {
       const driver = allDrivers.find(d => d.id === actualDriverId);
-      toast.success(`Motorista ${driver?.name} vinculado ao veículo`);
+      toast({
+        title: 'Motorista vinculado',
+        description: `${driver?.name} foi vinculado ao veículo.`,
+      });
     } else {
-      toast.success('Vínculo com motorista removido');
+      toast({
+        title: 'Vínculo removido',
+        description: 'Vínculo com motorista foi removido.',
+      });
     }
   };
 
@@ -270,7 +301,10 @@ export default function Vehicles() {
       compositionAxles: newCompositionAxles
     });
     
-    toast.success(`Reboque ${trailer.plate} vinculado ao veículo`);
+    toast({
+      title: 'Reboque vinculado',
+      description: `${trailer.plate} foi vinculado ao veículo.`,
+    });
   };
 
   const handleRemoveComposition = (vehicleId: string, trailerPlate: string) => {
@@ -289,7 +323,10 @@ export default function Vehicles() {
       compositionAxles: newCompositionAxles
     });
     
-    toast.success(`Reboque ${trailerPlate} desvinculado do veículo`);
+    toast({
+      title: 'Reboque desvinculado',
+      description: `${trailerPlate} foi desvinculado do veículo.`,
+    });
   };
 
   const formatCurrency = (value: number) => {
@@ -388,10 +425,16 @@ export default function Vehicles() {
             onSubmit={(data) => {
               if (editingVehicle) {
                 updateVehicle(editingVehicle.id, data);
-                toast.success('Veículo atualizado com sucesso!');
+                toast({
+                  title: 'Veículo atualizado',
+                  description: 'Dados do veículo foram atualizados com sucesso.',
+                });
               } else {
                 addVehicle(data);
-                toast.success('Veículo cadastrado com sucesso!');
+                toast({
+                  title: 'Veículo cadastrado',
+                  description: 'Novo veículo foi adicionado à frota.',
+                });
               }
               handleDialogClose(false);
             }}

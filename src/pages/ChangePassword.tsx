@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 
 const passwordSchema = z.object({
@@ -26,6 +26,7 @@ type PasswordFormData = z.infer<typeof passwordSchema>;
 
 export default function ChangePassword() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<PasswordFormData>({
     currentPassword: '',
@@ -61,7 +62,11 @@ export default function ChangePassword() {
       // Simula verificação da senha atual (em produção, isso seria feito no backend)
       if (formData.currentPassword !== 'senha123') {
         setErrors({ currentPassword: 'Senha atual incorreta' });
-        toast.error('Senha atual incorreta');
+        toast({
+          variant: 'destructive',
+          title: 'Senha incorreta',
+          description: 'A senha atual está incorreta.',
+        });
         setIsSubmitting(false);
         return;
       }
@@ -69,7 +74,10 @@ export default function ChangePassword() {
       // Simula atualização da senha
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      toast.success('Senha alterada com sucesso!');
+      toast({
+        title: 'Senha alterada',
+        description: 'Sua senha foi alterada com sucesso.',
+      });
       
       // Limpa o formulário
       setFormData({
@@ -92,9 +100,17 @@ export default function ChangePassword() {
           }
         });
         setErrors(fieldErrors);
-        toast.error('Por favor, corrija os erros no formulário');
+        toast({
+          variant: 'destructive',
+          title: 'Erro no formulário',
+          description: 'Por favor, corrija os erros no formulário.',
+        });
       } else {
-        toast.error('Erro ao alterar senha');
+        toast({
+          variant: 'destructive',
+          title: 'Erro',
+          description: 'Erro ao alterar senha.',
+        });
       }
     } finally {
       setIsSubmitting(false);
