@@ -56,6 +56,7 @@ export interface VehicleSale {
   refrigerationSale?: {
     sellRefrigeration: boolean;
     refrigerationPrice?: number;
+    refrigerationUsageHours?: number;
   };
 }
 
@@ -65,14 +66,18 @@ interface VehicleSaleFormProps {
   currentKm: number;
   hasRefrigeration?: boolean;
   refrigerationId?: string;
+  currentRefrigerationUsageHours?: number;
 }
 
-export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeration, refrigerationId }: VehicleSaleFormProps) {
+export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeration, refrigerationId, currentRefrigerationUsageHours }: VehicleSaleFormProps) {
   const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>();
   const [transferDocument, setTransferDocument] = useState<string | undefined>();
   const [showRefrigerationQuestion, setShowRefrigerationQuestion] = useState(false);
   const [sellRefrigeration, setSellRefrigeration] = useState(false);
   const [refrigerationPrice, setRefrigerationPrice] = useState('');
+  const [refrigerationUsageHours, setRefrigerationUsageHours] = useState(
+    currentRefrigerationUsageHours ? formatInteger(currentRefrigerationUsageHours) : ''
+  );
   
   const form = useForm<VehicleSaleFormData>({
     resolver: zodResolver(saleSchema),
@@ -144,6 +149,9 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeratio
         refrigerationPrice: sellRefrigeration && refrigerationPrice 
           ? parseFloat(refrigerationPrice.replace(/\./g, '').replace(',', '.'))
           : undefined,
+        refrigerationUsageHours: sellRefrigeration && refrigerationUsageHours
+          ? parseInt(refrigerationUsageHours.replace(/\./g, ''))
+          : undefined,
       };
     }
 
@@ -173,7 +181,7 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeratio
   };
 
   const handleConfirmRefrigerationSale = () => {
-    if (!refrigerationPrice) {
+    if (!refrigerationUsageHours) {
       return;
     }
     
@@ -188,7 +196,10 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeratio
         transferDocument,
         refrigerationSale: {
           sellRefrigeration: true,
-          refrigerationPrice: parseFloat(refrigerationPrice.replace(/\./g, '').replace(',', '.')),
+          refrigerationPrice: refrigerationPrice 
+            ? parseFloat(refrigerationPrice.replace(/\./g, '').replace(',', '.'))
+            : 0,
+          refrigerationUsageHours: parseInt(refrigerationUsageHours.replace(/\./g, '')),
         },
       });
     })();
@@ -443,42 +454,56 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeratio
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Diálogo para informar preço do equipamento de refrigeração */}
+      {/* Diálogo para informar preço e horímetro do equipamento de refrigeração */}
       <AlertDialog open={showRefrigerationQuestion && sellRefrigeration}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Valor do Equipamento de Refrigeração</AlertDialogTitle>
+            <AlertDialogTitle>Dados da Venda do Equipamento</AlertDialogTitle>
             <AlertDialogDescription>
-              Informe o valor de venda do equipamento de refrigeração. Os dados do comprador serão os mesmos do veículo.
+              Informe os dados de venda do equipamento de refrigeração. Os dados do comprador serão os mesmos do veículo.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="py-4">
-            <label className="text-sm font-medium mb-2 block">Preço de Venda do Equipamento (R$) *</label>
-            <Input 
-              type="text"
-              placeholder="Ex: 50.000,00"
-              value={refrigerationPrice}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, '');
-                const numericValue = parseInt(value) || 0;
-                const formatted = new Intl.NumberFormat('pt-BR', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                }).format(numericValue / 100);
-                setRefrigerationPrice(formatted);
-              }}
-            />
+          <div className="py-4 space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Horímetro - Venda *</label>
+              <Input 
+                type="text"
+                placeholder="Ex: 15.000"
+                value={refrigerationUsageHours}
+                onChange={(e) => handleIntegerInput(e, (value) => {
+                  setRefrigerationUsageHours(value ? formatInteger(value) : '');
+                })}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Preço de Venda do Equipamento (R$)</label>
+              <Input 
+                type="text"
+                placeholder="Ex: 50.000,00 (aceita zero)"
+                value={refrigerationPrice}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, '');
+                  const numericValue = parseInt(value) || 0;
+                  const formatted = new Intl.NumberFormat('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(numericValue / 100);
+                  setRefrigerationPrice(formatted);
+                }}
+              />
+            </div>
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => {
               setSellRefrigeration(false);
               setRefrigerationPrice('');
+              setRefrigerationUsageHours(currentRefrigerationUsageHours ? formatInteger(currentRefrigerationUsageHours) : '');
             }}>
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleConfirmRefrigerationSale}
-              disabled={!refrigerationPrice || refrigerationPrice === '0,00'}
+              disabled={!refrigerationUsageHours}
             >
               Confirmar Venda
             </AlertDialogAction>

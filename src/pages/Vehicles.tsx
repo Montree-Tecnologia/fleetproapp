@@ -127,23 +127,14 @@ export default function Vehicles() {
       const refrigerationUnit = getRefrigerationUnitByVehicle(vehicleToSell.id);
       
       if (refrigerationUnit && saleData.refrigerationSale) {
-        if (saleData.refrigerationSale.sellRefrigeration && saleData.refrigerationSale.refrigerationPrice) {
-          // Calcular horímetro atual baseado nos abastecimentos
-          const refrigerationRefuelings = allRefuelings
-            .filter(r => r.refrigerationUnitId === refrigerationUnit.id)
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-          
-          const currentUsageHours = refrigerationRefuelings.length > 0 
-            ? refrigerationRefuelings[refrigerationRefuelings.length - 1].usageHours || refrigerationUnit.initialUsageHours || 0
-            : refrigerationUnit.initialUsageHours || 0;
-
+        if (saleData.refrigerationSale.sellRefrigeration) {
           // Vender o equipamento de refrigeração
           sellRefrigerationUnit(refrigerationUnit.id, {
             buyerName: saleData.buyerName,
             buyerCpfCnpj: saleData.buyerCpfCnpj,
             saleDate: saleData.saleDate,
-            usageHours: currentUsageHours,
-            salePrice: saleData.refrigerationSale.refrigerationPrice,
+            usageHours: saleData.refrigerationSale.refrigerationUsageHours || 0,
+            salePrice: saleData.refrigerationSale.refrigerationPrice || 0,
           });
 
           toast({
@@ -892,11 +883,25 @@ export default function Vehicles() {
           </DialogHeader>
           {vehicleToSell && (() => {
             const refrigerationUnit = getRefrigerationUnitByVehicle(vehicleToSell.id);
+            
+            // Calcular horímetro atual do equipamento
+            let currentRefrigerationUsageHours = 0;
+            if (refrigerationUnit) {
+              const refrigerationRefuelings = allRefuelings
+                .filter(r => r.refrigerationUnitId === refrigerationUnit.id)
+                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+              
+              currentRefrigerationUsageHours = refrigerationRefuelings.length > 0 
+                ? refrigerationRefuelings[refrigerationRefuelings.length - 1].usageHours || refrigerationUnit.initialUsageHours || 0
+                : refrigerationUnit.initialUsageHours || 0;
+            }
+            
             return (
               <VehicleSaleForm
                 currentKm={vehicleToSell.currentKm}
                 hasRefrigeration={!!refrigerationUnit}
                 refrigerationId={refrigerationUnit?.id}
+                currentRefrigerationUsageHours={currentRefrigerationUsageHours}
                 onSubmit={handleConfirmSale}
                 onCancel={() => setSaleDialogOpen(false)}
               />
