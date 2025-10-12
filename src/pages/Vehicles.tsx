@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign, Download } from 'lucide-react';
+import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign, FileSpreadsheet } from 'lucide-react';
 import { exportVehiclesToExcel } from '@/lib/excelExport';
 import {
   Select,
@@ -340,8 +340,8 @@ export default function Vehicles() {
               onClick={() => exportVehiclesToExcel(filteredVehicles)}
               className="hidden sm:flex"
             >
-              <Download className="mr-2 h-4 w-4" />
-              Exportar Excel
+              <FileSpreadsheet className="mr-2 h-4 w-4" />
+              Exportar Relatório de Frota
             </Button>
             <Button onClick={() => setIsDialogOpen(true)} className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />

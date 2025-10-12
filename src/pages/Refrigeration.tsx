@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2, Check, ChevronsUpDown, DollarSign, Undo2, Download, AlertTriangle } from 'lucide-react';
+import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2, Check, ChevronsUpDown, DollarSign, Undo2, FileSpreadsheet, AlertTriangle } from 'lucide-react';
 import { exportRefrigerationsToExcel } from '@/lib/excelExport';
 import {
   Dialog,
@@ -319,8 +319,8 @@ export default function Refrigeration() {
               onClick={() => exportRefrigerationsToExcel(filteredUnits)}
               className="hidden sm:flex"
             >
-              <Download className="mr-2 h-4 w-4" />
-              Exportar Excel
+              <FileSpreadsheet className="mr-2 h-4 w-4" />
+              Exportar Relatório de Equipamentos
             </Button>
             <Button onClick={() => setOpen(true)} className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
