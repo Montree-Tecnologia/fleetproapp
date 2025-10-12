@@ -16,7 +16,8 @@ import {
   UserCog,
   IdCard,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  KeyRound
 } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -208,6 +209,21 @@ export function Layout() {
               </Badge>
             </div>
           )}
+
+          {/* Change Password Button */}
+          <NavLink
+            to="/change-password"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+                isActive
+                  ? 'bg-sidebar-accent text-sidebar-primary font-medium'
+                  : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
+              }`
+            }
+          >
+            <KeyRound className="h-5 w-5 flex-shrink-0" />
+            {sidebarOpen && <span>Alterar Senha</span>}
+          </NavLink>
 
           {/* Logout Button */}
           <Button
