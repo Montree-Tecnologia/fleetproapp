@@ -15,8 +15,7 @@ import Refrigeration from "./pages/Refrigeration";
 import Suppliers from "./pages/Suppliers";
 import Companies from "./pages/Companies";
 import Users from "./pages/Users";
-import ChangePassword from "./pages/ChangePassword";
-
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,7 +59,7 @@ const App = () => (
               <Route path="refuelings" element={<Refuelings />} />
               <Route path="refrigeration" element={<Refrigeration />} />
               <Route path="suppliers" element={<Suppliers />} />
-              <Route path="change-password" element={<ChangePassword />} />
+              <Route path="settings" element={<Settings />} />
               <Route 
                 path="companies" 
                 element={

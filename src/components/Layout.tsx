@@ -17,7 +17,7 @@ import {
   IdCard,
   ChevronDown,
   ChevronRight,
-  KeyRound
+  Settings
 } from 'lucide-react';
 import { useState } from 'react';
 import {
@@ -210,9 +210,9 @@ export function Layout() {
             </div>
           )}
 
-          {/* Change Password Button */}
+          {/* Settings Button */}
           <NavLink
-            to="/change-password"
+            to="/settings"
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
                 isActive
@@ -221,8 +221,8 @@ export function Layout() {
               }`
             }
           >
-            <KeyRound className="h-5 w-5 flex-shrink-0" />
-            {sidebarOpen && <span>Alterar Senha</span>}
+            <Settings className="h-5 w-5 flex-shrink-0" />
+            {sidebarOpen && <span>Configurações</span>}
           </NavLink>
 
           {/* Logout Button */}
