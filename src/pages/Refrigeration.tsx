@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2, Check, ChevronsUpDown, DollarSign, Undo2, Download } from 'lucide-react';
+import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2, Check, ChevronsUpDown, DollarSign, Undo2, Download, AlertTriangle } from 'lucide-react';
 import { exportRefrigerationsToExcel } from '@/lib/excelExport';
 import {
   Dialog,
@@ -363,16 +363,25 @@ export default function Refrigeration() {
         {filteredUnits.map((unit) => {
           const vehicle = allVehicles.find(v => v.id === unit.vehicleId);
           const stats = getRefrigerationStats(unit.id, unit.initialUsageHours || 0);
+          const needsVehicle = !unit.vehicleId && unit.status !== 'sold' && unit.status !== 'inactive';
           return (
             <Card key={unit.id} className={cn(
               "hover:shadow-lg transition-shadow",
-              unit.status === 'sold' && "opacity-60 grayscale"
+              unit.status === 'sold' && "opacity-60 grayscale",
+              needsVehicle && "border-l-4 border-l-yellow-500"
             )}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-chart-1/10 rounded-lg flex items-center justify-center">
-                      <Snowflake className="h-6 w-6 text-chart-1" />
+                    <div className={cn(
+                      "w-12 h-12 rounded-lg flex items-center justify-center",
+                      needsVehicle ? "bg-yellow-500/10" : "bg-chart-1/10"
+                    )}>
+                      {needsVehicle ? (
+                        <AlertTriangle className="h-6 w-6 text-yellow-600" />
+                      ) : (
+                        <Snowflake className="h-6 w-6 text-chart-1" />
+                      )}
                     </div>
                     <div>
                       <CardTitle className="text-lg">{unit.brand} {unit.model}</CardTitle>
