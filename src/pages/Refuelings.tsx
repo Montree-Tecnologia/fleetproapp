@@ -601,24 +601,31 @@ export default function Refuelings() {
                             />
                             Todos
                           </CommandItem>
-                          {allVehicles.map((vehicle) => (
-                            <CommandItem
-                              key={vehicle.id}
-                              value={`${vehicle.plate} ${vehicle.model}`}
-                              onSelect={() => {
-                                setSelectedVehicleInRefrigeration(vehicle.id);
-                                setOpenVehicleInRefrigerationFilter(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  vehicle.id === selectedVehicleInRefrigeration ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {vehicle.plate} - {vehicle.model}
-                            </CommandItem>
-                          ))}
+                          {(() => {
+                            // Filtrar apenas veículos que possuem equipamentos de refrigeração vinculados
+                            const vehiclesWithRefrigeration = allVehicles.filter(vehicle => 
+                              allRefrigerationUnits.some(unit => unit.vehicleId === vehicle.id)
+                            );
+                            
+                            return vehiclesWithRefrigeration.map((vehicle) => (
+                              <CommandItem
+                                key={vehicle.id}
+                                value={`${vehicle.plate} ${vehicle.model}`}
+                                onSelect={() => {
+                                  setSelectedVehicleInRefrigeration(vehicle.id);
+                                  setOpenVehicleInRefrigerationFilter(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    vehicle.id === selectedVehicleInRefrigeration ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {vehicle.plate} - {vehicle.model}
+                              </CommandItem>
+                            ));
+                          })()}
                         </CommandGroup>
                       </CommandList>
                     </Command>
