@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useMockData, Supplier } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -139,6 +140,22 @@ export default function Suppliers() {
     }
   };
 
+  const filteredSuppliers = allSuppliers.filter(supplier => {
+    const search = searchTerm.toLowerCase();
+    return (
+      (supplier.fantasyName?.toLowerCase().includes(search)) ||
+      supplier.name.toLowerCase().includes(search) ||
+      (supplier.cnpj?.includes(search)) ||
+      (supplier.cpf?.includes(search)) ||
+      supplier.city.toLowerCase().includes(search)
+    );
+  });
+
+  const { displayedItems, hasMore, loadMoreRef } = useInfiniteScroll(filteredSuppliers, {
+    initialItemsCount: 20,
+    itemsPerPage: 10
+  });
+
   return (
     <div className="space-y-4 lg:space-y-6">
       <div className="flex flex-col gap-4">
@@ -183,18 +200,7 @@ export default function Suppliers() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {allSuppliers
-          .filter(supplier => {
-            const search = searchTerm.toLowerCase();
-            return (
-              (supplier.fantasyName?.toLowerCase().includes(search)) ||
-              supplier.name.toLowerCase().includes(search) ||
-              (supplier.cnpj?.includes(search)) ||
-              (supplier.cpf?.includes(search)) ||
-              supplier.city.toLowerCase().includes(search)
-            );
-          })
-          .map((supplier) => (
+        {displayedItems.map((supplier) => (
           <Card key={supplier.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between mb-2">
@@ -296,6 +302,12 @@ export default function Suppliers() {
           </Card>
         ))}
       </div>
+
+      {hasMore && (
+        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+          <div className="animate-pulse text-muted-foreground text-sm">Carregando mais fornecedores...</div>
+        </div>
+      )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

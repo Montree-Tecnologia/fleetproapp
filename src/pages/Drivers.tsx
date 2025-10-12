@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useMockData, Driver } from '@/hooks/useMockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -268,6 +269,20 @@ export default function Drivers() {
     return age;
   };
 
+  const filteredDrivers = allDrivers.filter(driver => {
+    const search = searchTerm.toLowerCase();
+    return (
+      driver.name.toLowerCase().includes(search) ||
+      driver.cpf.includes(search) ||
+      driver.cnhCategory.toLowerCase().includes(search)
+    );
+  });
+
+  const { displayedItems, hasMore, loadMoreRef } = useInfiniteScroll(filteredDrivers, {
+    initialItemsCount: 20,
+    itemsPerPage: 10
+  });
+
   return (
     <div className="space-y-4 lg:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -492,16 +507,7 @@ export default function Drivers() {
       </div>
 
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {allDrivers
-          .filter(driver => {
-            const search = searchTerm.toLowerCase();
-            return (
-              driver.name.toLowerCase().includes(search) ||
-              driver.cpf.includes(search) ||
-              driver.cnhCategory.toLowerCase().includes(search)
-            );
-          })
-          .map((driver) => {
+        {displayedItems.map((driver) => {
           const cnhStatus = getCNHStatus(driver.cnhValidity);
           
           return (
@@ -758,6 +764,12 @@ export default function Drivers() {
           )}
         </DialogContent>
       </Dialog>
+
+      {hasMore && (
+        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+          <div className="animate-pulse text-muted-foreground text-sm">Carregando mais motoristas...</div>
+        </div>
+      )}
     </div>
   );
 }

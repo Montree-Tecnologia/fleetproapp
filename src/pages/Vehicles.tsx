@@ -36,6 +36,7 @@ import { VehicleCard } from '@/components/VehicleCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 export default function Vehicles() {
   const { vehicles, drivers, refuelings, companies, suppliers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale } = useMockData();
@@ -323,6 +324,10 @@ export default function Vehicles() {
 
   const tractionVehicles = filteredVehicles.filter(v => tractionVehicleTypes.includes(v.vehicleType));
   const trailerVehicles = filteredVehicles.filter(v => trailerVehicleTypes.includes(v.vehicleType));
+
+  // Infinite scroll para veículos de tração e reboque
+  const tractionScroll = useInfiniteScroll(tractionVehicles, { initialItemsCount: 20, itemsPerPage: 10 });
+  const trailerScroll = useInfiniteScroll(trailerVehicles, { initialItemsCount: 20, itemsPerPage: 10 });
 
   return (
     <div className="space-y-4 lg:space-y-6">
@@ -866,7 +871,7 @@ export default function Vehicles() {
 
         <TabsContent value="traction" className="mt-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {tractionVehicles.map((vehicle) => (
+            {tractionScroll.displayedItems.map((vehicle) => (
               <VehicleCard
                 key={vehicle.id}
                 vehicle={vehicle}
@@ -877,24 +882,29 @@ export default function Vehicles() {
                 allVehicles={allVehicles}
                 allCompanies={allCompanies}
                 getAvailableDrivers={getAvailableDrivers}
-                handleDriverChange={handleDriverChange}
-                handleStatusChange={handleStatusChange}
-                handleViewDetails={handleViewDetails}
                 handleEdit={handleEdit}
-                handleSellVehicle={handleSellVehicle}
                 handleDelete={handleDelete}
+                handleViewDetails={handleViewDetails}
+                handleSellVehicle={handleSellVehicle}
                 handleReverseSale={handleReverseSale}
+                handleStatusChange={handleStatusChange}
+                handleDriverChange={handleDriverChange}
                 handleAddComposition={handleAddComposition}
                 handleRemoveComposition={handleRemoveComposition}
                 isAdmin={isAdmin}
               />
             ))}
           </div>
+          {tractionScroll.hasMore && (
+            <div ref={tractionScroll.loadMoreRef} className="h-20 flex items-center justify-center">
+              <div className="animate-pulse text-muted-foreground text-sm">Carregando mais veículos...</div>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="trailer" className="mt-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {trailerVehicles.map((vehicle) => (
+            {trailerScroll.displayedItems.map((vehicle) => (
               <VehicleCard
                 key={vehicle.id}
                 vehicle={vehicle}
@@ -905,19 +915,24 @@ export default function Vehicles() {
                 allVehicles={allVehicles}
                 allCompanies={allCompanies}
                 getAvailableDrivers={getAvailableDrivers}
-                handleDriverChange={handleDriverChange}
-                handleStatusChange={handleStatusChange}
-                handleViewDetails={handleViewDetails}
                 handleEdit={handleEdit}
-                handleSellVehicle={handleSellVehicle}
                 handleDelete={handleDelete}
+                handleViewDetails={handleViewDetails}
+                handleSellVehicle={handleSellVehicle}
                 handleReverseSale={handleReverseSale}
+                handleStatusChange={handleStatusChange}
+                handleDriverChange={handleDriverChange}
                 handleAddComposition={handleAddComposition}
                 handleRemoveComposition={handleRemoveComposition}
                 isAdmin={isAdmin}
               />
             ))}
           </div>
+          {trailerScroll.hasMore && (
+            <div ref={trailerScroll.loadMoreRef} className="h-20 flex items-center justify-center">
+              <div className="animate-pulse text-muted-foreground text-sm">Carregando mais veículos...</div>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

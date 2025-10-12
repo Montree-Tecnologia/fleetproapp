@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useMockData, RefrigerationUnit } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -90,6 +91,12 @@ export default function Refrigeration() {
       unit.model.toLowerCase().includes(search) ||
       unit.serialNumber.toLowerCase().includes(search)
     );
+  });
+
+  // Infinite scroll para equipamentos
+  const { displayedItems, hasMore, loadMoreRef } = useInfiniteScroll(filteredUnits, {
+    initialItemsCount: 20,
+    itemsPerPage: 10
   });
 
   // Função para calcular horímetro atual e consumo
@@ -360,7 +367,7 @@ export default function Refrigeration() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {filteredUnits.map((unit) => {
+        {displayedItems.map((unit) => {
           const vehicle = allVehicles.find(v => v.id === unit.vehicleId);
           const stats = getRefrigerationStats(unit.id, unit.initialUsageHours || 0);
           const needsVehicle = !unit.vehicleId && unit.status !== 'sold' && unit.status !== 'inactive';
@@ -647,6 +654,12 @@ export default function Refrigeration() {
           );
         })}
       </div>
+
+      {hasMore && (
+        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+          <div className="animate-pulse text-muted-foreground text-sm">Carregando mais equipamentos...</div>
+        </div>
+      )}
 
       {allUnits.length === 0 && (
         <Card>
