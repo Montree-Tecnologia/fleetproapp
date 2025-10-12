@@ -17,11 +17,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, Upload, X, FileText } from 'lucide-react';
+import { CalendarIcon, Upload, X, FileText, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { formatCurrency, formatInteger, handleCurrencyInput, handleIntegerInput } from '@/lib/formatters';
 import { useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const saleSchema = z.object({
   buyerName: z.string().min(3, 'Nome do comprador é obrigatório'),
@@ -43,17 +53,26 @@ export interface VehicleSale {
   salePrice: number;
   paymentReceipt?: string;
   transferDocument?: string;
+  refrigerationSale?: {
+    sellRefrigeration: boolean;
+    refrigerationPrice?: number;
+  };
 }
 
 interface VehicleSaleFormProps {
   onSubmit: (data: VehicleSale) => void;
   onCancel: () => void;
   currentKm: number;
+  hasRefrigeration?: boolean;
+  refrigerationId?: string;
 }
 
-export function VehicleSaleForm({ onSubmit, onCancel, currentKm }: VehicleSaleFormProps) {
+export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeration, refrigerationId }: VehicleSaleFormProps) {
   const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>();
   const [transferDocument, setTransferDocument] = useState<string | undefined>();
+  const [showRefrigerationQuestion, setShowRefrigerationQuestion] = useState(false);
+  const [sellRefrigeration, setSellRefrigeration] = useState<boolean | null>(null);
+  const [refrigerationPrice, setRefrigerationPrice] = useState<string>('');
   
   const form = useForm<VehicleSaleFormData>({
     resolver: zodResolver(saleSchema),
@@ -102,7 +121,18 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm }: VehicleSaleFo
       return;
     }
 
-    onSubmit({
+    // Se tem refrigeração vinculada e ainda não perguntou
+    if (hasRefrigeration && sellRefrigeration === null) {
+      setShowRefrigerationQuestion(true);
+      return;
+    }
+
+    // Se vai vender a refrigeração mas não informou o preço
+    if (sellRefrigeration && !refrigerationPrice) {
+      return; // Não procede sem o preço
+    }
+
+    const saleData: VehicleSale = {
       buyerName: data.buyerName,
       buyerCpfCnpj: data.buyerCpfCnpj,
       saleDate: format(data.saleDate, 'yyyy-MM-dd'),
@@ -110,12 +140,84 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm }: VehicleSaleFo
       salePrice: data.salePrice,
       paymentReceipt,
       transferDocument,
-    });
+    };
+
+    // Adiciona informações de venda da refrigeração se aplicável
+    if (hasRefrigeration && sellRefrigeration !== null) {
+      saleData.refrigerationSale = {
+        sellRefrigeration,
+        refrigerationPrice: sellRefrigeration ? parseFloat(refrigerationPrice.replace(/\./g, '').replace(',', '.')) : undefined,
+      };
+    }
+
+    onSubmit(saleData);
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+    <>
+      <AlertDialog open={showRefrigerationQuestion} onOpenChange={setShowRefrigerationQuestion}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-amber-500" />
+              Equipamento de Refrigeração Vinculado
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-4">
+              <p>Este veículo possui um equipamento de refrigeração vinculado.</p>
+              <p className="font-semibold">O equipamento de refrigeração também está sendo vendido?</p>
+              
+              {sellRefrigeration && (
+                <div className="space-y-2 pt-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Preço de Venda do Equipamento (R$) *
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="Ex: 50.000,00"
+                    value={refrigerationPrice}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      const numValue = parseFloat(value) / 100;
+                      setRefrigerationPrice(formatCurrency(numValue));
+                    }}
+                    className="bg-background"
+                  />
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              onClick={() => {
+                setSellRefrigeration(false);
+                setShowRefrigerationQuestion(false);
+                // Após responder, submeter novamente
+                setTimeout(() => form.handleSubmit(handleSubmit)(), 0);
+              }}
+            >
+              Não, apenas desvincular
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (!sellRefrigeration) {
+                  // Primeira vez clicando em "Sim"
+                  setSellRefrigeration(true);
+                } else if (refrigerationPrice && parseFloat(refrigerationPrice.replace(/\./g, '').replace(',', '.')) > 0) {
+                  // Já informou o preço
+                  setShowRefrigerationQuestion(false);
+                  setTimeout(() => form.handleSubmit(handleSubmit)(), 0);
+                }
+              }}
+              disabled={sellRefrigeration && (!refrigerationPrice || parseFloat(refrigerationPrice.replace(/\./g, '').replace(',', '.')) <= 0)}
+            >
+              Sim, vender equipamento
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -335,7 +437,8 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm }: VehicleSaleFo
             Confirmar Venda
           </Button>
         </div>
-      </form>
-    </Form>
+        </form>
+      </Form>
+    </>
   );
 }
