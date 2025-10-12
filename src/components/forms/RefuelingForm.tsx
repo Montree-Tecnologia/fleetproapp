@@ -36,7 +36,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
 import { Refueling, Vehicle, Driver, Supplier, RefrigerationUnit } from '@/hooks/useMockData';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Command,
   CommandEmpty,
@@ -166,6 +166,11 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   const watchVehicleId = form.watch('vehicleId');
   const watchRefrigerationUnitId = form.watch('refrigerationUnitId');
   const totalValue = watchLiters * watchPricePerLiter;
+
+  // Resetar motorista selecionado quando veículo ou equipamento mudar
+  useEffect(() => {
+    setSelectedDriverId(undefined);
+  }, [watchVehicleId, watchRefrigerationUnitId]);
 
   // Buscar tipo de combustível do veículo ou equipamento selecionado
   const getEntityFuelType = () => {
@@ -1073,11 +1078,12 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     {currentDriverInfo ? 'Alterar Motorista' : 'Vincular Motorista'}
                   </FormLabel>
                   <Select 
+                    key={`driver-select-${watchVehicleId || watchRefrigerationUnitId}`}
                     onValueChange={(value) => {
                       setSelectedDriverId(value === 'none' ? '' : value);
                       field.onChange(value);
                     }}
-                    defaultValue={driverInfo?.id || 'none'}
+                    value={selectedDriverId !== undefined ? (selectedDriverId || 'none') : (driverInfo?.id || 'none')}
                   >
                     <FormControl>
                       <SelectTrigger>
