@@ -225,6 +225,8 @@ export function Layout() {
             </div>
           )}
 
+          <Separator className="bg-sidebar-border my-2" />
+
           {/* Logout Button */}
           <Button
             variant="ghost"
