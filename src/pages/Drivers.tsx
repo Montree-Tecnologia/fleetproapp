@@ -543,19 +543,16 @@ export default function Drivers() {
                 </div>
                 
                 <div className="flex gap-2 pt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleViewDetails(driver)}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Detalhes
+                  </Button>
                   <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleViewDetails(driver)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Detalhes</TooltipContent>
-                    </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
@@ -568,17 +565,18 @@ export default function Drivers() {
                       </TooltipTrigger>
                       <TooltipContent>Editar</TooltipContent>
                     </Tooltip>
-                  </TooltipProvider>
-                  <Button
-                    size="sm"
-                    variant={driver.active ? 'outline-destructive' : 'default'}
-                    className="flex-1"
-                    onClick={() => handleToggleActive(driver.id, driver.name, driver.active)}
-                  >
-                    <Power className="h-4 w-4 mr-2" />
-                    {driver.active ? 'Inativar' : 'Ativar'}
-                  </Button>
-                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant={driver.active ? 'outline-destructive' : 'default'}
+                          onClick={() => handleToggleActive(driver.id, driver.name, driver.active)}
+                        >
+                          <Power className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{driver.active ? 'Inativar' : 'Ativar'}</TooltipContent>
+                    </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button

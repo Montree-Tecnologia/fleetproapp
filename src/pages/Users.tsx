@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, Mail, Shield, Building2, Calendar, Trash2, Pencil, Search, Eye, Lock, Users as UsersIcon, KeyRound } from 'lucide-react';
+import { UserPlus, Mail, Shield, Building2, Calendar, Trash2, Pencil, Search, Eye, Lock, Users as UsersIcon, KeyRound, Power } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -576,19 +576,16 @@ export default function Users() {
               </div>
               
               <div className="flex gap-2 pt-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => handleViewDetails(user)}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Detalhes
+                </Button>
                 <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleViewDetails(user)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Detalhes</TooltipContent>
-                  </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -601,16 +598,18 @@ export default function Users() {
                     </TooltipTrigger>
                     <TooltipContent>Editar</TooltipContent>
                   </Tooltip>
-                </TooltipProvider>
-                <Button
-                  size="sm"
-                  variant={user.active ? 'outline-destructive' : 'default'}
-                  className="flex-1"
-                  onClick={() => handleToggleActive(user.id, user.active)}
-                >
-                  {user.active ? 'Inativar' : 'Ativar'}
-                </Button>
-                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant={user.active ? 'outline-destructive' : 'default'}
+                        onClick={() => handleToggleActive(user.id, user.active)}
+                      >
+                        <Power className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{user.active ? 'Inativar' : 'Ativar'}</TooltipContent>
+                  </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
