@@ -727,7 +727,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Modelo *</FormLabel>
-                {customModel ? (
+                {customModel || customBrand ? (
                   <FormControl>
                     <div className="flex gap-2">
                       <Input 
@@ -735,16 +735,18 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                         value={field.value}
                         onChange={field.onChange}
                       />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setCustomModel(false);
-                          field.onChange('');
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                      {!customBrand && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setCustomModel(false);
+                            field.onChange('');
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </FormControl>
                 ) : (
