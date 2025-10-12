@@ -5,7 +5,7 @@ import mockupPaymentReceipt from '@/assets/mockup-payment-receipt.jpg';
 import mockupFiscalNote from '@/assets/mockup-fiscal-note.jpg';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText, Truck, Snowflake, Search, Check, ChevronsUpDown, Download } from 'lucide-react';
+import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText, Truck, Snowflake, Search, Check, ChevronsUpDown, FileSpreadsheet } from 'lucide-react';
 import { exportVehicleRefuelingsToExcel, exportRefrigerationRefuelingsToExcel } from '@/lib/excelExport';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -225,8 +225,8 @@ export default function Refuelings() {
                 className="hidden sm:flex"
                 disabled={filteredVehicleRefuelings.length === 0}
               >
-                <Download className="mr-2 h-4 w-4" />
-                Exportar Veículos
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                Exportar Relatório de Abastecimento de Veículos
               </Button>
             ) : (
               <Button 
@@ -235,8 +235,8 @@ export default function Refuelings() {
                 className="hidden sm:flex"
                 disabled={filteredRefrigerationRefuelings.length === 0}
               >
-                <Download className="mr-2 h-4 w-4" />
-                Exportar Refrigeração
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                Exportar Relatório de Abastecimento de Equipamentos
               </Button>
             )}
             <Button onClick={() => setOpen(true)} className="w-full sm:w-auto">
