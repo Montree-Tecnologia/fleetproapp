@@ -266,8 +266,14 @@ export default function Dashboard() {
                     return (
                       <div key={refueling.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
                         <div>
-                          <p className="text-sm font-medium">{vehicle?.plate}</p>
+                          <p className="text-sm font-medium">{vehicle?.plate} - {vehicle?.brand} {vehicle?.model}</p>
                           <p className="text-xs text-muted-foreground">
+                            {vehicle?.vehicleType}
+                            {vehicle?.hasComposition && vehicle.compositionPlates && vehicle.compositionPlates.length > 0 && 
+                              ` • ${vehicle.compositionPlates.length} ${vehicle.compositionPlates.length === 1 ? 'reboque' : 'reboques'}`
+                            }
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
                             {refueling.liters}L • {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
                           </p>
                         </div>
@@ -451,8 +457,17 @@ export default function Dashboard() {
                     return (
                       <div key={refueling.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
                         <div>
-                          <p className="text-sm font-medium">{unit?.serialNumber}</p>
+                          <p className="text-sm font-medium">{unit?.brand} {unit?.model} - SN: {unit?.serialNumber}</p>
                           <p className="text-xs text-muted-foreground">
+                            {unit?.vehicleId ? 
+                              (() => {
+                                const vehicle = allVehicles.find(v => v.id === unit.vehicleId);
+                                return vehicle ? `${vehicle.plate} - ${vehicle.brand} ${vehicle.model} (${vehicle.vehicleType})` : 'Sem veículo vinculado';
+                              })() 
+                              : 'Sem veículo vinculado'
+                            }
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
                             {refueling.liters}L • {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
                           </p>
                         </div>
