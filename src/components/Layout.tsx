@@ -102,7 +102,7 @@ export function Layout() {
       >
         {/* Header */}
         <div className="p-4 flex items-center justify-between">
-          {(sidebarOpen || window.innerWidth >= 1024) && (
+          {sidebarOpen && (
             <div className="flex items-center gap-2">
               <Building2 className="h-6 w-6 text-sidebar-primary" />
               <span className="font-bold text-sidebar-foreground">FleetPro</span>
@@ -112,7 +112,7 @@ export function Layout() {
             variant="ghost"
             size="icon"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-sidebar-foreground hover:bg-sidebar-accent"
+            className={`text-sidebar-foreground hover:bg-sidebar-accent ${!sidebarOpen ? 'mx-auto' : ''}`}
           >
             <Menu className="h-5 w-5" />
           </Button>
