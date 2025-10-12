@@ -245,13 +245,13 @@ export default function Drivers() {
     const daysUntilExpiry = Math.floor((validityDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
     if (daysUntilExpiry < 0) {
-      return { status: 'Vencida', variant: 'destructive' as const };
+      return { status: 'CNH Vencida', variant: 'destructive' as const };
     } else if (daysUntilExpiry <= 30) {
       return { status: 'Vence em breve', variant: 'destructive' as const };
     } else if (daysUntilExpiry <= 60) {
       return { status: 'Atenção', variant: 'outline' as const };
     }
-    return { status: 'Válida', variant: 'secondary' as const };
+    return { status: 'CNH Válida', variant: 'secondary' as const };
   };
 
   const formatDate = (date: string) => {
