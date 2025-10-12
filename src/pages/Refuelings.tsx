@@ -5,7 +5,8 @@ import mockupPaymentReceipt from '@/assets/mockup-payment-receipt.jpg';
 import mockupFiscalNote from '@/assets/mockup-fiscal-note.jpg';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText, Truck, Snowflake, Search, Check, ChevronsUpDown } from 'lucide-react';
+import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText, Truck, Snowflake, Search, Check, ChevronsUpDown, Download } from 'lucide-react';
+import { exportRefuelingsToExcel } from '@/lib/excelExport';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -215,30 +216,40 @@ export default function Refuelings() {
             Controle de abastecimentos e custos com combustível
           </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => exportRefuelingsToExcel([...filteredVehicleRefuelings, ...filteredRefrigerationRefuelings], allVehicles, allRefrigerationUnits)}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Exportar Excel
+          </Button>
           <Button onClick={() => setOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Novo Abastecimento
           </Button>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingRefueling ? 'Editar' : 'Cadastrar'} Abastecimento</DialogTitle>
-              <DialogDescription>
-                {editingRefueling ? 'Edite os dados do' : 'Registre um novo'} abastecimento da frota
-              </DialogDescription>
-            </DialogHeader>
-            <RefuelingForm
-              onSubmit={handleSubmit}
-              onCancel={handleCloseDialog}
-              vehicles={tractionVehicles}
-              drivers={allDrivers}
-              suppliers={allSuppliers}
-              refrigerationUnits={allRefrigerationUnits}
-              initialData={editingRefueling}
-            />
-          </DialogContent>
-        </Dialog>
+        </div>
       </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingRefueling ? 'Editar' : 'Cadastrar'} Abastecimento</DialogTitle>
+            <DialogDescription>
+              {editingRefueling ? 'Edite os dados do' : 'Registre um novo'} abastecimento da frota
+            </DialogDescription>
+          </DialogHeader>
+          <RefuelingForm
+            onSubmit={handleSubmit}
+            onCancel={handleCloseDialog}
+            vehicles={tractionVehicles}
+            drivers={allDrivers}
+            suppliers={allSuppliers}
+            refrigerationUnits={allRefrigerationUnits}
+            initialData={editingRefueling}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Abas de Tipo */}
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'vehicles' | 'refrigeration')} className="space-y-4">

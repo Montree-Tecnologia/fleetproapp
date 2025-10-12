@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2, Check, ChevronsUpDown, DollarSign, Undo2 } from 'lucide-react';
+import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2, Check, ChevronsUpDown, DollarSign, Undo2, Download } from 'lucide-react';
+import { exportRefrigerationsToExcel } from '@/lib/excelExport';
 import {
   Dialog,
   DialogContent,
@@ -81,6 +82,15 @@ export default function Refrigeration() {
   const allSuppliers = suppliers();
   const allCompanies = companies();
   const allRefuelings = refuelings();
+
+  const filteredUnits = allUnits.filter(unit => {
+    const search = searchTerm.toLowerCase();
+    return (
+      unit.brand.toLowerCase().includes(search) ||
+      unit.model.toLowerCase().includes(search) ||
+      unit.serialNumber.toLowerCase().includes(search)
+    );
+  });
 
   // Função para calcular horímetro atual e consumo
   const getRefrigerationStats = (unitId: string, initialHours: number = 0) => {
@@ -302,29 +312,39 @@ export default function Refrigeration() {
             Controle dos equipamentos de refrigeração da frota
           </p>
         </div>
-        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => exportRefrigerationsToExcel(filteredUnits)}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Exportar Excel
+          </Button>
           <Button onClick={() => setOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Novo Aparelho
           </Button>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingUnit ? 'Editar Equipamento de Refrigeração' : 'Cadastrar Equipamento de Refrigeração'}</DialogTitle>
-              <DialogDescription>
-                {editingUnit ? 'Atualize as informações do aparelho' : 'Adicione um novo aparelho de refrigeração à frota'}
-              </DialogDescription>
-            </DialogHeader>
-            <RefrigerationForm
-              onSubmit={handleSubmit}
-              onCancel={handleDialogClose}
-              vehicles={allVehicles}
-              suppliers={allSuppliers}
-              companies={allCompanies}
-              initialData={editingUnit}
-            />
-          </DialogContent>
-        </Dialog>
+        </div>
       </div>
+
+      <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingUnit ? 'Editar Equipamento de Refrigeração' : 'Cadastrar Equipamento de Refrigeração'}</DialogTitle>
+            <DialogDescription>
+              {editingUnit ? 'Atualize as informações do aparelho' : 'Adicione um novo aparelho de refrigeração à frota'}
+            </DialogDescription>
+          </DialogHeader>
+          <RefrigerationForm
+            onSubmit={handleSubmit}
+            onCancel={handleDialogClose}
+            vehicles={allVehicles}
+            suppliers={allSuppliers}
+            companies={allCompanies}
+            initialData={editingUnit}
+          />
+        </DialogContent>
+      </Dialog>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -337,16 +357,7 @@ export default function Refrigeration() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {allUnits
-          .filter(unit => {
-            const search = searchTerm.toLowerCase();
-            return (
-              unit.brand.toLowerCase().includes(search) ||
-              unit.model.toLowerCase().includes(search) ||
-              unit.serialNumber.toLowerCase().includes(search)
-            );
-          })
-          .map((unit) => {
+        {filteredUnits.map((unit) => {
           const vehicle = allVehicles.find(v => v.id === unit.vehicleId);
           const stats = getRefrigerationStats(unit.id, unit.initialUsageHours || 0);
           return (

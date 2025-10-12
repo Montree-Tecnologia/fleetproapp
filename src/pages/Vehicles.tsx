@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign } from 'lucide-react';
+import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign, Download } from 'lucide-react';
+import { exportVehiclesToExcel } from '@/lib/excelExport';
 import {
   Select,
   SelectContent,
@@ -346,10 +347,19 @@ export default function Vehicles() {
             Controle completo dos veículos da sua empresa
           </p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Veículo
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => exportVehiclesToExcel(filteredVehicles)}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Exportar Excel
+          </Button>
+          <Button onClick={() => setIsDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Veículo
+          </Button>
+        </div>
       </div>
 
       <div className="relative">
