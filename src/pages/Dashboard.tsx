@@ -42,7 +42,7 @@ export default function Dashboard() {
     },
     {
       title: 'Consumo Médio',
-      value: `${vehicleStats.avgConsumption} km/L`,
+      value: `${vehicleStats.avgConsumption} km/l`,
       icon: TrendingUp,
       description: 'Média da frota',
       color: 'text-chart-3'
@@ -240,7 +240,7 @@ export default function Dashboard() {
                           <p className="text-xs text-muted-foreground">{vehicle.model}</p>
                         </div>
                         <span className="text-sm font-bold">
-                          {vehicle.avgConsumption.toFixed(2)} km/L
+                          {vehicle.avgConsumption.toFixed(2)} km/l
                         </span>
                       </div>
                     ))}
