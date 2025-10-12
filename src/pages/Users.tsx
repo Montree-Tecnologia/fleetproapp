@@ -320,8 +320,7 @@ export default function Users() {
               Gerencie usuários e permissões do sistema
             </p>
           </div>
-
-        <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto">
               <UserPlus className="mr-2 h-4 w-4" />
