@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Truck, Pencil, Trash2, Eye, DollarSign, Link2, Plus, X, Check, ChevronsUpDown } from 'lucide-react';
 import { Vehicle } from '@/hooks/useMockData';
 import { useState } from 'react';
@@ -117,10 +118,11 @@ export function VehicleCard({
     return false;
   })();
   return (
-    <Card className={cn(
-      "hover:shadow-lg transition-shadow",
-      vehicle.status === 'sold' && "opacity-60 grayscale"
-    )}>
+    <TooltipProvider>
+      <Card className={cn(
+        "hover:shadow-lg transition-shadow",
+        vehicle.status === 'sold' && "opacity-60 grayscale"
+      )}>
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -483,29 +485,44 @@ export function VehicleCard({
           </Button>
           {vehicle.status !== 'sold' ? (
             <>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleEdit(vehicle)}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEdit(vehicle)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Editar</TooltipContent>
+              </Tooltip>
               {isAdmin() && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleSellVehicle(vehicle)}
-              >
-                <DollarSign className="h-4 w-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleSellVehicle(vehicle)}
+                  >
+                    <DollarSign className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Vender</TooltipContent>
+              </Tooltip>
               )}
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={() => handleDelete(vehicle)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleDelete(vehicle)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Excluir</TooltipContent>
+              </Tooltip>
             </>
           ) : isAdmin() ? (
             <Button
@@ -521,5 +538,6 @@ export function VehicleCard({
         </div>
       </CardContent>
     </Card>
+    </TooltipProvider>
   );
 }
