@@ -2597,8 +2597,8 @@ export function useMockData() {
         
         if (hoursDiff > 0 && liters > 0) {
           const consumption = liters / hoursDiff;
-          // Filtrar valores absurdos (consumo entre 0.5 e 5 L/h é razoável para refrigeração)
-          if (consumption >= 0.5 && consumption <= 5) {
+          // Filtrar valores absurdos (consumo entre 0.2 e 5 L/h é razoável para refrigeração)
+          if (consumption >= 0.2 && consumption <= 5) {
             totalConsumption += consumption;
             consumptionCount++;
           }
