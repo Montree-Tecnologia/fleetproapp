@@ -531,24 +531,6 @@ export default function Drivers() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                {cnhStatus.daysUntilExpiry <= 60 && cnhStatus.daysUntilExpiry > 0 && (
-                  <Alert className="bg-orange-50 border-orange-300 text-orange-800">
-                    <AlertTriangle className="h-4 w-4 text-orange-600" />
-                    <AlertTitle>CNH vence em {cnhStatus.daysUntilExpiry} {cnhStatus.daysUntilExpiry === 1 ? 'dia' : 'dias'}</AlertTitle>
-                    <AlertDescription className="text-orange-700">
-                      Providencie a renovação da CNH com antecedência.
-                    </AlertDescription>
-                  </Alert>
-                )}
-                {cnhStatus.daysUntilExpiry < 0 && (
-                  <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>CNH vencida</AlertTitle>
-                    <AlertDescription>
-                      Motorista não pode operar veículos até a renovação.
-                    </AlertDescription>
-                  </Alert>
-                )}
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <FileText className="h-4 w-4" />
                   <span>CNH Categoria {driver.cnhCategory}</span>
