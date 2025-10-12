@@ -1267,6 +1267,30 @@ const mockRefuelings: Refueling[] = [
     supplierId: '11',
     driver: 'Carlos Santos'
   },
+  {
+    id: '101',
+    refrigerationUnitId: '1',
+    date: '2024-12-24',
+    usageHours: 3050,
+    liters: 22,
+    pricePerLiter: 6.15,
+    totalValue: 135.30,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Carlos Santos'
+  },
+  {
+    id: '102',
+    refrigerationUnitId: '1',
+    date: '2024-12-17',
+    usageHours: 2985,
+    liters: 23,
+    pricePerLiter: 6.22,
+    totalValue: 143.06,
+    fuelType: 'Diesel S10',
+    supplierId: '10',
+    driver: 'Carlos Santos'
+  },
   // Abastecimentos de equipamento de refrigeração 2
   {
     id: '22',
@@ -1303,6 +1327,213 @@ const mockRefuelings: Refueling[] = [
     fuelType: 'Diesel S10',
     supplierId: '1',
     driver: 'Pedro Lima'
+  },
+  {
+    id: '103',
+    refrigerationUnitId: '2',
+    date: '2024-12-23',
+    usageHours: 4385,
+    liters: 21,
+    pricePerLiter: 6.18,
+    totalValue: 129.78,
+    fuelType: 'Diesel S10',
+    supplierId: '3',
+    driver: 'Pedro Lima'
+  },
+  {
+    id: '104',
+    refrigerationUnitId: '2',
+    date: '2024-12-16',
+    usageHours: 4320,
+    liters: 22,
+    pricePerLiter: 6.20,
+    totalValue: 136.40,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Pedro Lima'
+  },
+  // Abastecimentos de equipamento de refrigeração 3
+  {
+    id: '105',
+    refrigerationUnitId: '3',
+    date: '2025-01-15',
+    usageHours: 1580,
+    liters: 18,
+    pricePerLiter: 6.25,
+    totalValue: 112.50,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'João Pereira'
+  },
+  {
+    id: '106',
+    refrigerationUnitId: '3',
+    date: '2025-01-08',
+    usageHours: 1525,
+    liters: 17,
+    pricePerLiter: 6.28,
+    totalValue: 106.76,
+    fuelType: 'Diesel S10',
+    supplierId: '10',
+    driver: 'João Pereira'
+  },
+  {
+    id: '107',
+    refrigerationUnitId: '3',
+    date: '2025-01-01',
+    usageHours: 1470,
+    liters: 18,
+    pricePerLiter: 6.15,
+    totalValue: 110.70,
+    fuelType: 'Diesel S10',
+    supplierId: '11',
+    driver: 'João Pereira'
+  },
+  {
+    id: '108',
+    refrigerationUnitId: '3',
+    date: '2024-12-25',
+    usageHours: 1415,
+    liters: 17,
+    pricePerLiter: 6.18,
+    totalValue: 105.06,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'João Pereira'
+  },
+  {
+    id: '109',
+    refrigerationUnitId: '3',
+    date: '2024-12-18',
+    usageHours: 1360,
+    liters: 18,
+    pricePerLiter: 6.22,
+    totalValue: 111.96,
+    fuelType: 'Diesel S10',
+    supplierId: '10',
+    driver: 'João Pereira'
+  },
+  // Abastecimentos de equipamento de refrigeração 4
+  {
+    id: '110',
+    refrigerationUnitId: '4',
+    date: '2025-01-12',
+    usageHours: 2180,
+    liters: 20,
+    pricePerLiter: 6.30,
+    totalValue: 126.00,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Marcos Costa'
+  },
+  {
+    id: '111',
+    refrigerationUnitId: '4',
+    date: '2025-01-05',
+    usageHours: 2120,
+    liters: 19,
+    pricePerLiter: 6.25,
+    totalValue: 118.75,
+    fuelType: 'Diesel S10',
+    supplierId: '3',
+    driver: 'Marcos Costa'
+  },
+  {
+    id: '112',
+    refrigerationUnitId: '4',
+    date: '2024-12-29',
+    usageHours: 2060,
+    liters: 20,
+    pricePerLiter: 6.18,
+    totalValue: 123.60,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Marcos Costa'
+  },
+  {
+    id: '113',
+    refrigerationUnitId: '4',
+    date: '2024-12-22',
+    usageHours: 2000,
+    liters: 19,
+    pricePerLiter: 6.20,
+    totalValue: 117.80,
+    fuelType: 'Diesel S10',
+    supplierId: '3',
+    driver: 'Marcos Costa'
+  },
+  {
+    id: '114',
+    refrigerationUnitId: '4',
+    date: '2024-12-15',
+    usageHours: 1940,
+    liters: 20,
+    pricePerLiter: 6.15,
+    totalValue: 123.00,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Marcos Costa'
+  },
+  // Abastecimentos de equipamento de refrigeração 5
+  {
+    id: '115',
+    refrigerationUnitId: '5',
+    date: '2025-01-11',
+    usageHours: 3820,
+    liters: 24,
+    pricePerLiter: 6.28,
+    totalValue: 150.72,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Roberto Silva'
+  },
+  {
+    id: '116',
+    refrigerationUnitId: '5',
+    date: '2025-01-04',
+    usageHours: 3750,
+    liters: 23,
+    pricePerLiter: 6.22,
+    totalValue: 143.06,
+    fuelType: 'Diesel S10',
+    supplierId: '10',
+    driver: 'Roberto Silva'
+  },
+  {
+    id: '117',
+    refrigerationUnitId: '5',
+    date: '2024-12-28',
+    usageHours: 3680,
+    liters: 24,
+    pricePerLiter: 6.15,
+    totalValue: 147.60,
+    fuelType: 'Diesel S10',
+    supplierId: '11',
+    driver: 'Roberto Silva'
+  },
+  {
+    id: '118',
+    refrigerationUnitId: '5',
+    date: '2024-12-21',
+    usageHours: 3610,
+    liters: 23,
+    pricePerLiter: 6.18,
+    totalValue: 142.14,
+    fuelType: 'Diesel S10',
+    supplierId: '1',
+    driver: 'Roberto Silva'
+  },
+  {
+    id: '119',
+    refrigerationUnitId: '5',
+    date: '2024-12-14',
+    usageHours: 3540,
+    liters: 24,
+    pricePerLiter: 6.20,
+    totalValue: 148.80,
+    fuelType: 'Diesel S10',
+    supplierId: '10',
+    driver: 'Roberto Silva'
   },
   // Abastecimentos do veículo 4 (JKL-2345)
   {
@@ -2140,12 +2371,10 @@ export function useMockData() {
     const inactiveVehicles = vehicles.filter(v => v.status === 'inactive').length;
     const soldVehicles = vehicles.filter(v => v.status === 'sold').length;
     
-    // Veículos disponíveis (excluindo vendidos e inativos)
-    const availableVehicles = vehicles.filter(v => v.status !== 'sold' && v.status !== 'inactive').length;
-    
-    // Disponibilidade: ativos / (disponíveis)
-    const availability = availableVehicles > 0 
-      ? ((activeVehicles / availableVehicles) * 100).toFixed(1) 
+    // Disponibilidade: Ativos/(Ativos+Manutenção+Inativos)
+    const denominator = activeVehicles + maintenanceVehicles + inactiveVehicles;
+    const availability = denominator > 0 
+      ? ((activeVehicles / denominator) * 100).toFixed(1) 
       : '0';
     
     // Filtrar abastecimentos do mês atual apenas de veículos
@@ -2213,12 +2442,10 @@ export function useMockData() {
     const inactiveUnits = refrigerationUnits.filter(u => u.status === 'inactive').length;
     const soldUnits = refrigerationUnits.filter(u => u.status === 'sold').length;
     
-    // Equipamentos disponíveis (excluindo vendidos e inativos)
-    const availableUnits = refrigerationUnits.filter(u => u.status !== 'sold' && u.status !== 'inactive').length;
-    
-    // Disponibilidade: ativos / disponíveis
-    const availability = availableUnits > 0 
-      ? ((activeUnits / availableUnits) * 100).toFixed(1) 
+    // Disponibilidade: Ativos/(Ativos+Manutenção+Inativos)
+    const denominator = activeUnits + maintenanceUnits + inactiveUnits;
+    const availability = denominator > 0 
+      ? ((activeUnits / denominator) * 100).toFixed(1) 
       : '0';
     
     // Filtrar abastecimentos do mês atual apenas de equipamentos de refrigeração
