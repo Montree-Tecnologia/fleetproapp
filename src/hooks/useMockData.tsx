@@ -2139,20 +2139,58 @@ export function useMockData() {
     const defectiveVehicles = vehicles.filter(v => v.status === 'defective').length;
     const inactiveVehicles = vehicles.filter(v => v.status === 'inactive').length;
     const soldVehicles = vehicles.filter(v => v.status === 'sold').length;
-    const totalKm = vehicles.reduce((sum, v) => sum + v.currentKm, 0);
     
+    // Veículos disponíveis (excluindo vendidos e inativos)
+    const availableVehicles = vehicles.filter(v => v.status !== 'sold' && v.status !== 'inactive').length;
+    
+    // Disponibilidade: ativos / (disponíveis)
+    const availability = availableVehicles > 0 
+      ? ((activeVehicles / availableVehicles) * 100).toFixed(1) 
+      : '0';
+    
+    // Filtrar abastecimentos do mês atual apenas de veículos
+    const now = new Date();
     const thisMonthRefuelings = refuelings.filter(r => {
+      if (!r.vehicleId) return false; // Apenas veículos
       const refuelDate = new Date(r.date);
-      const now = new Date();
-      return refuelDate.getMonth() === now.getMonth() && refuelDate.getFullYear() === now.getFullYear();
+      return refuelDate.getMonth() === now.getMonth() && 
+             refuelDate.getFullYear() === now.getFullYear();
     });
     
     const totalFuelCost = thisMonthRefuelings.reduce((sum, r) => sum + r.totalValue, 0);
-    const totalLiters = thisMonthRefuelings.reduce((sum, r) => sum + r.liters, 0);
-    const avgConsumption = totalLiters > 0 ? totalKm / totalLiters : 0;
-
-    // Veículos disponíveis (excluindo vendidos)
-    const availableVehicles = vehicles.filter(v => v.status !== 'sold').length;
+    
+    // Calcular consumo médio real (km/L) baseado em abastecimentos consecutivos
+    let totalConsumption = 0;
+    let consumptionCount = 0;
+    
+    vehicles.forEach(vehicle => {
+      // Pular reboques e veículos sem motor próprio (Container, Baú, Carreta, etc)
+      const trailerTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
+      if (trailerTypes.includes(vehicle.vehicleType)) return;
+      
+      const vehicleRefuelings = refuelings
+        .filter(r => r.vehicleId === vehicle.id)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      
+      // Calcular consumo entre abastecimentos consecutivos
+      for (let i = 1; i < vehicleRefuelings.length; i++) {
+        const kmDiff = (vehicleRefuelings[i].km || 0) - (vehicleRefuelings[i - 1].km || 0);
+        const liters = vehicleRefuelings[i].liters;
+        
+        if (kmDiff > 0 && liters > 0) {
+          const consumption = kmDiff / liters;
+          // Filtrar valores absurdos (consumo entre 1 e 10 km/L é razoável para caminhões)
+          if (consumption >= 1 && consumption <= 10) {
+            totalConsumption += consumption;
+            consumptionCount++;
+          }
+        }
+      }
+    });
+    
+    const avgConsumption = consumptionCount > 0 
+      ? (totalConsumption / consumptionCount).toFixed(2) 
+      : '0.00';
 
     return {
       totalVehicles: vehicles.length,
@@ -2161,10 +2199,9 @@ export function useMockData() {
       defectiveVehicles,
       inactiveVehicles,
       soldVehicles,
-      totalKm,
       totalFuelCost,
-      avgConsumption: avgConsumption.toFixed(2),
-      availability: availableVehicles > 0 ? ((activeVehicles / availableVehicles) * 100).toFixed(1) : '0'
+      avgConsumption,
+      availability
     };
   }, [vehicles, refuelings]);
 
@@ -2176,17 +2213,26 @@ export function useMockData() {
     const inactiveUnits = refrigerationUnits.filter(u => u.status === 'inactive').length;
     const soldUnits = refrigerationUnits.filter(u => u.status === 'sold').length;
     
+    // Equipamentos disponíveis (excluindo vendidos e inativos)
+    const availableUnits = refrigerationUnits.filter(u => u.status !== 'sold' && u.status !== 'inactive').length;
+    
+    // Disponibilidade: ativos / disponíveis
+    const availability = availableUnits > 0 
+      ? ((activeUnits / availableUnits) * 100).toFixed(1) 
+      : '0';
+    
+    // Filtrar abastecimentos do mês atual apenas de equipamentos de refrigeração
+    const now = new Date();
     const thisMonthRefuelings = refuelings.filter(r => {
       if (!r.refrigerationUnitId) return false;
       const refuelDate = new Date(r.date);
-      const now = new Date();
-      return refuelDate.getMonth() === now.getMonth() && refuelDate.getFullYear() === now.getFullYear();
+      return refuelDate.getMonth() === now.getMonth() && 
+             refuelDate.getFullYear() === now.getFullYear();
     });
     
     const totalFuelCost = thisMonthRefuelings.reduce((sum, r) => sum + r.totalValue, 0);
-    const totalLiters = thisMonthRefuelings.reduce((sum, r) => sum + r.liters, 0);
     
-    // Calculate average consumption (liters/hour)
+    // Calcular consumo médio (litros/hora) baseado em abastecimentos consecutivos
     let totalConsumption = 0;
     let consumptionCount = 0;
     
@@ -2195,20 +2241,25 @@ export function useMockData() {
         .filter(r => r.refrigerationUnitId === unit.id)
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       
+      // Calcular consumo entre abastecimentos consecutivos
       for (let i = 1; i < unitRefuelings.length; i++) {
         const hoursDiff = (unitRefuelings[i].usageHours || 0) - (unitRefuelings[i - 1].usageHours || 0);
         const liters = unitRefuelings[i].liters;
+        
         if (hoursDiff > 0 && liters > 0) {
-          totalConsumption += liters / hoursDiff;
-          consumptionCount++;
+          const consumption = liters / hoursDiff;
+          // Filtrar valores absurdos (consumo entre 0.5 e 5 L/h é razoável para refrigeração)
+          if (consumption >= 0.5 && consumption <= 5) {
+            totalConsumption += consumption;
+            consumptionCount++;
+          }
         }
       }
     });
     
-    const avgConsumption = consumptionCount > 0 ? totalConsumption / consumptionCount : 0;
-
-    // Equipamentos disponíveis (excluindo vendidos)
-    const availableUnits = refrigerationUnits.filter(u => u.status !== 'sold').length;
+    const avgConsumption = consumptionCount > 0 
+      ? (totalConsumption / consumptionCount).toFixed(2) 
+      : '0.00';
 
     return {
       totalUnits: refrigerationUnits.length,
@@ -2218,8 +2269,8 @@ export function useMockData() {
       inactiveUnits,
       soldUnits,
       totalFuelCost,
-      avgConsumption: avgConsumption.toFixed(2),
-      availability: availableUnits > 0 ? ((activeUnits / availableUnits) * 100).toFixed(1) : '0'
+      avgConsumption,
+      availability
     };
   }, [refrigerationUnits, refuelings]);
 
