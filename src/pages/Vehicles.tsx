@@ -39,7 +39,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 export default function Vehicles() {
-  const { vehicles, drivers, refuelings, companies, suppliers, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale } = useMockData();
+  const { vehicles, drivers, refuelings, companies, suppliers, refrigerationUnits, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale, sellRefrigerationUnit, updateRefrigerationUnit } = useMockData();
   const { isAdmin } = usePermissions();
   const { toast } = useToast();
   const allVehicles = vehicles();
@@ -120,11 +120,52 @@ export default function Vehicles() {
 
   const handleConfirmSale = (saleData: VehicleSale) => {
     if (vehicleToSell) {
+      // Processar venda do veículo
       sellVehicle(vehicleToSell.id, saleData);
-      toast({
-        title: 'Veículo vendido',
-        description: `${vehicleToSell.plate} foi vendido com sucesso.`,
-      });
+
+      // Se houver equipamento de refrigeração vinculado
+      const refrigerationUnit = getRefrigerationUnitByVehicle(vehicleToSell.id);
+      
+      if (refrigerationUnit && saleData.refrigerationSale) {
+        if (saleData.refrigerationSale.sellRefrigeration && saleData.refrigerationSale.refrigerationPrice) {
+          // Calcular horímetro atual baseado nos abastecimentos
+          const refrigerationRefuelings = allRefuelings
+            .filter(r => r.refrigerationUnitId === refrigerationUnit.id)
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+          
+          const currentUsageHours = refrigerationRefuelings.length > 0 
+            ? refrigerationRefuelings[refrigerationRefuelings.length - 1].usageHours || refrigerationUnit.initialUsageHours || 0
+            : refrigerationUnit.initialUsageHours || 0;
+
+          // Vender o equipamento de refrigeração
+          sellRefrigerationUnit(refrigerationUnit.id, {
+            buyerName: saleData.buyerName,
+            buyerCpfCnpj: saleData.buyerCpfCnpj,
+            saleDate: saleData.saleDate,
+            usageHours: currentUsageHours,
+            salePrice: saleData.refrigerationSale.refrigerationPrice,
+          });
+
+          toast({
+            title: 'Veículo e equipamento vendidos',
+            description: `${vehicleToSell.plate} e equipamento de refrigeração foram vendidos com sucesso.`,
+          });
+        } else {
+          // Apenas desvincular o equipamento
+          updateRefrigerationUnit(refrigerationUnit.id, { vehicleId: undefined });
+          
+          toast({
+            title: 'Veículo vendido',
+            description: `${vehicleToSell.plate} foi vendido e o equipamento de refrigeração foi desvinculado.`,
+          });
+        }
+      } else {
+        toast({
+          title: 'Veículo vendido',
+          description: `${vehicleToSell.plate} foi vendido com sucesso.`,
+        });
+      }
+
       setVehicleToSell(null);
       setSaleDialogOpen(false);
     }
@@ -849,13 +890,18 @@ export default function Vehicles() {
               Preencha os dados da venda do veículo
             </DialogDescription>
           </DialogHeader>
-          {vehicleToSell && (
-            <VehicleSaleForm
-              onSubmit={handleConfirmSale}
-              onCancel={() => setSaleDialogOpen(false)}
-              currentKm={vehicleToSell.currentKm}
-            />
-          )}
+          {vehicleToSell && (() => {
+            const refrigerationUnit = getRefrigerationUnitByVehicle(vehicleToSell.id);
+            return (
+              <VehicleSaleForm
+                currentKm={vehicleToSell.currentKm}
+                hasRefrigeration={!!refrigerationUnit}
+                refrigerationId={refrigerationUnit?.id}
+                onSubmit={handleConfirmSale}
+                onCancel={() => setSaleDialogOpen(false)}
+              />
+            );
+          })()}
         </DialogContent>
       </Dialog>
 
