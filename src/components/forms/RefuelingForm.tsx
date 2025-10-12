@@ -717,155 +717,315 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
             />
           )}
 
-          <FormField
-            control={form.control}
-            name="fuelType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tipo de Combustível *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Diesel S10">Diesel S10</SelectItem>
-                    <SelectItem value="Diesel S500">Diesel S500</SelectItem>
-                    <SelectItem value="Arla 32">Arla 32</SelectItem>
-                    <SelectItem value="Gasolina">Gasolina</SelectItem>
-                    <SelectItem value="Etanol">Etanol</SelectItem>
-                    <SelectItem value="GNV">GNV</SelectItem>
-                    <SelectItem value="Biometano">Biometano</SelectItem>
-                    <SelectItem value="Outro">Outro</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Ordem específica para veículos */}
+          {watchEntityType === 'vehicle' && (
+            <>
+              <FormField
+                control={form.control}
+                name="fuelType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de Combustível *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Diesel S10">Diesel S10</SelectItem>
+                        <SelectItem value="Diesel S500">Diesel S500</SelectItem>
+                        <SelectItem value="Arla 32">Arla 32</SelectItem>
+                        <SelectItem value="Gasolina">Gasolina</SelectItem>
+                        <SelectItem value="Etanol">Etanol</SelectItem>
+                        <SelectItem value="GNV">GNV</SelectItem>
+                        <SelectItem value="Biometano">Biometano</SelectItem>
+                        <SelectItem value="Outro">Outro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormField
-            control={form.control}
-            name="liters"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Litros *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="text"
-                    placeholder="Ex: 500,50"
-                    {...field}
-                    value={field.value ? formatDecimal(field.value) : ''}
-                    onChange={(e) => handleDecimalInput(e, field.onChange)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="supplierId"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <div className="flex items-center justify-between">
-                  <FormLabel>Posto *</FormLabel>
-                  {onAddSupplier && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 text-xs"
-                      onClick={() => setOpenQuickSupplier(true)}
-                    >
-                      <Plus className="h-3 w-3 mr-1" />
-                      Novo Posto
-                    </Button>
-                  )}
-                </div>
-                <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
-                  <PopoverTrigger asChild>
+              <FormField
+                control={form.control}
+                name="liters"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Litros *</FormLabel>
                     <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value
-                          ? (() => {
-                              const supplier = gasStations.find(s => s.id === field.value);
-                              return supplier ? supplier.fantasyName : "Selecione o posto";
-                            })()
-                          : "Selecione o posto"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
+                      <Input 
+                        type="text"
+                        placeholder="Ex: 500,50"
+                        {...field}
+                        value={field.value ? formatDecimal(field.value) : ''}
+                        onChange={(e) => handleDecimalInput(e, field.onChange)}
+                      />
                     </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[400px] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Buscar posto..." />
-                      <CommandList>
-                        <CommandEmpty>Nenhum posto encontrado.</CommandEmpty>
-                        <CommandGroup>
-                          {gasStations.map((supplier) => (
-                            <CommandItem
-                              key={supplier.id}
-                              value={`${supplier.fantasyName} ${supplier.cnpj} ${supplier.city} ${supplier.state}`}
-                              onSelect={() => {
-                                form.setValue("supplierId", supplier.id);
-                                setOpenSupplier(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  supplier.id === field.value ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              <div className="flex flex-col gap-1">
-                                <div className="font-semibold">
-                                  {supplier.fantasyName}
-                                </div>
-                                <div className="text-xs text-foreground/70">
-                                  CNPJ: {supplier.cnpj} | {supplier.city}/{supplier.state}
-                                </div>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormField
-            control={form.control}
-            name="pricePerLiter"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Preço por Litro (R$) *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="text"
-                    placeholder="Ex: 6,50"
-                    {...field}
-                    value={field.value ? formatCurrency(field.value) : ''}
-                    onChange={(e) => handleCurrencyInput(e, field.onChange)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              <FormField
+                control={form.control}
+                name="supplierId"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Posto *</FormLabel>
+                      {onAddSupplier && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 text-xs"
+                          onClick={() => setOpenQuickSupplier(true)}
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Novo Posto
+                        </Button>
+                      )}
+                    </div>
+                    <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? (() => {
+                                  const supplier = gasStations.find(s => s.id === field.value);
+                                  return supplier ? supplier.fantasyName : "Selecione o posto";
+                                })()
+                              : "Selecione o posto"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[400px] p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="Buscar posto..." />
+                          <CommandList>
+                            <CommandEmpty>Nenhum posto encontrado.</CommandEmpty>
+                            <CommandGroup>
+                              {gasStations.map((supplier) => (
+                                <CommandItem
+                                  key={supplier.id}
+                                  value={`${supplier.fantasyName} ${supplier.cnpj} ${supplier.city} ${supplier.state}`}
+                                  onSelect={() => {
+                                    form.setValue("supplierId", supplier.id);
+                                    setOpenSupplier(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      supplier.id === field.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  <div className="flex flex-col gap-1">
+                                    <div className="font-semibold">
+                                      {supplier.fantasyName}
+                                    </div>
+                                    <div className="text-xs text-foreground/70">
+                                      CNPJ: {supplier.cnpj} | {supplier.city}/{supplier.state}
+                                    </div>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="pricePerLiter"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preço por Litro (R$) *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="text"
+                        placeholder="Ex: 6,50"
+                        {...field}
+                        value={field.value ? formatCurrency(field.value) : ''}
+                        onChange={(e) => handleCurrencyInput(e, field.onChange)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
+
+          {/* Ordem alternada para refrigeração */}
+          {watchEntityType === 'refrigeration' && (
+            <>
+              <FormField
+                control={form.control}
+                name="liters"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Litros *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="text"
+                        placeholder="Ex: 500,50"
+                        {...field}
+                        value={field.value ? formatDecimal(field.value) : ''}
+                        onChange={(e) => handleDecimalInput(e, field.onChange)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="fuelType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de Combustível *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Diesel S10">Diesel S10</SelectItem>
+                        <SelectItem value="Diesel S500">Diesel S500</SelectItem>
+                        <SelectItem value="Arla 32">Arla 32</SelectItem>
+                        <SelectItem value="Gasolina">Gasolina</SelectItem>
+                        <SelectItem value="Etanol">Etanol</SelectItem>
+                        <SelectItem value="GNV">GNV</SelectItem>
+                        <SelectItem value="Biometano">Biometano</SelectItem>
+                        <SelectItem value="Outro">Outro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="pricePerLiter"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Preço por Litro (R$) *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="text"
+                        placeholder="Ex: 6,50"
+                        {...field}
+                        value={field.value ? formatCurrency(field.value) : ''}
+                        onChange={(e) => handleCurrencyInput(e, field.onChange)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="supplierId"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Posto *</FormLabel>
+                      {onAddSupplier && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 text-xs"
+                          onClick={() => setOpenQuickSupplier(true)}
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Novo Posto
+                        </Button>
+                      )}
+                    </div>
+                    <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? (() => {
+                                  const supplier = gasStations.find(s => s.id === field.value);
+                                  return supplier ? supplier.fantasyName : "Selecione o posto";
+                                })()
+                              : "Selecione o posto"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[400px] p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="Buscar posto..." />
+                          <CommandList>
+                            <CommandEmpty>Nenhum posto encontrado.</CommandEmpty>
+                            <CommandGroup>
+                              {gasStations.map((supplier) => (
+                                <CommandItem
+                                  key={supplier.id}
+                                  value={`${supplier.fantasyName} ${supplier.cnpj} ${supplier.city} ${supplier.state}`}
+                                  onSelect={() => {
+                                    form.setValue("supplierId", supplier.id);
+                                    setOpenSupplier(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      supplier.id === field.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  <div className="flex flex-col gap-1">
+                                    <div className="font-semibold">
+                                      {supplier.fantasyName}
+                                    </div>
+                                    <div className="text-xs text-foreground/70">
+                                      CNPJ: {supplier.cnpj} | {supplier.city}/{supplier.state}
+                                    </div>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
         </div>
 
         <div className="p-4 bg-muted rounded-lg">
