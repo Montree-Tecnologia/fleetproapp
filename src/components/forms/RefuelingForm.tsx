@@ -458,7 +458,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                           {vehiclesWithRefrigeration.map((vehicle) => (
                             <CommandItem
                               key={vehicle.id}
-                              value={`${vehicle.plate} ${vehicle.model}`}
+                              value={`${vehicle.plate} ${vehicle.model} ${vehicle.vehicleType} ${vehicle.ownerBranch}`}
                               onSelect={() => {
                                 setSelectedVehicleFilter(vehicle.id);
                                 setOpenVehicleFilter(false);
@@ -472,10 +472,23 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                               />
                               <div className="flex flex-col gap-1">
                                 <div className="font-semibold">
-                                  {vehicle.plate} - {vehicle.model}
+                                  {vehicle.plate} - {vehicle.model} ({vehicle.vehicleType})
                                 </div>
-                                <div className="text-xs text-foreground/70">
-                                  {vehicle.vehicleType}
+                                <div className="text-xs text-foreground/70 flex items-center gap-2">
+                                  <span>Proprietária: {vehicle.ownerBranch}</span>
+                                  <span>•</span>
+                                  <span className={vehicle.status === 'active' ? 'text-green-600' : vehicle.status === 'maintenance' ? 'text-yellow-600' : 'text-foreground/70'}>
+                                    Status: {vehicle.status === 'active' ? 'Ativo' : vehicle.status === 'maintenance' ? 'Manutenção' : vehicle.status === 'inactive' ? 'Inativo' : 'Vendido'}
+                                  </span>
+                                  {(() => {
+                                    const driver = drivers.find(d => d.id === vehicle.driverId);
+                                    return driver ? (
+                                      <>
+                                        <span>•</span>
+                                        <span>Motorista: {driver.name}</span>
+                                      </>
+                                    ) : null;
+                                  })()}
                                 </div>
                               </div>
                             </CommandItem>
