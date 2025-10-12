@@ -26,24 +26,33 @@ export const parseCurrency = (value: string): number => {
 
 /**
  * Formats a number with 2 decimal places and thousands separator (1.234,56)
+ * Supports negative numbers
  */
 export const formatDecimal = (value: string | number): string => {
-  const numValue = typeof value === 'string' ? parseFloat(value.replace(/\D/g, '')) / 100 : value;
+  // Handle negative sign
+  const isNegative = typeof value === 'string' ? value.includes('-') : value < 0;
+  const cleanedValue = typeof value === 'string' ? value.replace(/[^\d]/g, '') : Math.abs(value).toString();
+  const numValue = parseFloat(cleanedValue) / 100;
   
   if (isNaN(numValue)) return '';
   
-  return new Intl.NumberFormat('pt-BR', {
+  const formatted = new Intl.NumberFormat('pt-BR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(numValue);
+  
+  return isNegative ? `-${formatted}` : formatted;
 };
 
 /**
  * Parses a formatted decimal string to number
+ * Supports negative numbers
  */
 export const parseDecimal = (value: string): number => {
-  const cleaned = value.replace(/\D/g, '');
-  return parseFloat(cleaned) / 100 || 0;
+  const isNegative = value.includes('-');
+  const cleaned = value.replace(/[^\d]/g, '');
+  const numValue = parseFloat(cleaned) / 100 || 0;
+  return isNegative ? -numValue : numValue;
 };
 
 /**
@@ -97,6 +106,7 @@ export const handleCurrencyInput = (
 
 /**
  * Handles decimal input change for react-hook-form
+ * Supports negative numbers
  */
 export const handleDecimalInput = (
   e: React.ChangeEvent<HTMLInputElement>,

@@ -57,8 +57,8 @@ const refrigerationSchema = z.object({
   supplierId: z.string().optional(),
   initialUsageHours: z.number().min(0, 'Horas de uso não podem ser negativas').max(999999, 'Valor muito alto').optional(),
   fuelType: z.string().optional(),
-}).refine((data) => data.maxTemp > data.minTemp, {
-  message: 'Temperatura máxima deve ser maior que a mínima',
+}).refine((data) => data.maxTemp >= data.minTemp, {
+  message: 'Temperatura máxima deve ser maior ou igual à temperatura mínima',
   path: ['maxTemp'],
 }).refine((data) => {
   // Se vinculado a veículo, status só pode ser active ou defective
