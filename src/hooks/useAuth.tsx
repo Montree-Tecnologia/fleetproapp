@@ -10,8 +10,6 @@ interface User {
   companyCnpj: string;
   linkedCompanyIds: string[]; // IDs das empresas que o usuário tem acesso
   active?: boolean;
-  isFirstAccess?: boolean; // Indica se é o primeiro acesso
-  matrizConfigured?: boolean; // Indica se a matriz já foi configurada
 }
 
 interface AuthContextType {
@@ -19,7 +17,6 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
-  updateUser: (updates: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,12 +31,10 @@ const mockUsers: Record<string, { password: string; user: User }> = {
       email: 'admin@frota.com',
       role: 'admin',
       company: 'Transportadora Matriz',
-      companyId: 'matriz-1',
-      companyCnpj: '',
-      linkedCompanyIds: ['matriz-1'], // Apenas sua matriz
+      companyId: '1',
+      companyCnpj: '12.345.678/0001-90',
+      linkedCompanyIds: ['1', '2', '3', '4', '5'], // Acesso a todas as empresas
       active: true,
-      isFirstAccess: true,
-      matrizConfigured: false,
     }
   },
   'gestor@frota.com': {
@@ -50,28 +45,10 @@ const mockUsers: Record<string, { password: string; user: User }> = {
       email: 'gestor@frota.com',
       role: 'manager',
       company: 'Transportadora Matriz',
-      companyId: 'matriz-1',
-      companyCnpj: '',
-      linkedCompanyIds: ['matriz-1'], // Acesso limitado a algumas empresas
+      companyId: '1',
+      companyCnpj: '12.345.678/0001-90',
+      linkedCompanyIds: ['1', '2', '4'], // Acesso limitado a algumas empresas
       active: true,
-      isFirstAccess: false,
-      matrizConfigured: true,
-    }
-  },
-  'novoadmin@frota.com': {
-    password: '123456',
-    user: {
-      id: '3',
-      name: 'Maria Oliveira',
-      email: 'novoadmin@frota.com',
-      role: 'admin',
-      company: 'Minha Transportadora',
-      companyId: 'matriz-novo',
-      companyCnpj: '',
-      linkedCompanyIds: ['matriz-novo'],
-      active: true,
-      isFirstAccess: true,
-      matrizConfigured: false,
     }
   }
 };
@@ -85,14 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(JSON.parse(storedUser));
     }
   }, []);
-
-  const updateUser = (updates: Partial<User>) => {
-    if (user) {
-      const updatedUser = { ...user, ...updates };
-      setUser(updatedUser);
-      localStorage.setItem('fleet_user', JSON.stringify(updatedUser));
-    }
-  };
 
   const login = async (email: string, password: string): Promise<boolean> => {
     const mockUser = mockUsers[email];
@@ -117,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, updateUser }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

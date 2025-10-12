@@ -2081,7 +2081,67 @@ const mockUsers: User[] = [
   }
 ];
 
-const mockCompanies: Company[] = [];
+const mockCompanies: Company[] = [
+  {
+    id: '1',
+    type: 'matriz',
+    name: 'Transportadora Matriz',
+    cnpj: '12.345.678/0001-90',
+    city: 'São Paulo',
+    state: 'SP',
+    active: true,
+  },
+  {
+    id: '2',
+    type: 'filial',
+    name: 'Filial Rio de Janeiro',
+    cnpj: '12.345.678/0002-71',
+    city: 'Rio de Janeiro',
+    state: 'RJ',
+    matrizId: '1',
+    active: true,
+  },
+  {
+    id: '3',
+    type: 'filial',
+    name: 'Filial Belo Horizonte',
+    cnpj: '12.345.678/0003-52',
+    city: 'Belo Horizonte',
+    state: 'MG',
+    matrizId: '1',
+    active: true,
+  },
+  {
+    id: '4',
+    type: 'filial',
+    name: 'Filial São Paulo - Guarulhos',
+    cnpj: '12.345.678/0004-33',
+    city: 'Guarulhos',
+    state: 'SP',
+    matrizId: '1',
+    active: true,
+  },
+  {
+    id: '5',
+    type: 'filial',
+    name: 'Filial Curitiba',
+    cnpj: '12.345.678/0005-14',
+    city: 'Curitiba',
+    state: 'PR',
+    matrizId: '1',
+    active: true,
+  },
+  {
+    id: '6',
+    type: 'filial',
+    name: 'Filial Campinas',
+    cnpj: '12.345.678/0006-95',
+    city: 'Campinas',
+    state: 'SP',
+    matrizId: '1',
+    active: false,
+  },
+];
 
 // Hook
 export function useMockData() {
@@ -2091,12 +2151,7 @@ export function useMockData() {
   const [refrigerationUnits, setRefrigerationUnits] = useState<RefrigerationUnit[]>(mockRefrigerationUnits);
   const [suppliers, setSuppliers] = useState<Supplier[]>(mockSuppliers);
   const [users, setUsers] = useState<User[]>(mockUsers);
-  
-  // Carregar empresas do localStorage
-  const [companies, setCompanies] = useState<Company[]>(() => {
-    const stored = localStorage.getItem('fleet_companies');
-    return stored ? JSON.parse(stored) : mockCompanies;
-  });
+  const [companies, setCompanies] = useState<Company[]>(mockCompanies);
 
   // Drivers
   const getDrivers = useCallback(() => drivers, [drivers]);
@@ -2419,21 +2474,15 @@ export function useMockData() {
   const getCompanies = useCallback(() => companies, [companies]);
   const addCompany = useCallback((company: Omit<Company, 'id'>) => {
     const newCompany = { ...company, id: Date.now().toString() };
-    const updated = [...companies, newCompany];
-    setCompanies(updated);
-    localStorage.setItem('fleet_companies', JSON.stringify(updated));
+    setCompanies(prev => [...prev, newCompany]);
     return newCompany;
-  }, [companies]);
+  }, []);
   const updateCompany = useCallback((id: string, data: Partial<Company>) => {
-    const updated = companies.map(c => c.id === id ? { ...c, ...data } : c);
-    setCompanies(updated);
-    localStorage.setItem('fleet_companies', JSON.stringify(updated));
-  }, [companies]);
+    setCompanies(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
+  }, []);
   const deleteCompany = useCallback((id: string) => {
-    const updated = companies.filter(c => c.id !== id);
-    setCompanies(updated);
-    localStorage.setItem('fleet_companies', JSON.stringify(updated));
-  }, [companies]);
+    setCompanies(prev => prev.filter(c => c.id !== id));
+  }, []);
 
   // Dashboard Stats
   const getDashboardStats = useCallback(() => {
