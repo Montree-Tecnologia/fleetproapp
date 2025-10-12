@@ -151,7 +151,7 @@ export default function Dashboard() {
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
                       <div
-                        className="bg-chart-3 h-2 rounded-full"
+                        className="bg-yellow-500 h-2 rounded-full"
                         style={{ width: `${(vehicleStats.maintenanceVehicles / vehicleStats.totalVehicles) * 100}%` }}
                       />
                     </div>
@@ -163,7 +163,7 @@ export default function Dashboard() {
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
                       <div
-                        className="bg-destructive h-2 rounded-full"
+                        className="bg-orange-500 h-2 rounded-full"
                         style={{ width: `${(vehicleStats.defectiveVehicles / vehicleStats.totalVehicles) * 100}%` }}
                       />
                     </div>
@@ -175,7 +175,7 @@ export default function Dashboard() {
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
                       <div
-                        className="bg-muted-foreground h-2 rounded-full"
+                        className="bg-red-600 h-2 rounded-full"
                         style={{ width: `${(vehicleStats.inactiveVehicles / vehicleStats.totalVehicles) * 100}%` }}
                       />
                     </div>
@@ -187,7 +187,7 @@ export default function Dashboard() {
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
                       <div
-                        className="bg-chart-5 h-2 rounded-full"
+                        className="bg-gray-700 h-2 rounded-full"
                         style={{ width: `${(vehicleStats.soldVehicles / vehicleStats.totalVehicles) * 100}%` }}
                       />
                     </div>
@@ -336,7 +336,7 @@ export default function Dashboard() {
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
                       <div
-                        className="bg-chart-3 h-2 rounded-full"
+                        className="bg-yellow-500 h-2 rounded-full"
                         style={{ width: `${(refrigerationStats.maintenanceUnits / refrigerationStats.totalUnits) * 100}%` }}
                       />
                     </div>
@@ -348,7 +348,7 @@ export default function Dashboard() {
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
                       <div
-                        className="bg-destructive h-2 rounded-full"
+                        className="bg-orange-500 h-2 rounded-full"
                         style={{ width: `${(refrigerationStats.defectiveUnits / refrigerationStats.totalUnits) * 100}%` }}
                       />
                     </div>
@@ -360,7 +360,7 @@ export default function Dashboard() {
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
                       <div
-                        className="bg-muted-foreground h-2 rounded-full"
+                        className="bg-red-600 h-2 rounded-full"
                         style={{ width: `${(refrigerationStats.inactiveUnits / refrigerationStats.totalUnits) * 100}%` }}
                       />
                     </div>
@@ -372,7 +372,7 @@ export default function Dashboard() {
                     </div>
                     <div className="w-full bg-secondary rounded-full h-2">
                       <div
-                        className="bg-chart-5 h-2 rounded-full"
+                        className="bg-gray-700 h-2 rounded-full"
                         style={{ width: `${(refrigerationStats.soldUnits / refrigerationStats.totalUnits) * 100}%` }}
                       />
                     </div>
