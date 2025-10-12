@@ -87,6 +87,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
   const [openSupplier, setOpenSupplier] = useState(false);
   const [openVehicle, setOpenVehicle] = useState(false);
   const [customModel, setCustomModel] = useState(false);
+  const [customBrand, setCustomBrand] = useState(false);
   
   // Mapeamento de modelos por marca
   const refrigerationModels: Record<string, string[]> = {
@@ -364,26 +365,59 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Marca *</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                {customBrand ? (
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione a marca" />
-                    </SelectTrigger>
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Digite a marca" 
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setCustomBrand(false);
+                          field.onChange('');
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Thermo King">Thermo King</SelectItem>
-                    <SelectItem value="Carrier Transicold">Carrier Transicold</SelectItem>
-                    <SelectItem value="Frigoblock">Frigoblock</SelectItem>
-                    <SelectItem value="Zanotti">Zanotti</SelectItem>
-                    <SelectItem value="Eberspächer">Eberspächer</SelectItem>
-                    <SelectItem value="GAH">GAH</SelectItem>
-                    <SelectItem value="Lamberet">Lamberet</SelectItem>
-                    <SelectItem value="Mitsubishi ThermoTech">Mitsubishi ThermoTech</SelectItem>
-                    <SelectItem value="Hubbard">Hubbard</SelectItem>
-                    <SelectItem value="Kingtec">Kingtec</SelectItem>
-                    <SelectItem value="Outras">Outras</SelectItem>
-                  </SelectContent>
-                </Select>
+                ) : (
+                  <Select 
+                    onValueChange={(value) => {
+                      if (value === "Outra") {
+                        setCustomBrand(true);
+                        field.onChange('');
+                      } else {
+                        field.onChange(value);
+                      }
+                    }} 
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a marca" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Thermo King">Thermo King</SelectItem>
+                      <SelectItem value="Carrier Transicold">Carrier Transicold</SelectItem>
+                      <SelectItem value="Frigoblock">Frigoblock</SelectItem>
+                      <SelectItem value="Zanotti">Zanotti</SelectItem>
+                      <SelectItem value="Eberspächer">Eberspächer</SelectItem>
+                      <SelectItem value="GAH">GAH</SelectItem>
+                      <SelectItem value="Lamberet">Lamberet</SelectItem>
+                      <SelectItem value="Mitsubishi ThermoTech">Mitsubishi ThermoTech</SelectItem>
+                      <SelectItem value="Hubbard">Hubbard</SelectItem>
+                      <SelectItem value="Kingtec">Kingtec</SelectItem>
+                      <SelectItem value="Outras">Outras</SelectItem>
+                      <SelectItem value="Outra">Outra (digitar manualmente)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
                 <FormMessage />
               </FormItem>
             )}

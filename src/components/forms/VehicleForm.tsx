@@ -274,6 +274,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     initialData?.ownerBranch || 'Matriz'
   );
   const [customModel, setCustomModel] = useState(false);
+  const [customBrand, setCustomBrand] = useState(false);
 
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
@@ -600,86 +601,121 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Marca *</FormLabel>
-                <Select 
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    setSelectedBrand(value);
-                    // Limpa o modelo quando a marca muda
-                    form.setValue('model', '');
-                  }} 
-                  defaultValue={field.value}
-                  disabled={!vehicleCategory && !initialData}
-                >
+                {customBrand ? (
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={vehicleCategory ? "Selecione a marca" : "Selecione primeiro a categoria"} />
-                    </SelectTrigger>
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Digite a marca" 
+                        value={field.value}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setSelectedBrand(e.target.value);
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setCustomBrand(false);
+                          field.onChange('');
+                          setSelectedBrand(undefined);
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </FormControl>
-                  <SelectContent>
-                    {vehicleCategory === 'traction' && (
-                      <>
-                        <SelectItem value="Agrale">Agrale</SelectItem>
-                        <SelectItem value="DAF">DAF</SelectItem>
-                        <SelectItem value="Ford">Ford</SelectItem>
-                        <SelectItem value="International">International</SelectItem>
-                        <SelectItem value="Iveco">Iveco</SelectItem>
-                        <SelectItem value="MAN">MAN</SelectItem>
-                        <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
-                        <SelectItem value="Mitsubishi">Mitsubishi</SelectItem>
-                        <SelectItem value="Peugeot">Peugeot</SelectItem>
-                        <SelectItem value="Renault">Renault</SelectItem>
-                        <SelectItem value="Scania">Scania</SelectItem>
-                        <SelectItem value="Volvo">Volvo</SelectItem>
-                        <SelectItem value="Volkswagen">Volkswagen</SelectItem>
-                      </>
-                    )}
-                    {vehicleCategory === 'trailer' && (
-                      <>
-                        <SelectItem value="Randon">Randon</SelectItem>
-                        <SelectItem value="Librelato">Librelato</SelectItem>
-                        <SelectItem value="Guerra">Guerra</SelectItem>
-                        <SelectItem value="Noma">Noma</SelectItem>
-                        <SelectItem value="Facchini">Facchini</SelectItem>
-                        <SelectItem value="Vanderleia">Vanderleia</SelectItem>
-                        <SelectItem value="Rodotec">Rodotec</SelectItem>
-                        <SelectItem value="Rondon">Rondon</SelectItem>
-                        <SelectItem value="Kässbohrer">Kässbohrer</SelectItem>
-                        <SelectItem value="Recrusul">Recrusul</SelectItem>
-                        <SelectItem value="Schiffer">Schiffer</SelectItem>
-                        <SelectItem value="Pastre">Pastre</SelectItem>
-                      </>
-                    )}
-                    {initialData && !vehicleCategory && (
-                      <>
-                        <SelectItem value="Agrale">Agrale</SelectItem>
-                        <SelectItem value="DAF">DAF</SelectItem>
-                        <SelectItem value="Ford">Ford</SelectItem>
-                        <SelectItem value="International">International</SelectItem>
-                        <SelectItem value="Iveco">Iveco</SelectItem>
-                        <SelectItem value="MAN">MAN</SelectItem>
-                        <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
-                        <SelectItem value="Mitsubishi">Mitsubishi</SelectItem>
-                        <SelectItem value="Peugeot">Peugeot</SelectItem>
-                        <SelectItem value="Renault">Renault</SelectItem>
-                        <SelectItem value="Scania">Scania</SelectItem>
-                        <SelectItem value="Volvo">Volvo</SelectItem>
-                        <SelectItem value="Volkswagen">Volkswagen</SelectItem>
-                        <SelectItem value="Randon">Randon</SelectItem>
-                        <SelectItem value="Librelato">Librelato</SelectItem>
-                        <SelectItem value="Guerra">Guerra</SelectItem>
-                        <SelectItem value="Noma">Noma</SelectItem>
-                        <SelectItem value="Facchini">Facchini</SelectItem>
-                        <SelectItem value="Vanderleia">Vanderleia</SelectItem>
-                        <SelectItem value="Rodotec">Rodotec</SelectItem>
-                        <SelectItem value="Rondon">Rondon</SelectItem>
-                        <SelectItem value="Kässbohrer">Kässbohrer</SelectItem>
-                        <SelectItem value="Recrusul">Recrusul</SelectItem>
-                        <SelectItem value="Schiffer">Schiffer</SelectItem>
-                        <SelectItem value="Pastre">Pastre</SelectItem>
-                      </>
-                    )}
-                  </SelectContent>
-                </Select>
+                ) : (
+                  <Select 
+                    onValueChange={(value) => {
+                      if (value === "Outra") {
+                        setCustomBrand(true);
+                        field.onChange('');
+                        setSelectedBrand(undefined);
+                        form.setValue('model', '');
+                      } else {
+                        field.onChange(value);
+                        setSelectedBrand(value);
+                        form.setValue('model', '');
+                      }
+                    }} 
+                    defaultValue={field.value}
+                    disabled={!vehicleCategory && !initialData}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={vehicleCategory ? "Selecione a marca" : "Selecione primeiro a categoria"} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {vehicleCategory === 'traction' && (
+                        <>
+                          <SelectItem value="Agrale">Agrale</SelectItem>
+                          <SelectItem value="DAF">DAF</SelectItem>
+                          <SelectItem value="Ford">Ford</SelectItem>
+                          <SelectItem value="International">International</SelectItem>
+                          <SelectItem value="Iveco">Iveco</SelectItem>
+                          <SelectItem value="MAN">MAN</SelectItem>
+                          <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
+                          <SelectItem value="Mitsubishi">Mitsubishi</SelectItem>
+                          <SelectItem value="Peugeot">Peugeot</SelectItem>
+                          <SelectItem value="Renault">Renault</SelectItem>
+                          <SelectItem value="Scania">Scania</SelectItem>
+                          <SelectItem value="Volvo">Volvo</SelectItem>
+                          <SelectItem value="Volkswagen">Volkswagen</SelectItem>
+                          <SelectItem value="Outra">Outra (digitar manualmente)</SelectItem>
+                        </>
+                      )}
+                      {vehicleCategory === 'trailer' && (
+                        <>
+                          <SelectItem value="Randon">Randon</SelectItem>
+                          <SelectItem value="Librelato">Librelato</SelectItem>
+                          <SelectItem value="Guerra">Guerra</SelectItem>
+                          <SelectItem value="Noma">Noma</SelectItem>
+                          <SelectItem value="Facchini">Facchini</SelectItem>
+                          <SelectItem value="Vanderleia">Vanderleia</SelectItem>
+                          <SelectItem value="Rodotec">Rodotec</SelectItem>
+                          <SelectItem value="Rondon">Rondon</SelectItem>
+                          <SelectItem value="Kässbohrer">Kässbohrer</SelectItem>
+                          <SelectItem value="Recrusul">Recrusul</SelectItem>
+                          <SelectItem value="Schiffer">Schiffer</SelectItem>
+                          <SelectItem value="Pastre">Pastre</SelectItem>
+                          <SelectItem value="Outra">Outra (digitar manualmente)</SelectItem>
+                        </>
+                      )}
+                      {initialData && !vehicleCategory && (
+                        <>
+                          <SelectItem value="Agrale">Agrale</SelectItem>
+                          <SelectItem value="DAF">DAF</SelectItem>
+                          <SelectItem value="Ford">Ford</SelectItem>
+                          <SelectItem value="International">International</SelectItem>
+                          <SelectItem value="Iveco">Iveco</SelectItem>
+                          <SelectItem value="MAN">MAN</SelectItem>
+                          <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
+                          <SelectItem value="Mitsubishi">Mitsubishi</SelectItem>
+                          <SelectItem value="Peugeot">Peugeot</SelectItem>
+                          <SelectItem value="Renault">Renault</SelectItem>
+                          <SelectItem value="Scania">Scania</SelectItem>
+                          <SelectItem value="Volvo">Volvo</SelectItem>
+                          <SelectItem value="Volkswagen">Volkswagen</SelectItem>
+                          <SelectItem value="Randon">Randon</SelectItem>
+                          <SelectItem value="Librelato">Librelato</SelectItem>
+                          <SelectItem value="Guerra">Guerra</SelectItem>
+                          <SelectItem value="Noma">Noma</SelectItem>
+                          <SelectItem value="Facchini">Facchini</SelectItem>
+                          <SelectItem value="Vanderleia">Vanderleia</SelectItem>
+                          <SelectItem value="Rodotec">Rodotec</SelectItem>
+                          <SelectItem value="Rondon">Rondon</SelectItem>
+                          <SelectItem value="Kässbohrer">Kässbohrer</SelectItem>
+                          <SelectItem value="Recrusul">Recrusul</SelectItem>
+                          <SelectItem value="Schiffer">Schiffer</SelectItem>
+                          <SelectItem value="Pastre">Pastre</SelectItem>
+                          <SelectItem value="Outra">Outra (digitar manualmente)</SelectItem>
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
                 <FormMessage />
               </FormItem>
             )}
