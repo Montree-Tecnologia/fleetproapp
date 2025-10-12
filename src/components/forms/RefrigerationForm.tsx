@@ -411,11 +411,16 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                 <FormLabel>Temperatura Mínima (°C) *</FormLabel>
                 <FormControl>
                   <Input 
-                    type="text"
-                    placeholder="Ex: -18,50"
-                    {...field}
-                    value={field.value ? formatDecimal(field.value) : ''}
-                    onChange={(e) => handleDecimalInput(e, field.onChange)}
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    min={-50}
+                    max={50}
+                    value={field.value ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      field.onChange(v === '' ? undefined : parseFloat(v));
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -431,11 +436,16 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                 <FormLabel>Temperatura Máxima (°C) *</FormLabel>
                 <FormControl>
                   <Input 
-                    type="text"
-                    placeholder="Ex: 5,00"
-                    {...field}
-                    value={field.value ? formatDecimal(field.value) : ''}
-                    onChange={(e) => handleDecimalInput(e, field.onChange)}
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    min={-50}
+                    max={50}
+                    value={field.value ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      field.onChange(v === '' ? undefined : parseFloat(v));
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
