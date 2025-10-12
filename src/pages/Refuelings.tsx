@@ -221,7 +221,7 @@ export default function Refuelings() {
             {activeTab === 'vehicles' ? (
               <Button 
                 variant="outline"
-                onClick={() => exportVehicleRefuelingsToExcel(filteredVehicleRefuelings, allVehicles)}
+                onClick={() => exportVehicleRefuelingsToExcel(filteredVehicleRefuelings, allVehicles, allSuppliers)}
                 className="hidden sm:flex"
                 disabled={filteredVehicleRefuelings.length === 0}
               >
@@ -231,7 +231,7 @@ export default function Refuelings() {
             ) : (
               <Button 
                 variant="outline"
-                onClick={() => exportRefrigerationRefuelingsToExcel(filteredRefrigerationRefuelings, allRefrigerationUnits, allVehicles)}
+                onClick={() => exportRefrigerationRefuelingsToExcel(filteredRefrigerationRefuelings, allRefrigerationUnits, allVehicles, allSuppliers)}
                 className="hidden sm:flex"
                 disabled={filteredRefrigerationRefuelings.length === 0}
               >

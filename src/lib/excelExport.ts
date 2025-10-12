@@ -124,21 +124,26 @@ export const exportRefrigerationsToExcel = (units: RefrigerationUnit[]) => {
  */
 export const exportVehicleRefuelingsToExcel = (
   refuelings: Refueling[],
-  vehicles: Vehicle[]
+  vehicles: Vehicle[],
+  suppliers?: { id: string; name: string; fantasyName?: string }[]
 ) => {
   const data = refuelings.map(r => {
     const vehicle = vehicles.find(v => v.id === r.vehicleId);
+    const supplier = suppliers?.find(s => s.id === r.supplierId);
     
     return {
       'Data': format(new Date(r.date), 'dd/MM/yyyy'),
       'Placa': vehicle?.plate || '-',
-      'Veículo': vehicle ? `${vehicle.brand} ${vehicle.model}` : '-',
+      'Marca': vehicle?.brand || '-',
+      'Modelo': vehicle?.model || '-',
       'Tipo Veículo': vehicle?.vehicleType || '-',
+      'Filial Proprietária': vehicle?.ownerBranch || '-',
       'KM': r.km || '-',
       'Combustível': r.fuelType,
       'Litros': new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(r.liters),
       'Preço/Litro (R$)': new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(r.pricePerLiter),
       'Valor Total (R$)': new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(r.totalValue),
+      'Posto/Fornecedor': supplier?.fantasyName || supplier?.name || '-',
       'Motorista': r.driver || '-',
     };
   });
@@ -150,13 +155,16 @@ export const exportVehicleRefuelingsToExcel = (
   const colWidths = [
     { wch: 12 }, // Data
     { wch: 12 }, // Placa
-    { wch: 25 }, // Veículo
+    { wch: 15 }, // Marca
+    { wch: 20 }, // Modelo
     { wch: 18 }, // Tipo Veículo
+    { wch: 20 }, // Filial Proprietária
     { wch: 12 }, // KM
     { wch: 15 }, // Combustível
     { wch: 10 }, // Litros
     { wch: 16 }, // Preço/Litro
     { wch: 16 }, // Valor Total
+    { wch: 25 }, // Posto/Fornecedor
     { wch: 20 }, // Motorista
   ];
   ws['!cols'] = colWidths;
@@ -171,24 +179,33 @@ export const exportVehicleRefuelingsToExcel = (
 export const exportRefrigerationRefuelingsToExcel = (
   refuelings: Refueling[],
   refrigerationUnits: RefrigerationUnit[],
-  vehicles: Vehicle[]
+  vehicles: Vehicle[],
+  suppliers?: { id: string; name: string; fantasyName?: string }[]
 ) => {
   const data = refuelings.map(r => {
     const refrigeration = refrigerationUnits.find(ru => ru.id === r.refrigerationUnitId);
     const vehicle = refrigeration?.vehicleId ? vehicles.find(v => v.id === refrigeration.vehicleId) : null;
+    const supplier = suppliers?.find(s => s.id === r.supplierId);
     
     return {
       'Data': format(new Date(r.date), 'dd/MM/yyyy'),
       'Número de Série': refrigeration?.serialNumber || '-',
-      'Marca': refrigeration?.brand || '-',
-      'Modelo': refrigeration?.model || '-',
+      'Marca Refrigeração': refrigeration?.brand || '-',
+      'Modelo Refrigeração': refrigeration?.model || '-',
+      'Tipo': refrigeration?.type === 'freezer' ? 'Freezer' : 
+              refrigeration?.type === 'cooled' ? 'Refrigerado' : 'Climatizado',
+      'Empresa': refrigeration?.companyId || '-',
       'Veículo Vinculado': vehicle?.plate || 'Não vinculado',
-      'Modelo Veículo': vehicle ? `${vehicle.brand} ${vehicle.model}` : '-',
+      'Marca Veículo': vehicle?.brand || '-',
+      'Modelo Veículo': vehicle?.model || '-',
+      'Tipo Veículo': vehicle?.vehicleType || '-',
+      'Filial Proprietária': vehicle?.ownerBranch || '-',
       'Horímetro': r.usageHours || '-',
       'Combustível': r.fuelType,
       'Litros': new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(r.liters),
       'Preço/Litro (R$)': new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(r.pricePerLiter),
       'Valor Total (R$)': new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(r.totalValue),
+      'Posto/Fornecedor': supplier?.fantasyName || supplier?.name || '-',
       'Motorista': r.driver || '-',
     };
   });
@@ -200,15 +217,21 @@ export const exportRefrigerationRefuelingsToExcel = (
   const colWidths = [
     { wch: 12 }, // Data
     { wch: 18 }, // Número de Série
-    { wch: 15 }, // Marca
-    { wch: 20 }, // Modelo
-    { wch: 18 }, // Veículo Vinculado
-    { wch: 25 }, // Modelo Veículo
+    { wch: 18 }, // Marca Refrigeração
+    { wch: 20 }, // Modelo Refrigeração
+    { wch: 15 }, // Tipo
+    { wch: 15 }, // Empresa
+    { wch: 12 }, // Veículo Vinculado
+    { wch: 15 }, // Marca Veículo
+    { wch: 20 }, // Modelo Veículo
+    { wch: 18 }, // Tipo Veículo
+    { wch: 20 }, // Filial Proprietária
     { wch: 12 }, // Horímetro
     { wch: 15 }, // Combustível
     { wch: 10 }, // Litros
     { wch: 16 }, // Preço/Litro
     { wch: 16 }, // Valor Total
+    { wch: 25 }, // Posto/Fornecedor
     { wch: 20 }, // Motorista
   ];
   ws['!cols'] = colWidths;
