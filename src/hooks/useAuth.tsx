@@ -6,6 +6,9 @@ interface User {
   email: string;
   role: 'admin' | 'manager' | 'operator';
   company: string;
+  companyId: string;
+  companyCnpj: string;
+  linkedCompanyIds: string[]; // IDs das empresas que o usuário tem acesso
   active?: boolean;
 }
 
@@ -28,6 +31,9 @@ const mockUsers: Record<string, { password: string; user: User }> = {
       email: 'admin@frota.com',
       role: 'admin',
       company: 'Transportadora Matriz',
+      companyId: '1',
+      companyCnpj: '12.345.678/0001-90',
+      linkedCompanyIds: ['1', '2', '3', '4', '5'], // Acesso a todas as empresas
       active: true,
     }
   },
@@ -39,6 +45,9 @@ const mockUsers: Record<string, { password: string; user: User }> = {
       email: 'gestor@frota.com',
       role: 'manager',
       company: 'Transportadora Matriz',
+      companyId: '1',
+      companyCnpj: '12.345.678/0001-90',
+      linkedCompanyIds: ['1', '2', '4'], // Acesso limitado a algumas empresas
       active: true,
     }
   }

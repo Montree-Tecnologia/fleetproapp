@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useMockData } from '@/hooks/useMockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +34,7 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export default function Settings() {
   const { user } = useAuth();
+  const { companies } = useMockData();
   const { toast } = useToast();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -81,6 +83,12 @@ export default function Settings() {
 
   if (!user) return null;
 
+  // Obter empresas vinculadas ao usuário
+  const allCompanies = companies();
+  const linkedCompanies = allCompanies.filter(c => user.linkedCompanyIds.includes(c.id));
+  const primaryCompany = allCompanies.find(c => c.id === user.companyId);
+
+
   return (
     <div className="space-y-6">
       <div>
@@ -119,20 +127,78 @@ export default function Settings() {
 
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                  <Building2 className="h-4 w-4" />
-                  Empresa
-                </div>
-                <p className="text-base font-medium">{user.company}</p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                   <Shield className="h-4 w-4" />
                   Nível de Acesso
                 </div>
                 <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
                   {getRoleLabel(user.role)}
                 </Badge>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Empresa de Vínculo */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Empresa de Vínculo</h3>
+              {primaryCompany && (
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <Building2 className="h-4 w-4" />
+                      Razão Social
+                    </div>
+                    <p className="text-base font-medium">{primaryCompany.name}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <Building2 className="h-4 w-4" />
+                      CNPJ
+                    </div>
+                    <p className="text-base font-medium">{primaryCompany.cnpj}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <Building2 className="h-4 w-4" />
+                      Cidade/Estado
+                    </div>
+                    <p className="text-base font-medium">{primaryCompany.city}/{primaryCompany.state}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <Building2 className="h-4 w-4" />
+                      Tipo
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {primaryCompany.type === 'matriz' ? 'Matriz' : 'Filial'}
+                    </Badge>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Empresas com Acesso */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Empresas com Acesso para Operações</h3>
+              <div className="space-y-3">
+                {linkedCompanies.map((company) => (
+                  <div key={company.id} className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
+                    <div className="space-y-1">
+                      <p className="font-medium">{company.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        CNPJ: {company.cnpj} • {company.city}/{company.state}
+                      </p>
+                    </div>
+                    <Badge variant={company.type === 'matriz' ? 'default' : 'secondary'} className="text-xs">
+                      {company.type === 'matriz' ? 'Matriz' : 'Filial'}
+                    </Badge>
+                  </div>
+                ))}
               </div>
             </div>
           </CardContent>
