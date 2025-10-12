@@ -656,10 +656,18 @@ export default function Vehicles() {
                 <div className="space-y-4">
                   <div>
                     <span className="text-muted-foreground text-sm">Matriz/Filial Proprietária:</span>
-                    <div className="mt-1">
+                    <div className="mt-1 space-y-2">
                       <Badge className="bg-primary text-primary-foreground">
                         {viewingVehicle.ownerBranch}
                       </Badge>
+                      {(() => {
+                        const ownerCompany = allCompanies.find(c => c.name === viewingVehicle.ownerBranch);
+                        return ownerCompany ? (
+                          <p className="text-sm text-muted-foreground">
+                            CNPJ: <span className="font-mono font-medium">{ownerCompany.cnpj}</span>
+                          </p>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
                   <div>
@@ -737,10 +745,25 @@ export default function Vehicles() {
                         </div>
                       );
                     })}
-                    <div className="pt-2 border-t border-border">
+                    <div className="pt-2 border-t border-border space-y-2">
                       <p className="text-sm font-medium">
                         Total de eixos (veículo + composições): {viewingVehicle.axles + (viewingVehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
                       </p>
+                      {(() => {
+                        // Calcular peso total do conjunto
+                        const vehicleWeight = viewingVehicle.weight || 0;
+                        const compositionsWeight = viewingVehicle.compositionPlates?.reduce((total, plate) => {
+                          const trailer = allVehicles.find(v => v.plate === plate);
+                          return total + (trailer?.weight || 0);
+                        }, 0) || 0;
+                        const totalWeight = vehicleWeight + compositionsWeight;
+                        
+                        return totalWeight > 0 ? (
+                          <p className="text-sm font-medium">
+                            Peso total do conjunto: {totalWeight.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} toneladas
+                          </p>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
                 </div>
