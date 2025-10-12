@@ -737,26 +737,6 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
 
           <FormField
             control={form.control}
-            name="liters"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Litros *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="text"
-                    placeholder="Ex: 500,50"
-                    {...field}
-                    value={field.value ? formatDecimal(field.value) : ''}
-                    onChange={(e) => handleDecimalInput(e, field.onChange)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="supplierId"
             render={({ field }) => (
               <FormItem className="flex flex-col">
@@ -832,6 +812,26 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     </Command>
                   </PopoverContent>
                 </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="liters"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Litros *</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="text"
+                    placeholder="Ex: 500,50"
+                    {...field}
+                    value={field.value ? formatDecimal(field.value) : ''}
+                    onChange={(e) => handleDecimalInput(e, field.onChange)}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
