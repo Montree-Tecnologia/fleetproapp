@@ -662,6 +662,7 @@ const mockVehicles: Vehicle[] = [
     weight: 15.0,
     branches: ['Matriz'],
     ownerBranch: 'Matriz',
+    driverId: '16',
     hasComposition: false,
     purchaseDate: '2022-08-10',
     purchaseValue: 240000,
