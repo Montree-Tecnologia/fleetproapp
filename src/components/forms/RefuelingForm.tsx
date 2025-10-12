@@ -968,6 +968,114 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
           </div>
         </div>
 
+        {/* Informações do Veículo Filtrado (para abastecimento de refrigeração) */}
+        {watchEntityType === 'refrigeration' && selectedVehicleFilter && (() => {
+          const vehicle = vehicles.find(v => v.id === selectedVehicleFilter);
+          return vehicle ? (
+            <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">Veículo Selecionado</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-sm">
+                    <span className="font-medium">Placa:</span> {vehicle.plate}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Modelo:</span> {vehicle.model}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Tipo:</span> {vehicle.vehicleType}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm">
+                    <span className="font-medium">Marca:</span> {vehicle.brand}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Proprietária:</span> {vehicle.ownerBranch}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">KM Atual:</span> {vehicle.currentKm.toLocaleString('pt-BR')}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null;
+        })()}
+
+        {/* Informações do Motorista do Veículo Filtrado (para abastecimento de refrigeração) */}
+        {watchEntityType === 'refrigeration' && selectedVehicleFilter && (() => {
+          const vehicle = vehicles.find(v => v.id === selectedVehicleFilter);
+          if (vehicle?.driverId) {
+            const driver = drivers.find(d => d.id === vehicle.driverId);
+            return driver ? (
+              <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+                <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">Motorista do Veículo Selecionado</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-sm">
+                      <span className="font-medium">Nome:</span> {driver.name}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-medium">CPF:</span> {driver.cpf}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm">
+                      <span className="font-medium">CNH:</span> {driver.cnhCategory}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-medium">Validade CNH:</span> {new Date(driver.cnhValidity).toLocaleDateString('pt-BR')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null;
+          }
+          return null;
+        })()}
+
+        {/* Informações do Equipamento de Refrigeração Selecionado */}
+        {watchEntityType === 'refrigeration' && watchRefrigerationUnitId && (() => {
+          const unit = refrigerationUnits.find(u => u.id === watchRefrigerationUnitId);
+          if (!unit) return null;
+          
+          const unitVehicle = unit.vehicleId ? vehicles.find(v => v.id === unit.vehicleId) : null;
+          
+          return (
+            <div className="p-4 bg-cyan-50 dark:bg-cyan-950/20 rounded-lg border border-cyan-200 dark:border-cyan-800">
+              <p className="text-sm font-semibold text-cyan-900 dark:text-cyan-100 mb-2">Resumo do Equipamento de Refrigeração</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-sm">
+                    <span className="font-medium">Marca:</span> {unit.brand}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Modelo:</span> {unit.model}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Número de Série:</span> {unit.serialNumber}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm">
+                    <span className="font-medium">Tipo:</span> {unit.type === 'freezer' ? 'Freezer' : unit.type === 'cooled' ? 'Resfriado' : 'Climatizado'}
+                  </p>
+                  {unit.initialUsageHours !== undefined && (
+                    <p className="text-sm">
+                      <span className="font-medium">Horímetro Inicial:</span> {unit.initialUsageHours.toLocaleString('pt-BR')}
+                    </p>
+                  )}
+                  {unitVehicle && (
+                    <p className="text-sm">
+                      <span className="font-medium">Proprietária:</span> {unitVehicle.ownerBranch}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Informações do Tipo de Combustível */}
         {entityFuelType && (
           <div className="p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
