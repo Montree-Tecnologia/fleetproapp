@@ -753,6 +753,36 @@ const mockVehicles: Vehicle[] = [
     ]
   },
   {
+    id: '17',
+    plate: 'WXY-7890',
+    chassis: '9BWZZZ377VT004267',
+    renavam: '00123456805',
+    brand: 'Mercedes-Benz',
+    model: 'Atego 2426',
+    manufacturingYear: 2021,
+    modelYear: 2022,
+    color: 'Azul',
+    vehicleType: 'Truck',
+    status: 'active',
+    purchaseKm: 42000,
+    currentKm: 68000,
+    fuelType: 'Diesel S10',
+    axles: 2,
+    weight: 8.5,
+    branches: ['Matriz', 'Filial SP'],
+    ownerBranch: 'Matriz',
+    driverId: '16',
+    hasComposition: false,
+    purchaseDate: '2021-11-15',
+    purchaseValue: 420000,
+    supplierId: '4',
+    images: [
+      'https://images.unsplash.com/photo-1615529162924-f7e4e5e9e9b4?w=800&q=80'
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
+  },
+  {
     id: '15',
     plate: 'NOP-2345',
     chassis: '9BWZZZ377VT004265',
