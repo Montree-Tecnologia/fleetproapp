@@ -197,8 +197,6 @@ export function Layout() {
 
         {/* Footer - Fixed Section */}
         <div className="p-2 space-y-1">
-          <Separator className="bg-sidebar-border my-2" />
-
           {/* Settings Button */}
           <NavLink
             to="/settings"
