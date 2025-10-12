@@ -2604,7 +2604,7 @@ export function useMockData() {
             previousStatus: u.status as 'active' | 'defective' | 'maintenance',
             status: 'sold' as const, 
             saleInfo: saleData,
-            vehicleId: undefined // Desvincular do veículo ao vender
+            vehicleId: undefined
           } 
         : u
     ));
