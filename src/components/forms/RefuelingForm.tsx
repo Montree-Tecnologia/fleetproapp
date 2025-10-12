@@ -172,6 +172,16 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     setSelectedDriverId(undefined);
   }, [watchVehicleId, watchRefrigerationUnitId]);
 
+  // Selecionar automaticamente equipamento quando veículo filtrado tiver apenas um equipamento
+  useEffect(() => {
+    if (watchEntityType === 'refrigeration' && selectedVehicleFilter) {
+      const vehicleUnits = activeRefrigerationUnits.filter(r => r.vehicleId === selectedVehicleFilter);
+      if (vehicleUnits.length === 1) {
+        form.setValue('refrigerationUnitId', vehicleUnits[0].id);
+      }
+    }
+  }, [selectedVehicleFilter, watchEntityType, activeRefrigerationUnits, form]);
+
   // Buscar tipo de combustível do veículo ou equipamento selecionado
   const getEntityFuelType = () => {
     if (watchEntityType === 'vehicle' && watchVehicleId) {
