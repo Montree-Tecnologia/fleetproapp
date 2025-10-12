@@ -211,26 +211,26 @@ export function VehicleCard({
               </p>
             </div>
           )}
+          {isTrailerVehicle && vehicle.weight && (
+            <div>
+              <span className="text-muted-foreground">Peso:</span>
+              <p className="font-medium">{vehicle.weight} ton</p>
+            </div>
+          )}
           {isTrailerVehicle && (
             <>
-              <div>
-                <span className="text-muted-foreground">Proprietária:</span>
-                <p className="font-medium">{vehicle.ownerBranch}</p>
-                {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
-              </div>
               <div>
                 <span className="text-muted-foreground">Valor:</span>
                 <p className="font-medium">
                   {vehicle.purchaseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </p>
               </div>
+              <div>
+                <span className="text-muted-foreground">Proprietária:</span>
+                <p className="font-medium">{vehicle.ownerBranch}</p>
+                {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
+              </div>
             </>
-          )}
-          {isTrailerVehicle && vehicle.weight && (
-            <div>
-              <span className="text-muted-foreground">Peso:</span>
-              <p className="font-medium">{vehicle.weight} ton</p>
-            </div>
           )}
           {isTractionVehicle && (
             <>
