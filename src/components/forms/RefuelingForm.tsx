@@ -192,7 +192,21 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       const unit = refrigerationUnits.find(u => u.id === watchRefrigerationUnitId);
       if (unit?.vehicleId) {
         const vehicle = vehicles.find(v => v.id === unit.vehicleId);
-        if (vehicle?.driverId) {
+        
+        // Se o veículo é de reboque, buscar o motorista do veículo de tração vinculado
+        const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
+        if (vehicle && trailerVehicleTypes.includes(vehicle.vehicleType)) {
+          // Encontrar o veículo de tração que tem este reboque vinculado
+          const tractionVehicle = vehicles.find(v => 
+            v.hasComposition && 
+            v.compositionPlates?.includes(vehicle.plate)
+          );
+          
+          if (tractionVehicle?.driverId) {
+            return drivers.find(d => d.id === tractionVehicle.driverId);
+          }
+        } else if (vehicle?.driverId) {
+          // Veículo de tração normal
           return drivers.find(d => d.id === vehicle.driverId);
         }
       }
@@ -211,7 +225,17 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     return null;
   };
 
+  // Motorista atual - usa o selecionado ou o vinculado ao veículo
+  const getCurrentDriver = () => {
+    if (selectedDriverId !== undefined) {
+      if (selectedDriverId === '') return null;
+      return drivers.find(d => d.id === selectedDriverId);
+    }
+    return getDriverInfo();
+  };
+
   const driverInfo = getDriverInfo();
+  const currentDriverInfo = getCurrentDriver();
   const vehicleInfo = getVehicleInfo();
 
   const handlePaymentReceiptUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1014,24 +1038,26 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
         {/* Informações e Seleção de Motorista */}
         {(watchVehicleId || watchRefrigerationUnitId) && (
           <div className="space-y-3">
-            {driverInfo && (
+            {currentDriverInfo && (
               <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
-                <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">Motorista Atual</p>
+                <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">
+                  {selectedDriverId !== undefined && selectedDriverId !== driverInfo?.id ? 'Novo Motorista' : 'Motorista Atual'}
+                </p>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-sm">
-                      <span className="font-medium">Nome:</span> {driverInfo.name}
+                      <span className="font-medium">Nome:</span> {currentDriverInfo.name}
                     </p>
                     <p className="text-sm">
-                      <span className="font-medium">CPF:</span> {driverInfo.cpf}
+                      <span className="font-medium">CPF:</span> {currentDriverInfo.cpf}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm">
-                      <span className="font-medium">CNH:</span> {driverInfo.cnhCategory}
+                      <span className="font-medium">CNH:</span> {currentDriverInfo.cnhCategory}
                     </p>
                     <p className="text-sm">
-                      <span className="font-medium">Validade CNH:</span> {new Date(driverInfo.cnhValidity).toLocaleDateString('pt-BR')}
+                      <span className="font-medium">Validade CNH:</span> {new Date(currentDriverInfo.cnhValidity).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
                 </div>
@@ -1044,7 +1070,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>
-                    {driverInfo ? 'Alterar Motorista' : 'Vincular Motorista'}
+                    {currentDriverInfo ? 'Alterar Motorista' : 'Vincular Motorista'}
                   </FormLabel>
                   <Select 
                     onValueChange={(value) => {
