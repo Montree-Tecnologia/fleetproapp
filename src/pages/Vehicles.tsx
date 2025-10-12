@@ -729,6 +729,9 @@ export default function Vehicles() {
                   ? allDrivers.find(d => d.id === tractionVehicle.driverId)
                   : null;
 
+                // Buscar empresa proprietária do veículo de tração
+                const ownerCompany = allCompanies.find(c => c.name === tractionVehicle.ownerBranch);
+
                 // Buscar outros reboques acoplados
                 const otherTrailers = tractionVehicle.compositionPlates
                   ?.filter(plate => plate !== viewingVehicle.plate)
@@ -746,7 +749,7 @@ export default function Vehicles() {
                 return (
                   <div className="border-t pt-6 space-y-6">
                     <div>
-                      <h3 className="font-semibold mb-3">Veículo de Tração</h3>
+                      <h3 className="font-semibold mb-3">Veículo de Tração do Conjunto</h3>
                       <div className="p-4 bg-green-500/5 rounded-lg border border-green-500/20 space-y-4">
                         <div className="flex items-center gap-3">
                           <Badge className="bg-green-600 text-white text-base">{tractionVehicle.plate}</Badge>
@@ -772,6 +775,18 @@ export default function Vehicles() {
                             <p className="font-medium">{tractionVehicle.color}</p>
                           </div>
                           <div>
+                            <span className="text-muted-foreground">Chassis:</span>
+                            <p className="font-medium font-mono">{tractionVehicle.chassis}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">RENAVAM:</span>
+                            <p className="font-medium font-mono">{tractionVehicle.renavam}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Combustível:</span>
+                            <p className="font-medium">{tractionVehicle.fuelType}</p>
+                          </div>
+                          <div>
                             <span className="text-muted-foreground">Eixos:</span>
                             <p className="font-medium">{tractionVehicle.axles}</p>
                           </div>
@@ -789,46 +804,78 @@ export default function Vehicles() {
                           </div>
                         </div>
 
-                        {driver && (
+                        {ownerCompany && (
                           <div className="pt-4 border-t border-green-500/20">
-                            <h4 className="font-semibold mb-3 text-sm">Motorista do Conjunto</h4>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="text-muted-foreground">Nome:</span>
-                                <p className="font-semibold">{driver.name}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">CPF:</span>
-                                <p className="font-medium font-mono">{driver.cpf}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Categoria CNH:</span>
-                                <p className="font-medium">{driver.cnhCategory}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Validade CNH:</span>
-                                <p className="font-medium">{formatDate(driver.cnhValidity)}</p>
-                              </div>
+                            <h4 className="font-semibold mb-2 text-sm">Propriedade</h4>
+                            <div className="space-y-1 text-sm">
+                              <p><span className="text-muted-foreground">Matriz/Filial:</span> <span className="font-medium">{tractionVehicle.ownerBranch}</span></p>
+                              <p><span className="text-muted-foreground">CNPJ:</span> <span className="font-medium font-mono">{ownerCompany.cnpj}</span></p>
                             </div>
                           </div>
                         )}
                       </div>
                     </div>
 
+                    {driver && (
+                      <div>
+                        <h3 className="font-semibold mb-3">Motorista do Conjunto</h3>
+                        <div className="p-4 bg-blue-500/5 rounded-lg border border-blue-500/20">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Nome:</span>
+                              <p className="font-semibold">{driver.name}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">CPF:</span>
+                              <p className="font-medium font-mono">{driver.cpf}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Categoria CNH:</span>
+                              <p className="font-medium">{driver.cnhCategory}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Validade CNH:</span>
+                              <p className="font-medium">{formatDate(driver.cnhValidity)}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {otherTrailers.length > 0 && (
                       <div>
                         <h3 className="font-semibold mb-3">Outros Reboques no Conjunto</h3>
                         <div className="space-y-3">
                           {otherTrailers.map((trailer, index) => (
-                            <div key={index} className="p-4 bg-muted rounded-lg border border-border">
+                            <div key={index} className="p-4 bg-amber-500/5 rounded-lg border border-amber-500/20">
                               <div className="flex items-center gap-3 mb-3">
-                                <Badge variant="secondary" className="text-base">{trailer.plate}</Badge>
-                                <span className="text-sm text-muted-foreground">{trailer.vehicleType}</span>
+                                <Badge className="bg-amber-600 text-white text-base">{trailer.plate}</Badge>
+                                <span className="font-medium">{trailer.vehicleType}</span>
                               </div>
                               <div className="grid grid-cols-3 gap-4 text-sm">
                                 <div>
                                   <span className="text-muted-foreground">Marca/Modelo:</span>
                                   <p className="font-medium">{trailer.brand} {trailer.model}</p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Ano:</span>
+                                  <p className="font-medium">
+                                    {trailer.manufacturingYear && trailer.modelYear
+                                      ? `${trailer.manufacturingYear}/${trailer.modelYear.toString().slice(-2)}`
+                                      : 'N/A'}
+                                  </p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Cor:</span>
+                                  <p className="font-medium">{trailer.color}</p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Chassis:</span>
+                                  <p className="font-medium font-mono">{trailer.chassis}</p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">RENAVAM:</span>
+                                  <p className="font-medium font-mono">{trailer.renavam}</p>
                                 </div>
                                 <div>
                                   <span className="text-muted-foreground">Eixos:</span>
@@ -853,16 +900,16 @@ export default function Vehicles() {
                       <h4 className="font-semibold mb-3 text-sm">Resumo do Conjunto</h4>
                       <div className="space-y-2 text-sm">
                         <p className="font-medium">
-                          Total de eixos: {tractionVehicle.axles + (tractionVehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
+                          <span className="text-muted-foreground">Composição:</span> 1 veículo de tração + {tractionVehicle.compositionPlates?.length || 0} reboque(s)
+                        </p>
+                        <p className="font-medium">
+                          <span className="text-muted-foreground">Total de eixos:</span> {tractionVehicle.axles + (tractionVehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)} eixos
                         </p>
                         {totalWeight > 0 && (
                           <p className="font-medium">
-                            Peso total do conjunto: {totalWeight.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} toneladas
+                            <span className="text-muted-foreground">Peso total do conjunto:</span> {totalWeight.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} toneladas
                           </p>
                         )}
-                        <p className="font-medium">
-                          Composição: 1 veículo de tração + {tractionVehicle.compositionPlates?.length || 0} reboque(s)
-                        </p>
                       </div>
                     </div>
                   </div>
