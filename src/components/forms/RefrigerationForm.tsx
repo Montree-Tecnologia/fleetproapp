@@ -347,9 +347,26 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Marca *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Carrier" {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a marca" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Thermo King">Thermo King</SelectItem>
+                    <SelectItem value="Carrier Transicold">Carrier Transicold</SelectItem>
+                    <SelectItem value="Frigoblock">Frigoblock</SelectItem>
+                    <SelectItem value="Zanotti">Zanotti</SelectItem>
+                    <SelectItem value="Eberspächer">Eberspächer</SelectItem>
+                    <SelectItem value="GAH">GAH</SelectItem>
+                    <SelectItem value="Lamberet">Lamberet</SelectItem>
+                    <SelectItem value="Mitsubishi ThermoTech">Mitsubishi ThermoTech</SelectItem>
+                    <SelectItem value="Hubbard">Hubbard</SelectItem>
+                    <SelectItem value="Kingtec">Kingtec</SelectItem>
+                    <SelectItem value="Outras">Outras</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
