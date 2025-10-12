@@ -27,6 +27,7 @@ import {
 import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown, Truck, Snowflake } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
 import { Refueling, Vehicle, Driver, Supplier, RefrigerationUnit } from '@/hooks/useMockData';
 import { useState } from 'react';
 import {
@@ -491,9 +492,11 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                   <FormLabel>KM Atual *</FormLabel>
                   <FormControl>
                     <Input 
-                      type="number" 
-                      {...field} 
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                      type="text"
+                      placeholder="Ex: 150.000"
+                      {...field}
+                      value={field.value ? formatInteger(field.value) : ''}
+                      onChange={(e) => handleIntegerInput(e, field.onChange)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -511,9 +514,11 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                   <FormLabel>Horímetro - Atual *</FormLabel>
                   <FormControl>
                     <Input 
-                      type="number" 
-                      {...field} 
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                      type="text"
+                      placeholder="Ex: 5.000"
+                      {...field}
+                      value={field.value ? formatInteger(field.value) : ''}
+                      onChange={(e) => handleIntegerInput(e, field.onChange)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -558,10 +563,11 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                 <FormLabel>Litros *</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    step="0.01"
-                    {...field} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    type="text"
+                    placeholder="Ex: 500,50"
+                    {...field}
+                    value={field.value ? formatDecimal(field.value) : ''}
+                    onChange={(e) => handleDecimalInput(e, field.onChange)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -645,10 +651,11 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                 <FormLabel>Preço por Litro (R$) *</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    step="0.01"
-                    {...field} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    type="text"
+                    placeholder="Ex: 6,50"
+                    {...field}
+                    value={field.value ? formatCurrency(field.value) : ''}
+                    onChange={(e) => handleCurrencyInput(e, field.onChange)}
                   />
                 </FormControl>
                 <FormMessage />

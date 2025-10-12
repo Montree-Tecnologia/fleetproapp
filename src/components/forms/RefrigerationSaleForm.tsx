@@ -20,6 +20,7 @@ import {
 import { CalendarIcon, Upload, X, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { formatCurrency, formatInteger, handleCurrencyInput, handleIntegerInput } from '@/lib/formatters';
 import { useState } from 'react';
 
 const saleSchema = z.object({
@@ -193,9 +194,11 @@ export function RefrigerationSaleForm({ onSubmit, onCancel, initialUsageHours }:
                 <FormLabel>Horímetro - Venda *</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                    type="text"
+                    placeholder="Ex: 5.000"
+                    {...field}
+                    value={field.value ? formatInteger(field.value) : ''}
+                    onChange={(e) => handleIntegerInput(e, field.onChange)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -211,11 +214,11 @@ export function RefrigerationSaleForm({ onSubmit, onCancel, initialUsageHours }:
                 <FormLabel>Preço de Venda (R$) *</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    step="0.01"
-                    placeholder="0.00"
-                    {...field} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    type="text"
+                    placeholder="Ex: 50.000,00"
+                    {...field}
+                    value={field.value ? formatCurrency(field.value) : ''}
+                    onChange={(e) => handleCurrencyInput(e, field.onChange)}
                   />
                 </FormControl>
                 <FormMessage />

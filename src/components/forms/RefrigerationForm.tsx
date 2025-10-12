@@ -27,6 +27,7 @@ import {
 import { CalendarIcon, Upload, X, FileText, Check, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
 import { RefrigerationUnit, Vehicle, Supplier, Company } from '@/hooks/useMockData';
 import { useState } from 'react';
 import {
@@ -410,10 +411,11 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                 <FormLabel>Temperatura Mínima (°C) *</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    step="0.1"
-                    {...field} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    type="text"
+                    placeholder="Ex: -18,50"
+                    {...field}
+                    value={field.value ? formatDecimal(field.value) : ''}
+                    onChange={(e) => handleDecimalInput(e, field.onChange)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -429,10 +431,11 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                 <FormLabel>Temperatura Máxima (°C) *</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    step="0.1"
-                    {...field} 
-                    onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                    type="text"
+                    placeholder="Ex: 5,00"
+                    {...field}
+                    value={field.value ? formatDecimal(field.value) : ''}
+                    onChange={(e) => handleDecimalInput(e, field.onChange)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -489,12 +492,17 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                 <FormLabel>Valor de Compra (R$)</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    step="0.01"
-                    min="0"
-                    placeholder="0,00"
-                    {...field} 
-                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                    type="text"
+                    placeholder="Ex: 50.000,00"
+                    {...field}
+                    value={field.value ? formatCurrency(field.value) : ''}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleCurrencyInput(e, field.onChange);
+                      } else {
+                        field.onChange(undefined);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -510,12 +518,17 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                 <FormLabel>Horímetro - Compra</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    step="1"
-                    min="0"
-                    placeholder="0"
-                    {...field} 
-                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                    type="text"
+                    placeholder="Ex: 5.000"
+                    {...field}
+                    value={field.value ? formatInteger(field.value) : ''}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleIntegerInput(e, field.onChange);
+                      } else {
+                        field.onChange(undefined);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />

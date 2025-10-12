@@ -27,6 +27,7 @@ import {
 import { CalendarIcon, Plus, X, Upload, Image as ImageIcon, FileText, Check, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { formatCurrency, formatInteger, formatYear, handleCurrencyInput, handleIntegerInput, handleYearInput } from '@/lib/formatters';
 import { useState, useMemo, useEffect } from 'react';
 import { Vehicle, Company, Supplier } from '@/hooks/useMockData';
 import { Badge } from '@/components/ui/badge';
@@ -698,11 +699,11 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     <FormLabel>Quantidade de Eixos *</FormLabel>
                     <FormControl>
                       <Input 
-                        type="number" 
-                        min="1"
-                        max="20"
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                        type="text"
+                        placeholder="Ex: 3"
+                        {...field}
+                        value={field.value ? formatInteger(field.value) : ''}
+                        onChange={(e) => handleIntegerInput(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -718,9 +719,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     <FormLabel>Ano do Modelo *</FormLabel>
                     <FormControl>
                       <Input 
-                        type="number" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        type="text"
+                        maxLength={4}
+                        placeholder="Ex: 2024"
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(e) => handleYearInput(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -736,9 +740,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     <FormLabel>Ano de Fabricação *</FormLabel>
                     <FormControl>
                       <Input 
-                        type="number" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        type="text"
+                        maxLength={4}
+                        placeholder="Ex: 2024"
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(e) => handleYearInput(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -798,9 +805,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     <FormLabel>Ano de Fabricação *</FormLabel>
                     <FormControl>
                       <Input 
-                        type="number" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        type="text"
+                        maxLength={4}
+                        placeholder="Ex: 2024"
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(e) => handleYearInput(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -816,9 +826,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     <FormLabel>Ano do Modelo *</FormLabel>
                     <FormControl>
                       <Input 
-                        type="number" 
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        type="text"
+                        maxLength={4}
+                        placeholder="Ex: 2024"
+                        {...field}
+                        value={field.value || ''}
+                        onChange={(e) => handleYearInput(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -876,11 +889,11 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     <FormLabel>Quantidade de Eixos *</FormLabel>
                     <FormControl>
                       <Input 
-                        type="number" 
-                        min="1"
-                        max="20"
-                        {...field} 
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                        type="text"
+                        placeholder="Ex: 3"
+                        {...field}
+                        value={field.value ? formatInteger(field.value) : ''}
+                        onChange={(e) => handleIntegerInput(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -926,9 +939,11 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 <FormLabel>KM de Compra *</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    {...field} 
-                    onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    type="text"
+                    placeholder="Ex: 150.000"
+                    {...field}
+                    value={field.value ? formatInteger(field.value) : ''}
+                    onChange={(e) => handleIntegerInput(e, field.onChange)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -945,13 +960,17 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 <FormLabel>Peso (Toneladas)</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    min="0"
-                    step="0.1"
-                    placeholder="Ex: 23.5"
+                    type="text"
+                    placeholder="Ex: 23,50"
                     {...field} 
-                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                    value={field.value || ''}
+                    value={field.value ? formatCurrency(field.value) : ''}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        handleCurrencyInput(e, field.onChange);
+                      } else {
+                        field.onChange(undefined);
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
@@ -973,11 +992,11 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     <FormLabel>Valor de Compra *</FormLabel>
                     <FormControl>
                       <Input 
-                        type="number" 
-                        step="0.01"
-                        placeholder="0.00"
-                        {...field} 
-                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                        type="text"
+                        placeholder="Ex: 150.000,00"
+                        {...field}
+                        value={field.value ? formatCurrency(field.value) : ''}
+                        onChange={(e) => handleCurrencyInput(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
