@@ -271,7 +271,7 @@ export function VehicleCard({
                                 <div className="font-semibold">
                                   {trailer.plate} - {trailer.vehicleType}
                                 </div>
-                                <div className="text-xs text-muted-foreground">
+                                <div className="text-xs font-medium">
                                   {trailer.brand} {trailer.model} | {trailer.axles} eixos
                                   {trailer.weight && ` | ${trailer.weight} ton`}
                                 </div>
@@ -456,7 +456,7 @@ export function VehicleCard({
                             <div className="font-semibold">
                               {driver.name}
                             </div>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="text-xs font-medium">
                               CPF: {driver.cpf}
                             </div>
                           </div>

@@ -471,7 +471,7 @@ export default function Refrigeration() {
                                   <div className="font-semibold">
                                     {vehicle.plate}
                                   </div>
-                                  <div className="text-xs text-muted-foreground">
+                                  <div className="text-xs font-medium">
                                     {vehicle.brand} {vehicle.model} | {vehicle.vehicleType}
                                   </div>
                                 </div>
