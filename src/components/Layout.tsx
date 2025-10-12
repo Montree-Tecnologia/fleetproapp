@@ -264,7 +264,7 @@ export function Layout() {
               <Menu className="h-5 w-5" />
             </Button>
             <h1 className="text-sm sm:text-lg lg:text-xl font-semibold text-foreground truncate">
-              Sistema de Gestão de Frotas
+              FleetPro - Sistema de Gestão de Frotas
             </h1>
           </div>
           <div className="flex items-center gap-4">
