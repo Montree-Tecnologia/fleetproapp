@@ -88,24 +88,24 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard Operacional</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Dashboard Operacional</h2>
+        <p className="text-sm lg:text-base text-muted-foreground">
           Visão geral da sua operação em tempo real
         </p>
       </div>
 
-      <Tabs defaultValue="vehicles" className="space-y-6">
-        <TabsList>
+      <Tabs defaultValue="vehicles" className="space-y-4 lg:space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="vehicles">Veículos</TabsTrigger>
           <TabsTrigger value="refrigeration">Equipamentos de Refrigeração</TabsTrigger>
         </TabsList>
 
         {/* Vehicles Tab */}
-        <TabsContent value="vehicles" className="space-y-6">
+        <TabsContent value="vehicles" className="space-y-4 lg:space-y-6">
           {/* Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {vehicleStatCards.map((stat) => (
               <Card key={stat.title}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -125,7 +125,7 @@ export default function Dashboard() {
           </div>
 
           {/* Status Distribution */}
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Status da Frota</CardTitle>

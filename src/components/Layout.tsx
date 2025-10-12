@@ -31,7 +31,7 @@ export function Layout() {
   const { hasPermission } = usePermissions();
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Fechado por padrão em mobile
   const [cadastrosOpen, setCadastrosOpen] = useState(true);
 
   const handleLogout = () => {
@@ -84,15 +84,25 @@ export function Layout() {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
         className={`${
-          sidebarOpen ? 'w-64' : 'w-20'
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        } ${
+          sidebarOpen ? 'w-64' : 'lg:w-20 w-64'
         } transition-all duration-300 bg-sidebar border-r border-sidebar-border flex flex-col fixed left-0 top-0 h-screen z-50`}
       >
         {/* Header */}
         <div className="p-4 flex items-center justify-between">
-          {sidebarOpen && (
+          {(sidebarOpen || window.innerWidth >= 1024) && (
             <div className="flex items-center gap-2">
               <Building2 className="h-6 w-6 text-sidebar-primary" />
               <span className="font-bold text-sidebar-foreground">FleetPro</span>
@@ -240,14 +250,25 @@ export function Layout() {
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 flex flex-col overflow-hidden ${sidebarOpen ? 'ml-64' : 'ml-20'} transition-all duration-300`}>
+      <main className={`flex-1 flex flex-col overflow-hidden ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'} transition-all duration-300`}>
         {/* Top Bar */}
-        <header className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-foreground">
-            Sistema de Gestão de Frotas
-          </h1>
+        <header className="h-16 border-b border-border bg-card px-4 lg:px-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Mobile menu button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden text-foreground"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <h1 className="text-sm sm:text-lg lg:text-xl font-semibold text-foreground truncate">
+              Sistema de Gestão de Frotas
+            </h1>
+          </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
               {new Date().toLocaleDateString('pt-BR', {
                 day: '2-digit',
                 month: 'long',
@@ -258,7 +279,7 @@ export function Layout() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-auto p-6">
+        <div className="flex-1 overflow-auto p-4 lg:p-6">
           <Outlet />
         </div>
       </main>
