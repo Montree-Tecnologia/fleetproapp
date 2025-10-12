@@ -87,6 +87,27 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
   const [openSupplier, setOpenSupplier] = useState(false);
   const [openVehicle, setOpenVehicle] = useState(false);
   
+  // Local state for temperature inputs to allow flexible typing
+  const [minTempInput, setMinTempInput] = useState<string>(
+    initialData?.minTemp !== undefined && initialData?.minTemp !== null
+      ? new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(initialData.minTemp)
+      : ''
+  );
+  const [maxTempInput, setMaxTempInput] = useState<string>(
+    initialData?.maxTemp !== undefined && initialData?.maxTemp !== null
+      ? new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(initialData.maxTemp)
+      : ''
+  );
+
+  const tempAllowedPattern = /^-?\d*(?:[.,]\d{0,2})?$/;
+  const parseLocaleTemp = (s: string): number | undefined => {
+    const trimmed = s.trim();
+    if (trimmed === '' || trimmed === '-' || trimmed === ',' || trimmed === '-,') return undefined;
+    const normalized = trimmed.replace(/\./g, '').replace(',', '.');
+    const n = Number(normalized);
+    return isNaN(n) ? undefined : n;
+  };
+  
   // Filtrar apenas fornecedores ativos dos tipos refrigeration_equipment e other
   const activeSuppliers = suppliers.filter(s => s.active && (s.type === 'refrigeration_equipment' || s.type === 'other'));
 
@@ -411,15 +432,20 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                 <FormLabel>Temperatura Mínima (°C) *</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number"
+                    type="text"
                     inputMode="decimal"
-                    step="0.01"
-                    min={-50}
-                    max={50}
-                    value={field.value ?? ''}
+                    placeholder="Ex: -18,50"
+                    value={minTempInput}
                     onChange={(e) => {
                       const v = e.target.value;
-                      field.onChange(v === '' ? undefined : parseFloat(v));
+                      if (v === '' || tempAllowedPattern.test(v)) setMinTempInput(v);
+                    }}
+                    onBlur={() => {
+                      const n = parseLocaleTemp(minTempInput);
+                      field.onChange(n);
+                      if (n !== undefined) {
+                        setMinTempInput(new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n));
+                      }
                     }}
                   />
                 </FormControl>
@@ -436,15 +462,20 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                 <FormLabel>Temperatura Máxima (°C) *</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number"
+                    type="text"
                     inputMode="decimal"
-                    step="0.01"
-                    min={-50}
-                    max={50}
-                    value={field.value ?? ''}
+                    placeholder="Ex: 5,00"
+                    value={maxTempInput}
                     onChange={(e) => {
                       const v = e.target.value;
-                      field.onChange(v === '' ? undefined : parseFloat(v));
+                      if (v === '' || tempAllowedPattern.test(v)) setMaxTempInput(v);
+                    }}
+                    onBlur={() => {
+                      const n = parseLocaleTemp(maxTempInput);
+                      field.onChange(n);
+                      if (n !== undefined) {
+                        setMaxTempInput(new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n));
+                      }
                     }}
                   />
                 </FormControl>
