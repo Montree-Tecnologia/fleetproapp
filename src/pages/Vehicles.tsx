@@ -675,27 +675,68 @@ export default function Vehicles() {
                 </div>
               </div>
 
-              {viewingVehicle.driverId && getDriverName(viewingVehicle.driverId) && (
-                <div>
-                  <h3 className="font-semibold mb-3">Motorista Vinculado</h3>
-                  <div className="p-3 bg-muted rounded-lg border border-border">
-                    <p className="text-lg font-semibold">{getDriverName(viewingVehicle.driverId)}</p>
+              {viewingVehicle.driverId && (() => {
+                const driver = allDrivers.find(d => d.id === viewingVehicle.driverId);
+                return driver ? (
+                  <div>
+                    <h3 className="font-semibold mb-3">Motorista Vinculado</h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm p-4 bg-muted rounded-lg border border-border">
+                      <div>
+                        <span className="text-muted-foreground">Nome:</span>
+                        <p className="font-semibold">{driver.name}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">CPF:</span>
+                        <p className="font-medium font-mono">{driver.cpf}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Categoria CNH:</span>
+                        <p className="font-medium">{driver.cnhCategory}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Validade CNH:</span>
+                        <p className="font-medium">{formatDate(driver.cnhValidity)}</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              )}
+                ) : null;
+              })()}
 
               {viewingVehicle.hasComposition && viewingVehicle.compositionPlates && viewingVehicle.compositionPlates.length > 0 && (
                 <div>
                   <h3 className="font-semibold mb-3">Composições Acopladas</h3>
-                  <div className="space-y-2">
-                    {viewingVehicle.compositionPlates.map((plate, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                        <Badge variant="secondary">{plate}</Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {viewingVehicle.compositionAxles?.[index]} {viewingVehicle.compositionAxles?.[index] === 1 ? 'eixo' : 'eixos'}
-                        </span>
-                      </div>
-                    ))}
+                  <div className="space-y-3">
+                    {viewingVehicle.compositionPlates.map((plate, index) => {
+                      const trailer = allVehicles.find(v => v.plate === plate);
+                      return (
+                        <div key={index} className="p-4 bg-muted rounded-lg border border-border">
+                          <div className="flex items-center gap-3 mb-3">
+                            <Badge variant="secondary" className="text-base">{plate}</Badge>
+                            {trailer && (
+                              <span className="text-sm text-muted-foreground">
+                                {trailer.vehicleType}
+                              </span>
+                            )}
+                          </div>
+                          {trailer && (
+                            <div className="grid grid-cols-3 gap-4 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Marca/Modelo:</span>
+                                <p className="font-medium">{trailer.brand} {trailer.model}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Eixos:</span>
+                                <p className="font-medium">{trailer.axles} {trailer.axles === 1 ? 'eixo' : 'eixos'}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Peso:</span>
+                                <p className="font-medium">{trailer.weight ? `${trailer.weight.toLocaleString('pt-BR')} ton` : 'Não informado'}</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                     <div className="pt-2 border-t border-border">
                       <p className="text-sm font-medium">
                         Total de eixos (veículo + composições): {viewingVehicle.axles + (viewingVehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
@@ -705,46 +746,107 @@ export default function Vehicles() {
                 </div>
               )}
 
-              {getRefrigerationUnitByVehicle(viewingVehicle.id) && (
-                <div>
-                  <h3 className="font-semibold mb-3">Unidade de Refrigeração</h3>
-                  {(() => {
-                    const unit = getRefrigerationUnitByVehicle(viewingVehicle.id);
-                    return unit ? (
-                      <div className="grid grid-cols-2 gap-4 text-sm bg-blue-500/5 p-4 rounded-lg border border-blue-500/20">
-                        <div>
-                          <span className="text-muted-foreground">Marca:</span>
-                          <p className="font-medium">{unit.brand}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Modelo:</span>
-                          <p className="font-medium">{unit.model}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Número de Série:</span>
-                          <p className="font-medium font-mono">{unit.serialNumber}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Tipo:</span>
-                          <p className="font-medium capitalize">{unit.type === 'freezer' ? 'Freezer' : unit.type === 'cooled' ? 'Resfriado' : 'Climatizado'}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Temperatura Mínima:</span>
-                          <p className="font-medium">{unit.minTemp}°C</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Temperatura Máxima:</span>
-                          <p className="font-medium">{unit.maxTemp}°C</p>
-                        </div>
-                        <div className="col-span-2">
-                          <span className="text-muted-foreground">Data de Instalação:</span>
-                          <p className="font-medium">{formatDate(unit.installDate)}</p>
-                        </div>
+              {(() => {
+                const refrigerationUnit = getRefrigerationUnitByVehicle(viewingVehicle.id);
+                if (!refrigerationUnit) return null;
+
+                // Calcular horímetro atual
+                const refrigerationRefuelings = allRefuelings
+                  .filter(r => r.refrigerationUnitId === refrigerationUnit.id)
+                  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                
+                const currentUsageHours = refrigerationRefuelings.length > 0 
+                  ? refrigerationRefuelings[refrigerationRefuelings.length - 1].usageHours || refrigerationUnit.initialUsageHours || 0
+                  : refrigerationUnit.initialUsageHours || 0;
+
+                const supplier = refrigerationUnit.supplierId 
+                  ? allSuppliers.find(s => s.id === refrigerationUnit.supplierId)
+                  : null;
+
+                const getStatusLabel = (status: string) => {
+                  const labels = {
+                    active: 'Ativo',
+                    defective: 'Defeito',
+                    maintenance: 'Manutenção',
+                    inactive: 'Inativo',
+                    sold: 'Vendido'
+                  };
+                  return labels[status as keyof typeof labels] || status;
+                };
+
+                return (
+                  <div className="border-t pt-6">
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <span>Equipamento de Refrigeração Vinculado</span>
+                      <Badge variant={refrigerationUnit.status === 'active' ? 'default' : 'secondary'}>
+                        {getStatusLabel(refrigerationUnit.status)}
+                      </Badge>
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm p-4 bg-blue-500/5 rounded-lg border border-blue-500/20">
+                      <div>
+                        <span className="text-muted-foreground">Marca:</span>
+                        <p className="font-medium">{refrigerationUnit.brand}</p>
                       </div>
-                    ) : null;
-                  })()}
-                </div>
-              )}
+                      <div>
+                        <span className="text-muted-foreground">Modelo:</span>
+                        <p className="font-medium">{refrigerationUnit.model}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Número de Série:</span>
+                        <p className="font-medium font-mono">{refrigerationUnit.serialNumber}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Tipo:</span>
+                        <p className="font-medium capitalize">
+                          {refrigerationUnit.type === 'freezer' ? 'Freezer' : refrigerationUnit.type === 'cooled' ? 'Resfriado' : 'Climatizado'}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Faixa de Temperatura:</span>
+                        <p className="font-medium">{refrigerationUnit.minTemp}°C a {refrigerationUnit.maxTemp}°C</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Horímetro Atual:</span>
+                        <p className="font-medium">{currentUsageHours.toLocaleString('pt-BR')} horas</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Data de Instalação:</span>
+                        <p className="font-medium">{formatDate(refrigerationUnit.installDate)}</p>
+                      </div>
+                      {refrigerationUnit.purchaseDate && (
+                        <div>
+                          <span className="text-muted-foreground">Data de Compra:</span>
+                          <p className="font-medium">{formatDate(refrigerationUnit.purchaseDate)}</p>
+                        </div>
+                      )}
+                      {refrigerationUnit.purchaseValue && (
+                        <div>
+                          <span className="text-muted-foreground">Valor de Compra:</span>
+                          <p className="font-medium">{formatCurrency(refrigerationUnit.purchaseValue)}</p>
+                        </div>
+                      )}
+                      {supplier && (
+                        <div>
+                          <span className="text-muted-foreground">Fornecedor:</span>
+                          <p className="font-medium">{supplier.name}</p>
+                        </div>
+                      )}
+                      {refrigerationUnit.fuelType && (
+                        <div>
+                          <span className="text-muted-foreground">Tipo de Combustível:</span>
+                          <p className="font-medium">{refrigerationUnit.fuelType}</p>
+                        </div>
+                      )}
+                      {refrigerationUnit.initialUsageHours !== undefined && (
+                        <div>
+                          <span className="text-muted-foreground">Horímetro Inicial:</span>
+                          <p className="font-medium">{refrigerationUnit.initialUsageHours.toLocaleString('pt-BR')} horas</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {viewingVehicle.status === 'sold' && viewingVehicle.saleInfo && (
                 <div className="border-t pt-4">
