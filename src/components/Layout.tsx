@@ -51,8 +51,8 @@ export function Layout() {
   const cadastrosItems = [
     { to: '/vehicles', icon: Truck, label: 'Frota', permission: 'manage_vehicles' as const },
     { to: '/drivers', icon: IdCard, label: 'Motoristas', permission: 'manage_vehicles' as const },
-    { to: '/suppliers', icon: Users, label: 'Fornecedores', permission: 'manage_suppliers' as const },
     { to: '/refrigeration', icon: Snowflake, label: 'Refrigeração', permission: 'manage_refrigeration' as const },
+    { to: '/suppliers', icon: Users, label: 'Fornecedores', permission: 'manage_suppliers' as const },
     { to: '/companies', icon: Building2, label: 'Empresas', permission: 'manage_companies' as const },
     { to: '/users', icon: UserCog, label: 'Usuários', permission: 'manage_users' as const },
   ];
