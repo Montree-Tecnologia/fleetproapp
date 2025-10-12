@@ -53,6 +53,7 @@ export interface VehicleSale {
   salePrice: number;
   paymentReceipt?: string;
   transferDocument?: string;
+  saleInvoice?: string;
   refrigerationSale?: {
     sellRefrigeration: boolean;
     refrigerationPrice?: number;
@@ -72,6 +73,7 @@ interface VehicleSaleFormProps {
 export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeration, refrigerationId, currentRefrigerationUsageHours }: VehicleSaleFormProps) {
   const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>();
   const [transferDocument, setTransferDocument] = useState<string | undefined>();
+  const [saleInvoice, setSaleInvoice] = useState<string | undefined>();
   const [showRefrigerationQuestion, setShowRefrigerationQuestion] = useState(false);
   const [sellRefrigeration, setSellRefrigeration] = useState(false);
   const [refrigerationPrice, setRefrigerationPrice] = useState('');
@@ -110,12 +112,27 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeratio
     }
   };
 
+  const handleSaleInvoiceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSaleInvoice(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const removePaymentReceipt = () => {
     setPaymentReceipt(undefined);
   };
 
   const removeTransferDocument = () => {
     setTransferDocument(undefined);
+  };
+
+  const removeSaleInvoice = () => {
+    setSaleInvoice(undefined);
   };
 
   const handleSubmit = (data: VehicleSaleFormData) => {
@@ -140,6 +157,7 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeratio
       salePrice: data.salePrice,
       paymentReceipt,
       transferDocument,
+      saleInvoice,
     };
 
     // Adicionar informações de venda do equipamento se aplicável
@@ -172,6 +190,7 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeratio
           salePrice: data.salePrice,
           paymentReceipt,
           transferDocument,
+          saleInvoice,
           refrigerationSale: {
             sellRefrigeration: false,
           },
@@ -194,6 +213,7 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeratio
         salePrice: data.salePrice,
         paymentReceipt,
         transferDocument,
+        saleInvoice,
         refrigerationSale: {
           sellRefrigeration: true,
           refrigerationPrice: refrigerationPrice 
@@ -320,7 +340,7 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeratio
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Comprovante de Recebimento</label>
               <div className="space-y-2">
@@ -411,6 +431,55 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeratio
                         <span className="cursor-pointer">
                           <Upload className="h-4 w-4 mr-2" />
                           Anexar CRV
+                        </span>
+                      </Button>
+                    </label>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Nota Fiscal de Venda</label>
+              <div className="space-y-2">
+                {saleInvoice ? (
+                  <div className="relative">
+                    {saleInvoice.startsWith('data:image') ? (
+                      <img
+                        src={saleInvoice}
+                        alt="Nota Fiscal"
+                        className="w-full h-40 object-cover rounded-lg border border-border"
+                      />
+                    ) : (
+                      <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                        <FileText className="h-5 w-5" />
+                        <span className="text-sm">Nota Fiscal anexada</span>
+                      </div>
+                    )}
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-8 w-8"
+                      onClick={removeSaleInvoice}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={handleSaleInvoiceUpload}
+                      className="hidden"
+                      id="sale-invoice-upload"
+                    />
+                    <label htmlFor="sale-invoice-upload">
+                      <Button type="button" variant="outline" className="w-full" asChild>
+                        <span className="cursor-pointer">
+                          <Upload className="h-4 w-4 mr-2" />
+                          Anexar Nota Fiscal
                         </span>
                       </Button>
                     </label>

@@ -21,6 +21,7 @@ export interface VehicleSale {
   salePrice: number;
   paymentReceipt?: string;
   transferDocument?: string;
+  saleInvoice?: string;
 }
 
 export interface Vehicle {
