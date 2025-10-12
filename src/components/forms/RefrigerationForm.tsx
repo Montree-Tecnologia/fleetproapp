@@ -100,8 +100,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
     "Lamberet": ["SR1", "SR2", "SR3", "Multi-temp", "Outro (digitar manualmente)"],
     "Mitsubishi ThermoTech": ["TU45", "TU73", "TU90", "Outro (digitar manualmente)"],
     "Hubbard": ["Grumman 300", "Grumman 500", "VersaCold", "Outro (digitar manualmente)"],
-    "Kingtec": ["TK-300", "TK-500", "TK-800", "Outro (digitar manualmente)"],
-    "Outras": ["Outro (digitar manualmente)"]
+    "Kingtec": ["TK-300", "TK-500", "TK-800", "Outro (digitar manualmente)"]
   };
   
   // Local state for temperature inputs to allow flexible typing
@@ -413,7 +412,6 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                       <SelectItem value="Mitsubishi ThermoTech">Mitsubishi ThermoTech</SelectItem>
                       <SelectItem value="Hubbard">Hubbard</SelectItem>
                       <SelectItem value="Kingtec">Kingtec</SelectItem>
-                      <SelectItem value="Outras">Outras</SelectItem>
                       <SelectItem value="Outra">Outra (digitar manualmente)</SelectItem>
                     </SelectContent>
                   </Select>
