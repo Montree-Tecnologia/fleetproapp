@@ -120,26 +120,21 @@ export const exportRefrigerationsToExcel = (units: RefrigerationUnit[]) => {
 };
 
 /**
- * Exporta dados de abastecimentos para Excel
+ * Exporta dados de abastecimentos de veículos para Excel
  */
-export const exportRefuelingsToExcel = (
+export const exportVehicleRefuelingsToExcel = (
   refuelings: Refueling[],
-  vehicles: Vehicle[],
-  refrigerationUnits: RefrigerationUnit[]
+  vehicles: Vehicle[]
 ) => {
   const data = refuelings.map(r => {
     const vehicle = vehicles.find(v => v.id === r.vehicleId);
-    const refrigeration = refrigerationUnits.find(ru => ru.id === r.refrigerationUnitId);
     
     return {
       'Data': format(new Date(r.date), 'dd/MM/yyyy'),
-      'Tipo': r.vehicleId ? 'Veículo' : 'Refrigeração',
-      'Placa/Série': r.vehicleId 
-        ? (vehicle?.plate || '-')
-        : (refrigeration?.serialNumber || '-'),
-      'Veículo': vehicle ? `${vehicle.brand} ${vehicle.model} (${vehicle.vehicleType})` : 
-                 (refrigeration ? `${refrigeration.brand} ${refrigeration.model}` : '-'),
-      'KM/Horímetro': r.km || r.usageHours || '-',
+      'Placa': vehicle?.plate || '-',
+      'Veículo': vehicle ? `${vehicle.brand} ${vehicle.model}` : '-',
+      'Tipo Veículo': vehicle?.vehicleType || '-',
+      'KM': r.km || '-',
       'Combustível': r.fuelType,
       'Litros': new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(r.liters),
       'Preço/Litro (R$)': new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(r.pricePerLiter),
@@ -150,14 +145,14 @@ export const exportRefuelingsToExcel = (
 
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Abastecimentos');
+  XLSX.utils.book_append_sheet(wb, ws, 'Abastecimentos Veículos');
 
   const colWidths = [
     { wch: 12 }, // Data
-    { wch: 12 }, // Tipo
-    { wch: 18 }, // Placa/Série
-    { wch: 35 }, // Veículo
-    { wch: 15 }, // KM/Horímetro
+    { wch: 12 }, // Placa
+    { wch: 25 }, // Veículo
+    { wch: 18 }, // Tipo Veículo
+    { wch: 12 }, // KM
     { wch: 15 }, // Combustível
     { wch: 10 }, // Litros
     { wch: 16 }, // Preço/Litro
@@ -166,6 +161,58 @@ export const exportRefuelingsToExcel = (
   ];
   ws['!cols'] = colWidths;
 
-  const fileName = `abastecimentos_${format(new Date(), 'dd-MM-yyyy_HH-mm')}.xlsx`;
+  const fileName = `abastecimentos_veiculos_${format(new Date(), 'dd-MM-yyyy_HH-mm')}.xlsx`;
+  XLSX.writeFile(wb, fileName);
+};
+
+/**
+ * Exporta dados de abastecimentos de equipamentos de refrigeração para Excel
+ */
+export const exportRefrigerationRefuelingsToExcel = (
+  refuelings: Refueling[],
+  refrigerationUnits: RefrigerationUnit[],
+  vehicles: Vehicle[]
+) => {
+  const data = refuelings.map(r => {
+    const refrigeration = refrigerationUnits.find(ru => ru.id === r.refrigerationUnitId);
+    const vehicle = refrigeration?.vehicleId ? vehicles.find(v => v.id === refrigeration.vehicleId) : null;
+    
+    return {
+      'Data': format(new Date(r.date), 'dd/MM/yyyy'),
+      'Número de Série': refrigeration?.serialNumber || '-',
+      'Marca': refrigeration?.brand || '-',
+      'Modelo': refrigeration?.model || '-',
+      'Veículo Vinculado': vehicle?.plate || 'Não vinculado',
+      'Modelo Veículo': vehicle ? `${vehicle.brand} ${vehicle.model}` : '-',
+      'Horímetro': r.usageHours || '-',
+      'Combustível': r.fuelType,
+      'Litros': new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(r.liters),
+      'Preço/Litro (R$)': new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(r.pricePerLiter),
+      'Valor Total (R$)': new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(r.totalValue),
+      'Motorista': r.driver || '-',
+    };
+  });
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Abastecimentos Refrigeração');
+
+  const colWidths = [
+    { wch: 12 }, // Data
+    { wch: 18 }, // Número de Série
+    { wch: 15 }, // Marca
+    { wch: 20 }, // Modelo
+    { wch: 18 }, // Veículo Vinculado
+    { wch: 25 }, // Modelo Veículo
+    { wch: 12 }, // Horímetro
+    { wch: 15 }, // Combustível
+    { wch: 10 }, // Litros
+    { wch: 16 }, // Preço/Litro
+    { wch: 16 }, // Valor Total
+    { wch: 20 }, // Motorista
+  ];
+  ws['!cols'] = colWidths;
+
+  const fileName = `abastecimentos_refrigeracao_${format(new Date(), 'dd-MM-yyyy_HH-mm')}.xlsx`;
   XLSX.writeFile(wb, fileName);
 };

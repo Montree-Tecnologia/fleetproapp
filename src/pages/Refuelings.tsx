@@ -6,7 +6,7 @@ import mockupFiscalNote from '@/assets/mockup-fiscal-note.jpg';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText, Truck, Snowflake, Search, Check, ChevronsUpDown, Download } from 'lucide-react';
-import { exportRefuelingsToExcel } from '@/lib/excelExport';
+import { exportVehicleRefuelingsToExcel, exportRefrigerationRefuelingsToExcel } from '@/lib/excelExport';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -218,14 +218,27 @@ export default function Refuelings() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <Button 
-              variant="outline"
-              onClick={() => exportRefuelingsToExcel([...filteredVehicleRefuelings, ...filteredRefrigerationRefuelings], allVehicles, allRefrigerationUnits)}
-              className="hidden sm:flex"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Exportar Excel
-            </Button>
+            {activeTab === 'vehicles' ? (
+              <Button 
+                variant="outline"
+                onClick={() => exportVehicleRefuelingsToExcel(filteredVehicleRefuelings, allVehicles)}
+                className="hidden sm:flex"
+                disabled={filteredVehicleRefuelings.length === 0}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Exportar Veículos
+              </Button>
+            ) : (
+              <Button 
+                variant="outline"
+                onClick={() => exportRefrigerationRefuelingsToExcel(filteredRefrigerationRefuelings, allRefrigerationUnits, allVehicles)}
+                className="hidden sm:flex"
+                disabled={filteredRefrigerationRefuelings.length === 0}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Exportar Refrigeração
+              </Button>
+            )}
             <Button onClick={() => setOpen(true)} className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Novo Abastecimento
