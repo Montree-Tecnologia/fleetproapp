@@ -1508,7 +1508,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline-destructive" onClick={onCancel}>
             Cancelar
           </Button>
           <Button type="submit">

@@ -471,7 +471,7 @@ export default function Drivers() {
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={handleDialogClose}>
+                <Button type="button" variant="outline-destructive" onClick={handleDialogClose}>
                   Cancelar
                 </Button>
                 <Button type="submit">{editingDriver ? 'Atualizar' : 'Cadastrar'}</Button>
@@ -558,7 +558,7 @@ export default function Drivers() {
                   </Button>
                   <Button
                     size="sm"
-                    variant={driver.active ? 'outline' : 'default'}
+                    variant={driver.active ? 'outline-destructive' : 'default'}
                     className="flex-1"
                     onClick={() => handleToggleActive(driver.id, driver.name, driver.active)}
                   >
@@ -723,7 +723,7 @@ export default function Drivers() {
                   Editar
                 </Button>
                 <Button
-                  variant={viewingDriver.active ? 'destructive' : 'default'}
+                  variant={viewingDriver.active ? 'outline-destructive' : 'default'}
                   onClick={() => {
                     setDetailsDialogOpen(false);
                     handleToggleActive(viewingDriver.id, viewingDriver.name, viewingDriver.active);

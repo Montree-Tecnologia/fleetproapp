@@ -511,7 +511,7 @@ export default function Users() {
               </Tabs>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={handleDialogClose}>
+                <Button type="button" variant="outline-destructive" onClick={handleDialogClose}>
                   Cancelar
                 </Button>
                 <Button type="submit">{editingUser ? 'Atualizar' : 'Criar Usuário'}</Button>
@@ -593,7 +593,7 @@ export default function Users() {
                 </Button>
                 <Button
                   size="sm"
-                  variant={user.active ? 'outline' : 'default'}
+                  variant={user.active ? 'outline-destructive' : 'default'}
                   className="flex-1"
                   onClick={() => handleToggleActive(user.id, user.active)}
                 >
@@ -819,7 +819,7 @@ export default function Users() {
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="outline-destructive"
               onClick={() => {
                 setResetPasswordDialogOpen(false);
                 setNewPassword('');

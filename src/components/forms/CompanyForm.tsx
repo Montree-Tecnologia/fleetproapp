@@ -280,7 +280,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
 
         <div className="flex justify-end gap-2">
           {onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline-destructive" onClick={onCancel}>
               Cancelar
             </Button>
           )}

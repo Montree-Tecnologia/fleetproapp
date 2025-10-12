@@ -255,7 +255,7 @@ export default function Companies() {
                   Editar
                 </Button>
                 <Button
-                  variant={viewingCompany.active ? 'destructive' : 'default'}
+                  variant={viewingCompany.active ? 'outline-destructive' : 'default'}
                   onClick={() => {
                     setDetailsDialogOpen(false);
                     handleToggleActive(viewingCompany.id, viewingCompany.name, viewingCompany.active);

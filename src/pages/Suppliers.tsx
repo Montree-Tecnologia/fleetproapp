@@ -259,7 +259,7 @@ export default function Suppliers() {
                 </Button>
                 <Button
                   size="sm"
-                  variant={supplier.active ? "outline" : "default"}
+                  variant={supplier.active ? "outline-destructive" : "default"}
                   onClick={() => handleToggleActive(supplier)}
                   title={supplier.active ? 'Inativar fornecedor' : 'Ativar fornecedor'}
                 >
@@ -409,7 +409,7 @@ export default function Suppliers() {
                   Editar
                 </Button>
                 <Button
-                  variant={viewingSupplier.active ? 'destructive' : 'default'}
+                  variant={viewingSupplier.active ? 'outline-destructive' : 'default'}
                   onClick={() => {
                     setDetailsDialogOpen(false);
                     handleToggleActive(viewingSupplier);
