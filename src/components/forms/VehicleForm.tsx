@@ -1026,27 +1026,6 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
 
           <FormField
             control={form.control}
-            name="purchaseKm"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>KM de Compra *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="text"
-                    placeholder="Ex: 150.000"
-                    {...field}
-                    value={field.value ? formatInteger(field.value) : ''}
-                    onChange={(e) => handleIntegerInput(e, field.onChange)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-
-          <FormField
-            control={form.control}
             name="weight"
             render={({ field }) => (
               <FormItem>
@@ -1064,6 +1043,26 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                         field.onChange(undefined);
                       }
                     }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="purchaseKm"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>KM de Compra *</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="text"
+                    placeholder="Ex: 150.000"
+                    {...field}
+                    value={field.value ? formatInteger(field.value) : ''}
+                    onChange={(e) => handleIntegerInput(e, field.onChange)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -1263,54 +1262,6 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
           </>
         ) : (
           <>
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="active">Ativo</SelectItem>
-                      <SelectItem value="maintenance">Manutenção</SelectItem>
-                      <SelectItem value="inactive">Inativo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="ownerBranch"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Matriz/Filial Proprietária *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a matriz/filial" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {availableBranches.map((branch) => (
-                        <SelectItem key={branch.id} value={branch.id}>
-                          {branch.name} - {branch.cnpj}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -1447,6 +1398,54 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 </PopoverContent>
               </Popover>
             </div>
+
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="active">Ativo</SelectItem>
+                      <SelectItem value="maintenance">Manutenção</SelectItem>
+                      <SelectItem value="inactive">Inativo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="ownerBranch"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Matriz/Filial Proprietária *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a matriz/filial" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableBranches.map((branch) => (
+                        <SelectItem key={branch.id} value={branch.id}>
+                          {branch.name} - {branch.cnpj}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </>
         )}
 
