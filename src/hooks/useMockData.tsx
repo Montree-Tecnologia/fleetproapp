@@ -2493,8 +2493,8 @@ export function useMockData() {
     const inactiveVehicles = vehicles.filter(v => v.status === 'inactive').length;
     const soldVehicles = vehicles.filter(v => v.status === 'sold').length;
     
-    // Disponibilidade: Ativos/(Ativos+Manutenção+Inativos)
-    const denominator = activeVehicles + maintenanceVehicles + inactiveVehicles;
+    // Disponibilidade: Ativos/(Ativos+Manutenção+Defeituosos+Inativos)
+    const denominator = activeVehicles + maintenanceVehicles + defectiveVehicles + inactiveVehicles;
     const availability = denominator > 0 
       ? ((activeVehicles / denominator) * 100).toFixed(1) 
       : '0';
@@ -2564,8 +2564,8 @@ export function useMockData() {
     const inactiveUnits = refrigerationUnits.filter(u => u.status === 'inactive').length;
     const soldUnits = refrigerationUnits.filter(u => u.status === 'sold').length;
     
-    // Disponibilidade: Ativos/(Ativos+Manutenção+Inativos)
-    const denominator = activeUnits + maintenanceUnits + inactiveUnits;
+    // Disponibilidade: Ativos/(Ativos+Manutenção+Defeituosos+Inativos)
+    const denominator = activeUnits + maintenanceUnits + defectiveUnits + inactiveUnits;
     const availability = denominator > 0 
       ? ((activeUnits / denominator) * 100).toFixed(1) 
       : '0';
