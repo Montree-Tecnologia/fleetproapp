@@ -248,7 +248,7 @@ export default function Drivers() {
     if (daysUntilExpiry < 0) {
       return { status: 'CNH Vencida', variant: 'destructive' as const, daysUntilExpiry };
     } else if (daysUntilExpiry <= 60) {
-      return { status: 'CNH Vence em Breve', variant: 'destructive' as const, daysUntilExpiry };
+      return { status: 'CNH Vence em Breve', variant: 'outline' as const, daysUntilExpiry };
     }
     return { status: 'CNH Válida', variant: 'secondary' as const, daysUntilExpiry };
   };
@@ -521,16 +521,21 @@ export default function Drivers() {
                     <Badge variant={driver.active ? "default" : "destructive"} className={driver.active ? "bg-green-600 hover:bg-green-700" : ""}>
                       {driver.active ? 'Ativo' : 'Inativo'}
                     </Badge>
-                    <Badge variant={cnhStatus.variant}>{cnhStatus.status}</Badge>
+                    <Badge 
+                      variant={cnhStatus.variant}
+                      className={cnhStatus.daysUntilExpiry <= 60 && cnhStatus.daysUntilExpiry > 0 ? 'bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200' : ''}
+                    >
+                      {cnhStatus.status}
+                    </Badge>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 {cnhStatus.daysUntilExpiry <= 60 && cnhStatus.daysUntilExpiry > 0 && (
-                  <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
+                  <Alert className="bg-orange-50 border-orange-300 text-orange-800">
+                    <AlertTriangle className="h-4 w-4 text-orange-600" />
                     <AlertTitle>CNH vence em {cnhStatus.daysUntilExpiry} {cnhStatus.daysUntilExpiry === 1 ? 'dia' : 'dias'}</AlertTitle>
-                    <AlertDescription>
+                    <AlertDescription className="text-orange-700">
                       Providencie a renovação da CNH com antecedência.
                     </AlertDescription>
                   </Alert>
