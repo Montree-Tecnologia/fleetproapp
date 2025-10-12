@@ -710,6 +710,166 @@ export default function Vehicles() {
                 ) : null;
               })()}
 
+              {/* Seção para veículos de reboque - mostra o veículo de tração e conjunto */}
+              {(() => {
+                const trailerTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
+                const isTrailer = trailerTypes.includes(viewingVehicle.vehicleType);
+                
+                if (!isTrailer) return null;
+
+                // Buscar veículo de tração que contém este reboque
+                const tractionVehicle = allVehicles.find(v => 
+                  v.hasComposition && v.compositionPlates?.includes(viewingVehicle.plate)
+                );
+
+                if (!tractionVehicle) return null;
+
+                // Buscar motorista do veículo de tração
+                const driver = tractionVehicle.driverId 
+                  ? allDrivers.find(d => d.id === tractionVehicle.driverId)
+                  : null;
+
+                // Buscar outros reboques acoplados
+                const otherTrailers = tractionVehicle.compositionPlates
+                  ?.filter(plate => plate !== viewingVehicle.plate)
+                  .map(plate => allVehicles.find(v => v.plate === plate))
+                  .filter(v => v !== undefined) || [];
+
+                // Calcular peso total do conjunto
+                const tractionWeight = tractionVehicle.weight || 0;
+                const allTrailersWeight = (tractionVehicle.compositionPlates?.reduce((total, plate) => {
+                  const trailer = allVehicles.find(v => v.plate === plate);
+                  return total + (trailer?.weight || 0);
+                }, 0) || 0);
+                const totalWeight = tractionWeight + allTrailersWeight;
+
+                return (
+                  <div className="border-t pt-6 space-y-6">
+                    <div>
+                      <h3 className="font-semibold mb-3">Veículo de Tração</h3>
+                      <div className="p-4 bg-green-500/5 rounded-lg border border-green-500/20 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <Badge className="bg-green-600 text-white text-base">{tractionVehicle.plate}</Badge>
+                          <span className="font-medium">{tractionVehicle.vehicleType}</span>
+                          {getStatusBadge(tractionVehicle.status)}
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Marca/Modelo:</span>
+                            <p className="font-medium">{tractionVehicle.brand} {tractionVehicle.model}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Ano:</span>
+                            <p className="font-medium">
+                              {tractionVehicle.manufacturingYear && tractionVehicle.modelYear
+                                ? `${tractionVehicle.manufacturingYear}/${tractionVehicle.modelYear.toString().slice(-2)}`
+                                : 'N/A'}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Cor:</span>
+                            <p className="font-medium">{tractionVehicle.color}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Eixos:</span>
+                            <p className="font-medium">{tractionVehicle.axles}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Peso:</span>
+                            <p className="font-medium">
+                              {tractionVehicle.weight 
+                                ? `${tractionVehicle.weight.toLocaleString('pt-BR')} ton` 
+                                : 'Não informado'}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">KM Atual:</span>
+                            <p className="font-medium">{tractionVehicle.currentKm.toLocaleString('pt-BR')}</p>
+                          </div>
+                        </div>
+
+                        {driver && (
+                          <div className="pt-4 border-t border-green-500/20">
+                            <h4 className="font-semibold mb-3 text-sm">Motorista do Conjunto</h4>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Nome:</span>
+                                <p className="font-semibold">{driver.name}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">CPF:</span>
+                                <p className="font-medium font-mono">{driver.cpf}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Categoria CNH:</span>
+                                <p className="font-medium">{driver.cnhCategory}</p>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Validade CNH:</span>
+                                <p className="font-medium">{formatDate(driver.cnhValidity)}</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {otherTrailers.length > 0 && (
+                      <div>
+                        <h3 className="font-semibold mb-3">Outros Reboques no Conjunto</h3>
+                        <div className="space-y-3">
+                          {otherTrailers.map((trailer, index) => (
+                            <div key={index} className="p-4 bg-muted rounded-lg border border-border">
+                              <div className="flex items-center gap-3 mb-3">
+                                <Badge variant="secondary" className="text-base">{trailer.plate}</Badge>
+                                <span className="text-sm text-muted-foreground">{trailer.vehicleType}</span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-4 text-sm">
+                                <div>
+                                  <span className="text-muted-foreground">Marca/Modelo:</span>
+                                  <p className="font-medium">{trailer.brand} {trailer.model}</p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Eixos:</span>
+                                  <p className="font-medium">{trailer.axles} {trailer.axles === 1 ? 'eixo' : 'eixos'}</p>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Peso:</span>
+                                  <p className="font-medium">
+                                    {trailer.weight 
+                                      ? `${trailer.weight.toLocaleString('pt-BR')} ton` 
+                                      : 'Não informado'}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                      <h4 className="font-semibold mb-3 text-sm">Resumo do Conjunto</h4>
+                      <div className="space-y-2 text-sm">
+                        <p className="font-medium">
+                          Total de eixos: {tractionVehicle.axles + (tractionVehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
+                        </p>
+                        {totalWeight > 0 && (
+                          <p className="font-medium">
+                            Peso total do conjunto: {totalWeight.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} toneladas
+                          </p>
+                        )}
+                        <p className="font-medium">
+                          Composição: 1 veículo de tração + {tractionVehicle.compositionPlates?.length || 0} reboque(s)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Seção para veículos de tração - mostra composições acopladas */}
               {viewingVehicle.hasComposition && viewingVehicle.compositionPlates && viewingVehicle.compositionPlates.length > 0 && (
                 <div>
                   <h3 className="font-semibold mb-3">Composições Acopladas</h3>
