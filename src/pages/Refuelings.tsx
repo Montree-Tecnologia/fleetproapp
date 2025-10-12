@@ -951,14 +951,40 @@ export default function Refuelings() {
           </DialogHeader>
           {viewingRefueling && (() => {
             const vehicle = allVehicles.find(v => v.id === viewingRefueling.vehicleId);
+            const refrigerationUnit = allRefrigerationUnits.find(u => u.id === viewingRefueling.refrigerationUnitId);
             const supplier = allSuppliers.find(s => s.id === viewingRefueling.supplierId);
+            const isRefrigerationRefueling = !!viewingRefueling.refrigerationUnitId;
+            
+            // Para equipamentos, buscar o veículo vinculado
+            const linkedVehicle = refrigerationUnit?.vehicleId 
+              ? allVehicles.find(v => v.id === refrigerationUnit.vehicleId)
+              : null;
+            
             return (
               <div className="space-y-6">
-                {/* Vehicle and Date Info */}
+                {/* Vehicle/Equipment and Date Info */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">Veículo</label>
-                    <p className="text-lg font-semibold">{vehicle?.plate} - {vehicle?.model}</p>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      {isRefrigerationRefueling ? 'Equipamento de Refrigeração' : 'Veículo'}
+                    </label>
+                    {isRefrigerationRefueling ? (
+                      <>
+                        <p className="text-lg font-semibold">
+                          {refrigerationUnit?.brand} {refrigerationUnit?.model}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          SN: {refrigerationUnit?.serialNumber}
+                        </p>
+                        {linkedVehicle && (
+                          <p className="text-sm text-muted-foreground">
+                            Veículo: {linkedVehicle.plate} - {linkedVehicle.model}
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-lg font-semibold">{vehicle?.plate} - {vehicle?.model}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Data</label>
@@ -987,33 +1013,38 @@ export default function Refuelings() {
                   </div>
                 </div>
 
-                {/* Fuel Details */}
-                <div className="grid grid-cols-3 gap-4">
+                {/* KM or Usage Hours and Fuel Type */}
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-foreground">KM</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      {isRefrigerationRefueling ? 'Horímetro' : 'KM'}
+                    </label>
                     <p className="text-lg font-semibold">
-                      {viewingRefueling.km.toLocaleString('pt-BR')} km
+                      {isRefrigerationRefueling 
+                        ? `${viewingRefueling.usageHours?.toLocaleString('pt-BR')} horas`
+                        : `${viewingRefueling.km?.toLocaleString('pt-BR')} km`
+                      }
                     </p>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Tipo de Combustível</label>
                     <p className="text-lg font-semibold">{viewingRefueling.fuelType}</p>
                   </div>
+                </div>
+
+                {/* Liters, Price per Liter, and Total Value - Same Line */}
+                <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Litros</label>
                     <p className="text-lg font-semibold">{viewingRefueling.liters}L</p>
                   </div>
-                </div>
-
-                {/* Financial Details */}
-                <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Preço por Litro</label>
                     <p className="text-lg font-semibold">
                       R$ {viewingRefueling.pricePerLiter.toFixed(2)}
                     </p>
                   </div>
-                  <div className="space-y-2 col-span-2">
+                  <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Valor Total</label>
                     <p className="text-2xl font-bold text-primary">
                       {viewingRefueling.totalValue.toLocaleString('pt-BR', { 
