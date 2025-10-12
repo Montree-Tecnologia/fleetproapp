@@ -1836,7 +1836,6 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
   },
   {
     id: '8',
-    vehicleId: '13', // Baú Frigorífico HIJ-1234
     companyId: '2',
     brand: 'Carrier',
     model: 'Vector 1950',
