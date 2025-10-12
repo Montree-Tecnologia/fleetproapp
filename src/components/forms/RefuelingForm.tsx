@@ -144,6 +144,20 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   const watchRefrigerationUnitId = form.watch('refrigerationUnitId');
   const totalValue = watchLiters * watchPricePerLiter;
 
+  // Buscar tipo de combustível do veículo ou equipamento selecionado
+  const getEntityFuelType = () => {
+    if (watchEntityType === 'vehicle' && watchVehicleId) {
+      const vehicle = vehicles.find(v => v.id === watchVehicleId);
+      return vehicle?.fuelType;
+    } else if (watchEntityType === 'refrigeration' && watchRefrigerationUnitId) {
+      const unit = refrigerationUnits.find(u => u.id === watchRefrigerationUnitId);
+      return unit?.fuelType;
+    }
+    return null;
+  };
+
+  const entityFuelType = getEntityFuelType();
+
   // Buscar motorista vinculado ao veículo
   const getDriverInfo = () => {
     if (watchEntityType === 'vehicle' && watchVehicleId) {
@@ -751,6 +765,16 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
             )}
           />
         </div>
+
+        {/* Informações do Tipo de Combustível */}
+        {entityFuelType && (
+          <div className="p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+            <p className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-1">
+              Tipo de Combustível do {watchEntityType === 'vehicle' ? 'Veículo' : 'Equipamento'}
+            </p>
+            <p className="text-sm text-purple-700 dark:text-purple-300">{entityFuelType}</p>
+          </div>
+        )}
 
         {/* Informações do Veículo (para equipamentos de refrigeração) */}
         {watchEntityType === 'refrigeration' && vehicleInfo && (

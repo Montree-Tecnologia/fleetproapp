@@ -171,6 +171,10 @@ export function VehicleCard({
             </p>
           </div>
           <div>
+            <span className="text-muted-foreground">Combustível:</span>
+            <p className="font-medium">{vehicle.fuelType}</p>
+          </div>
+          <div>
             <span className="text-muted-foreground">Proprietária:</span>
             <p className="font-medium">{vehicle.ownerBranch}</p>
           </div>

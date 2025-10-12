@@ -415,14 +415,26 @@ export default function Refrigeration() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2 p-3 bg-accent/10 rounded-lg">
-                  <Thermometer className="h-5 w-5 text-chart-1" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Faixa de Temperatura</p>
-                    <p className="text-xs text-muted-foreground">
-                      {unit.minTemp}°C a {unit.maxTemp}°C
-                    </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-2 p-3 bg-accent/10 rounded-lg">
+                    <Thermometer className="h-5 w-5 text-chart-1" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Temperatura</p>
+                      <p className="text-xs text-muted-foreground">
+                        {unit.minTemp}°C a {unit.maxTemp}°C
+                      </p>
+                    </div>
                   </div>
+                  {unit.fuelType && (
+                    <div className="flex items-center gap-2 p-3 bg-accent/10 rounded-lg">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">Combustível</p>
+                        <p className="text-xs text-muted-foreground">
+                          {unit.fuelType}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className={cn(
