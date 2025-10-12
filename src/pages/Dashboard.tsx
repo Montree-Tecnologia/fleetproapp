@@ -99,7 +99,8 @@ export default function Dashboard() {
       <Tabs defaultValue="vehicles" className="space-y-4 lg:space-y-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="vehicles">Veículos</TabsTrigger>
-          <TabsTrigger value="refrigeration">Equipamentos de Refrigeração</TabsTrigger>
+          <TabsTrigger value="refrigeration" className="hidden sm:block">Equipamentos de Refrigeração</TabsTrigger>
+          <TabsTrigger value="refrigeration" className="sm:hidden">Refrigeração</TabsTrigger>
         </TabsList>
 
         {/* Vehicles Tab */}
@@ -264,28 +265,22 @@ export default function Dashboard() {
                     const vehicle = allVehicles.find(v => v.id === refueling.vehicleId);
                     const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
                     return (
-                      <div key={refueling.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
-                        <div>
-                          <p className="text-sm font-medium">{vehicle?.plate} - {vehicle?.brand} {vehicle?.model}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {vehicle?.vehicleType}
-                            {vehicle?.hasComposition && vehicle.compositionPlates && vehicle.compositionPlates.length > 0 && 
-                              ` • ${vehicle.compositionPlates.length} ${vehicle.compositionPlates.length === 1 ? 'reboque' : 'reboques'}`
-                            }
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {refueling.liters}L • {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-bold">
-                            R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(refueling.date).toLocaleDateString('pt-BR')}
-                          </p>
-                        </div>
-                      </div>
+                       <div key={refueling.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 border-b border-border pb-3 last:border-0">
+                         <div>
+                           <p className="text-sm font-medium">{vehicle?.plate} - {vehicle?.model}</p>
+                           <p className="text-xs text-muted-foreground mt-1">
+                             {refueling.liters}L • {supplier?.fantasyName}
+                           </p>
+                         </div>
+                         <div className="text-left sm:text-right">
+                           <p className="text-sm font-bold">
+                             R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                           </p>
+                           <p className="text-xs text-muted-foreground">
+                             {new Date(refueling.date).toLocaleDateString('pt-BR')}
+                           </p>
+                         </div>
+                       </div>
                     );
                   })}
               </div>
@@ -455,31 +450,22 @@ export default function Dashboard() {
                     const unit = allRefrigerationUnits.find(u => u.id === refueling.refrigerationUnitId);
                     const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
                     return (
-                      <div key={refueling.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
-                        <div>
-                          <p className="text-sm font-medium">{unit?.brand} {unit?.model} - SN: {unit?.serialNumber}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {unit?.vehicleId ? 
-                              (() => {
-                                const vehicle = allVehicles.find(v => v.id === unit.vehicleId);
-                                return vehicle ? `${vehicle.plate} - ${vehicle.brand} ${vehicle.model} (${vehicle.vehicleType})` : 'Sem veículo vinculado';
-                              })() 
-                              : 'Sem veículo vinculado'
-                            }
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {refueling.liters}L • {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-bold">
-                            R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(refueling.date).toLocaleDateString('pt-BR')}
-                          </p>
-                        </div>
-                      </div>
+                      <div key={refueling.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 border-b border-border pb-3 last:border-0">
+                         <div>
+                           <p className="text-sm font-medium">SN: {unit?.serialNumber}</p>
+                           <p className="text-xs text-muted-foreground mt-1">
+                             {refueling.liters}L • {supplier?.fantasyName}
+                           </p>
+                         </div>
+                         <div className="text-left sm:text-right">
+                           <p className="text-sm font-bold">
+                             R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                           </p>
+                           <p className="text-xs text-muted-foreground">
+                             {new Date(refueling.date).toLocaleDateString('pt-BR')}
+                           </p>
+                         </div>
+                       </div>
                     );
                   })}
               </div>

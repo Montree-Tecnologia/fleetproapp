@@ -305,25 +305,28 @@ export default function Refrigeration() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Aparelhos de Refrigeração</h2>
-          <p className="text-muted-foreground">
-            Controle dos equipamentos de refrigeração da frota
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline"
-            onClick={() => exportRefrigerationsToExcel(filteredUnits)}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Exportar Excel
-          </Button>
-          <Button onClick={() => setOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Novo Aparelho
-          </Button>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Aparelhos de Refrigeração</h2>
+            <p className="text-sm lg:text-base text-muted-foreground">
+              Controle dos equipamentos de refrigeração da frota
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => exportRefrigerationsToExcel(filteredUnits)}
+              className="hidden sm:flex"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Exportar Excel
+            </Button>
+            <Button onClick={() => setOpen(true)} className="w-full sm:w-auto">
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Aparelho
+            </Button>
+          </div>
         </div>
       </div>
 
