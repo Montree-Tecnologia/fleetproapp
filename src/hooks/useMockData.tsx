@@ -2193,7 +2193,7 @@ export function useMockData() {
       : '0.00';
 
     return {
-      totalVehicles: vehicles.length,
+      totalVehicles: vehicles.filter(v => v.status !== 'sold').length,
       activeVehicles,
       maintenanceVehicles,
       defectiveVehicles,
@@ -2262,7 +2262,7 @@ export function useMockData() {
       : '0.00';
 
     return {
-      totalUnits: refrigerationUnits.length,
+      totalUnits: refrigerationUnits.filter(u => u.status !== 'sold').length,
       activeUnits,
       maintenanceUnits,
       defectiveUnits,
