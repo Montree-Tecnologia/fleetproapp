@@ -247,7 +247,7 @@ const mockDrivers: Driver[] = [
     cpf: '369.258.147-00',
     birthDate: '1989-04-20',
     cnhCategory: 'E',
-    cnhValidity: '2026-07-15',
+    cnhValidity: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Vence em 15 dias
     active: true,
     branches: ['Matriz', 'Filial RJ'],
     cnhDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
@@ -258,7 +258,7 @@ const mockDrivers: Driver[] = [
     cpf: '258.147.369-00',
     birthDate: '1993-11-03',
     cnhCategory: 'C',
-    cnhValidity: '2028-01-25',
+    cnhValidity: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Vence em 45 dias
     active: true,
     branches: ['Filial SP'],
     cnhDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
@@ -269,7 +269,7 @@ const mockDrivers: Driver[] = [
     cpf: '741.852.963-00',
     birthDate: '1984-02-18',
     cnhCategory: 'E',
-    cnhValidity: '2026-04-30',
+    cnhValidity: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Vencida há 10 dias
     active: true,
     branches: ['Matriz'],
     cnhDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
@@ -280,7 +280,7 @@ const mockDrivers: Driver[] = [
     cpf: '852.963.741-00',
     birthDate: '1990-08-12',
     cnhCategory: 'E',
-    cnhValidity: '2027-02-14',
+    cnhValidity: new Date(Date.now() + 55 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Vence em 55 dias
     active: true,
     branches: ['Filial MG'],
     cnhDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
@@ -291,7 +291,7 @@ const mockDrivers: Driver[] = [
     cpf: '963.741.852-00',
     birthDate: '1988-12-30',
     cnhCategory: 'E',
-    cnhValidity: '2026-10-05',
+    cnhValidity: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Vence em 25 dias
     active: true,
     branches: ['Filial RJ', 'Filial MG'],
     cnhDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
