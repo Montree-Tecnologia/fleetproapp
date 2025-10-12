@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, Mail, Shield, Building2, Calendar, Trash2, Pencil, Search, Eye, Lock, Users as UsersIcon, KeyRound, Power } from 'lucide-react';
+import { UserPlus, Mail, Shield, Building2, Calendar, Trash2, Pencil, Search, Eye, Lock, Users as UsersIcon, KeyRound, Power, User as UserIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -545,24 +545,21 @@ export default function Users() {
           <Card key={user.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="flex items-center gap-2">
-                    {user.name}
-                  </CardTitle>
-                  <CardDescription className="flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
-                    {user.email}
-                  </CardDescription>
-                </div>
-                <div className="flex flex-col gap-1 items-end">
+                <UserIcon className="h-8 w-8 text-primary" />
+                <div className="flex gap-2">
                   {getRoleBadge(user.role)}
                   <Badge variant={user.active ? "default" : "destructive"} className={user.active ? "bg-green-600 hover:bg-green-700" : ""}>
                     {user.active ? 'Ativo' : 'Inativo'}
                   </Badge>
                 </div>
               </div>
+              <CardTitle className="mt-4">{user.name}</CardTitle>
+              <CardDescription className="flex items-center gap-1">
+                <Mail className="h-3 w-3" />
+                {user.email}
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2 flex flex-col h-full">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Building2 className="h-4 w-4" />
                 <span>{user.company}</span>
@@ -574,7 +571,7 @@ export default function Users() {
                 </span>
               </div>
               
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-2 pt-3 mt-auto">
                 <Button
                   size="sm"
                   variant="outline"
@@ -584,44 +581,27 @@ export default function Users() {
                   <Eye className="h-4 w-4 mr-2" />
                   Detalhes
                 </Button>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEdit(user)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Editar</TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant={user.active ? 'outline-destructive' : 'default'}
-                        onClick={() => handleToggleActive(user.id, user.active)}
-                      >
-                        <Power className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>{user.active ? 'Inativar' : 'Ativar'}</TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDeleteClick(user.id, user.name)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Excluir</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleEdit(user)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant={user.active ? 'outline' : 'default'}
+                  onClick={() => handleToggleActive(user.id, user.active)}
+                >
+                  <Power className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleDeleteClick(user.id, user.name)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </CardContent>
           </Card>
