@@ -61,6 +61,7 @@ const refuelingSchema = z.object({
   fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Gasolina', 'Etanol', 'GNV', 'Biometano', 'Outro']),
   supplierId: z.string().min(1, 'Posto é obrigatório'),
   driver: z.string().optional(),
+  driverId: z.string().optional(),
 }).refine((data) => {
   // Se for veículo, precisa ter vehicleId e km
   if (data.entityType === 'vehicle' && !data.vehicleId) {
@@ -79,7 +80,7 @@ const refuelingSchema = z.object({
 type RefuelingFormData = z.infer<typeof refuelingSchema>;
 
 interface RefuelingFormProps {
-  onSubmit: (data: Omit<Refueling, 'id'>) => void;
+  onSubmit: (data: Omit<Refueling, 'id'>, driverId?: string) => void;
   onCancel: () => void;
   vehicles: Vehicle[];
   drivers: Driver[];
@@ -87,9 +88,10 @@ interface RefuelingFormProps {
   refrigerationUnits: RefrigerationUnit[];
   initialData?: Refueling;
   onAddSupplier?: (supplier: Omit<Supplier, 'id'>) => void;
+  onUpdateVehicleDriver?: (vehicleId: string, driverId?: string) => void;
 }
 
-export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers, refrigerationUnits, initialData, onAddSupplier }: RefuelingFormProps) {
+export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers, refrigerationUnits, initialData, onAddSupplier, onUpdateVehicleDriver }: RefuelingFormProps) {
   const { toast } = useToast();
   const gasStations = suppliers.filter(s => s.type === 'gas_station' && s.active);
   const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>(initialData?.paymentReceipt);
@@ -129,6 +131,8 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     ? activeRefrigerationUnits.filter(r => r.vehicleId === selectedVehicleFilter)
     : activeRefrigerationUnits;
   
+  const [selectedDriverId, setSelectedDriverId] = useState<string | undefined>(undefined);
+  
   const form = useForm<RefuelingFormData>({
     resolver: zodResolver(refuelingSchema),
     defaultValues: initialData ? {
@@ -143,6 +147,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       fuelType: initialData.fuelType as any,
       supplierId: initialData.supplierId,
       driver: initialData.driver,
+      driverId: undefined,
     } : {
       entityType: 'vehicle',
       date: new Date(),
@@ -151,6 +156,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       liters: 0,
       pricePerLiter: 0,
       fuelType: 'Diesel S10',
+      driverId: undefined,
     },
   });
 
@@ -252,9 +258,22 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
 
     const totalValue = data.liters * data.pricePerLiter;
 
-    // Buscar nome do motorista automaticamente
-    const driver = getDriverInfo();
+    // Usar o motorista selecionado ou buscar o atual
+    const driverId = selectedDriverId !== undefined ? (selectedDriverId || undefined) : undefined;
+    const driver = driverId ? drivers.find(d => d.id === driverId) : getDriverInfo();
     const driverName = driver?.name || '';
+
+    // Atualizar o motorista do veículo se foi alterado
+    if (onUpdateVehicleDriver && selectedDriverId !== undefined) {
+      if (data.entityType === 'vehicle' && data.vehicleId) {
+        onUpdateVehicleDriver(data.vehicleId, selectedDriverId || undefined);
+      } else if (data.entityType === 'refrigeration' && data.refrigerationUnitId) {
+        const unit = refrigerationUnits.find(u => u.id === data.refrigerationUnitId);
+        if (unit?.vehicleId) {
+          onUpdateVehicleDriver(unit.vehicleId, selectedDriverId || undefined);
+        }
+      }
+    }
 
     onSubmit({
       vehicleId: data.vehicleId,
@@ -838,30 +857,39 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
           </div>
         )}
 
-        {/* Informações do Motorista */}
-        {driverInfo && (
-          <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
-            <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">Motorista Vinculado</p>
-            <div className="space-y-1">
-              <p className="text-sm">
-                <span className="font-medium">Nome:</span> {driverInfo.name}
-              </p>
-              <p className="text-sm">
-                <span className="font-medium">CPF:</span> {driverInfo.cpf}
-              </p>
-              <p className="text-sm">
-                <span className="font-medium">CNH Categoria:</span> {driverInfo.cnhCategory}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {(watchVehicleId || watchRefrigerationUnitId) && !driverInfo && (
-          <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-            <p className="text-sm text-yellow-900 dark:text-yellow-100">
-              ⚠️ Nenhum motorista vinculado ao {watchEntityType === 'vehicle' ? 'veículo' : 'veículo do equipamento'}.
-            </p>
-          </div>
+        {/* Seleção de Motorista */}
+        {(watchVehicleId || watchRefrigerationUnitId) && (
+          <FormField
+            control={form.control}
+            name="driverId"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Motorista</FormLabel>
+                <Select 
+                  onValueChange={(value) => {
+                    setSelectedDriverId(value === 'none' ? '' : value);
+                    field.onChange(value);
+                  }}
+                  defaultValue={driverInfo?.id || 'none'}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o motorista" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="none">Nenhum motorista</SelectItem>
+                    {drivers.filter(d => d.active).map((driver) => (
+                      <SelectItem key={driver.id} value={driver.id}>
+                        {driver.name} - {driver.cpf}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         )}
 
         <div className="p-4 bg-muted rounded-lg">
