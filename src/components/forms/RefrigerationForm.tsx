@@ -86,20 +86,21 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
   const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
   const [openSupplier, setOpenSupplier] = useState(false);
   const [openVehicle, setOpenVehicle] = useState(false);
+  const [customModel, setCustomModel] = useState(false);
   
   // Mapeamento de modelos por marca
   const refrigerationModels: Record<string, string[]> = {
-    "Thermo King": ["V-300 MAX", "V-500 MAX", "V-800 MAX", "T-600R", "T-800R", "T-1000R", "SLXi Spectrum", "SLXe Whisper", "SB-III SR", "SB-210", "SB-400"],
-    "Carrier Transicold": ["Xarios 350", "Xarios 500", "Xarios 600", "Vector 1550", "Vector 1850", "Vector HE 19", "Supra 850", "Supra 950", "Supra 1150"],
-    "Frigoblock": ["FK 13 Diesel", "FK 17 Diesel", "FK 25 Diesel", "HK 15 Hybrid", "HK 25 Hybrid", "FK 45 Max"],
-    "Zanotti": ["ZAN 200", "ZAN 300", "ZAN 500", "SFZ 300", "SFZ 500"],
-    "Eberspächer": ["Cooltronic C25", "Cooltronic C35", "Cooltronic C50"],
-    "GAH": ["Refrigerador 3000", "Refrigerador 5000", "Bi-Temperatura 4000"],
-    "Lamberet": ["SR1", "SR2", "SR3", "Multi-temp"],
-    "Mitsubishi ThermoTech": ["TU45", "TU73", "TU90"],
-    "Hubbard": ["Grumman 300", "Grumman 500", "VersaCold"],
-    "Kingtec": ["TK-300", "TK-500", "TK-800"],
-    "Outras": ["Especificar manualmente"]
+    "Thermo King": ["V-300 MAX", "V-500 MAX", "V-800 MAX", "T-600R", "T-800R", "T-1000R", "SLXi Spectrum", "SLXe Whisper", "SB-III SR", "SB-210", "SB-400", "Outro (digitar manualmente)"],
+    "Carrier Transicold": ["Xarios 350", "Xarios 500", "Xarios 600", "Vector 1550", "Vector 1850", "Vector HE 19", "Supra 850", "Supra 950", "Supra 1150", "Outro (digitar manualmente)"],
+    "Frigoblock": ["FK 13 Diesel", "FK 17 Diesel", "FK 25 Diesel", "HK 15 Hybrid", "HK 25 Hybrid", "FK 45 Max", "Outro (digitar manualmente)"],
+    "Zanotti": ["ZAN 200", "ZAN 300", "ZAN 500", "SFZ 300", "SFZ 500", "Outro (digitar manualmente)"],
+    "Eberspächer": ["Cooltronic C25", "Cooltronic C35", "Cooltronic C50", "Outro (digitar manualmente)"],
+    "GAH": ["Refrigerador 3000", "Refrigerador 5000", "Bi-Temperatura 4000", "Outro (digitar manualmente)"],
+    "Lamberet": ["SR1", "SR2", "SR3", "Multi-temp", "Outro (digitar manualmente)"],
+    "Mitsubishi ThermoTech": ["TU45", "TU73", "TU90", "Outro (digitar manualmente)"],
+    "Hubbard": ["Grumman 300", "Grumman 500", "VersaCold", "Outro (digitar manualmente)"],
+    "Kingtec": ["TK-300", "TK-500", "TK-800", "Outro (digitar manualmente)"],
+    "Outras": ["Outro (digitar manualmente)"]
   };
   
   // Local state for temperature inputs to allow flexible typing
@@ -394,24 +395,53 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Modelo *</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  value={field.value}
-                  disabled={!selectedBrand}
-                >
+                {customModel ? (
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={selectedBrand ? "Selecione o modelo" : "Selecione uma marca primeiro"} />
-                    </SelectTrigger>
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Digite o modelo" 
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setCustomModel(false);
+                          field.onChange('');
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </FormControl>
-                  <SelectContent>
-                    {selectedBrand && refrigerationModels[selectedBrand]?.map((model) => (
-                      <SelectItem key={model} value={model}>
-                        {model}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                ) : (
+                  <Select 
+                    onValueChange={(value) => {
+                      if (value === "Outro (digitar manualmente)") {
+                        setCustomModel(true);
+                        field.onChange('');
+                      } else {
+                        field.onChange(value);
+                      }
+                    }} 
+                    value={field.value}
+                    disabled={!selectedBrand}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={selectedBrand ? "Selecione o modelo" : "Selecione uma marca primeiro"} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {selectedBrand && refrigerationModels[selectedBrand]?.map((model) => (
+                        <SelectItem key={model} value={model}>
+                          {model}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 <FormMessage />
               </FormItem>
             )}

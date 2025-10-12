@@ -45,13 +45,15 @@ const TRACTION_BRAND_MODELS: Record<string, string[]> = {
   'Agrale': [
     '8500 TCA', '8500 TDX', '9200 TCA', '13000 TCA', '14000 TCA', '16000',
     '6000 TCA', '7500 TCA', '8500 TCLE', '9200 TCLE', '10000 TCA',
-    'Marruá AM 100', 'Marruá AM 150', 'Marruá AM 200', 'Marruá AM 300'
+    'Marruá AM 100', 'Marruá AM 150', 'Marruá AM 200', 'Marruá AM 300',
+    'Outro (digitar manualmente)'
   ],
   'DAF': [
     'XF 105.460', 'XF 105.510', 'XF 105.530', 'XF 530', 'XF 480',
     'CF 85.410', 'CF 85.430', 'CF 85.460', 'CF 85.480', 'CF 85.510',
     'LF 45.180', 'LF 45.220', 'LF 55.180', 'LF 55.220', 'LF 55.250',
-    'XF 440', 'XF 510', 'XF 450 FT', 'XF 530 FT'
+    'XF 440', 'XF 510', 'XF 450 FT', 'XF 530 FT',
+    'Outro (digitar manualmente)'
   ],
   'Ford': [
     'Cargo 815', 'Cargo 816', 'Cargo 915', 'Cargo 1119', 'Cargo 1215',
@@ -59,12 +61,14 @@ const TRACTION_BRAND_MODELS: Record<string, string[]> = {
     'Cargo 1719', 'Cargo 1722', 'Cargo 1729', 'Cargo 2422', 'Cargo 2428',
     'Cargo 2429', 'Cargo 2622', 'Cargo 2629', 'Cargo 2631', 'Cargo 2932',
     'Cargo 3222', 'Cargo 3229', 'Cargo 3328', 'Cargo 3329', 'Cargo 4030',
-    'Cargo 4331', 'Cargo 4432', 'Cargo 4532'
+    'Cargo 4331', 'Cargo 4432', 'Cargo 4532',
+    'Outro (digitar manualmente)'
   ],
   'International': [
     '4300', '4400', '7400', '9200', '9400', '9800', '9900',
     'ProStar', 'LoneStar', 'PayStar', 'WorkStar', 'TranStar',
-    'DuraStar', 'TerraStar'
+    'DuraStar', 'TerraStar',
+    'Outro (digitar manualmente)'
   ],
   'Iveco': [
     'Stralis 380', 'Stralis 410', 'Stralis 440', 'Stralis 460', 'Stralis 490',
@@ -73,14 +77,16 @@ const TRACTION_BRAND_MODELS: Record<string, string[]> = {
     'Tector 150', 'Tector 170', 'Tector 240', 'Tector 260',
     'Daily 35S14', 'Daily 35S17', 'Daily 45S17', 'Daily 55C16', 'Daily 55C17',
     'Daily 70C16', 'Daily 70C17', 'Vertis 90V16', 'Vertis 90V18',
-    'Cursor 330', 'Cursor 400', 'Cursor 450'
+    'Cursor 330', 'Cursor 400', 'Cursor 450',
+    'Outro (digitar manualmente)'
   ],
   'MAN': [
     'TGX 29.440', 'TGX 29.480', 'TGX 28.440', 'TGX 28.480',
     'TGS 24.440', 'TGS 26.440', 'TGS 28.440', 'TGS 29.440',
     'TGL 8.150', 'TGL 8.180', 'TGL 10.180', 'TGL 12.220',
     'TGM 13.250', 'TGM 15.250', 'TGM 18.280', 'TGM 23.250',
-    'TGA 18.350', 'TGA 26.350', 'TGA 28.350'
+    'TGA 18.350', 'TGA 26.350', 'TGA 28.350',
+    'Outro (digitar manualmente)'
   ],
   'Mercedes-Benz': [
     'Actros 2546', 'Actros 2651', 'Actros 2655', 'Actros 3344', 'Actros 4144',
@@ -91,32 +97,37 @@ const TRACTION_BRAND_MODELS: Record<string, string[]> = {
     'Axor 2536', 'Axor 2540', 'Axor 2544', 'Axor 2644', 'Axor 3131', 'Axor 3344',
     'Accelo 715', 'Accelo 815', 'Accelo 915', 'Accelo 1016', 'Accelo 1316',
     'L 1113', 'L 1313', 'L 1513', 'L 1518', 'L 1519', 'L 1620', 'L 1621',
-    'L 1938', 'L 2013', 'L 2318', 'LS 1632', 'LS 1634', 'LS 1938'
+    'L 1938', 'L 2013', 'L 2318', 'LS 1632', 'LS 1634', 'LS 1938',
+    'Outro (digitar manualmente)'
   ],
   'Mitsubishi': [
     'L200 Triton Sport', 'L200 Triton Savana', 'L200 Triton HPE',
     'Fuso Canter 815', 'Fuso Canter 915', 'Fuso Canter 3.5',
     'Fuso Fighter FK', 'Fuso Fighter FM', 'Fuso Fighter FN',
-    'Pajero Full', 'Pajero Sport', 'Pajero TR4'
+    'Pajero Full', 'Pajero Sport', 'Pajero TR4',
+    'Outro (digitar manualmente)'
   ],
   'Peugeot': [
     'Boxer 2.3 Furgão', 'Boxer 2.3 Chassi', 'Boxer 2.3 Minibus',
     'Boxer 2.8 Furgão', 'Boxer 2.8 Chassi', 'Boxer 2.8 Minibus',
-    'Boxer 2.0 HDI', 'Boxer 2.2 HDI'
+    'Boxer 2.0 HDI', 'Boxer 2.2 HDI',
+    'Outro (digitar manualmente)'
   ],
   'Renault': [
     'Master 2.3', 'Master 2.5', 'Master L1H1', 'Master L2H2', 'Master L3H2',
     'T 380', 'T 430', 'T 460', 'T 480', 'T 520',
     'C 380', 'C 430', 'C 460', 'C 480',
     'K 380', 'K 430', 'K 460', 'K 520',
-    'D 310', 'D 340', 'D 380'
+    'D 310', 'D 340', 'D 380',
+    'Outro (digitar manualmente)'
   ],
   'Scania': [
     'R 440', 'R 450', 'R 480', 'R 500', 'R 540', 'R 560', 'R 620', 'R 730',
     'G 340', 'G 360', 'G 380', 'G 400', 'G 420', 'G 440', 'G 480',
     'P 250', 'P 280', 'P 310', 'P 340', 'P 360', 'P 380', 'P 410',
     'S 500', 'S 520', 'S 540', 'S 580', 'S 650', 'S 730',
-    'XT 440', 'XT 540'
+    'XT 440', 'XT 540',
+    'Outro (digitar manualmente)'
   ],
   'Volvo': [
     'FH 440', 'FH 460', 'FH 480', 'FH 500', 'FH 520', 'FH 540', 'FH 580', 'FH 660',
@@ -124,7 +135,8 @@ const TRACTION_BRAND_MODELS: Record<string, string[]> = {
     'FM 330', 'FM 370', 'FM 380', 'FM 400', 'FM 420', 'FM 440', 'FM 460', 'FM 480',
     'FMX 370', 'FMX 420', 'FMX 440', 'FMX 460', 'FMX 500', 'FMX 540',
     'VM 210', 'VM 220', 'VM 260', 'VM 270', 'VM 310', 'VM 330',
-    'VNL 430', 'VNL 630', 'VNL 670', 'VNL 780', 'VNL 860'
+    'VNL 430', 'VNL 630', 'VNL 670', 'VNL 780', 'VNL 860',
+    'Outro (digitar manualmente)'
   ],
   'Volkswagen': [
     'Constellation 13.180', 'Constellation 15.180', 'Constellation 17.250', 'Constellation 17.280',
@@ -133,7 +145,8 @@ const TRACTION_BRAND_MODELS: Record<string, string[]> = {
     'Constellation 25.390', 'Constellation 26.280', 'Constellation 31.280', 'Constellation 31.330',
     'Delivery 6.160', 'Delivery 9.170', 'Delivery 11.180', 'Delivery 13.180',
     'Worker 8.150', 'Worker 10.160', 'Worker 15.180', 'Worker 17.210',
-    'Worker 24.220', 'Worker 26.260', 'Worker 31.260', 'Worker 31.320'
+    'Worker 24.220', 'Worker 26.260', 'Worker 31.260', 'Worker 31.320',
+    'Outro (digitar manualmente)'
   ],
 };
 
@@ -143,53 +156,65 @@ const TRAILER_BRAND_MODELS: Record<string, string[]> = {
     'Sider 3 Eixos', 'Sider 2 Eixos', 'Baú Frigorífico 3 Eixos', 'Baú Frigorífico 2 Eixos',
     'Graneleiro 3 Eixos', 'Graneleiro 2 Eixos', 'Porta Container 3 Eixos',
     'Prancha 3 Eixos', 'Prancha 2 Eixos', 'Caçamba Basculante 3 Eixos',
-    'Tanque 3 Eixos', 'Cegonheiro 2 Andares', 'Cegonheiro 3 Andares'
+    'Tanque 3 Eixos', 'Cegonheiro 2 Andares', 'Cegonheiro 3 Andares',
+    'Outro (digitar manualmente)'
   ],
   'Librelato': [
     'Sider 3 Eixos', 'Sider 2 Eixos', 'Baú Seco 3 Eixos', 'Baú Seco 2 Eixos',
     'Graneleiro 3 Eixos', 'Graneleiro 2 Eixos', 'Porta Container 3 Eixos',
-    'Prancha 3 Eixos', 'Caçamba 3 Eixos', 'Tanque Combustível 3 Eixos'
+    'Prancha 3 Eixos', 'Caçamba 3 Eixos', 'Tanque Combustível 3 Eixos',
+    'Outro (digitar manualmente)'
   ],
   'Guerra': [
     'Baú Frigorífico 3 Eixos', 'Baú Frigorífico 2 Eixos', 'Sider 3 Eixos',
     'Graneleiro 3 Eixos', 'Porta Container 3 Eixos', 'Prancha 3 Eixos',
-    'Tanque 3 Eixos', 'Caçamba Basculante 3 Eixos'
+    'Tanque 3 Eixos', 'Caçamba Basculante 3 Eixos',
+    'Outro (digitar manualmente)'
   ],
   'Noma': [
     'Sider 3 Eixos', 'Sider 2 Eixos', 'Baú Seco 3 Eixos',
-    'Graneleiro 3 Eixos', 'Porta Container 3 Eixos', 'Prancha 3 Eixos'
+    'Graneleiro 3 Eixos', 'Porta Container 3 Eixos', 'Prancha 3 Eixos',
+    'Outro (digitar manualmente)'
   ],
   'Facchini': [
     'Graneleiro 3 Eixos', 'Graneleiro 2 Eixos', 'Sider 3 Eixos',
-    'Baú Seco 3 Eixos', 'Caçamba Basculante 3 Eixos', 'Porta Container 3 Eixos'
+    'Baú Seco 3 Eixos', 'Caçamba Basculante 3 Eixos', 'Porta Container 3 Eixos',
+    'Outro (digitar manualmente)'
   ],
   'Vanderleia': [
     'Baú Frigorífico 3 Eixos', 'Baú Frigorífico 2 Eixos', 'Sider 3 Eixos',
-    'Graneleiro 3 Eixos', 'Prancha 3 Eixos'
+    'Graneleiro 3 Eixos', 'Prancha 3 Eixos',
+    'Outro (digitar manualmente)'
   ],
   'Rodotec': [
     'Baú Seco 3 Eixos', 'Baú Seco 2 Eixos', 'Sider 3 Eixos',
-    'Graneleiro 3 Eixos', 'Porta Container 3 Eixos'
+    'Graneleiro 3 Eixos', 'Porta Container 3 Eixos',
+    'Outro (digitar manualmente)'
   ],
   'Rondon': [
     'Sider 3 Eixos', 'Baú Seco 3 Eixos', 'Graneleiro 3 Eixos',
-    'Caçamba 3 Eixos', 'Prancha 3 Eixos'
+    'Caçamba 3 Eixos', 'Prancha 3 Eixos',
+    'Outro (digitar manualmente)'
   ],
   'Kässbohrer': [
     'Sider 3 Eixos', 'Baú Frigorífico 3 Eixos', 'Porta Container 3 Eixos',
-    'Prancha 3 Eixos', 'Tanque 3 Eixos'
+    'Prancha 3 Eixos', 'Tanque 3 Eixos',
+    'Outro (digitar manualmente)'
   ],
   'Recrusul': [
     'Baú Frigorífico 3 Eixos', 'Sider 3 Eixos', 'Graneleiro 3 Eixos',
-    'Porta Container 3 Eixos', 'Prancha 3 Eixos'
+    'Porta Container 3 Eixos', 'Prancha 3 Eixos',
+    'Outro (digitar manualmente)'
   ],
   'Schiffer': [
     'Graneleiro 3 Eixos', 'Caçamba Basculante 3 Eixos', 'Sider 3 Eixos',
-    'Baú Seco 3 Eixos', 'Porta Container 3 Eixos'
+    'Baú Seco 3 Eixos', 'Porta Container 3 Eixos',
+    'Outro (digitar manualmente)'
   ],
   'Pastre': [
     'Baú Frigorífico 3 Eixos', 'Baú Seco 3 Eixos', 'Sider 3 Eixos',
-    'Graneleiro 3 Eixos', 'Prancha 3 Eixos'
+    'Graneleiro 3 Eixos', 'Prancha 3 Eixos',
+    'Outro (digitar manualmente)'
   ],
 };
 
@@ -248,6 +273,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
   const [ownerBranch, setOwnerBranch] = useState<string>(
     initialData?.ownerBranch || 'Matriz'
   );
+  const [customModel, setCustomModel] = useState(false);
 
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
@@ -665,24 +691,53 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Modelo *</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                  disabled={!selectedBrand}
-                >
+                {customModel ? (
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={selectedBrand ? "Selecione o modelo" : "Selecione a marca primeiro"} />
-                    </SelectTrigger>
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Digite o modelo" 
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setCustomModel(false);
+                          field.onChange('');
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </FormControl>
-                  <SelectContent>
-                    {availableModels.map((model) => (
-                      <SelectItem key={model} value={model}>
-                        {model}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                ) : (
+                  <Select 
+                    onValueChange={(value) => {
+                      if (value === "Outro (digitar manualmente)") {
+                        setCustomModel(true);
+                        field.onChange('');
+                      } else {
+                        field.onChange(value);
+                      }
+                    }} 
+                    defaultValue={field.value}
+                    disabled={!selectedBrand}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={selectedBrand ? "Selecione o modelo" : "Selecione a marca primeiro"} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableModels.map((model) => (
+                        <SelectItem key={model} value={model}>
+                          {model}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 <FormMessage />
               </FormItem>
             )}
