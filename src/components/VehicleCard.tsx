@@ -212,11 +212,19 @@ export function VehicleCard({
             </div>
           )}
           {isTrailerVehicle && (
-            <div>
-              <span className="text-muted-foreground">Proprietária:</span>
-              <p className="font-medium">{vehicle.ownerBranch}</p>
-              {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
-            </div>
+            <>
+              <div>
+                <span className="text-muted-foreground">Proprietária:</span>
+                <p className="font-medium">{vehicle.ownerBranch}</p>
+                {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
+              </div>
+              <div>
+                <span className="text-muted-foreground">Valor:</span>
+                <p className="font-medium">
+                  {vehicle.purchaseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </p>
+              </div>
+            </>
           )}
           {isTrailerVehicle && vehicle.weight && (
             <div>
@@ -225,11 +233,19 @@ export function VehicleCard({
             </div>
           )}
           {isTractionVehicle && (
-            <div>
-              <span className="text-muted-foreground">Proprietária:</span>
-              <p className="font-medium">{vehicle.ownerBranch}</p>
-              {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
-            </div>
+            <>
+              <div>
+                <span className="text-muted-foreground">Proprietária:</span>
+                <p className="font-medium">{vehicle.ownerBranch}</p>
+                {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
+              </div>
+              <div>
+                <span className="text-muted-foreground">Valor:</span>
+                <p className="font-medium">
+                  {vehicle.purchaseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </p>
+              </div>
+            </>
           )}
           <div className="col-span-2">
             <span className="text-muted-foreground">Matriz/Filiais Vinculadas:</span>
