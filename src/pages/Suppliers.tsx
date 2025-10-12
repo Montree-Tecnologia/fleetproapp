@@ -140,34 +140,36 @@ export default function Suppliers() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Fornecedores</h2>
-          <p className="text-muted-foreground">
-            Cadastro de fornecedores e prestadores de serviço
-          </p>
+    <div className="space-y-4 lg:space-y-6">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Fornecedores</h2>
+            <p className="text-sm lg:text-base text-muted-foreground">
+              Cadastro de fornecedores e prestadores de serviço
+            </p>
+          </div>
+          <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
+            <Button onClick={() => setOpen(true)} className="w-full sm:w-auto">
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Fornecedor
+            </Button>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingSupplier ? 'Editar Fornecedor' : 'Cadastrar Fornecedor'}</DialogTitle>
+                <DialogDescription>
+                  {editingSupplier ? 'Atualize as informações do fornecedor' : 'Adicione um novo fornecedor ou prestador de serviço'}
+                </DialogDescription>
+              </DialogHeader>
+              <SupplierForm
+                onSubmit={handleSubmit}
+                onCancel={handleDialogClose}
+                initialData={editingSupplier}
+                companies={allCompanies}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
-        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleDialogClose()}>
-          <Button onClick={() => setOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Novo Fornecedor
-          </Button>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingSupplier ? 'Editar Fornecedor' : 'Cadastrar Fornecedor'}</DialogTitle>
-              <DialogDescription>
-                {editingSupplier ? 'Atualize as informações do fornecedor' : 'Adicione um novo fornecedor ou prestador de serviço'}
-              </DialogDescription>
-            </DialogHeader>
-            <SupplierForm
-              onSubmit={handleSubmit}
-              onCancel={handleDialogClose}
-              initialData={editingSupplier}
-              companies={allCompanies}
-            />
-          </DialogContent>
-        </Dialog>
       </div>
 
       <div className="relative">

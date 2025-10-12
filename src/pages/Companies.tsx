@@ -114,35 +114,37 @@ export default function Companies() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Empresas e Filiais</h2>
-          <p className="text-muted-foreground">
-            Gerencie matriz e filiais da organização
-          </p>
+    <div className="space-y-4 lg:space-y-6">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Empresas e Filiais</h2>
+            <p className="text-sm lg:text-base text-muted-foreground">
+              Gerencie matriz e filiais da organização
+            </p>
+          </div>
+          <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
+            <DialogTrigger asChild>
+              <Button className="w-full sm:w-auto">
+                <Plus className="mr-2 h-4 w-4" />
+                Nova Empresa
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingCompany ? 'Editar Empresa' : 'Cadastrar Empresa'}</DialogTitle>
+                <DialogDescription>
+                  {editingCompany ? 'Atualize os dados da empresa' : 'Adicione uma nova matriz ou filial'}
+                </DialogDescription>
+              </DialogHeader>
+              <CompanyForm 
+                initialData={editingCompany || undefined}
+                onSuccess={() => handleDialogClose(false)}
+                onCancel={() => handleDialogClose(false)}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Nova Empresa
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingCompany ? 'Editar Empresa' : 'Cadastrar Empresa'}</DialogTitle>
-              <DialogDescription>
-                {editingCompany ? 'Atualize os dados da empresa' : 'Adicione uma nova matriz ou filial'}
-              </DialogDescription>
-            </DialogHeader>
-            <CompanyForm 
-              initialData={editingCompany || undefined}
-              onSuccess={() => handleDialogClose(false)}
-              onCancel={() => handleDialogClose(false)}
-            />
-          </DialogContent>
-        </Dialog>
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
