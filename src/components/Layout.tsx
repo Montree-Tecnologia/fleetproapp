@@ -305,8 +305,8 @@ export function Layout() {
         {/* Page Content */}
         <div className="flex-1 overflow-auto p-4 lg:p-6">
           {/* Alerta de configuração da matriz */}
-          {!showTutorial && !showMatrizSetup && needsMatrizSetup && user?.role === 'admin' && (
-            <MatrizConfigWarning show={needsMatrizSetup} />
+          {!showTutorial && !showMatrizSetup && needsMatrizSetup && user?.role === 'admin' && user?.companyId && (
+            <MatrizConfigWarning show={needsMatrizSetup} matrizId={user.companyId} />
           )}
           <Outlet />
         </div>

@@ -76,9 +76,15 @@ export function useOnboarding() {
       const updatedMatriz = allCompanies.find(c => c.id === user.companyId);
       if (updatedMatriz) {
         setMatrizCompany(updatedMatriz);
+        
+        // Verificar se a matriz está configurada
+        const isConfigured = Boolean(updatedMatriz.cnpj && updatedMatriz.city && updatedMatriz.state);
+        if (isConfigured && user.matrizConfigured === false) {
+          updateUser({ matrizConfigured: true });
+        }
       }
     }
-  }, [companies, user?.companyId]);
+  }, [companies, user?.companyId, user?.matrizConfigured, updateUser]);
 
   return {
     showTutorial,
