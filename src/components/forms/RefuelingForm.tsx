@@ -949,21 +949,128 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
           </div>
         )}
 
+        {/* Informações do Veículo Selecionado (para abastecimento de veículo) */}
+        {watchEntityType === 'vehicle' && watchVehicleId && (() => {
+          const vehicle = vehicles.find(v => v.id === watchVehicleId);
+          return vehicle ? (
+            <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">Resumo do Veículo</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-sm">
+                    <span className="font-medium">Placa:</span> {vehicle.plate}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Modelo:</span> {vehicle.model}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Tipo:</span> {vehicle.vehicleType}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm">
+                    <span className="font-medium">Marca:</span> {vehicle.brand}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Proprietária:</span> {vehicle.ownerBranch}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">KM Atual:</span> {vehicle.currentKm.toLocaleString('pt-BR')}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null;
+        })()}
+
         {/* Informações do Veículo (para equipamentos de refrigeração) */}
         {watchEntityType === 'refrigeration' && vehicleInfo && (
           <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">Veículo Vinculado</p>
-            <div className="space-y-1">
-              <p className="text-sm">
-                <span className="font-medium">Placa:</span> {vehicleInfo.plate}
-              </p>
-              <p className="text-sm">
-                <span className="font-medium">Modelo:</span> {vehicleInfo.model}
-              </p>
-              <p className="text-sm">
-                <span className="font-medium">Tipo:</span> {vehicleInfo.vehicleType}
-              </p>
+            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">Veículo Vinculado ao Equipamento</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <p className="text-sm">
+                  <span className="font-medium">Placa:</span> {vehicleInfo.plate}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Modelo:</span> {vehicleInfo.model}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Tipo:</span> {vehicleInfo.vehicleType}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm">
+                  <span className="font-medium">Marca:</span> {vehicleInfo.brand}
+                </p>
+                <p className="text-sm">
+                  <span className="font-medium">Proprietária:</span> {vehicleInfo.ownerBranch}
+                </p>
+              </div>
             </div>
+          </div>
+        )}
+
+        {/* Informações e Seleção de Motorista */}
+        {(watchVehicleId || watchRefrigerationUnitId) && (
+          <div className="space-y-3">
+            {driverInfo && (
+              <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+                <p className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">Motorista Atual</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-sm">
+                      <span className="font-medium">Nome:</span> {driverInfo.name}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-medium">CPF:</span> {driverInfo.cpf}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm">
+                      <span className="font-medium">CNH:</span> {driverInfo.cnhCategory}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-medium">Validade CNH:</span> {new Date(driverInfo.cnhValidity).toLocaleDateString('pt-BR')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <FormField
+              control={form.control}
+              name="driverId"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>
+                    {driverInfo ? 'Alterar Motorista' : 'Vincular Motorista'}
+                  </FormLabel>
+                  <Select 
+                    onValueChange={(value) => {
+                      setSelectedDriverId(value === 'none' ? '' : value);
+                      field.onChange(value);
+                    }}
+                    defaultValue={driverInfo?.id || 'none'}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o motorista" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhum motorista</SelectItem>
+                      {drivers.filter(d => d.active).map((driver) => (
+                        <SelectItem key={driver.id} value={driver.id}>
+                          {driver.name} - CPF: {driver.cpf}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         )}
 
