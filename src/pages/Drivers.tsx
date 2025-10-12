@@ -247,10 +247,8 @@ export default function Drivers() {
 
     if (daysUntilExpiry < 0) {
       return { status: 'CNH Vencida', variant: 'destructive' as const, daysUntilExpiry };
-    } else if (daysUntilExpiry <= 30) {
-      return { status: 'Vence em breve', variant: 'destructive' as const, daysUntilExpiry };
     } else if (daysUntilExpiry <= 60) {
-      return { status: 'Atenção', variant: 'outline' as const, daysUntilExpiry };
+      return { status: 'CNH Vence em Breve', variant: 'destructive' as const, daysUntilExpiry };
     }
     return { status: 'CNH Válida', variant: 'secondary' as const, daysUntilExpiry };
   };
@@ -529,7 +527,7 @@ export default function Drivers() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {cnhStatus.daysUntilExpiry <= 60 && cnhStatus.daysUntilExpiry > 0 && (
-                  <Alert variant={cnhStatus.daysUntilExpiry <= 30 ? "destructive" : "default"}>
+                  <Alert variant="destructive">
                     <AlertTriangle className="h-4 w-4" />
                     <AlertTitle>CNH vence em {cnhStatus.daysUntilExpiry} {cnhStatus.daysUntilExpiry === 1 ? 'dia' : 'dias'}</AlertTitle>
                     <AlertDescription>
