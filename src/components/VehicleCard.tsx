@@ -28,6 +28,7 @@ interface VehicleCardProps {
   calculateAverageConsumption: (vehicleId: string) => number | null;
   allDrivers: any[];
   allVehicles: Vehicle[];
+  allCompanies: any[];
   getAvailableDrivers: (currentVehicleId: string) => any[];
   handleDriverChange: (vehicleId: string, driverId: string) => void;
   handleStatusChange: (vehicleId: string, plate: string, status: string, currentStatus: string) => void;
@@ -48,6 +49,7 @@ export function VehicleCard({
   calculateAverageConsumption,
   allDrivers,
   allVehicles,
+  allCompanies,
   getAvailableDrivers,
   handleDriverChange,
   handleStatusChange,
@@ -73,6 +75,10 @@ export function VehicleCard({
   
   // Motoristas disponíveis (não vinculados a outros veículos)
   const availableDrivers = getAvailableDrivers(vehicle.id);
+  
+  // Buscar CNPJ da empresa proprietária
+  const ownerCompany = allCompanies.find(c => c.name === vehicle.ownerBranch);
+  const ownerCnpj = ownerCompany?.cnpj;
   
   // Veículos de reboque disponíveis para adicionar
   const availableTrailers = allVehicles.filter(v => {
@@ -208,6 +214,7 @@ export function VehicleCard({
           <div>
             <span className="text-muted-foreground">Proprietária:</span>
             <p className="font-medium">{vehicle.ownerBranch}</p>
+            {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
           </div>
           <div className="col-span-2">
             <span className="text-muted-foreground">Matriz/Filiais Vinculadas:</span>

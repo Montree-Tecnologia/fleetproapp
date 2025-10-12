@@ -932,6 +932,7 @@ export default function Vehicles() {
                 calculateAverageConsumption={calculateAverageConsumption}
                 allDrivers={allDrivers}
                 allVehicles={allVehicles}
+                allCompanies={allCompanies}
                 getAvailableDrivers={getAvailableDrivers}
                 handleDriverChange={handleDriverChange}
                 handleStatusChange={handleStatusChange}
@@ -959,6 +960,7 @@ export default function Vehicles() {
                 calculateAverageConsumption={calculateAverageConsumption}
                 allDrivers={allDrivers}
                 allVehicles={allVehicles}
+                allCompanies={allCompanies}
                 getAvailableDrivers={getAvailableDrivers}
                 handleDriverChange={handleDriverChange}
                 handleStatusChange={handleStatusChange}
