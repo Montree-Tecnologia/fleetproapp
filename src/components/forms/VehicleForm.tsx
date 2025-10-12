@@ -1050,27 +1050,6 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="purchaseKm"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>KM de Compra *</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="text"
-                    placeholder="Ex: 150.000"
-                    {...field}
-                    value={field.value ? formatInteger(field.value) : ''}
-                    onChange={(e) => handleIntegerInput(e, field.onChange)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-
         </div>
 
         {vehicleCategory === 'trailer' ? (
@@ -1137,6 +1116,26 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="purchaseKm"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>KM de Compra *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="text"
+                      placeholder="Ex: 150.000"
+                      {...field}
+                      value={field.value ? formatInteger(field.value) : ''}
+                      onChange={(e) => handleIntegerInput(e, field.onChange)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -1324,6 +1323,26 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 )}
               />
             </div>
+            
+            <FormField
+              control={form.control}
+              name="purchaseKm"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>KM de Compra *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="text"
+                      placeholder="Ex: 150.000"
+                      {...field}
+                      value={field.value ? formatInteger(field.value) : ''}
+                      onChange={(e) => handleIntegerInput(e, field.onChange)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">Fornecedor</label>
