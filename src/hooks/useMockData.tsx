@@ -1013,7 +1013,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '1',
     vehicleId: '1',
-    date: '2025-01-15',
+    date: '2025-10-10',
     km: 125000,
     liters: 320,
     pricePerLiter: 5.89,
@@ -1025,7 +1025,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '2',
     vehicleId: '1',
-    date: '2025-01-08',
+    date: '2025-10-03',
     km: 123200,
     liters: 310,
     pricePerLiter: 5.92,
@@ -1037,7 +1037,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '3',
     vehicleId: '1',
-    date: '2025-01-01',
+    date: '2025-09-26',
     km: 121500,
     liters: 305,
     pricePerLiter: 5.85,
@@ -1049,7 +1049,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '4',
     vehicleId: '1',
-    date: '2024-12-25',
+    date: '2025-09-20',
     km: 119800,
     liters: 315,
     pricePerLiter: 5.80,
@@ -1062,7 +1062,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '5',
     vehicleId: '2',
-    date: '2025-01-14',
+    date: '2025-10-09',
     km: 185000,
     liters: 450,
     pricePerLiter: 5.85,
@@ -1074,7 +1074,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '6',
     vehicleId: '2',
-    date: '2025-01-07',
+    date: '2025-10-02',
     km: 183500,
     liters: 440,
     pricePerLiter: 5.90,
@@ -1086,7 +1086,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '7',
     vehicleId: '2',
-    date: '2024-12-31',
+    date: '2025-09-26',
     km: 182000,
     liters: 445,
     pricePerLiter: 5.88,
@@ -1098,7 +1098,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '8',
     vehicleId: '2',
-    date: '2024-12-24',
+    date: '2025-09-19',
     km: 180400,
     liters: 450,
     pricePerLiter: 5.82,
@@ -1111,7 +1111,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '9',
     vehicleId: '3',
-    date: '2025-01-12',
+    date: '2025-10-07',
     km: 52000,
     liters: 280,
     pricePerLiter: 6.10,
@@ -1123,7 +1123,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '10',
     vehicleId: '3',
-    date: '2025-01-05',
+    date: '2025-09-30',
     km: 50300,
     liters: 275,
     pricePerLiter: 6.15,
@@ -1135,7 +1135,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '11',
     vehicleId: '3',
-    date: '2024-12-29',
+    date: '2025-09-24',
     km: 48600,
     liters: 270,
     pricePerLiter: 6.08,
@@ -1147,7 +1147,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '12',
     vehicleId: '3',
-    date: '2024-12-22',
+    date: '2025-09-17',
     km: 47000,
     liters: 275,
     pricePerLiter: 6.12,
@@ -1160,7 +1160,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '13',
     vehicleId: '20',
-    date: '2025-01-16',
+    date: '2025-10-11',
     km: 68000,
     liters: 330,
     pricePerLiter: 5.91,
@@ -1172,7 +1172,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '14',
     vehicleId: '20',
-    date: '2025-01-09',
+    date: '2025-10-04',
     km: 66200,
     liters: 325,
     pricePerLiter: 5.94,
@@ -1184,7 +1184,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '15',
     vehicleId: '20',
-    date: '2025-01-02',
+    date: '2025-09-27',
     km: 64500,
     liters: 320,
     pricePerLiter: 5.87,
@@ -1197,7 +1197,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '16',
     vehicleId: '19',
-    date: '2025-01-15',
+    date: '2025-10-10',
     km: 168000,
     liters: 340,
     pricePerLiter: 5.88,
@@ -1209,7 +1209,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '17',
     vehicleId: '19',
-    date: '2025-01-08',
+    date: '2025-10-03',
     km: 165800,
     liters: 335,
     pricePerLiter: 5.92,
@@ -1221,7 +1221,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '18',
     vehicleId: '19',
-    date: '2025-01-01',
+    date: '2025-09-26',
     km: 163600,
     liters: 330,
     pricePerLiter: 5.85,
@@ -1661,7 +1661,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '25',
     vehicleId: '4',
-    date: '2025-01-11',
+    date: '2025-10-06',
     km: 98500,
     liters: 300,
     pricePerLiter: 5.90,
@@ -1673,7 +1673,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '26',
     vehicleId: '4',
-    date: '2025-01-04',
+    date: '2025-09-29',
     km: 96800,
     liters: 295,
     pricePerLiter: 5.93,
@@ -1686,7 +1686,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '27',
     vehicleId: '5',
-    date: '2025-01-10',
+    date: '2025-10-05',
     km: 142000,
     liters: 310,
     pricePerLiter: 5.89,
@@ -1698,7 +1698,7 @@ const mockRefuelings: Refueling[] = [
   {
     id: '28',
     vehicleId: '5',
-    date: '2025-01-03',
+    date: '2025-09-28',
     km: 140200,
     liters: 305,
     pricePerLiter: 5.92,
