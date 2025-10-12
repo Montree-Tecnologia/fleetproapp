@@ -73,7 +73,7 @@ export default function Dashboard() {
     },
     {
       title: 'Consumo Médio',
-      value: `${refrigerationStats.avgConsumption} L/h`,
+      value: `${refrigerationStats.avgConsumption} l/h`,
       icon: TrendingUp,
       description: 'Média dos equipamentos',
       color: 'text-chart-3'
