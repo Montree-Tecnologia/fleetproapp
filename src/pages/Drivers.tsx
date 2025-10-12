@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil, Eye, Upload, X, Search, Power } from 'lucide-react';
+import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil, Eye, Upload, X, Search, Power, AlertTriangle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const driverSchema = z.object({
   name: z.string().trim().min(3, 'Nome deve ter no mínimo 3 caracteres').max(100, 'Nome muito longo'),
@@ -245,13 +246,13 @@ export default function Drivers() {
     const daysUntilExpiry = Math.floor((validityDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
     if (daysUntilExpiry < 0) {
-      return { status: 'CNH Vencida', variant: 'destructive' as const };
+      return { status: 'CNH Vencida', variant: 'destructive' as const, daysUntilExpiry };
     } else if (daysUntilExpiry <= 30) {
-      return { status: 'Vence em breve', variant: 'destructive' as const };
+      return { status: 'Vence em breve', variant: 'destructive' as const, daysUntilExpiry };
     } else if (daysUntilExpiry <= 60) {
-      return { status: 'Atenção', variant: 'outline' as const };
+      return { status: 'Atenção', variant: 'outline' as const, daysUntilExpiry };
     }
-    return { status: 'CNH Válida', variant: 'secondary' as const };
+    return { status: 'CNH Válida', variant: 'secondary' as const, daysUntilExpiry };
   };
 
   const formatDate = (date: string) => {
@@ -527,6 +528,24 @@ export default function Drivers() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
+                {cnhStatus.daysUntilExpiry <= 60 && cnhStatus.daysUntilExpiry > 0 && (
+                  <Alert variant={cnhStatus.daysUntilExpiry <= 30 ? "destructive" : "default"}>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>CNH vence em {cnhStatus.daysUntilExpiry} {cnhStatus.daysUntilExpiry === 1 ? 'dia' : 'dias'}</AlertTitle>
+                    <AlertDescription>
+                      Providencie a renovação da CNH com antecedência.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {cnhStatus.daysUntilExpiry < 0 && (
+                  <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>CNH vencida</AlertTitle>
+                    <AlertDescription>
+                      Motorista não pode operar veículos até a renovação.
+                    </AlertDescription>
+                  </Alert>
+                )}
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <FileText className="h-4 w-4" />
                   <span>CNH Categoria {driver.cnhCategory}</span>
