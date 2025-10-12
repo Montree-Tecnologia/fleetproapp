@@ -328,6 +328,17 @@ const mockDrivers: Driver[] = [
     active: false,
     branches: ['Matriz'],
     cnhDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
+  },
+  {
+    id: '16',
+    name: 'Ricardo Barbosa',
+    cpf: '582.694.137-00',
+    birthDate: '1983-07-25',
+    cnhCategory: 'E',
+    cnhValidity: '2024-03-15',
+    active: true,
+    branches: ['Matriz', 'Filial SP'],
+    cnhDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
   }
 ];
 
