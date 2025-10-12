@@ -15,7 +15,6 @@ import {
   Building2,
   UserCog,
   IdCard,
-  Settings,
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
@@ -88,7 +87,7 @@ export function Layout() {
       <aside
         className={`${
           sidebarOpen ? 'w-64' : 'w-20'
-        } transition-all duration-300 bg-sidebar border-r border-sidebar-border flex flex-col`}
+        } transition-all duration-300 bg-sidebar border-r border-sidebar-border flex flex-col fixed left-0 top-0 h-screen z-50`}
       >
         {/* Header */}
         <div className="p-4 flex items-center justify-between">
@@ -197,21 +196,6 @@ export function Layout() {
 
         {/* Footer - Fixed Section */}
         <div className="p-2 space-y-1">
-          {/* Settings Button - Always visible */}
-          <NavLink
-            to="/settings"
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                isActive
-                  ? 'bg-sidebar-accent text-sidebar-primary font-medium'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
-              }`
-            }
-          >
-            <Settings className="h-5 w-5 flex-shrink-0" />
-            {sidebarOpen && <span>Configurações</span>}
-          </NavLink>
-
           <Separator className="bg-sidebar-border my-2" />
 
           {/* User Info - Only visible when sidebar is open */}
@@ -238,7 +222,7 @@ export function Layout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className={`flex-1 flex flex-col overflow-hidden ${sidebarOpen ? 'ml-64' : 'ml-20'} transition-all duration-300`}>
         {/* Top Bar */}
         <header className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
           <h1 className="text-xl font-semibold text-foreground">
