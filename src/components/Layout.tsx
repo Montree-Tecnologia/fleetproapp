@@ -199,17 +199,6 @@ export function Layout() {
         <div className="p-2 space-y-1">
           <Separator className="bg-sidebar-border my-2" />
 
-          {/* User Info - Only visible when sidebar is open */}
-          {sidebarOpen && user && (
-            <div className="px-3 py-2 space-y-1">
-              <p className="text-sm font-medium text-sidebar-foreground">{user.name}</p>
-              <p className="text-xs text-sidebar-foreground/60">{user.company}</p>
-              <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
-                {getRoleLabel(user.role)}
-              </Badge>
-            </div>
-          )}
-
           {/* Settings Button */}
           <NavLink
             to="/settings"
@@ -224,6 +213,19 @@ export function Layout() {
             <Settings className="h-5 w-5 flex-shrink-0" />
             {sidebarOpen && <span>Configurações</span>}
           </NavLink>
+
+          <Separator className="bg-sidebar-border my-2" />
+
+          {/* User Info - Only visible when sidebar is open */}
+          {sidebarOpen && user && (
+            <div className="px-3 py-2 space-y-1">
+              <p className="text-sm font-medium text-sidebar-foreground">{user.name}</p>
+              <p className="text-xs text-sidebar-foreground/60">{user.company}</p>
+              <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
+                {getRoleLabel(user.role)}
+              </Badge>
+            </div>
+          )}
 
           {/* Logout Button */}
           <Button
