@@ -829,69 +829,6 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
           />
         </div>
 
-        {/* Informações do Tipo de Combustível */}
-        {entityFuelType && (
-          <div className="p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
-            <p className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-1">
-              Tipo de Combustível do {watchEntityType === 'vehicle' ? 'Veículo' : 'Equipamento'}
-            </p>
-            <p className="text-sm text-purple-700 dark:text-purple-300">{entityFuelType}</p>
-          </div>
-        )}
-
-        {/* Informações do Veículo (para equipamentos de refrigeração) */}
-        {watchEntityType === 'refrigeration' && vehicleInfo && (
-          <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">Veículo Vinculado</p>
-            <div className="space-y-1">
-              <p className="text-sm">
-                <span className="font-medium">Placa:</span> {vehicleInfo.plate}
-              </p>
-              <p className="text-sm">
-                <span className="font-medium">Modelo:</span> {vehicleInfo.model}
-              </p>
-              <p className="text-sm">
-                <span className="font-medium">Tipo:</span> {vehicleInfo.vehicleType}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Seleção de Motorista */}
-        {(watchVehicleId || watchRefrigerationUnitId) && (
-          <FormField
-            control={form.control}
-            name="driverId"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Motorista</FormLabel>
-                <Select 
-                  onValueChange={(value) => {
-                    setSelectedDriverId(value === 'none' ? '' : value);
-                    field.onChange(value);
-                  }}
-                  defaultValue={driverInfo?.id || 'none'}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o motorista" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="none">Nenhum motorista</SelectItem>
-                    {drivers.filter(d => d.active).map((driver) => (
-                      <SelectItem key={driver.id} value={driver.id}>
-                        {driver.name} - {driver.cpf}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
         <div className="p-4 bg-muted rounded-lg">
           <p className="text-sm font-medium">Valor Total</p>
           <p className="text-2xl font-bold">
@@ -1001,6 +938,34 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
             </div>
           </div>
         </div>
+
+        {/* Informações do Tipo de Combustível */}
+        {entityFuelType && (
+          <div className="p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+            <p className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-1">
+              Tipo de Combustível do {watchEntityType === 'vehicle' ? 'Veículo' : 'Equipamento'}
+            </p>
+            <p className="text-sm text-purple-700 dark:text-purple-300">{entityFuelType}</p>
+          </div>
+        )}
+
+        {/* Informações do Veículo (para equipamentos de refrigeração) */}
+        {watchEntityType === 'refrigeration' && vehicleInfo && (
+          <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">Veículo Vinculado</p>
+            <div className="space-y-1">
+              <p className="text-sm">
+                <span className="font-medium">Placa:</span> {vehicleInfo.plate}
+              </p>
+              <p className="text-sm">
+                <span className="font-medium">Modelo:</span> {vehicleInfo.model}
+              </p>
+              <p className="text-sm">
+                <span className="font-medium">Tipo:</span> {vehicleInfo.vehicleType}
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-end gap-3 pt-4">
           <Button type="button" variant="outline-destructive" onClick={onCancel}>
