@@ -87,6 +87,8 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   const [openVehicle, setOpenVehicle] = useState(false);
   const [openRefrigeration, setOpenRefrigeration] = useState(false);
   const [openSupplier, setOpenSupplier] = useState(false);
+  const [openVehicleFilter, setOpenVehicleFilter] = useState(false);
+  const [selectedVehicleFilter, setSelectedVehicleFilter] = useState<string>('');
   
   // Filtrar apenas veículos de tração
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
@@ -99,6 +101,16 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   const activeRefrigerationUnits = refrigerationUnits.filter(r => 
     r.status !== 'sold' && r.fuelType
   );
+
+  // Veículos que possuem equipamentos de refrigeração vinculados
+  const vehiclesWithRefrigeration = tractionVehicles.filter(v => 
+    refrigerationUnits.some(r => r.vehicleId === v.id && r.status !== 'sold')
+  );
+
+  // Filtrar equipamentos de refrigeração baseado no veículo selecionado
+  const filteredRefrigerationUnits = selectedVehicleFilter
+    ? activeRefrigerationUnits.filter(r => r.vehicleId === selectedVehicleFilter)
+    : activeRefrigerationUnits;
   
   const form = useForm<RefuelingFormData>({
     resolver: zodResolver(refuelingSchema),
@@ -369,77 +381,153 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
           )}
 
           {watchEntityType === 'refrigeration' && (
-            <FormField
-              control={form.control}
-              name="refrigerationUnitId"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Equipamento de Refrigeração *</FormLabel>
-                  <Popover open={openRefrigeration} onOpenChange={setOpenRefrigeration}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            "justify-between",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value
-                            ? (() => {
-                                const unit = activeRefrigerationUnits.find(u => u.id === field.value);
-                                return unit ? `${unit.brand} ${unit.model} - SN: ${unit.serialNumber}` : "Selecione o equipamento";
-                              })()
-                            : "Selecione o equipamento"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-0" align="start">
-                      <Command>
-                        <CommandInput placeholder="Buscar equipamento..." />
-                        <CommandList>
-                          <CommandEmpty>Nenhum equipamento encontrado.</CommandEmpty>
-                          <CommandGroup>
-                            {activeRefrigerationUnits.map((unit) => (
-                              <CommandItem
-                                key={unit.id}
-                                value={`${unit.brand} ${unit.model} ${unit.serialNumber}`}
-                                onSelect={() => {
-                                  form.setValue("refrigerationUnitId", unit.id);
-                                  setOpenRefrigeration(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    unit.id === field.value ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                <div className="flex flex-col gap-1">
-                                  <div className="font-semibold">
-                                    {unit.brand} {unit.model}
-                                  </div>
-                                  <div className="text-xs text-foreground/70">
-                                    SN: {unit.serialNumber} | Combustível: {unit.fuelType}
-                                    {unit.vehicleId && (() => {
-                                      const vehicle = vehicles.find(v => v.id === unit.vehicleId);
-                                      return vehicle ? ` | Veículo: ${vehicle.plate}` : '';
-                                    })()}
-                                  </div>
+            <>
+              <FormItem className="flex flex-col">
+                <FormLabel>Filtrar por Veículo</FormLabel>
+                <Popover open={openVehicleFilter} onOpenChange={setOpenVehicleFilter}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "justify-between",
+                        !selectedVehicleFilter && "text-muted-foreground"
+                      )}
+                    >
+                      {selectedVehicleFilter
+                        ? (() => {
+                            const vehicle = vehiclesWithRefrigeration.find(v => v.id === selectedVehicleFilter);
+                            return vehicle ? `${vehicle.plate} - ${vehicle.model}` : "Filtrar por veículo";
+                          })()
+                        : "Todos os equipamentos"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Buscar veículo..." />
+                      <CommandList>
+                        <CommandEmpty>Nenhum veículo encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="todos"
+                            onSelect={() => {
+                              setSelectedVehicleFilter('');
+                              setOpenVehicleFilter(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                !selectedVehicleFilter ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            Todos os equipamentos
+                          </CommandItem>
+                          {vehiclesWithRefrigeration.map((vehicle) => (
+                            <CommandItem
+                              key={vehicle.id}
+                              value={`${vehicle.plate} ${vehicle.model}`}
+                              onSelect={() => {
+                                setSelectedVehicleFilter(vehicle.id);
+                                setOpenVehicleFilter(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  vehicle.id === selectedVehicleFilter ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col gap-1">
+                                <div className="font-semibold">
+                                  {vehicle.plate} - {vehicle.model}
                                 </div>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                                <div className="text-xs text-foreground/70">
+                                  {vehicle.vehicleType}
+                                </div>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </FormItem>
+
+              <FormField
+                control={form.control}
+                name="refrigerationUnitId"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Equipamento de Refrigeração *</FormLabel>
+                    <Popover open={openRefrigeration} onOpenChange={setOpenRefrigeration}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? (() => {
+                                  const unit = filteredRefrigerationUnits.find(u => u.id === field.value);
+                                  return unit ? `${unit.brand} ${unit.model} - SN: ${unit.serialNumber}` : "Selecione o equipamento";
+                                })()
+                              : "Selecione o equipamento"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[400px] p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="Buscar equipamento..." />
+                          <CommandList>
+                            <CommandEmpty>Nenhum equipamento encontrado.</CommandEmpty>
+                            <CommandGroup>
+                              {filteredRefrigerationUnits.map((unit) => (
+                                <CommandItem
+                                  key={unit.id}
+                                  value={`${unit.brand} ${unit.model} ${unit.serialNumber}`}
+                                  onSelect={() => {
+                                    form.setValue("refrigerationUnitId", unit.id);
+                                    setOpenRefrigeration(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      unit.id === field.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  <div className="flex flex-col gap-1">
+                                    <div className="font-semibold">
+                                      {unit.brand} {unit.model}
+                                    </div>
+                                    <div className="text-xs text-foreground/70">
+                                      SN: {unit.serialNumber} | Combustível: {unit.fuelType}
+                                      {unit.vehicleId && (() => {
+                                        const vehicle = vehicles.find(v => v.id === unit.vehicleId);
+                                        return vehicle ? ` | Veículo: ${vehicle.plate}` : '';
+                                      })()}
+                                    </div>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
           )}
 
           <FormField
