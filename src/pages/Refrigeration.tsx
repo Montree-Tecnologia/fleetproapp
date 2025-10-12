@@ -425,14 +425,27 @@ export default function Refrigeration() {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-border">
-                  <p className="text-sm text-muted-foreground mb-2">Vincular a Veículo:</p>
+                <div className={cn(
+                  "pt-3 border-t border-border",
+                  needsVehicle && "bg-yellow-50 dark:bg-yellow-950/20 -mx-6 px-6 pb-3 rounded-b-lg"
+                )}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="text-sm text-muted-foreground">Vincular a Veículo:</p>
+                    {needsVehicle && (
+                      <Badge variant="outline" className="border-yellow-500 text-yellow-700 dark:text-yellow-400 text-xs">
+                        Requer vínculo
+                      </Badge>
+                    )}
+                  </div>
                   <Popover open={openVehicleLink[unit.id] || false} onOpenChange={(open) => setOpenVehicleLink({...openVehicleLink, [unit.id]: open})}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         role="combobox"
-                        className="w-full justify-between"
+                        className={cn(
+                          "w-full justify-between",
+                          needsVehicle && "border-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-950/30"
+                        )}
                       >
                         {unit.vehicleId
                           ? (() => {
