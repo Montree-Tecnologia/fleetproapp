@@ -835,10 +835,10 @@ const mockVehicles: Vehicle[] = [
     ]
   },
   {
-    id: '17',
+    id: '20',
     plate: 'TUV-4567',
-    chassis: '9BWZZZ377VT004267',
-    renavam: '00123456805',
+    chassis: '9BWZZZ377VT004270',
+    renavam: '00123456808',
     brand: 'Volvo',
     model: 'FH 480',
     manufacturingYear: 2023,
@@ -1156,10 +1156,10 @@ const mockRefuelings: Refueling[] = [
     supplierId: '2',
     driver: 'João Pereira'
   },
-  // Abastecimentos do veículo 17 (TUV-4567)
+  // Abastecimentos do veículo 20 (TUV-4567)
   {
     id: '13',
-    vehicleId: '17',
+    vehicleId: '20',
     date: '2025-01-16',
     km: 68000,
     liters: 330,
@@ -1171,7 +1171,7 @@ const mockRefuelings: Refueling[] = [
   },
   {
     id: '14',
-    vehicleId: '17',
+    vehicleId: '20',
     date: '2025-01-09',
     km: 66200,
     liters: 325,
@@ -1183,7 +1183,7 @@ const mockRefuelings: Refueling[] = [
   },
   {
     id: '15',
-    vehicleId: '17',
+    vehicleId: '20',
     date: '2025-01-02',
     km: 64500,
     liters: 320,
