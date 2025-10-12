@@ -192,7 +192,7 @@ export function VehicleCard({
               </div>
             </>
           )}
-          {vehicle.weight && (
+          {isTractionVehicle && vehicle.weight && (
             <div>
               <span className="text-muted-foreground">Peso:</span>
               <p className="font-medium">{vehicle.weight} ton</p>
@@ -211,11 +211,26 @@ export function VehicleCard({
               </p>
             </div>
           )}
-          <div>
-            <span className="text-muted-foreground">Proprietária:</span>
-            <p className="font-medium">{vehicle.ownerBranch}</p>
-            {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
-          </div>
+          {isTrailerVehicle && (
+            <div>
+              <span className="text-muted-foreground">Proprietária:</span>
+              <p className="font-medium">{vehicle.ownerBranch}</p>
+              {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
+            </div>
+          )}
+          {isTrailerVehicle && vehicle.weight && (
+            <div>
+              <span className="text-muted-foreground">Peso:</span>
+              <p className="font-medium">{vehicle.weight} ton</p>
+            </div>
+          )}
+          {isTractionVehicle && (
+            <div>
+              <span className="text-muted-foreground">Proprietária:</span>
+              <p className="font-medium">{vehicle.ownerBranch}</p>
+              {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
+            </div>
+          )}
           <div className="col-span-2">
             <span className="text-muted-foreground">Matriz/Filiais Vinculadas:</span>
             <div className="flex flex-wrap gap-1 mt-1">
