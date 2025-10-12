@@ -729,35 +729,39 @@ export default function Refuelings() {
                     return (
                       <div
                         key={refueling.id}
-                        className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors cursor-pointer"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors cursor-pointer"
                         onClick={() => setViewingRefueling(refueling)}
                       >
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-chart-4/10 rounded-lg flex items-center justify-center">
-                            <Fuel className="h-6 w-6 text-chart-4" />
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-chart-4/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Fuel className="h-5 w-5 sm:h-6 sm:w-6 text-chart-4" />
                           </div>
-                          <div>
-                            <p className="font-medium">{vehicle?.plate} - {vehicle?.brand} {vehicle?.model}</p>
-                            <p className="text-sm text-muted-foreground">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm sm:text-base truncate">{vehicle?.plate} - {vehicle?.model}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                               {vehicle?.vehicleType}
                               {vehicle?.hasComposition && vehicle.compositionPlates && vehicle.compositionPlates.length > 0 && 
                                 ` • ${vehicle.compositionPlates.length} ${vehicle.compositionPlates.length === 1 ? 'reboque' : 'reboques'}`
                               }
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              {supplier?.fantasyName} • {supplier?.city}/{supplier?.state} • {refueling.driver} • {refueling.km?.toLocaleString('pt-BR')} km • {refueling.fuelType}
+                              <span className="hidden sm:inline">{supplier?.fantasyName} • {supplier?.city}/{supplier?.state} • {refueling.driver} • </span>
+                              <span className="sm:hidden">{refueling.liters}L • </span>
+                              {refueling.km?.toLocaleString('pt-BR')} km
+                              <span className="hidden sm:inline"> • {refueling.fuelType}</span>
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <p className="font-bold text-lg">
+                        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
+                          <div className="text-left sm:text-right">
+                            <p className="font-bold text-base sm:text-lg">
                               R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </p>
-                            <p className="text-sm text-muted-foreground">
-                              {refueling.liters}L × R$ {refueling.pricePerLiter.toFixed(2)}
+                            <p className="text-xs sm:text-sm text-muted-foreground">
+                              <span className="hidden sm:inline">{refueling.liters}L × R$ {refueling.pricePerLiter.toFixed(2)}</span>
+                              <span className="sm:hidden">{new Date(refueling.date).toLocaleDateString('pt-BR')}</span>
                             </p>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-xs text-muted-foreground mt-1 hidden sm:block">
                               {new Date(refueling.date).toLocaleDateString('pt-BR', {
                                 day: '2-digit',
                                 month: 'short',
@@ -765,23 +769,24 @@ export default function Refuelings() {
                               })}
                             </p>
                           </div>
-                          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex gap-1 sm:gap-2" onClick={(e) => e.stopPropagation()}>
                             {isAdmin() && (
                               <>
                                 <Button
                                   variant="ghost"
                                   size="icon"
+                                  className="h-8 w-8 sm:h-10 sm:w-10"
                                   onClick={() => handleEdit(refueling)}
                                 >
-                                  <Pencil className="h-4 w-4" />
+                                  <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="icon"
+                                  className="h-8 w-8 sm:h-10 sm:w-10 text-destructive hover:text-destructive hover:bg-destructive/10"
                                   onClick={() => setDeletingRefueling(refueling)}
-                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                 </Button>
                               </>
                             )}
@@ -823,34 +828,39 @@ export default function Refuelings() {
                     return (
                       <div
                         key={refueling.id}
-                        className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors cursor-pointer"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border border-border rounded-lg hover:bg-accent/5 transition-colors cursor-pointer"
                         onClick={() => setViewingRefueling(refueling)}
                       >
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                            <Snowflake className="h-6 w-6 text-blue-500" />
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Snowflake className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500" />
                           </div>
-                          <div>
-                            <p className="font-medium">{unit?.brand} {unit?.model} - SN: {unit?.serialNumber}</p>
-                            <p className="text-sm text-muted-foreground">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm sm:text-base truncate">{unit?.brand} {unit?.model}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">
+                              SN: {unit?.serialNumber}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1 hidden sm:block">
                               {vehicle ? `${vehicle.plate} - ${vehicle.brand} ${vehicle.model} (${vehicle.vehicleType})` : 'Sem veículo vinculado'}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              {supplier?.fantasyName} • {supplier?.city}/{supplier?.state} •
-                              {refueling.driver && ` ${refueling.driver} • `}
-                              {refueling.usageHours?.toLocaleString('pt-BR')}h • {refueling.fuelType}
+                              <span className="hidden sm:inline">{supplier?.fantasyName} • {supplier?.city}/{supplier?.state} •</span>
+                              <span className="sm:hidden">{refueling.liters}L • </span>
+                              {refueling.usageHours?.toLocaleString('pt-BR')}h
+                              <span className="hidden sm:inline"> • {refueling.fuelType}</span>
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <p className="font-bold text-lg">
+                        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
+                          <div className="text-left sm:text-right">
+                            <p className="font-bold text-base sm:text-lg">
                               R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </p>
-                            <p className="text-sm text-muted-foreground">
-                              {refueling.liters}L × R$ {refueling.pricePerLiter.toFixed(2)}
+                            <p className="text-xs sm:text-sm text-muted-foreground">
+                              <span className="hidden sm:inline">{refueling.liters}L × R$ {refueling.pricePerLiter.toFixed(2)}</span>
+                              <span className="sm:hidden">{new Date(refueling.date).toLocaleDateString('pt-BR')}</span>
                             </p>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-xs text-muted-foreground mt-1 hidden sm:block">
                               {new Date(refueling.date).toLocaleDateString('pt-BR', {
                                 day: '2-digit',
                                 month: 'short',
@@ -858,23 +868,24 @@ export default function Refuelings() {
                               })}
                             </p>
                           </div>
-                          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex gap-1 sm:gap-2" onClick={(e) => e.stopPropagation()}>
                             {isAdmin() && (
                               <>
                                 <Button
                                   variant="ghost"
                                   size="icon"
+                                  className="h-8 w-8 sm:h-10 sm:w-10"
                                   onClick={() => handleEdit(refueling)}
                                 >
-                                  <Pencil className="h-4 w-4" />
+                                  <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="icon"
+                                  className="h-8 w-8 sm:h-10 sm:w-10 text-destructive hover:text-destructive hover:bg-destructive/10"
                                   onClick={() => setDeletingRefueling(refueling)}
-                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                 </Button>
                               </>
                             )}
