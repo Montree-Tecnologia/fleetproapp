@@ -734,12 +734,15 @@ export default function Refuelings() {
                             <Fuel className="h-6 w-6 text-chart-4" />
                           </div>
                           <div>
-                            <p className="font-medium">{vehicle?.plate} - {vehicle?.model}</p>
+                            <p className="font-medium">{vehicle?.plate} - {vehicle?.brand} {vehicle?.model}</p>
                             <p className="text-sm text-muted-foreground">
-                              {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
+                              {vehicle?.vehicleType}
+                              {vehicle?.hasComposition && vehicle.compositionPlates && vehicle.compositionPlates.length > 0 && 
+                                ` • ${vehicle.compositionPlates.length} ${vehicle.compositionPlates.length === 1 ? 'reboque' : 'reboques'}`
+                              }
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              Motorista: {refueling.driver} • {refueling.km?.toLocaleString('pt-BR')} km • {refueling.fuelType}
+                              {supplier?.fantasyName} • {supplier?.city}/{supplier?.state} • {refueling.driver} • {refueling.km?.toLocaleString('pt-BR')} km • {refueling.fuelType}
                             </p>
                           </div>
                         </div>
@@ -827,11 +830,11 @@ export default function Refuelings() {
                           <div>
                             <p className="font-medium">{unit?.brand} {unit?.model} - SN: {unit?.serialNumber}</p>
                             <p className="text-sm text-muted-foreground">
-                              {supplier?.fantasyName} • {supplier?.city}/{supplier?.state}
+                              {vehicle ? `${vehicle.plate} - ${vehicle.brand} ${vehicle.model} (${vehicle.vehicleType})` : 'Sem veículo vinculado'}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              {vehicle ? `Veículo: ${vehicle.plate}` : 'Sem veículo vinculado'} • 
-                              {refueling.driver && ` Motorista: ${refueling.driver} • `}
+                              {supplier?.fantasyName} • {supplier?.city}/{supplier?.state} •
+                              {refueling.driver && ` ${refueling.driver} • `}
                               {refueling.usageHours?.toLocaleString('pt-BR')}h • {refueling.fuelType}
                             </p>
                           </div>
