@@ -2085,7 +2085,7 @@ const mockCompanies: Company[] = [
   {
     id: '1',
     type: 'matriz',
-    name: 'Transportadora Matriz',
+    name: 'Matriz',
     cnpj: '12.345.678/0001-90',
     city: 'São Paulo',
     state: 'SP',
@@ -2094,7 +2094,7 @@ const mockCompanies: Company[] = [
   {
     id: '2',
     type: 'filial',
-    name: 'Filial Rio de Janeiro',
+    name: 'Filial RJ',
     cnpj: '12.345.678/0002-71',
     city: 'Rio de Janeiro',
     state: 'RJ',
@@ -2104,7 +2104,7 @@ const mockCompanies: Company[] = [
   {
     id: '3',
     type: 'filial',
-    name: 'Filial Belo Horizonte',
+    name: 'Filial MG',
     cnpj: '12.345.678/0003-52',
     city: 'Belo Horizonte',
     state: 'MG',
@@ -2114,7 +2114,7 @@ const mockCompanies: Company[] = [
   {
     id: '4',
     type: 'filial',
-    name: 'Filial São Paulo - Guarulhos',
+    name: 'Filial SP',
     cnpj: '12.345.678/0004-33',
     city: 'Guarulhos',
     state: 'SP',
@@ -2124,7 +2124,7 @@ const mockCompanies: Company[] = [
   {
     id: '5',
     type: 'filial',
-    name: 'Filial Curitiba',
+    name: 'Filial PR',
     cnpj: '12.345.678/0005-14',
     city: 'Curitiba',
     state: 'PR',
