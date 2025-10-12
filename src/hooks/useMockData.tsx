@@ -2495,18 +2495,35 @@ export function useMockData() {
     setVehicles(prev => prev.filter(v => v.id !== id));
   }, []);
   const sellVehicle = useCallback((id: string, saleData: VehicleSale) => {
-    setVehicles(prev => prev.map(v => 
-      v.id === id 
-        ? { 
+    setVehicles(prev => {
+      // Encontrar o veículo sendo vendido
+      const vehicleBeingSold = prev.find(v => v.id === id);
+      
+      return prev.map(v => {
+        // Atualizar o veículo vendido
+        if (v.id === id) {
+          return { 
             ...v, 
             previousStatus: v.status as 'active' | 'maintenance' | 'inactive',
             status: 'sold' as const, 
             saleInfo: saleData, 
             currentKm: saleData.km,
-            driverId: undefined
-          } 
-        : v
-    ));
+            driverId: undefined,
+            // Remover composições ao vender
+            hasComposition: false,
+            compositionPlates: [],
+            compositionAxles: []
+          };
+        }
+        
+        // Se o veículo vendido tinha composições, desvincular os reboques
+        if (vehicleBeingSold?.hasComposition && vehicleBeingSold.compositionPlates?.includes(v.plate)) {
+          return v; // Os reboques permanecem inalterados, apenas são desvinculados pela remoção das composições acima
+        }
+        
+        return v;
+      });
+    });
   }, []);
   
   const reverseSale = useCallback((id: string) => {
