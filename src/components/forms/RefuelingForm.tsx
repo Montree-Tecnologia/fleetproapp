@@ -24,7 +24,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown, Truck, Snowflake } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown, Truck, Snowflake, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
@@ -38,6 +45,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { useToast } from '@/hooks/use-toast';
 
 const refuelingSchema = z.object({
   entityType: z.enum(['vehicle', 'refrigeration']),
@@ -78,9 +86,11 @@ interface RefuelingFormProps {
   suppliers: Supplier[];
   refrigerationUnits: RefrigerationUnit[];
   initialData?: Refueling;
+  onAddSupplier?: (supplier: Omit<Supplier, 'id'>) => void;
 }
 
-export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers, refrigerationUnits, initialData }: RefuelingFormProps) {
+export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers, refrigerationUnits, initialData, onAddSupplier }: RefuelingFormProps) {
+  const { toast } = useToast();
   const gasStations = suppliers.filter(s => s.type === 'gas_station' && s.active);
   const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>(initialData?.paymentReceipt);
   const [fiscalNote, setFiscalNote] = useState<string | undefined>(initialData?.fiscalNote);
@@ -89,6 +99,13 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   const [openSupplier, setOpenSupplier] = useState(false);
   const [openVehicleFilter, setOpenVehicleFilter] = useState(false);
   const [selectedVehicleFilter, setSelectedVehicleFilter] = useState<string>('');
+  const [openQuickSupplier, setOpenQuickSupplier] = useState(false);
+  const [quickSupplierData, setQuickSupplierData] = useState({
+    cnpj: '',
+    fantasyName: '',
+    city: '',
+    state: '',
+  });
   
   // Filtrar apenas veículos de tração
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
@@ -682,7 +699,21 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
             name="supplierId"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Posto *</FormLabel>
+                <div className="flex items-center justify-between">
+                  <FormLabel>Posto *</FormLabel>
+                  {onAddSupplier && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-xs"
+                      onClick={() => setOpenQuickSupplier(true)}
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Novo Posto
+                    </Button>
+                  )}
+                </div>
                 <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -939,6 +970,138 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
           </Button>
         </div>
       </form>
+
+      {/* Dialog de Cadastro Rápido de Posto */}
+      <Dialog open={openQuickSupplier} onOpenChange={setOpenQuickSupplier}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cadastro Rápido de Posto</DialogTitle>
+            <DialogDescription>
+              Preencha os dados básicos do posto para cadastrá-lo rapidamente
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">CNPJ *</label>
+              <Input
+                placeholder="00.000.000/0000-00"
+                value={quickSupplierData.cnpj}
+                onChange={(e) => {
+                  let value = e.target.value.replace(/\D/g, '');
+                  if (value.length <= 14) {
+                    value = value.replace(/^(\d{2})(\d)/, '$1.$2');
+                    value = value.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+                    value = value.replace(/\.(\d{3})(\d)/, '.$1/$2');
+                    value = value.replace(/(\d{4})(\d)/, '$1-$2');
+                    setQuickSupplierData({ ...quickSupplierData, cnpj: value });
+                  }
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Nome Fantasia *</label>
+              <Input
+                placeholder="Ex: Posto Shell Centro"
+                value={quickSupplierData.fantasyName}
+                onChange={(e) => setQuickSupplierData({ ...quickSupplierData, fantasyName: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Cidade *</label>
+                <Input
+                  placeholder="Ex: São Paulo"
+                  value={quickSupplierData.city}
+                  onChange={(e) => setQuickSupplierData({ ...quickSupplierData, city: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">UF *</label>
+                <Input
+                  placeholder="Ex: SP"
+                  maxLength={2}
+                  value={quickSupplierData.state}
+                  onChange={(e) => setQuickSupplierData({ ...quickSupplierData, state: e.target.value.toUpperCase() })}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setOpenQuickSupplier(false);
+                  setQuickSupplierData({ cnpj: '', fantasyName: '', city: '', state: '' });
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  // Validação básica
+                  if (!quickSupplierData.cnpj || !/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/.test(quickSupplierData.cnpj)) {
+                    toast({
+                      title: 'CNPJ inválido',
+                      description: 'Por favor, preencha um CNPJ válido',
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                  if (!quickSupplierData.fantasyName || quickSupplierData.fantasyName.length < 3) {
+                    toast({
+                      title: 'Nome fantasia inválido',
+                      description: 'Nome fantasia deve ter no mínimo 3 caracteres',
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                  if (!quickSupplierData.city || quickSupplierData.city.length < 3) {
+                    toast({
+                      title: 'Cidade inválida',
+                      description: 'Por favor, preencha a cidade',
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                  if (!quickSupplierData.state || quickSupplierData.state.length !== 2) {
+                    toast({
+                      title: 'UF inválida',
+                      description: 'UF deve ter 2 caracteres',
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+
+                  // Criar o fornecedor
+                  if (onAddSupplier) {
+                    onAddSupplier({
+                      cnpj: quickSupplierData.cnpj,
+                      name: quickSupplierData.fantasyName,
+                      fantasyName: quickSupplierData.fantasyName,
+                      type: 'gas_station',
+                      city: quickSupplierData.city,
+                      state: quickSupplierData.state,
+                      branches: ['Matriz'],
+                      active: true,
+                    });
+                    
+                    toast({
+                      title: 'Posto cadastrado',
+                      description: 'Posto de combustível cadastrado com sucesso',
+                    });
+
+                    setOpenQuickSupplier(false);
+                    setQuickSupplierData({ cnpj: '', fantasyName: '', city: '', state: '' });
+                  }
+                }}
+              >
+                Cadastrar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Form>
   );
 }

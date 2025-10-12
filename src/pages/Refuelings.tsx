@@ -52,7 +52,7 @@ import { RefuelingForm } from '@/components/forms/RefuelingForm';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Refuelings() {
-  const { refuelings, vehicles, drivers, suppliers, refrigerationUnits, addRefueling, updateRefueling, deleteRefueling } = useMockData();
+  const { refuelings, vehicles, drivers, suppliers, refrigerationUnits, addRefueling, updateRefueling, deleteRefueling, addSupplier } = useMockData();
   const { isAdmin } = usePermissions();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -263,6 +263,13 @@ export default function Refuelings() {
             suppliers={allSuppliers}
             refrigerationUnits={allRefrigerationUnits}
             initialData={editingRefueling}
+            onAddSupplier={(supplier) => {
+              addSupplier(supplier);
+              toast({
+                title: 'Posto cadastrado',
+                description: 'Posto de combustível adicionado com sucesso',
+              });
+            }}
           />
         </DialogContent>
       </Dialog>
