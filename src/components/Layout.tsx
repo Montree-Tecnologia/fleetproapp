@@ -1,6 +1,7 @@
 import { Outlet, useNavigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermissions } from '@/hooks/usePermissions';
+import { useOnboarding } from '@/hooks/useOnboarding';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -25,10 +26,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { FirstAccessTutorial } from '@/components/FirstAccessTutorial';
+import { MatrizSetupDialog } from '@/components/MatrizSetupDialog';
+import { MatrizConfigWarning } from '@/components/MatrizConfigWarning';
 
 export function Layout() {
   const { user, logout } = useAuth();
   const { hasPermission } = usePermissions();
+  const { showTutorial, showMatrizSetup, matrizCompany, completeTutorial, completeMatrizSetup, needsMatrizSetup } = useOnboarding();
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false); // Fechado por padrão em mobile
@@ -83,7 +88,26 @@ export function Layout() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
+    <>
+      {/* Tutorial de Primeiro Acesso */}
+      {showTutorial && (
+        <FirstAccessTutorial
+          isOpen={showTutorial}
+          onComplete={completeTutorial}
+          companyName={matrizCompany?.name || 'Transportadora Matriz'}
+        />
+      )}
+
+      {/* Configuração da Matriz */}
+      {showMatrizSetup && (
+        <MatrizSetupDialog
+          isOpen={showMatrizSetup}
+          matrizData={matrizCompany}
+          onSuccess={completeMatrizSetup}
+        />
+      )}
+
+      <div className="flex min-h-screen w-full bg-background">
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -280,9 +304,14 @@ export function Layout() {
 
         {/* Page Content */}
         <div className="flex-1 overflow-auto p-4 lg:p-6">
+          {/* Alerta de configuração da matriz */}
+          {!showTutorial && !showMatrizSetup && needsMatrizSetup && user?.role === 'admin' && (
+            <MatrizConfigWarning show={needsMatrizSetup} />
+          )}
           <Outlet />
         </div>
       </main>
     </div>
+    </>
   );
 }
