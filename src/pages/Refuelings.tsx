@@ -225,7 +225,7 @@ export default function Refuelings() {
                 disabled={filteredVehicleRefuelings.length === 0}
               >
                 <FileSpreadsheet className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Exportar Relatório</span>
+                Exportar Relatório
               </Button>
             ) : (
               <Button 
@@ -234,7 +234,7 @@ export default function Refuelings() {
                 disabled={filteredRefrigerationRefuelings.length === 0}
               >
                 <FileSpreadsheet className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Exportar Relatório</span>
+                Exportar Relatório
               </Button>
             )}
             <Button onClick={() => setOpen(true)} className="w-full sm:w-auto">
