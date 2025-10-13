@@ -24,7 +24,7 @@ export function useInfiniteScroll<T>(
     const initial = allItems.slice(0, initialItemsCount);
     setDisplayedItems(initial);
     setHasMore(allItems.length > initialItemsCount);
-  }, [allItems, initialItemsCount]);
+  }, [allItems.length, initialItemsCount]);
 
   // Função para carregar mais itens
   const loadMore = useCallback(() => {
