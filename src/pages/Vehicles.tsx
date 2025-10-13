@@ -375,10 +375,9 @@ export default function Vehicles() {
             <Button 
               variant="outline"
               onClick={() => exportVehiclesToExcel(filteredVehicles)}
-              className="hidden sm:flex"
             >
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              Exportar Relatório de Frota
+              <span className="hidden sm:inline">Exportar Relatório</span>
             </Button>
             <Button onClick={() => setIsDialogOpen(true)} className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />

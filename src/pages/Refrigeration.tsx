@@ -324,10 +324,9 @@ export default function Refrigeration() {
             <Button 
               variant="outline"
               onClick={() => exportRefrigerationsToExcel(filteredUnits)}
-              className="hidden sm:flex"
             >
               <FileSpreadsheet className="mr-2 h-4 w-4" />
-              Exportar Relatório de Equipamentos
+              <span className="hidden sm:inline">Exportar Relatório</span>
             </Button>
             <Button onClick={() => setOpen(true)} className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />

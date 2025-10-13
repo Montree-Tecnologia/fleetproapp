@@ -222,21 +222,19 @@ export default function Refuelings() {
               <Button 
                 variant="outline"
                 onClick={() => exportVehicleRefuelingsToExcel(filteredVehicleRefuelings, allVehicles, allSuppliers)}
-                className="hidden sm:flex"
                 disabled={filteredVehicleRefuelings.length === 0}
               >
                 <FileSpreadsheet className="mr-2 h-4 w-4" />
-                Exportar Relatório de Abastecimento de Veículos
+                <span className="hidden sm:inline">Exportar Relatório</span>
               </Button>
             ) : (
               <Button 
                 variant="outline"
                 onClick={() => exportRefrigerationRefuelingsToExcel(filteredRefrigerationRefuelings, allRefrigerationUnits, allVehicles, allSuppliers)}
-                className="hidden sm:flex"
                 disabled={filteredRefrigerationRefuelings.length === 0}
               >
                 <FileSpreadsheet className="mr-2 h-4 w-4" />
-                Exportar Relatório de Abastecimento de Equipamentos
+                <span className="hidden sm:inline">Exportar Relatório</span>
               </Button>
             )}
             <Button onClick={() => setOpen(true)} className="w-full sm:w-auto">
