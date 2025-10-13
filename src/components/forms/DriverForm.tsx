@@ -172,7 +172,7 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
             control={form.control}
             name="birthDate"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem>
                 <FormLabel>Data de Nascimento *</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -180,7 +180,7 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
                       <Button
                         variant="outline"
                         className={cn(
-                          "pl-3 text-left font-normal",
+                          "w-full pl-3 text-left font-normal",
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -246,7 +246,7 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
             control={form.control}
             name="cnhValidity"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
+              <FormItem>
                 <FormLabel>Validade CNH *</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
@@ -254,7 +254,7 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
                       <Button
                         variant="outline"
                         className={cn(
-                          "pl-3 text-left font-normal",
+                          "w-full pl-3 text-left font-normal",
                           !field.value && "text-muted-foreground"
                         )}
                       >
