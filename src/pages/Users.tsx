@@ -564,13 +564,11 @@ export default function Users() {
             <CardContent className="space-y-2 flex flex-col h-full">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Building2 className="h-4 w-4" />
-                <span>{user.company}</span>
+                <span className="truncate">{getCompanyName(user.company)}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                <span>
-                  Desde {new Date(user.createdAt).toLocaleDateString('pt-BR')}
-                </span>
+              <div className="text-sm font-medium text-primary min-h-[20px]">
+                <Shield className="h-4 w-4 inline mr-1" />
+                {user.hasAccessToAllCompanies ? 'Todas as empresas' : `${user.linkedCompanies?.length || 0} empresa(s)`}
               </div>
               
               <div className="flex gap-2 pt-3 mt-auto">
@@ -596,6 +594,13 @@ export default function Users() {
                   onClick={() => handleToggleActive(user.id, user.active)}
                 >
                   <Power className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleResetPasswordClick(user)}
+                >
+                  <KeyRound className="h-4 w-4" />
                 </Button>
                 <Button
                   size="sm"
