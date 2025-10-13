@@ -775,11 +775,11 @@ export default function Refuelings() {
                         </div>
                         <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
                           <div className="text-left sm:text-right flex-1 sm:flex-none">
-                            <p className="font-bold text-base md:text-lg">
-                              R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            </p>
                             <p className="text-xs md:text-sm text-muted-foreground">
                               {refueling.liters}L × R$ {refueling.pricePerLiter.toFixed(2)}
+                            </p>
+                            <p className="font-bold text-base md:text-lg">
+                              R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
                               {new Date(refueling.date).toLocaleDateString('pt-BR', {
