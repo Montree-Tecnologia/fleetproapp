@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch --clear-screen=false server/index.ts",
-    "build": "vite build && tsc -p tsconfig.server.json",
-    "start": "NODE_ENV=production node dist/index.js",
+    "build": "vite build",
+    "start": "NODE_ENV=production tsx server/index.ts",
     "lint": "eslint ."
   },
   "dependencies": {
