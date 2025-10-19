@@ -119,7 +119,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   
   // Filtrar equipamentos de refrigeração ativos com tipo de combustível
   const activeRefrigerationUnits = refrigerationUnits.filter(r => 
-    r.status !== 'sold' && r.fuelType
+    r.status !== 'sold'
   );
 
   // Veículos que possuem equipamentos de refrigeração vinculados (diretamente ou em reboques)
