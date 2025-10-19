@@ -668,11 +668,6 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                   </FormItem>
                 )}
               />
-            </>
-          )}
-
-          {watchEntityType === 'vehicle' && (
-            <>
               <FormField
                 control={form.control}
                 name="date"
@@ -733,10 +728,70 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Data *</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "dd/MM/yyyy")
+                            ) : (
+                              <span>Selecione a data</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date > new Date()}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="usageHours"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Horímetro - Atual *</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="text"
+                        placeholder="Ex: 5.000"
+                        {...field}
+                        value={field.value ? formatInteger(field.value) : ''}
+                        onChange={(e) => handleIntegerInput(e, field.onChange)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </>
           )}
 
-          {watchEntityType === 'refrigeration' && (
+          {watchEntityType === 'vehicle' && (
             <>
               <FormField
                 control={form.control}
