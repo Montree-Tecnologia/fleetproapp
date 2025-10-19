@@ -2161,6 +2161,24 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
     status: 'active'
   },
   {
+    id: '16',
+    vehicleId: '25', // Cavalo Mecânico NOP-2468 (equipamento acoplado diretamente)
+    companyId: '1',
+    brand: 'Thermo King',
+    model: 'TriPac Evolution',
+    serialNumber: 'TK987123',
+    type: 'climatized',
+    minTemp: 15,
+    maxTemp: 25,
+    installDate: '2023-08-20',
+    purchaseDate: '2023-08-15',
+    purchaseValue: 52000,
+    supplierId: '9',
+    initialUsageHours: 380,
+    fuelType: 'Diesel S10',
+    status: 'active'
+  },
+  {
     id: '10',
     companyId: '1',
     brand: 'Carrier',
