@@ -36,14 +36,14 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 flex flex-col items-center">
-          <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-2">
-            <Building2 className="h-8 w-8 text-primary-foreground" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-50 p-4">
+      <Card className="w-full max-w-md shadow-2xl border-0">
+        <CardHeader className="space-y-1 flex flex-col items-center pb-6">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+            <Building2 className="h-10 w-10 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold">FleetPro</CardTitle>
-          <CardDescription>Sistema de Gestão de Frotas</CardDescription>
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">FleetPro</CardTitle>
+          <CardDescription className="text-base text-gray-600">Sistema de Gestão de Frotas</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -55,7 +55,7 @@ export default function Login() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -63,11 +63,12 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-11 px-4 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="password" className="text-sm font-medium text-gray-700">Senha</Label>
               <Input
                 id="password"
                 type="password"
@@ -75,21 +76,28 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="h-11 px-4 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button 
+              type="submit" 
+              className="w-full h-11 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium shadow-lg transition-all duration-200 transform hover:scale-[1.02]" 
+              disabled={loading}
+            >
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
 
-            <div className="mt-4 p-3 bg-muted rounded-md text-sm">
-              <p className="font-medium mb-2">Credenciais de teste:</p>
-              <p className="text-muted-foreground">
-                <strong>Admin:</strong> admin@frota.com / admin123
-              </p>
-              <p className="text-muted-foreground">
-                <strong>Gestor:</strong> gestor@frota.com / gestor123
-              </p>
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="font-medium text-blue-900 mb-2 text-sm">Credenciais de teste:</p>
+              <div className="space-y-1">
+                <p className="text-blue-700 text-sm">
+                  <span className="font-semibold">Admin:</span> admin@frota.com / admin123
+                </p>
+                <p className="text-blue-700 text-sm">
+                  <span className="font-semibold">Gestor:</span> gestor@frota.com / gestor123
+                </p>
+              </div>
             </div>
           </form>
         </CardContent>
