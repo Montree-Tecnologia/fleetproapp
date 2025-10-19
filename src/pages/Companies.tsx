@@ -329,6 +329,14 @@ export default function Companies() {
                     {getCompanyBranches(company.id)} {getCompanyBranches(company.id) === 1 ? 'filial' : 'filiais'}
                   </>
                 )}
+                {company.type === 'filial' && company.matrizId && (
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-3 w-3" />
+                    <span className="text-xs">
+                      Matriz: {allCompanies.find(c => c.id === company.matrizId)?.name || 'Não encontrada'}
+                    </span>
+                  </div>
+                )}
               </div>
               
               <div className="flex gap-2 pt-3 mt-auto">
