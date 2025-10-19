@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -38,15 +38,9 @@ export default function Companies() {
   const [searchTerm, setSearchTerm] = useState('');
   const [toggleActiveDialogOpen, setToggleActiveDialogOpen] = useState(false);
   const [companyToToggle, setCompanyToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const { companies, updateCompany, deleteCompany } = useMockData();
+  const { companies, addCompany, updateCompany, deleteCompany } = useMockData();
   const { toast } = useToast();
-  const [allCompanies, setAllCompanies] = useState(companies());
-
-  // Atualiza a lista de empresas quando o refreshTrigger mudar
-  useEffect(() => {
-    setAllCompanies(companies());
-  }, [refreshTrigger, companies]);
+  const allCompanies = companies();
 
   const getCompanyBranches = (matrizId: string) => {
     return allCompanies.filter(c => c.type === 'filial' && c.matrizId === matrizId).length;
@@ -160,11 +154,11 @@ export default function Companies() {
               </DialogHeader>
               <CompanyForm 
                 initialData={editingCompany || undefined}
-                onSuccess={() => {
-                  setRefreshTrigger(prev => prev + 1);
-                  handleDialogClose(false);
-                }}
+                onSuccess={() => handleDialogClose(false)}
                 onCancel={() => handleDialogClose(false)}
+                companiesExternal={allCompanies}
+                addCompanyExternal={addCompany}
+                updateCompanyExternal={updateCompany}
               />
             </DialogContent>
           </Dialog>

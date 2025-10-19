@@ -37,12 +37,18 @@ interface CompanyFormProps {
   initialData?: Company;
   onSuccess: () => void;
   onCancel?: () => void;
+  companiesExternal?: Company[];
+  addCompanyExternal?: (company: Omit<Company, 'id'>) => Company;
+  updateCompanyExternal?: (id: string, data: Partial<Company>) => void;
 }
 
-export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormProps) {
-  const { addCompany, updateCompany, companies } = useMockData();
+export function CompanyForm({ initialData, onSuccess, onCancel, companiesExternal, addCompanyExternal, updateCompanyExternal }: CompanyFormProps) {
+  const mock = useMockData();
+  const addCompany = addCompanyExternal || mock.addCompany;
+  const updateCompany = updateCompanyExternal || mock.updateCompany;
+  const companiesGetter = mock.companies;
   const { toast } = useToast();
-  const allCompanies = companies();
+  const allCompanies = companiesExternal || companiesGetter();
   const matrizes = allCompanies.filter(c => c.type === 'matriz');
   
   // Se não há nenhuma empresa cadastrada e não está editando, deve ser matriz
