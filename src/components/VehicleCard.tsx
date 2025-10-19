@@ -81,8 +81,9 @@ export function VehicleCard({
   const ownerName = ownerCompany?.name || vehicle.ownerBranch;
   const ownerCnpj = ownerCompany?.cnpj;
   
-  // Mapear IDs das filiais vinculadas para seus nomes
+  // Mapear IDs das filiais vinculadas para seus nomes (excluindo a proprietária)
   const branchNames = vehicle.branches
+    .filter(branchId => branchId !== vehicle.ownerBranch)
     .map(branchId => allCompanies.find(c => c.id === branchId)?.name || branchId)
     .filter(Boolean);
   
