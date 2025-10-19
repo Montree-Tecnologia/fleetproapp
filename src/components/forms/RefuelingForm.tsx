@@ -146,6 +146,8 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   
   const filteredRefrigerationUnits = selectedVehicleFilter
     ? activeRefrigerationUnits.filter(r => {
+        console.log('🔍 Analisando equipamento:', { id: r.id, vehicleId: r.vehicleId });
+        
         // Equipamentos acoplados diretamente ao veículo
         if (r.vehicleId === selectedVehicleFilter) {
           console.log('✅ Equipamento direto:', r.id);
@@ -154,17 +156,38 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
         
         // Equipamentos acoplados aos reboques do veículo
         const selectedVehicle = vehicles.find(v => v.id === selectedVehicleFilter);
+        console.log('🚗 Veículo selecionado encontrado:', { 
+          id: selectedVehicle?.id, 
+          plate: selectedVehicle?.plate,
+          hasComposition: selectedVehicle?.hasComposition,
+          compositionPlates: selectedVehicle?.compositionPlates 
+        });
+        
         if (selectedVehicle?.hasComposition && selectedVehicle.compositionPlates) {
           console.log('🔍 Buscando em reboques:', selectedVehicle.compositionPlates);
-          // Encontrar o reboque que tem este equipamento
-          const trailerWithEquipment = vehicles.find(trailer => 
-            trailer.id === r.vehicleId && 
-            selectedVehicle.compositionPlates!.includes(trailer.plate)
-          );
-          if (trailerWithEquipment) {
-            console.log('✅ Equipamento em reboque:', r.id, 'reboque:', trailerWithEquipment.plate);
+          
+          // Encontrar o veículo que tem este equipamento
+          const vehicleWithEquipment = vehicles.find(v => v.id === r.vehicleId);
+          console.log('🚛 Veículo com equipamento:', { 
+            found: !!vehicleWithEquipment, 
+            id: vehicleWithEquipment?.id,
+            plate: vehicleWithEquipment?.plate 
+          });
+          
+          // Verificar se a placa deste veículo está nas composições
+          if (vehicleWithEquipment) {
+            const isInComposition = selectedVehicle.compositionPlates.includes(vehicleWithEquipment.plate);
+            console.log('🎯 Placa está na composição?', { 
+              plate: vehicleWithEquipment.plate, 
+              isInComposition,
+              compositionPlates: selectedVehicle.compositionPlates
+            });
+            
+            if (isInComposition) {
+              console.log('✅ Equipamento em reboque:', r.id, 'reboque:', vehicleWithEquipment.plate);
+            }
+            return isInComposition;
           }
-          return !!trailerWithEquipment;
         }
         
         return false;
