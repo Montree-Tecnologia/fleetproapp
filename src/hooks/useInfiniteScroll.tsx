@@ -19,12 +19,15 @@ export function useInfiniteScroll<T>(
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-  // Inicializa com os primeiros itens
+  // Sincroniza itens exibidos quando a lista muda (mantém progresso do scroll)
   useEffect(() => {
-    const initial = allItems.slice(0, initialItemsCount);
-    setDisplayedItems(initial);
-    setHasMore(allItems.length > initialItemsCount);
-  }, [allItems.length, initialItemsCount]);
+    setDisplayedItems(prev => {
+      const currentLength = prev.length > 0 ? prev.length : initialItemsCount;
+      const next = allItems.slice(0, Math.min(currentLength, allItems.length));
+      setHasMore(next.length < allItems.length);
+      return next;
+    });
+  }, [allItems, initialItemsCount]);
 
   // Função para carregar mais itens
   const loadMore = useCallback(() => {
