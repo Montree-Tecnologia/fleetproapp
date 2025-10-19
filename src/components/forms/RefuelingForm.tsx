@@ -153,8 +153,6 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       date: new Date(),
       km: 0,
       usageHours: 0,
-      liters: 0,
-      pricePerLiter: 0,
       fuelType: 'Diesel S10',
       driverId: undefined,
     },
@@ -759,7 +757,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                         type="text"
                         placeholder="Ex: 500,50"
                         {...field}
-                        value={field.value ? formatDecimal(field.value) : ''}
+                        value={field.value !== undefined && field.value !== null ? formatDecimal(field.value) : ''}
                         onChange={(e) => handleDecimalInput(e, field.onChange)}
                       />
                     </FormControl>
@@ -886,7 +884,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                         type="text"
                         placeholder="Ex: 500,50"
                         {...field}
-                        value={field.value ? formatDecimal(field.value) : ''}
+                        value={field.value !== undefined && field.value !== null ? formatDecimal(field.value) : ''}
                         onChange={(e) => handleDecimalInput(e, field.onChange)}
                       />
                     </FormControl>
