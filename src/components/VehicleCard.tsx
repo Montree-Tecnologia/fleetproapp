@@ -76,9 +76,15 @@ export function VehicleCard({
   // Motoristas disponíveis (não vinculados a outros veículos)
   const availableDrivers = getAvailableDrivers(vehicle.id);
   
-  // Buscar CNPJ da empresa proprietária
-  const ownerCompany = allCompanies.find(c => c.name === vehicle.ownerBranch);
+  // Buscar dados da empresa proprietária pelo ID
+  const ownerCompany = allCompanies.find(c => c.id === vehicle.ownerBranch);
+  const ownerName = ownerCompany?.name || vehicle.ownerBranch;
   const ownerCnpj = ownerCompany?.cnpj;
+  
+  // Mapear IDs das filiais vinculadas para seus nomes
+  const branchNames = vehicle.branches
+    .map(branchId => allCompanies.find(c => c.id === branchId)?.name || branchId)
+    .filter(Boolean);
   
   // Veículos de reboque disponíveis para adicionar
   const availableTrailers = allVehicles.filter(v => {
@@ -227,7 +233,7 @@ export function VehicleCard({
               </div>
               <div>
                 <span className="text-muted-foreground">Proprietária:</span>
-                <p className="font-medium">{vehicle.ownerBranch}</p>
+                <p className="font-medium">{ownerName}</p>
                 {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
               </div>
             </>
@@ -236,7 +242,7 @@ export function VehicleCard({
             <>
               <div>
                 <span className="text-muted-foreground">Proprietária:</span>
-                <p className="font-medium">{vehicle.ownerBranch}</p>
+                <p className="font-medium">{ownerName}</p>
                 {ownerCnpj && <p className="text-xs text-muted-foreground">{ownerCnpj}</p>}
               </div>
               <div>
@@ -250,9 +256,9 @@ export function VehicleCard({
           <div className="col-span-2">
             <span className="text-muted-foreground">Matriz/Filiais Vinculadas:</span>
             <div className="flex flex-wrap gap-1 mt-1">
-              {vehicle.branches.map((branch, index) => (
+              {branchNames.map((branchName, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">
-                  {branch}
+                  {branchName}
                 </Badge>
               ))}
             </div>
