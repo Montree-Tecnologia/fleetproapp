@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2, Check, ChevronsUpDown, DollarSign, Undo2, FileSpreadsheet, AlertTriangle } from 'lucide-react';
+import { Plus, Snowflake, Thermometer, Pencil, Trash2, Eye, Link2, Search, Building2, Check, ChevronsUpDown, DollarSign, Undo2, FileSpreadsheet, AlertTriangle, FileText } from 'lucide-react';
 import { exportRefrigerationsToExcel } from '@/lib/excelExport';
 import {
   Dialog,
@@ -803,6 +803,38 @@ export default function Refrigeration() {
                   </div>
                 </div>
               </div>
+
+              {viewingUnit.purchaseInvoice && (
+                <div>
+                  <h3 className="font-semibold mb-3">Nota Fiscal de Compra</h3>
+                  <div className="p-4 bg-muted rounded-lg border border-border">
+                    {viewingUnit.purchaseInvoice.startsWith('data:image') ? (
+                      <img
+                        src={viewingUnit.purchaseInvoice}
+                        alt="Nota Fiscal de Compra"
+                        className="w-full max-h-96 object-contain rounded-lg cursor-pointer hover:opacity-90"
+                        onClick={() => window.open(viewingUnit.purchaseInvoice, '_blank')}
+                      />
+                    ) : (
+                      <div className="flex items-center gap-3 p-4 bg-background rounded-lg border border-border">
+                        <FileText className="h-8 w-8 text-muted-foreground" />
+                        <div className="flex-1">
+                          <p className="font-medium">Nota Fiscal de Compra</p>
+                          <p className="text-sm text-muted-foreground">Documento anexado</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(viewingUnit.purchaseInvoice, '_blank')}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Visualizar
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <h3 className="font-semibold mb-3">Veículo Vinculado</h3>

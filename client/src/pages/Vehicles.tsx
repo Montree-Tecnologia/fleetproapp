@@ -696,6 +696,38 @@ export default function Vehicles() {
                 </div>
               </div>
 
+              {viewingVehicle.purchaseInvoice && (
+                <div>
+                  <h3 className="font-semibold mb-3">Nota Fiscal de Compra</h3>
+                  <div className="p-4 bg-muted rounded-lg border border-border">
+                    {viewingVehicle.purchaseInvoice.startsWith('data:image') ? (
+                      <img
+                        src={viewingVehicle.purchaseInvoice}
+                        alt="Nota Fiscal de Compra"
+                        className="w-full max-h-96 object-contain rounded-lg cursor-pointer hover:opacity-90"
+                        onClick={() => window.open(viewingVehicle.purchaseInvoice, '_blank')}
+                      />
+                    ) : (
+                      <div className="flex items-center gap-3 p-4 bg-background rounded-lg border border-border">
+                        <FileText className="h-8 w-8 text-muted-foreground" />
+                        <div className="flex-1">
+                          <p className="font-medium">Nota Fiscal de Compra</p>
+                          <p className="text-sm text-muted-foreground">Documento anexado</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(viewingVehicle.purchaseInvoice, '_blank')}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Visualizar
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {viewingVehicle.driverId && (() => {
                 const driver = allDrivers.find(d => d.id === viewingVehicle.driverId);
                 return driver ? (
