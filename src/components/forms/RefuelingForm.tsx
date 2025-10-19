@@ -123,7 +123,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   );
 
   // Veículos que possuem equipamentos de refrigeração vinculados (diretamente ou em reboques)
-  const vehiclesWithRefrigeration = tractionVehicles.filter(v => {
+  const vehiclesWithRefrigeration = vehicles.filter(v => {
     // Verificar se o veículo tem equipamento de refrigeração diretamente acoplado
     const hasDirectRefrigeration = refrigerationUnits.some(r => r.vehicleId === v.id && r.status !== 'sold');
     
@@ -204,12 +204,22 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   // Selecionar automaticamente equipamento quando veículo filtrado tiver apenas um equipamento
   useEffect(() => {
     if (watchEntityType === 'refrigeration' && selectedVehicleFilter) {
-      const vehicleUnits = activeRefrigerationUnits.filter(r => r.vehicleId === selectedVehicleFilter);
+      const selectedVehicle = vehicles.find(v => v.id === selectedVehicleFilter);
+      const vehicleUnits = activeRefrigerationUnits.filter(r => {
+        if (r.vehicleId === selectedVehicleFilter) return true;
+        if (selectedVehicle?.hasComposition && selectedVehicle.compositionPlates) {
+          const trailerWithEquipment = vehicles.find(trailer => 
+            trailer.id === r.vehicleId && selectedVehicle.compositionPlates!.includes(trailer.plate)
+          );
+          return !!trailerWithEquipment;
+        }
+        return false;
+      });
       if (vehicleUnits.length === 1) {
         form.setValue('refrigerationUnitId', vehicleUnits[0].id);
       }
     }
-  }, [selectedVehicleFilter, watchEntityType, activeRefrigerationUnits, form]);
+  }, [selectedVehicleFilter, watchEntityType, activeRefrigerationUnits, form, vehicles]);
 
   // Buscar tipo de combustível do veículo ou equipamento selecionado
   const getEntityFuelType = () => {
