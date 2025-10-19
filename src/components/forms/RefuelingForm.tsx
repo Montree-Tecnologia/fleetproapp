@@ -143,23 +143,21 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   // Filtrar equipamentos de refrigeração baseado no veículo selecionado
   // Deve incluir equipamentos do veículo E dos seus reboques
   const filteredRefrigerationUnits = selectedVehicleFilter
-    ? activeRefrigerationUnits.filter(r => {
-        // Equipamentos acoplados diretamente ao veículo
-        if (r.vehicleId === selectedVehicleFilter) return true;
-        
-        // Equipamentos acoplados aos reboques do veículo
+    ? (() => {
         const selectedVehicle = vehicles.find(v => v.id === selectedVehicleFilter);
-        if (selectedVehicle?.hasComposition && selectedVehicle.compositionPlates) {
-          // Encontrar o reboque que tem este equipamento
-          const trailerWithEquipment = vehicles.find(trailer => 
-            trailer.id === r.vehicleId && 
-            selectedVehicle.compositionPlates!.includes(trailer.plate)
-          );
-          return !!trailerWithEquipment;
+        if (!selectedVehicle) return activeRefrigerationUnits;
+        const allowedIds = new Set<string>();
+        // Sempre considerar o próprio veículo
+        allowedIds.add(selectedVehicle.id);
+        // Considerar reboques da composição pelo plate -> id
+        if (selectedVehicle.hasComposition && selectedVehicle.compositionPlates?.length) {
+          selectedVehicle.compositionPlates.forEach(plate => {
+            const trailer = vehicles.find(t => t.plate === plate);
+            if (trailer) allowedIds.add(trailer.id);
+          });
         }
-        
-        return false;
-      })
+        return activeRefrigerationUnits.filter(r => r.vehicleId && allowedIds.has(r.vehicleId));
+      })()
     : activeRefrigerationUnits;
   
   const [selectedDriverId, setSelectedDriverId] = useState<string | undefined>(undefined);
@@ -205,16 +203,17 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   useEffect(() => {
     if (watchEntityType === 'refrigeration' && selectedVehicleFilter) {
       const selectedVehicle = vehicles.find(v => v.id === selectedVehicleFilter);
-      const vehicleUnits = activeRefrigerationUnits.filter(r => {
-        if (r.vehicleId === selectedVehicleFilter) return true;
-        if (selectedVehicle?.hasComposition && selectedVehicle.compositionPlates) {
-          const trailerWithEquipment = vehicles.find(trailer => 
-            trailer.id === r.vehicleId && selectedVehicle.compositionPlates!.includes(trailer.plate)
-          );
-          return !!trailerWithEquipment;
+      const allowedIds = new Set<string>();
+      if (selectedVehicle) {
+        allowedIds.add(selectedVehicle.id);
+        if (selectedVehicle.hasComposition && selectedVehicle.compositionPlates?.length) {
+          selectedVehicle.compositionPlates.forEach(plate => {
+            const trailer = vehicles.find(t => t.plate === plate);
+            if (trailer) allowedIds.add(trailer.id);
+          });
         }
-        return false;
-      });
+      }
+      const vehicleUnits = activeRefrigerationUnits.filter(r => r.vehicleId && allowedIds.has(r.vehicleId));
       if (vehicleUnits.length === 1) {
         form.setValue('refrigerationUnitId', vehicleUnits[0].id);
       }
