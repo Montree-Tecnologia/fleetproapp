@@ -140,3 +140,38 @@ export const handleYearInput = (
   e.target.value = formatted;
   onChange(parseYear(formatted));
 };
+
+/**
+ * Formats a decimal number for display (allows direct input like 500.5 -> 500,50)
+ */
+export const formatDirectDecimal = (value: number | undefined): string => {
+  if (value === undefined || value === null || isNaN(value)) return '';
+  
+  return new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+};
+
+/**
+ * Parses direct decimal input (user types 500,5 -> returns 500.5)
+ */
+export const parseDirectDecimal = (value: string): number => {
+  if (!value) return 0;
+  // Replace comma with dot and remove any other non-numeric characters except dot
+  const cleaned = value.replace(',', '.').replace(/[^\d.-]/g, '');
+  return parseFloat(cleaned) || 0;
+};
+
+/**
+ * Handles direct decimal input (no division by 100)
+ */
+export const handleDirectDecimalInput = (
+  e: React.ChangeEvent<HTMLInputElement>,
+  onChange: (value: number) => void
+) => {
+  const parsed = parseDirectDecimal(e.target.value);
+  const formatted = formatDirectDecimal(parsed);
+  e.target.value = formatted;
+  onChange(parsed);
+};

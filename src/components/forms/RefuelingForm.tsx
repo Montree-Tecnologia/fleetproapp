@@ -34,7 +34,7 @@ import {
 import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown, Truck, Snowflake, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
+import { formatCurrency, formatDecimal, formatInteger, formatDirectDecimal, handleCurrencyInput, handleDecimalInput, handleIntegerInput, handleDirectDecimalInput } from '@/lib/formatters';
 import { Refueling, Vehicle, Driver, Supplier, RefrigerationUnit } from '@/hooks/useMockData';
 import { useState, useEffect } from 'react';
 import {
@@ -757,8 +757,8 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                         type="text"
                         placeholder="Ex: 500,50"
                         {...field}
-                        value={field.value !== undefined && field.value !== null ? formatDecimal(field.value) : ''}
-                        onChange={(e) => handleDecimalInput(e, field.onChange)}
+                        value={formatDirectDecimal(field.value)}
+                        onChange={(e) => handleDirectDecimalInput(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -884,8 +884,8 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                         type="text"
                         placeholder="Ex: 500,50"
                         {...field}
-                        value={field.value !== undefined && field.value !== null ? formatDecimal(field.value) : ''}
-                        onChange={(e) => handleDecimalInput(e, field.onChange)}
+                        value={formatDirectDecimal(field.value)}
+                        onChange={(e) => handleDirectDecimalInput(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
