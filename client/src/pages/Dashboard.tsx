@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMockData } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Truck, TrendingUp, Fuel, Activity, Snowflake } from 'lucide-react';
+import { Truck, TrendingUp, Fuel, Activity, Snowflake, ArrowUp, ArrowDown } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 
@@ -31,28 +31,37 @@ export default function Dashboard() {
       value: vehicleStats.totalVehicles,
       icon: Truck,
       description: `${vehicleStats.activeVehicles} ativos`,
-      color: 'text-chart-1'
+      color: 'from-blue-500 to-blue-600',
+      bgColor: 'bg-blue-500/10',
+      iconColor: 'text-blue-600'
     },
     {
       title: 'Disponibilidade',
       value: `${vehicleStats.availability}%`,
       icon: Activity,
       description: 'Taxa de disponibilidade',
-      color: 'text-chart-2'
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-500/10',
+      iconColor: 'text-green-600',
+      trend: 'up'
     },
     {
       title: 'Consumo Médio',
       value: `${vehicleStats.avgConsumption} km/l`,
       icon: TrendingUp,
       description: 'Média da frota',
-      color: 'text-chart-3'
+      color: 'from-amber-500 to-amber-600',
+      bgColor: 'bg-amber-500/10',
+      iconColor: 'text-amber-600'
     },
     {
       title: 'Custo Combustível',
       value: `R$ ${vehicleStats.totalFuelCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
       icon: Fuel,
       description: 'Mês atual',
-      color: 'text-chart-4'
+      color: 'from-purple-500 to-purple-600',
+      bgColor: 'bg-purple-500/10',
+      iconColor: 'text-purple-600'
     }
   ];
 
@@ -62,62 +71,94 @@ export default function Dashboard() {
       value: refrigerationStats.totalUnits,
       icon: Snowflake,
       description: `${refrigerationStats.activeUnits} ativos`,
-      color: 'text-chart-1'
+      color: 'from-cyan-500 to-cyan-600',
+      bgColor: 'bg-cyan-500/10',
+      iconColor: 'text-cyan-600'
     },
     {
       title: 'Disponibilidade',
       value: `${refrigerationStats.availability}%`,
       icon: Activity,
       description: 'Taxa de disponibilidade',
-      color: 'text-chart-2'
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-500/10',
+      iconColor: 'text-green-600',
+      trend: 'up'
     },
     {
       title: 'Consumo Médio',
       value: `${refrigerationStats.avgConsumption} l/h`,
       icon: TrendingUp,
       description: 'Média dos equipamentos',
-      color: 'text-chart-3'
+      color: 'from-amber-500 to-amber-600',
+      bgColor: 'bg-amber-500/10',
+      iconColor: 'text-amber-600'
     },
     {
       title: 'Custo Combustível',
       value: `R$ ${refrigerationStats.totalFuelCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
       icon: Fuel,
       description: 'Mês atual',
-      color: 'text-chart-4'
+      color: 'from-purple-500 to-purple-600',
+      bgColor: 'bg-purple-500/10',
+      iconColor: 'text-purple-600'
     }
   ];
 
   return (
-    <div className="space-y-4 lg:space-y-6">
-      <div>
-        <h2 className="text-2xl lg:text-3xl font-bold tracking-tight">Dashboard Operacional</h2>
-        <p className="text-sm lg:text-base text-muted-foreground">
+    <div className="space-y-6 lg:space-y-8 animate-fade-in">
+      <div className="bg-gradient-mesh rounded-2xl p-6 lg:p-8 card-elevated">
+        <h2 className="text-3xl lg:text-4xl font-bold text-gradient-fancy mb-2">
+          Dashboard Operacional
+        </h2>
+        <p className="text-base lg:text-lg text-muted-foreground">
           Visão geral da sua operação em tempo real
         </p>
       </div>
 
-      <Tabs defaultValue="vehicles" className="space-y-4 lg:space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="vehicles">Veículos</TabsTrigger>
-          <TabsTrigger value="refrigeration" className="hidden sm:block">Equipamentos de Refrigeração</TabsTrigger>
-          <TabsTrigger value="refrigeration" className="sm:hidden">Refrigeração</TabsTrigger>
+      <Tabs defaultValue="vehicles" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2 h-12 p-1 bg-muted/50 backdrop-blur-sm">
+          <TabsTrigger value="vehicles" className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white font-semibold">
+            Veículos
+          </TabsTrigger>
+          <TabsTrigger value="refrigeration" className="hidden sm:block data-[state=active]:bg-gradient-primary data-[state=active]:text-white font-semibold">
+            Equipamentos de Refrigeração
+          </TabsTrigger>
+          <TabsTrigger value="refrigeration" className="sm:hidden data-[state=active]:bg-gradient-primary data-[state=active]:text-white font-semibold">
+            Refrigeração
+          </TabsTrigger>
         </TabsList>
 
         {/* Vehicles Tab */}
-        <TabsContent value="vehicles" className="space-y-4 lg:space-y-6">
+        <TabsContent value="vehicles" className="space-y-6 animate-slide-up">
           {/* Stats Cards */}
-          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            {vehicleStatCards.map((stat) => (
-              <Card key={stat.title}>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {vehicleStatCards.map((stat, index) => (
+              <Card 
+                key={stat.title} 
+                className="card-elevated hover-lift overflow-hidden group"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className={`h-1 bg-gradient-to-r ${stat.color}`} />
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
+                  <CardTitle className="text-sm font-semibold text-muted-foreground">
                     {stat.title}
                   </CardTitle>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                  <div className={`p-2 rounded-xl ${stat.bgColor} group-hover:scale-110 transition-transform`}>
+                    <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-2xl lg:text-3xl font-bold">{stat.value}</div>
+                    {stat.trend && (
+                      <div className={`flex items-center text-xs font-semibold ${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+                        {stat.trend === 'up' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                        {stat.trend === 'up' ? '+2.5%' : '-1.2%'}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
                     {stat.description}
                   </p>
                 </CardContent>
@@ -126,69 +167,89 @@ export default function Dashboard() {
           </div>
 
           {/* Status Distribution */}
-          <div className="grid gap-3 sm:gap-4 grid-cols-1 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Status da Frota</CardTitle>
+          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+            <Card className="card-elevated">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-gradient-subtle">
+                    <Activity className="h-5 w-5 text-primary" />
+                  </div>
+                  Status da Frota
+                </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-5">
                 <div className="space-y-4">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Ativos</span>
-                      <span className="text-sm text-muted-foreground">{vehicleStats.activeVehicles}</span>
+                      <span className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-green-500" />
+                        Ativos
+                      </span>
+                      <span className="text-sm font-bold">{vehicleStats.activeVehicles}</span>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="bg-chart-2 h-2 rounded-full"
+                        className="bg-gradient-to-r from-green-500 to-green-600 h-2.5 rounded-full transition-all duration-500"
                         style={{ width: `${(vehicleStats.activeVehicles / vehicleStats.totalVehicles) * 100}%` }}
                       />
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Em Manutenção</span>
-                      <span className="text-sm text-muted-foreground">{vehicleStats.maintenanceVehicles}</span>
+                      <span className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                        Em Manutenção
+                      </span>
+                      <span className="text-sm font-bold">{vehicleStats.maintenanceVehicles}</span>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="bg-yellow-500 h-2 rounded-full"
+                        className="bg-gradient-to-r from-yellow-500 to-yellow-600 h-2.5 rounded-full transition-all duration-500"
                         style={{ width: `${(vehicleStats.maintenanceVehicles / vehicleStats.totalVehicles) * 100}%` }}
                       />
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Defeituosos</span>
-                      <span className="text-sm text-muted-foreground">{vehicleStats.defectiveVehicles}</span>
+                      <span className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-orange-500" />
+                        Defeituosos
+                      </span>
+                      <span className="text-sm font-bold">{vehicleStats.defectiveVehicles}</span>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="bg-orange-500 h-2 rounded-full"
+                        className="bg-gradient-to-r from-orange-500 to-orange-600 h-2.5 rounded-full transition-all duration-500"
                         style={{ width: `${(vehicleStats.defectiveVehicles / vehicleStats.totalVehicles) * 100}%` }}
                       />
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Inativos</span>
-                      <span className="text-sm text-muted-foreground">{vehicleStats.inactiveVehicles}</span>
+                      <span className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-red-600" />
+                        Inativos
+                      </span>
+                      <span className="text-sm font-bold">{vehicleStats.inactiveVehicles}</span>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="bg-red-600 h-2 rounded-full"
+                        className="bg-gradient-to-r from-red-600 to-red-700 h-2.5 rounded-full transition-all duration-500"
                         style={{ width: `${(vehicleStats.inactiveVehicles / vehicleStats.totalVehicles) * 100}%` }}
                       />
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Vendidos</span>
-                      <span className="text-sm text-muted-foreground">{vehicleStats.soldVehicles}</span>
+                      <span className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-gray-600" />
+                        Vendidos
+                      </span>
+                      <span className="text-sm font-bold">{vehicleStats.soldVehicles}</span>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="bg-gray-700 h-2 rounded-full"
+                        className="bg-gradient-to-r from-gray-600 to-gray-700 h-2.5 rounded-full transition-all duration-500"
                         style={{ width: `${(vehicleStats.soldVehicles / vehicleStats.totalVehicles) * 100}%` }}
                       />
                     </div>
@@ -197,13 +258,19 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle>Top 5 Veículos por Consumo</CardTitle>
+            <Card className="card-elevated">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-gradient-subtle">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                  </div>
+                  Top 5 Veículos por Consumo
+                </CardTitle>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowWorstVehicles(!showWorstVehicles)}
+                  className="hover:bg-primary/10"
                 >
                   {showWorstVehicles ? 'Mais Econômicos' : 'Menos Econômicos'}
                 </Button>
@@ -234,15 +301,28 @@ export default function Dashboard() {
                     .filter(v => v.avgConsumption > 0)
                     .sort((a, b) => showWorstVehicles ? a.avgConsumption - b.avgConsumption : b.avgConsumption - a.avgConsumption)
                     .slice(0, 5)
-                    .map((vehicle) => (
-                      <div key={vehicle.id} className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium">{vehicle.plate}</p>
-                          <p className="text-xs text-muted-foreground">{vehicle.model}</p>
+                    .map((vehicle, index) => (
+                      <div 
+                        key={vehicle.id} 
+                        className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center text-white font-bold text-sm">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold">{vehicle.plate}</p>
+                            <p className="text-xs text-muted-foreground">{vehicle.model}</p>
+                          </div>
                         </div>
-                        <span className="text-sm font-bold">
-                          {vehicle.avgConsumption.toFixed(2)} km/l
-                        </span>
+                        <div className="text-right">
+                          <span className="text-sm font-bold text-primary">
+                            {vehicle.avgConsumption.toFixed(2)} km/l
+                          </span>
+                          <div className="text-xs text-muted-foreground">
+                            {showWorstVehicles ? 'Baixo consumo' : 'Alto consumo'}
+                          </div>
+                        </div>
                       </div>
                     ))}
                 </div>
@@ -251,9 +331,14 @@ export default function Dashboard() {
           </div>
 
           {/* Recent Refuelings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Últimos Abastecimentos</CardTitle>
+          <Card className="card-elevated">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-gradient-subtle">
+                  <Fuel className="h-5 w-5 text-primary" />
+                </div>
+                Últimos Abastecimentos
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -265,15 +350,23 @@ export default function Dashboard() {
                     const vehicle = allVehicles.find(v => v.id === refueling.vehicleId);
                     const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
                     return (
-                       <div key={refueling.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 border-b border-border pb-3 last:border-0">
-                         <div>
-                           <p className="text-sm font-medium">{vehicle?.plate} - {vehicle?.model}</p>
-                           <p className="text-xs text-muted-foreground mt-1">
-                             {refueling.liters}L • {supplier?.fantasyName}
-                           </p>
+                       <div 
+                         key={refueling.id} 
+                         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                       >
+                         <div className="flex items-center gap-3">
+                           <div className="w-10 h-10 rounded-lg bg-gradient-primary/10 flex items-center justify-center">
+                             <Truck className="h-5 w-5 text-primary" />
+                           </div>
+                           <div>
+                             <p className="text-sm font-semibold">{vehicle?.plate} - {vehicle?.model}</p>
+                             <p className="text-xs text-muted-foreground mt-1">
+                               {refueling.liters}L • {supplier?.fantasyName}
+                             </p>
+                           </div>
                          </div>
-                         <div className="text-left sm:text-right">
-                           <p className="text-sm font-bold">
+                         <div className="text-right">
+                           <p className="text-sm font-bold text-primary">
                              R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                            </p>
                            <p className="text-xs text-muted-foreground">
@@ -289,20 +382,35 @@ export default function Dashboard() {
         </TabsContent>
 
         {/* Refrigeration Tab */}
-        <TabsContent value="refrigeration" className="space-y-6">
+        <TabsContent value="refrigeration" className="space-y-6 animate-slide-up">
           {/* Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {refrigerationStatCards.map((stat) => (
-              <Card key={stat.title}>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {refrigerationStatCards.map((stat, index) => (
+              <Card 
+                key={stat.title} 
+                className="card-elevated hover-lift overflow-hidden group"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className={`h-1 bg-gradient-to-r ${stat.color}`} />
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
+                  <CardTitle className="text-sm font-semibold text-muted-foreground">
                     {stat.title}
                   </CardTitle>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                  <div className={`p-2 rounded-xl ${stat.bgColor} group-hover:scale-110 transition-transform`}>
+                    <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-2xl lg:text-3xl font-bold">{stat.value}</div>
+                    {stat.trend && (
+                      <div className={`flex items-center text-xs font-semibold ${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+                        {stat.trend === 'up' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                        {stat.trend === 'up' ? '+2.5%' : '-1.2%'}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
                     {stat.description}
                   </p>
                 </CardContent>
@@ -311,69 +419,89 @@ export default function Dashboard() {
           </div>
 
           {/* Status Distribution */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Status dos Equipamentos</CardTitle>
+          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+            <Card className="card-elevated">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-gradient-subtle">
+                    <Activity className="h-5 w-5 text-primary" />
+                  </div>
+                  Status dos Equipamentos
+                </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-5">
                 <div className="space-y-4">
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Ativos</span>
-                      <span className="text-sm text-muted-foreground">{refrigerationStats.activeUnits}</span>
+                      <span className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-green-500" />
+                        Ativos
+                      </span>
+                      <span className="text-sm font-bold">{refrigerationStats.activeUnits}</span>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="bg-chart-2 h-2 rounded-full"
+                        className="bg-gradient-to-r from-green-500 to-green-600 h-2.5 rounded-full transition-all duration-500"
                         style={{ width: `${(refrigerationStats.activeUnits / refrigerationStats.totalUnits) * 100}%` }}
                       />
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Em Manutenção</span>
-                      <span className="text-sm text-muted-foreground">{refrigerationStats.maintenanceUnits}</span>
+                      <span className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                        Em Manutenção
+                      </span>
+                      <span className="text-sm font-bold">{refrigerationStats.maintenanceUnits}</span>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="bg-yellow-500 h-2 rounded-full"
+                        className="bg-gradient-to-r from-yellow-500 to-yellow-600 h-2.5 rounded-full transition-all duration-500"
                         style={{ width: `${(refrigerationStats.maintenanceUnits / refrigerationStats.totalUnits) * 100}%` }}
                       />
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Defeituosos</span>
-                      <span className="text-sm text-muted-foreground">{refrigerationStats.defectiveUnits}</span>
+                      <span className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-orange-500" />
+                        Defeituosos
+                      </span>
+                      <span className="text-sm font-bold">{refrigerationStats.defectiveUnits}</span>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="bg-orange-500 h-2 rounded-full"
+                        className="bg-gradient-to-r from-orange-500 to-orange-600 h-2.5 rounded-full transition-all duration-500"
                         style={{ width: `${(refrigerationStats.defectiveUnits / refrigerationStats.totalUnits) * 100}%` }}
                       />
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Inativos</span>
-                      <span className="text-sm text-muted-foreground">{refrigerationStats.inactiveUnits}</span>
+                      <span className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-red-600" />
+                        Inativos
+                      </span>
+                      <span className="text-sm font-bold">{refrigerationStats.inactiveUnits}</span>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="bg-red-600 h-2 rounded-full"
+                        className="bg-gradient-to-r from-red-600 to-red-700 h-2.5 rounded-full transition-all duration-500"
                         style={{ width: `${(refrigerationStats.inactiveUnits / refrigerationStats.totalUnits) * 100}%` }}
                       />
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Vendidos</span>
-                      <span className="text-sm text-muted-foreground">{refrigerationStats.soldUnits}</span>
+                      <span className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-gray-600" />
+                        Vendidos
+                      </span>
+                      <span className="text-sm font-bold">{refrigerationStats.soldUnits}</span>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="bg-gray-700 h-2 rounded-full"
+                        className="bg-gradient-to-r from-gray-600 to-gray-700 h-2.5 rounded-full transition-all duration-500"
                         style={{ width: `${(refrigerationStats.soldUnits / refrigerationStats.totalUnits) * 100}%` }}
                       />
                     </div>
@@ -382,13 +510,19 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle>Top 5 Equipamentos por Consumo</CardTitle>
+            <Card className="card-elevated">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <div className="p-2 rounded-lg bg-gradient-subtle">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                  </div>
+                  Top 5 Equipamentos por Consumo
+                </CardTitle>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowWorstRefrigeration(!showWorstRefrigeration)}
+                  className="hover:bg-primary/10"
                 >
                   {showWorstRefrigeration ? 'Mais Econômicos' : 'Menos Econômicos'}
                 </Button>
@@ -419,15 +553,28 @@ export default function Dashboard() {
                     .filter(u => u.avgConsumption > 0)
                     .sort((a, b) => showWorstRefrigeration ? b.avgConsumption - a.avgConsumption : a.avgConsumption - b.avgConsumption)
                     .slice(0, 5)
-                    .map((unit) => (
-                      <div key={unit.id} className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium">{unit.serialNumber}</p>
-                          <p className="text-xs text-muted-foreground">{unit.brand} {unit.model}</p>
+                    .map((unit, index) => (
+                      <div 
+                        key={unit.id} 
+                        className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center text-white font-bold text-sm">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold">{unit.serialNumber}</p>
+                            <p className="text-xs text-muted-foreground">{unit.brand} {unit.model}</p>
+                          </div>
                         </div>
-                        <span className="text-sm font-bold">
-                          {unit.avgConsumption.toFixed(2)} L/h
-                        </span>
+                        <div className="text-right">
+                          <span className="text-sm font-bold text-primary">
+                            {unit.avgConsumption.toFixed(2)} L/h
+                          </span>
+                          <div className="text-xs text-muted-foreground">
+                            {showWorstRefrigeration ? 'Alto consumo' : 'Baixo consumo'}
+                          </div>
+                        </div>
                       </div>
                     ))}
                 </div>
@@ -436,9 +583,14 @@ export default function Dashboard() {
           </div>
 
           {/* Recent Refuelings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Últimos Abastecimentos</CardTitle>
+          <Card className="card-elevated">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-gradient-subtle">
+                  <Fuel className="h-5 w-5 text-primary" />
+                </div>
+                Últimos Abastecimentos
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -450,15 +602,23 @@ export default function Dashboard() {
                     const unit = allRefrigerationUnits.find(u => u.id === refueling.refrigerationUnitId);
                     const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
                     return (
-                      <div key={refueling.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 border-b border-border pb-3 last:border-0">
-                         <div>
-                           <p className="text-sm font-medium">SN: {unit?.serialNumber}</p>
-                           <p className="text-xs text-muted-foreground mt-1">
-                             {refueling.liters}L • {supplier?.fantasyName}
-                           </p>
+                       <div 
+                         key={refueling.id} 
+                         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                       >
+                         <div className="flex items-center gap-3">
+                           <div className="w-10 h-10 rounded-lg bg-gradient-primary/10 flex items-center justify-center">
+                             <Snowflake className="h-5 w-5 text-primary" />
+                           </div>
+                           <div>
+                             <p className="text-sm font-semibold">SN: {unit?.serialNumber}</p>
+                             <p className="text-xs text-muted-foreground mt-1">
+                               {refueling.liters}L • {supplier?.fantasyName}
+                             </p>
+                           </div>
                          </div>
-                         <div className="text-left sm:text-right">
-                           <p className="text-sm font-bold">
+                         <div className="text-right">
+                           <p className="text-sm font-bold text-primary">
                              R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                            </p>
                            <p className="text-xs text-muted-foreground">
