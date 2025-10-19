@@ -657,27 +657,38 @@ export default function Vehicles() {
                   <div>
                     <span className="text-muted-foreground text-sm">Matriz/Filial Proprietária:</span>
                     <div className="mt-1 space-y-2">
-                      <Badge className="bg-primary text-primary-foreground">
-                        {viewingVehicle.ownerBranch}
-                      </Badge>
                       {(() => {
-                        const ownerCompany = allCompanies.find(c => c.name === viewingVehicle.ownerBranch);
+                        const ownerCompany = allCompanies.find(c => c.id === viewingVehicle.ownerBranch);
                         return ownerCompany ? (
-                          <p className="text-sm text-muted-foreground">
-                            CNPJ: <span className="font-mono font-medium">{ownerCompany.cnpj}</span>
-                          </p>
-                        ) : null;
+                          <>
+                            <Badge className="bg-primary text-primary-foreground">
+                              {ownerCompany.name}
+                            </Badge>
+                            <p className="text-sm text-muted-foreground">
+                              CNPJ: <span className="font-mono font-medium">{ownerCompany.cnpj}</span>
+                            </p>
+                          </>
+                        ) : (
+                          <Badge className="bg-primary text-primary-foreground">
+                            {viewingVehicle.ownerBranch}
+                          </Badge>
+                        );
                       })()}
                     </div>
                   </div>
                   <div>
                     <span className="text-muted-foreground text-sm">Matriz/Filiais Vinculadas:</span>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {viewingVehicle.branches.map((branch, index) => (
-                        <Badge key={index} variant="secondary">
-                          {branch}
-                        </Badge>
-                      ))}
+                      {viewingVehicle.branches
+                        .filter(branchId => branchId !== viewingVehicle.ownerBranch)
+                        .map((branchId, index) => {
+                          const company = allCompanies.find(c => c.id === branchId);
+                          return (
+                            <Badge key={index} variant="secondary">
+                              {company?.name || branchId}
+                            </Badge>
+                          );
+                        })}
                     </div>
                   </div>
                 </div>
