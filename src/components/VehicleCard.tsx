@@ -183,10 +183,18 @@ export function VehicleCard({
                 : 'N/A'}
             </p>
           </div>
-          <div>
-            <span className="text-muted-foreground">Combustível:</span>
-            <p className="font-medium">{vehicle.fuelType}</p>
-          </div>
+          {isTractionVehicle && (
+            <div>
+              <span className="text-muted-foreground">Combustível:</span>
+              <p className="font-medium">{vehicle.fuelType}</p>
+            </div>
+          )}
+          {isTrailerVehicle && (
+            <div>
+              <span className="text-muted-foreground">Quantidade de Eixos:</span>
+              <p className="font-medium">{vehicle.axles}</p>
+            </div>
+          )}
           {(isTractionVehicle || isTrailerVehicle) && (
             <>
               <div>
