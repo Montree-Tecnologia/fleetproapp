@@ -93,7 +93,10 @@ export class MemStorage implements IStorage {
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    const newUser: User = { ...user, id: this.userIdCounter++ };
+    const newUser = { 
+      id: this.userIdCounter++,
+      ...user
+    } as User;
     this.users.push(newUser);
     return newUser;
   }
@@ -121,7 +124,10 @@ export class MemStorage implements IStorage {
   }
 
   async createVehicle(vehicle: InsertVehicle): Promise<Vehicle> {
-    const newVehicle: Vehicle = { ...vehicle, id: this.vehicleIdCounter++ };
+    const newVehicle = { 
+      id: this.vehicleIdCounter++,
+      ...vehicle
+    } as Vehicle;
     this.vehicles.push(newVehicle);
     return newVehicle;
   }
@@ -149,7 +155,11 @@ export class MemStorage implements IStorage {
   }
 
   async createDriver(driver: InsertDriver): Promise<Driver> {
-    const newDriver: Driver = { ...driver, id: this.driverIdCounter++ };
+    const newDriver = { 
+      id: this.driverIdCounter++,
+      ...driver,
+      phone: driver.phone ?? null
+    } as Driver;
     this.drivers.push(newDriver);
     return newDriver;
   }
@@ -177,7 +187,11 @@ export class MemStorage implements IStorage {
   }
 
   async createRefueling(refueling: InsertRefueling): Promise<Refueling> {
-    const newRefueling: Refueling = { ...refueling, id: this.refuelingIdCounter++ };
+    const newRefueling = { 
+      id: this.refuelingIdCounter++,
+      ...refueling,
+      odometer: refueling.odometer ?? null
+    } as Refueling;
     this.refuelings.push(newRefueling);
     return newRefueling;
   }
@@ -205,7 +219,10 @@ export class MemStorage implements IStorage {
   }
 
   async createRefrigeration(refrigeration: InsertRefrigeration): Promise<Refrigeration> {
-    const newRefrigeration: Refrigeration = { ...refrigeration, id: this.refrigerationIdCounter++ };
+    const newRefrigeration = { 
+      id: this.refrigerationIdCounter++,
+      ...refrigeration
+    } as Refrigeration;
     this.refrigerations.push(newRefrigeration);
     return newRefrigeration;
   }
@@ -233,7 +250,13 @@ export class MemStorage implements IStorage {
   }
 
   async createSupplier(supplier: InsertSupplier): Promise<Supplier> {
-    const newSupplier: Supplier = { ...supplier, id: this.supplierIdCounter++ };
+    const newSupplier = { 
+      id: this.supplierIdCounter++,
+      ...supplier,
+      phone: supplier.phone ?? null,
+      email: supplier.email ?? null,
+      address: supplier.address ?? null
+    } as Supplier;
     this.suppliers.push(newSupplier);
     return newSupplier;
   }
@@ -261,7 +284,13 @@ export class MemStorage implements IStorage {
   }
 
   async createCompany(company: InsertCompany): Promise<Company> {
-    const newCompany: Company = { ...company, id: this.companyIdCounter++ };
+    const newCompany = { 
+      id: this.companyIdCounter++,
+      ...company,
+      phone: company.phone ?? null,
+      email: company.email ?? null,
+      address: company.address ?? null
+    } as Company;
     this.companies.push(newCompany);
     return newCompany;
   }

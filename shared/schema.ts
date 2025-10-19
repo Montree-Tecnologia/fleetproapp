@@ -69,13 +69,65 @@ export const companies = pgTable("companies", {
   active: boolean("active").notNull().default(true),
 });
 
-export const insertUserSchema = createInsertSchema(users).omit({ id: true });
-export const insertVehicleSchema = createInsertSchema(vehicles).omit({ id: true });
-export const insertDriverSchema = createInsertSchema(drivers).omit({ id: true });
-export const insertRefuelingSchema = createInsertSchema(refuelings).omit({ id: true });
-export const insertRefrigerationSchema = createInsertSchema(refrigeration).omit({ id: true });
-export const insertSupplierSchema = createInsertSchema(suppliers).omit({ id: true });
-export const insertCompanySchema = createInsertSchema(companies).omit({ id: true });
+export const insertUserSchema = z.object({
+  username: z.string(),
+  password: z.string(),
+  name: z.string(),
+  role: z.string(),
+  permissions: z.array(z.string()).optional().default([]),
+  active: z.boolean().optional().default(true),
+});
+
+export const insertVehicleSchema = z.object({
+  plate: z.string(),
+  model: z.string(),
+  year: z.coerce.number(),
+  type: z.string(),
+  status: z.string().optional().default("active"),
+});
+
+export const insertDriverSchema = z.object({
+  name: z.string(),
+  cnh: z.string(),
+  phone: z.string().nullable().optional(),
+  active: z.boolean().optional().default(true),
+});
+
+export const insertRefuelingSchema = z.object({
+  vehicleId: z.coerce.number(),
+  driverId: z.coerce.number(),
+  date: z.coerce.date(),
+  liters: z.string(),
+  pricePerLiter: z.string(),
+  totalPrice: z.string(),
+  odometer: z.coerce.number().nullable().optional(),
+});
+
+export const insertRefrigerationSchema = z.object({
+  vehicleId: z.coerce.number(),
+  date: z.coerce.date(),
+  type: z.string(),
+  quantity: z.string(),
+  cost: z.string(),
+});
+
+export const insertSupplierSchema = z.object({
+  name: z.string(),
+  cnpj: z.string(),
+  phone: z.string().nullable().optional(),
+  email: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
+  active: z.boolean().optional().default(true),
+});
+
+export const insertCompanySchema = z.object({
+  name: z.string(),
+  cnpj: z.string(),
+  phone: z.string().nullable().optional(),
+  email: z.string().nullable().optional(),
+  address: z.string().nullable().optional(),
+  active: z.boolean().optional().default(true),
+});
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertVehicle = z.infer<typeof insertVehicleSchema>;
