@@ -118,6 +118,17 @@ export default function Suppliers() {
     return labels[type as keyof typeof labels];
   };
 
+  const getCompanyNames = (branchIds: string[]) => {
+    // Remove duplicatas e mapeia IDs para nomes
+    const uniqueBranchIds = Array.from(new Set(branchIds));
+    return uniqueBranchIds
+      .map(id => {
+        const company = allCompanies.find(c => c.id === id);
+        return company?.name;
+      })
+      .filter(Boolean) as string[];
+  };
+
   const handleToggleActive = (supplier: Supplier) => {
     setSupplierToToggle({ id: supplier.id, name: supplier.fantasyName || supplier.name, currentStatus: supplier.active });
     setToggleActiveDialogOpen(true);
@@ -241,9 +252,9 @@ export default function Suppliers() {
               <div className="pt-3 border-t border-border">
                 <p className="text-sm text-muted-foreground mb-2">Matriz/Filiais Vinculadas:</p>
                 <div className="flex flex-wrap gap-1">
-                  {supplier.branches.map((branch, idx) => (
+                  {getCompanyNames(supplier.branches).map((companyName, idx) => (
                     <Badge key={idx} variant="outline" className="text-xs">
-                      {branch}
+                      {companyName}
                     </Badge>
                   ))}
                 </div>
@@ -420,9 +431,9 @@ export default function Suppliers() {
               <div>
                 <h3 className="font-semibold mb-3">Matriz/Filiais Vinculadas</h3>
                 <div className="flex flex-wrap gap-2">
-                  {viewingSupplier.branches.map((branch, index) => (
+                  {getCompanyNames(viewingSupplier.branches).map((companyName, index) => (
                     <Badge key={index} variant="secondary">
-                      {branch}
+                      {companyName}
                     </Badge>
                   ))}
                 </div>
