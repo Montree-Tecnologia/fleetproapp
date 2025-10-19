@@ -158,20 +158,7 @@ export const formatDirectDecimal = (value: number | undefined): string => {
  */
 export const parseDirectDecimal = (value: string): number => {
   if (!value) return 0;
-  // Replace comma with dot and remove any other non-numeric characters except dot
-  const cleaned = value.replace(',', '.').replace(/[^\d.-]/g, '');
+  // Replace comma with dot and remove thousands separators
+  const cleaned = value.replace(/\./g, '').replace(',', '.');
   return parseFloat(cleaned) || 0;
-};
-
-/**
- * Handles direct decimal input (no division by 100)
- */
-export const handleDirectDecimalInput = (
-  e: React.ChangeEvent<HTMLInputElement>,
-  onChange: (value: number) => void
-) => {
-  const parsed = parseDirectDecimal(e.target.value);
-  const formatted = formatDirectDecimal(parsed);
-  e.target.value = formatted;
-  onChange(parsed);
 };
