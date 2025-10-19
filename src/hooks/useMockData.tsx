@@ -1115,7 +1115,7 @@ const mockVehicles: Vehicle[] = [
     crlvDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
   },
   {
-    id: '26',
+    id: '30',
     plate: 'QRS-3579',
     chassis: '9BWZZZ377VT004276',
     renavam: '00123456814',
@@ -1143,7 +1143,7 @@ const mockVehicles: Vehicle[] = [
     crlvDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
   },
   {
-    id: '27',
+    id: '31',
     plate: 'TUV-4680',
     chassis: '9BWZZZ377VT004277',
     renavam: '00123456815',
@@ -2126,7 +2126,7 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
   },
   {
     id: '14',
-    vehicleId: '26', // Baú Frigorífico QRS-3579 (reboque do cavalo mecânico NOP-2468)
+    vehicleId: '30', // Baú Frigorífico QRS-3579 (reboque do cavalo mecânico NOP-2468)
     companyId: '1',
     brand: 'Thermo King',
     model: 'SLXi-400',
@@ -2144,7 +2144,7 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
   },
   {
     id: '15',
-    vehicleId: '27', // Baú Frigorífico TUV-4680 (reboque do cavalo mecânico NOP-2468)
+    vehicleId: '31', // Baú Frigorífico TUV-4680 (reboque do cavalo mecânico NOP-2468)
     companyId: '1',
     brand: 'Carrier',
     model: 'Supra 1050',
