@@ -122,14 +122,44 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     r.status !== 'sold' && r.fuelType
   );
 
-  // Veículos que possuem equipamentos de refrigeração vinculados
-  const vehiclesWithRefrigeration = tractionVehicles.filter(v => 
-    refrigerationUnits.some(r => r.vehicleId === v.id && r.status !== 'sold')
-  );
+  // Veículos que possuem equipamentos de refrigeração vinculados (diretamente ou em reboques)
+  const vehiclesWithRefrigeration = tractionVehicles.filter(v => {
+    // Verificar se o veículo tem equipamento de refrigeração diretamente acoplado
+    const hasDirectRefrigeration = refrigerationUnits.some(r => r.vehicleId === v.id && r.status !== 'sold');
+    
+    // Verificar se o veículo tem composição (reboques) com equipamentos de refrigeração
+    const hasTrailerRefrigeration = v.hasComposition && v.compositionPlates && v.compositionPlates.some(plate => {
+      // Encontrar o reboque pela placa
+      const trailer = vehicles.find(trailer => trailer.plate === plate);
+      if (!trailer) return false;
+      
+      // Verificar se o reboque tem equipamento de refrigeração
+      return refrigerationUnits.some(r => r.vehicleId === trailer.id && r.status !== 'sold');
+    });
+    
+    return hasDirectRefrigeration || hasTrailerRefrigeration;
+  });
 
   // Filtrar equipamentos de refrigeração baseado no veículo selecionado
+  // Deve incluir equipamentos do veículo E dos seus reboques
   const filteredRefrigerationUnits = selectedVehicleFilter
-    ? activeRefrigerationUnits.filter(r => r.vehicleId === selectedVehicleFilter)
+    ? activeRefrigerationUnits.filter(r => {
+        // Equipamentos acoplados diretamente ao veículo
+        if (r.vehicleId === selectedVehicleFilter) return true;
+        
+        // Equipamentos acoplados aos reboques do veículo
+        const selectedVehicle = vehicles.find(v => v.id === selectedVehicleFilter);
+        if (selectedVehicle?.hasComposition && selectedVehicle.compositionPlates) {
+          // Encontrar o reboque que tem este equipamento
+          const trailerWithEquipment = vehicles.find(trailer => 
+            trailer.id === r.vehicleId && 
+            selectedVehicle.compositionPlates!.includes(trailer.plate)
+          );
+          return !!trailerWithEquipment;
+        }
+        
+        return false;
+      })
     : activeRefrigerationUnits;
   
   const [selectedDriverId, setSelectedDriverId] = useState<string | undefined>(undefined);
