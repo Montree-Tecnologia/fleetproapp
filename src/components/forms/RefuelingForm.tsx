@@ -127,9 +127,6 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     v.status !== 'sold' &&
     refrigerationUnits.some(r => r.vehicleId === v.id && r.status !== 'sold')
   );
-  
-  // Debug: Verificar veículos com refrigeração
-  console.log('Veículos com refrigeração:', vehiclesWithRefrigeration.map(v => `${v.plate} (${v.vehicleType})`));
 
   // Filtrar equipamentos de refrigeração baseado no veículo selecionado
   const filteredRefrigerationUnits = selectedVehicleFilter
