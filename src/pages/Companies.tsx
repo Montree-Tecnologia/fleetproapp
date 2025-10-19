@@ -23,7 +23,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Building2, MapPin, Plus, Pencil, Trash2, Search, Power, Eye } from 'lucide-react';
+import { Building2, MapPin, Plus, Pencil, Trash2, Search, Power, Eye, Filter } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CompanyForm } from '@/components/forms/CompanyForm';
 import { useMockData, Company } from '@/hooks/useMockData';
 import { useToast } from '@/hooks/use-toast';
@@ -36,6 +37,7 @@ export default function Companies() {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [viewingCompany, setViewingCompany] = useState<Company | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMatrizId, setSelectedMatrizId] = useState<string>('all');
   const [toggleActiveDialogOpen, setToggleActiveDialogOpen] = useState(false);
   const [companyToToggle, setCompanyToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
   const { companies, addCompany, updateCompany, deleteCompany } = useMockData();
@@ -114,12 +116,24 @@ export default function Companies() {
     return new Date(date).toLocaleDateString('pt-BR');
   };
 
+  const matrizCompanies = allCompanies.filter(c => c.type === 'matriz');
+
   const filteredCompanies = allCompanies.filter(company => {
     const search = searchTerm.toLowerCase();
-    return (
+    const matchesSearch = (
       company.name.toLowerCase().includes(search) ||
       company.cnpj.includes(search) ||
       company.city.toLowerCase().includes(search)
+    );
+
+    if (selectedMatrizId === 'all') {
+      return matchesSearch;
+    }
+
+    // Se uma matriz específica foi selecionada, mostrar apenas ela e suas filiais
+    return matchesSearch && (
+      company.id === selectedMatrizId || 
+      (company.type === 'filial' && company.matrizId === selectedMatrizId)
     );
   });
 
@@ -290,14 +304,34 @@ export default function Companies() {
         </DialogContent>
       </Dialog>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-        <Input
-          placeholder="Buscar por nome ou CNPJ..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Buscar por nome ou CNPJ..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="w-full sm:w-64">
+          <Select value={selectedMatrizId} onValueChange={setSelectedMatrizId}>
+            <SelectTrigger>
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                <SelectValue placeholder="Todas as empresas" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as empresas</SelectItem>
+              {matrizCompanies.map((matriz) => (
+                <SelectItem key={matriz.id} value={matriz.id}>
+                  {matriz.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
