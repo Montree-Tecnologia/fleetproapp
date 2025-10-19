@@ -142,36 +142,28 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
 
   // Filtrar equipamentos de refrigeração baseado no veículo selecionado
   // Deve incluir equipamentos do veículo E dos seus reboques
+  console.log('🔧 Iniciando filtragem:', { selectedVehicleFilter, totalEquipamentos: activeRefrigerationUnits.length });
+  
   const filteredRefrigerationUnits = selectedVehicleFilter
     ? activeRefrigerationUnits.filter(r => {
         // Equipamentos acoplados diretamente ao veículo
-        if (r.vehicleId === selectedVehicleFilter) return true;
+        if (r.vehicleId === selectedVehicleFilter) {
+          console.log('✅ Equipamento direto:', r.id);
+          return true;
+        }
         
         // Equipamentos acoplados aos reboques do veículo
         const selectedVehicle = vehicles.find(v => v.id === selectedVehicleFilter);
-        
-        console.log('🔍 Filtrando equipamentos:', {
-          selectedVehicleFilter,
-          selectedVehiclePlate: selectedVehicle?.plate,
-          hasComposition: selectedVehicle?.hasComposition,
-          compositionPlates: selectedVehicle?.compositionPlates,
-          equipmentId: r.id,
-          equipmentVehicleId: r.vehicleId,
-          vehicleWithEquipment: vehicles.find(v => v.id === r.vehicleId)?.plate
-        });
-        
         if (selectedVehicle?.hasComposition && selectedVehicle.compositionPlates) {
+          console.log('🔍 Buscando em reboques:', selectedVehicle.compositionPlates);
           // Encontrar o reboque que tem este equipamento
           const trailerWithEquipment = vehicles.find(trailer => 
             trailer.id === r.vehicleId && 
             selectedVehicle.compositionPlates!.includes(trailer.plate)
           );
-          
-          console.log('🔍 Verificando reboque:', {
-            trailerFound: !!trailerWithEquipment,
-            trailerPlate: trailerWithEquipment?.plate
-          });
-          
+          if (trailerWithEquipment) {
+            console.log('✅ Equipamento em reboque:', r.id, 'reboque:', trailerWithEquipment.plate);
+          }
           return !!trailerWithEquipment;
         }
         
@@ -179,7 +171,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       })
     : activeRefrigerationUnits;
   
-  console.log('📊 Equipamentos filtrados:', filteredRefrigerationUnits.length, filteredRefrigerationUnits);
+  console.log('📊 Total de equipamentos filtrados:', filteredRefrigerationUnits.length);
   
   const [selectedDriverId, setSelectedDriverId] = useState<string | undefined>(undefined);
   
@@ -576,6 +568,12 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                               key={vehicle.id}
                               value={`${vehicle.plate} ${vehicle.model} ${vehicle.vehicleType} ${vehicle.ownerBranch}`}
                               onSelect={() => {
+                                console.log('🚗 Veículo selecionado:', {
+                                  id: vehicle.id,
+                                  plate: vehicle.plate,
+                                  hasComposition: vehicle.hasComposition,
+                                  compositionPlates: vehicle.compositionPlates
+                                });
                                 setSelectedVehicleFilter(vehicle.id);
                                 setOpenVehicleFilter(false);
                               }}
