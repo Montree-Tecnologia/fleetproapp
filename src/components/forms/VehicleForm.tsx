@@ -230,7 +230,7 @@ const vehicleSchema = z.object({
   vehicleType: z.enum(['Truck', 'Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Cavalo Mecânico', 'Baú Frigorífico', 'Toco', 'VUC', '3/4', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Bitruck', 'Rodotrem']),
   status: z.enum(['active', 'defective', 'maintenance', 'inactive', 'sold']),
   purchaseKm: z.number().min(0),
-  fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Arla 42', 'Etanol', 'Gasolina', 'GNV', 'Biometano']),
+  fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Arla 42', 'Etanol', 'Gasolina', 'GNV', 'Biometano']).optional(),
   axles: z.number().min(1).max(20),
   weight: z.number().min(0).optional(),
   purchaseDate: z.date(),
@@ -996,33 +996,35 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
             </>
           )}
 
-          <FormField
-            control={form.control}
-            name="fuelType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tipo de Combustível *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Diesel S10">Diesel S10</SelectItem>
-                    <SelectItem value="Diesel S500">Diesel S500</SelectItem>
-                    <SelectItem value="Arla 32">Arla 32</SelectItem>
-                    <SelectItem value="Arla 42">Arla 42</SelectItem>
-                    <SelectItem value="Gasolina">Gasolina</SelectItem>
-                    <SelectItem value="Etanol">Etanol</SelectItem>
-                    <SelectItem value="GNV">GNV</SelectItem>
-                    <SelectItem value="Biometano">Biometano</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {vehicleCategory !== 'trailer' && (
+            <FormField
+              control={form.control}
+              name="fuelType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Combustível *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Diesel S10">Diesel S10</SelectItem>
+                      <SelectItem value="Diesel S500">Diesel S500</SelectItem>
+                      <SelectItem value="Arla 32">Arla 32</SelectItem>
+                      <SelectItem value="Arla 42">Arla 42</SelectItem>
+                      <SelectItem value="Gasolina">Gasolina</SelectItem>
+                      <SelectItem value="Etanol">Etanol</SelectItem>
+                      <SelectItem value="GNV">GNV</SelectItem>
+                      <SelectItem value="Biometano">Biometano</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}

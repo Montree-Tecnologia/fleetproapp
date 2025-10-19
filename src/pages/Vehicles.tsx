@@ -634,10 +634,12 @@ export default function Vehicles() {
               <div>
                 <h3 className="font-semibold mb-3">Características Técnicas</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Tipo de Combustível:</span>
-                    <p className="font-medium">{viewingVehicle.fuelType}</p>
-                  </div>
+                  {!trailerVehicleTypes.includes(viewingVehicle.vehicleType) && (
+                    <div>
+                      <span className="text-muted-foreground">Tipo de Combustível:</span>
+                      <p className="font-medium">{viewingVehicle.fuelType}</p>
+                    </div>
+                  )}
                   <div>
                     <span className="text-muted-foreground">Quantidade de Eixos:</span>
                     <p className="font-medium">{viewingVehicle.axles}</p>
