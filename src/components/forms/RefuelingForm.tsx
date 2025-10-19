@@ -149,18 +149,37 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
         
         // Equipamentos acoplados aos reboques do veículo
         const selectedVehicle = vehicles.find(v => v.id === selectedVehicleFilter);
+        
+        console.log('🔍 Filtrando equipamentos:', {
+          selectedVehicleFilter,
+          selectedVehiclePlate: selectedVehicle?.plate,
+          hasComposition: selectedVehicle?.hasComposition,
+          compositionPlates: selectedVehicle?.compositionPlates,
+          equipmentId: r.id,
+          equipmentVehicleId: r.vehicleId,
+          vehicleWithEquipment: vehicles.find(v => v.id === r.vehicleId)?.plate
+        });
+        
         if (selectedVehicle?.hasComposition && selectedVehicle.compositionPlates) {
           // Encontrar o reboque que tem este equipamento
           const trailerWithEquipment = vehicles.find(trailer => 
             trailer.id === r.vehicleId && 
             selectedVehicle.compositionPlates!.includes(trailer.plate)
           );
+          
+          console.log('🔍 Verificando reboque:', {
+            trailerFound: !!trailerWithEquipment,
+            trailerPlate: trailerWithEquipment?.plate
+          });
+          
           return !!trailerWithEquipment;
         }
         
         return false;
       })
     : activeRefrigerationUnits;
+  
+  console.log('📊 Equipamentos filtrados:', filteredRefrigerationUnits.length, filteredRefrigerationUnits);
   
   const [selectedDriverId, setSelectedDriverId] = useState<string | undefined>(undefined);
   
