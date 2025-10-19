@@ -34,7 +34,7 @@ import {
 import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown, Truck, Snowflake, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { formatCurrency, formatDecimal, formatInteger, formatDirectDecimal, parseDirectDecimal, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
+import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
 import { Refueling, Vehicle, Driver, Supplier, RefrigerationUnit } from '@/hooks/useMockData';
 import { useState, useEffect } from 'react';
 import {
@@ -755,19 +755,10 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     <FormControl>
                       <Input 
                         type="text"
-                        placeholder="Ex: 330,25"
-                        value={field.value !== undefined && field.value !== null ? String(field.value).replace('.', ',') : ''}
-                        onChange={(e) => {
-                          // Permite apenas números, vírgula e ponto
-                          const value = e.target.value.replace(/[^\d,\.]/g, '');
-                          e.target.value = value;
-                          const parsed = parseDirectDecimal(value);
-                          field.onChange(parsed);
-                        }}
-                        onBlur={(e) => {
-                          const parsed = parseDirectDecimal(e.target.value);
-                          field.onChange(parsed);
-                        }}
+                        placeholder="Ex: 6,50"
+                        {...field}
+                        value={field.value ? formatDecimal(field.value) : ''}
+                        onChange={(e) => handleDecimalInput(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -891,19 +882,10 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     <FormControl>
                       <Input 
                         type="text"
-                        placeholder="Ex: 330,25"
-                        value={field.value !== undefined && field.value !== null ? String(field.value).replace('.', ',') : ''}
-                        onChange={(e) => {
-                          // Permite apenas números, vírgula e ponto
-                          const value = e.target.value.replace(/[^\d,\.]/g, '');
-                          e.target.value = value;
-                          const parsed = parseDirectDecimal(value);
-                          field.onChange(parsed);
-                        }}
-                        onBlur={(e) => {
-                          const parsed = parseDirectDecimal(e.target.value);
-                          field.onChange(parsed);
-                        }}
+                        placeholder="Ex: 6,50"
+                        {...field}
+                        value={field.value ? formatDecimal(field.value) : ''}
+                        onChange={(e) => handleDecimalInput(e, field.onChange)}
                       />
                     </FormControl>
                     <FormMessage />
