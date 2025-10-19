@@ -506,6 +506,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                     <FormControl>
                       <Button
                         variant="outline"
+                        disabled={!hasVehicle}
                         className={cn(
                           "w-full pl-3 text-left font-normal",
                           !field.value && "text-muted-foreground"
@@ -704,8 +705,12 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                   <SelectContent>
                     <SelectItem value="Diesel S10">Diesel S10</SelectItem>
                     <SelectItem value="Diesel S500">Diesel S500</SelectItem>
+                    <SelectItem value="Arla 32">Arla 32</SelectItem>
+                    <SelectItem value="Arla 42">Arla 42</SelectItem>
+                    <SelectItem value="Etanol">Etanol</SelectItem>
                     <SelectItem value="Gasolina">Gasolina</SelectItem>
-                    <SelectItem value="Outro">Outro</SelectItem>
+                    <SelectItem value="GNV">GNV</SelectItem>
+                    <SelectItem value="Biometano">Biometano</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
