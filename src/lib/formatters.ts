@@ -162,3 +162,36 @@ export const parseDirectDecimal = (value: string): number => {
   const cleaned = value.replace(/\./g, '').replace(',', '.');
   return parseFloat(cleaned) || 0;
 };
+
+/**
+ * Builds a thousands-grouped integer string for pt-BR
+ */
+export const groupThousandsPtBR = (digits: string): string => {
+  if (!digits) return '';
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
+/**
+ * Masks arbitrary user input into a pt-BR decimal string and its numeric value
+ */
+export const maskDecimalPtBRInput = (raw: string): { display: string; value: number } => {
+  if (!raw) return { display: '', value: 0 };
+  // Keep only digits, comma and dot; then remove dots (thousands) and keep a single comma
+  const allowed = raw.replace(/[^\d,\.]/g, '');
+  const noDots = allowed.replace(/\./g, '');
+  const [intRaw, decRawFull = ''] = noDots.split(',');
+  const intDigits = (intRaw || '').replace(/\D/g, '');
+  const decDigits = (decRawFull || '').replace(/\D/g, '').slice(0, 2);
+  const intGrouped = groupThousandsPtBR(intDigits);
+  const display = decDigits.length > 0 ? `${intGrouped},${decDigits}` : intGrouped;
+  const numeric = parseFloat(`${intDigits || '0'}.${decDigits || '0'}`) || 0;
+  return { display, value: numeric };
+};
+
+/**
+ * Formats a number to pt-BR with exactly 2 decimals and thousands separators
+ */
+export const formatDecimalPtBRFixed2 = (value: number): string => {
+  if (value === undefined || value === null || isNaN(value as number)) return '';
+  return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+};

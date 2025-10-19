@@ -34,7 +34,7 @@ import {
 import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown, Truck, Snowflake, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
+import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput, maskDecimalPtBRInput, formatDecimalPtBRFixed2 } from '@/lib/formatters';
 import { Refueling, Vehicle, Driver, Supplier, RefrigerationUnit } from '@/hooks/useMockData';
 import { useState, useEffect } from 'react';
 import {
@@ -772,23 +772,17 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     <FormControl>
                       <Input 
                         type="text"
-                        placeholder="Ex: 6,50"
+                        placeholder="Ex: 330,00"
                         {...field}
                         value={litersText}
                         onChange={(e) => {
-                          const raw = e.target.value.replace(/[^\d,\.]/g, '').replace(/\./g, ',');
-                          const [i, d = ''] = raw.split(',');
-                          const intPart = (i || '').replace(/\D/g, '');
-                          const decPart = (d || '').replace(/\D/g, '').slice(0, 2);
-                          const next = decPart.length > 0 ? `${intPart},${decPart}` : intPart;
-                          setLitersText(next);
-                          const parsed = next ? parseFloat(next.replace(/\./g, '').replace(',', '.')) : 0;
-                          field.onChange(parsed);
+                          const { display, value } = maskDecimalPtBRInput(e.target.value);
+                          setLitersText(display);
+                          field.onChange(value);
                         }}
                         onBlur={() => {
-                          const parsed = litersText ? parseFloat(litersText.replace(/\./g, '').replace(',', '.')) : 0;
-                          const formatted = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parsed);
-                          setLitersText(formatted);
+                          const { value } = maskDecimalPtBRInput(litersText);
+                          setLitersText(formatDecimalPtBRFixed2(value));
                         }}
                         inputMode="decimal"
                       />
@@ -914,23 +908,17 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     <FormControl>
                       <Input 
                         type="text"
-                        placeholder="Ex: 6,50"
+                        placeholder="Ex: 330,00"
                         {...field}
                         value={litersText}
                         onChange={(e) => {
-                          const raw = e.target.value.replace(/[^\d,\.]/g, '').replace(/\./g, ',');
-                          const [i, d = ''] = raw.split(',');
-                          const intPart = (i || '').replace(/\D/g, '');
-                          const decPart = (d || '').replace(/\D/g, '').slice(0, 2);
-                          const next = decPart.length > 0 ? `${intPart},${decPart}` : intPart;
-                          setLitersText(next);
-                          const parsed = next ? parseFloat(next.replace(/\./g, '').replace(',', '.')) : 0;
-                          field.onChange(parsed);
+                          const { display, value } = maskDecimalPtBRInput(e.target.value);
+                          setLitersText(display);
+                          field.onChange(value);
                         }}
                         onBlur={() => {
-                          const parsed = litersText ? parseFloat(litersText.replace(/\./g, '').replace(',', '.')) : 0;
-                          const formatted = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parsed);
-                          setLitersText(formatted);
+                          const { value } = maskDecimalPtBRInput(litersText);
+                          setLitersText(formatDecimalPtBRFixed2(value));
                         }}
                         inputMode="decimal"
                       />
