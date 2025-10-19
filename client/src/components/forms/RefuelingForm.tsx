@@ -34,6 +34,7 @@ import {
 import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown, Truck, Snowflake, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { formatDateForBackend } from '@/lib/dateUtils';
 import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
 import { Refueling, Vehicle, Driver, Supplier, RefrigerationUnit } from '@/hooks/useMockData';
 import { useState, useEffect } from 'react';
@@ -355,7 +356,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     onSubmit({
       vehicleId: data.vehicleId,
       refrigerationUnitId: data.refrigerationUnitId,
-      date: format(data.date, 'yyyy-MM-dd'),
+      date: formatDateForBackend(data.date),
       km: data.km,
       usageHours: data.usageHours,
       liters: data.liters,

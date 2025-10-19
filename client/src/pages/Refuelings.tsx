@@ -31,6 +31,7 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { formatDateForDisplay, parseDateFromBackend } from '@/lib/dateUtils';
 import {
   Dialog,
   DialogContent,
@@ -149,7 +150,7 @@ export default function Refuelings() {
 
   const filteredVehicleRefuelings = vehicleRefuelings
     .filter((refueling) => {
-      const refuelingDate = new Date(refueling.date);
+      const refuelingDate = parseDateFromBackend(refueling.date);
       
       // Filtro de data inicial
       if (startDate && refuelingDate < startDate) return false;
@@ -176,7 +177,7 @@ export default function Refuelings() {
 
   const filteredRefrigerationRefuelings = refrigerationRefuelings
     .filter((refueling) => {
-      const refuelingDate = new Date(refueling.date);
+      const refuelingDate = parseDateFromBackend(refueling.date);
       
       // Filtro de data inicial
       if (startDate && refuelingDate < startDate) return false;
@@ -782,11 +783,7 @@ export default function Refuelings() {
                               R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              {new Date(refueling.date).toLocaleDateString('pt-BR', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric'
-                              })}
+                              {formatDateForDisplay(refueling.date)}
                             </p>
                           </div>
                           <div className="flex gap-1 sm:gap-2" onClick={(e) => e.stopPropagation()}>
@@ -880,11 +877,7 @@ export default function Refuelings() {
                               R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              {new Date(refueling.date).toLocaleDateString('pt-BR', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric'
-                              })}
+                              {formatDateForDisplay(refueling.date)}
                             </p>
                           </div>
                           <div className="flex gap-1 sm:gap-2" onClick={(e) => e.stopPropagation()}>
@@ -985,11 +978,7 @@ export default function Refuelings() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Data</label>
                     <p className="text-lg font-semibold">
-                      {new Date(viewingRefueling.date).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric'
-                      })}
+                      {formatDateForDisplay(viewingRefueling.date)}
                     </p>
                   </div>
                 </div>
