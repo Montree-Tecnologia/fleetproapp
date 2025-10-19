@@ -29,7 +29,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
 import { RefrigerationUnit, Vehicle, Supplier, Company } from '@/hooks/useMockData';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Command,
   CommandEmpty,
@@ -194,6 +194,13 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
 
   const hasVehicle = form.watch('vehicleId');
   const selectedBrand = form.watch('brand');
+
+  // Resetar data de instalação quando veículo for removido
+  useEffect(() => {
+    if (!hasVehicle) {
+      form.setValue('installDate', new Date());
+    }
+  }, [hasVehicle, form]);
 
   return (
     <Form {...form}>
