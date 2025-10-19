@@ -2,7 +2,7 @@
 
 ## Recent Changes - October 19, 2025
 
-- **Fixed refrigeration refueling form alignment**: Reorganized the field layout in RefuelingForm component to ensure proper alignment between "Data" (Date) and "Horímetro - Atual" (Usage Hours) fields when registering fuel consumption for refrigeration equipment. The fields now appear side-by-side in a proper two-column grid layout.
+- **Fixed refueling form alignment and responsiveness**: Completely reorganized the RefuelingForm component with a responsive grid system (grid-cols-1 sm:grid-cols-2) that properly aligns all fields in both desktop and mobile views. All fields are now consistently positioned within a single responsive grid structure, eliminating the previous alignment issues between Data (Date) and Horímetro (Usage Hours) fields for refrigeration equipment.
 
 ## Overview
 
