@@ -191,8 +191,10 @@ export function VehicleCard({
           )}
           {isTrailerVehicle && (
             <div>
-              <span className="text-muted-foreground">Quantidade de Eixos:</span>
-              <p className="font-medium">{vehicle.axles}</p>
+              <span className="text-muted-foreground">Valor:</span>
+              <p className="font-medium">
+                {vehicle.purchaseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              </p>
             </div>
           )}
           {(isTractionVehicle || isTrailerVehicle) && (
@@ -235,10 +237,8 @@ export function VehicleCard({
           {isTrailerVehicle && (
             <>
               <div>
-                <span className="text-muted-foreground">Valor:</span>
-                <p className="font-medium">
-                  {vehicle.purchaseValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                </p>
+                <span className="text-muted-foreground">Quantidade de Eixos:</span>
+                <p className="font-medium">{vehicle.axles}</p>
               </div>
               <div>
                 <span className="text-muted-foreground">Proprietária:</span>
