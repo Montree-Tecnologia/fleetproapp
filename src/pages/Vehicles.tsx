@@ -299,11 +299,10 @@ export default function Vehicles() {
     const newCompositionPlates = vehicle.compositionPlates.filter((_, i) => i !== plateIndex);
     const newCompositionAxles = vehicle.compositionAxles?.filter((_, i) => i !== plateIndex) || [];
     
-    // Atualiza o veículo de tração removendo a composição
     updateVehicle(vehicleId, {
       hasComposition: newCompositionPlates.length > 0,
       compositionPlates: newCompositionPlates,
-      compositionAxles: newCompositionAxles.length > 0 ? newCompositionAxles : []
+      compositionAxles: newCompositionAxles
     });
     
     toast({
@@ -1256,7 +1255,7 @@ export default function Vehicles() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tractionScroll.displayedItems.map((vehicle) => (
               <VehicleCard
-                key={`${vehicle.id}-${vehicle.compositionPlates?.join('-') || 'no-comp'}-${vehicle.driverId || 'no-driver'}`}
+                key={vehicle.id}
                 vehicle={vehicle}
                 getStatusBadge={getStatusBadge}
                 getRefrigerationUnit={getRefrigerationUnitByVehicle}
@@ -1289,7 +1288,7 @@ export default function Vehicles() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {trailerScroll.displayedItems.map((vehicle) => (
               <VehicleCard
-                key={`${vehicle.id}-${vehicle.status}-${allVehicles.filter(v => v.compositionPlates?.includes(vehicle.plate)).length}`}
+                key={vehicle.id}
                 vehicle={vehicle}
                 getStatusBadge={getStatusBadge}
                 getRefrigerationUnit={getRefrigerationUnitByVehicle}
