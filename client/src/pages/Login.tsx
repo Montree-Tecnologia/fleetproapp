@@ -39,7 +39,7 @@ export default function Login() {
     'Gestão completa de veículos',
     'Controle de abastecimento',
     'Monitoramento de refrigeração',
-    'Rastreamento de motoristas'
+    'Controle de eficiência'
   ];
 
   return (
