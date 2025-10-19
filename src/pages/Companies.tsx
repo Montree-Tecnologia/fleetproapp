@@ -334,6 +334,8 @@ export default function Companies() {
                     <Building2 className="h-3 w-3" />
                     <span className="text-xs">
                       Matriz: {allCompanies.find(c => c.id === company.matrizId)?.name || 'Não encontrada'}
+                      {' - '}
+                      {allCompanies.find(c => c.id === company.matrizId)?.cnpj || ''}
                     </span>
                   </div>
                 )}
