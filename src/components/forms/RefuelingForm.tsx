@@ -34,7 +34,7 @@ import {
 import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown, Truck, Snowflake, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput, maskDecimalPtBRInput, formatDecimalPtBRFixed2 } from '@/lib/formatters';
+import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
 import { Refueling, Vehicle, Driver, Supplier, RefrigerationUnit } from '@/hooks/useMockData';
 import { useState, useEffect } from 'react';
 import {
@@ -109,22 +109,6 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     state: '',
   });
 
-  // Estado controlado para o input de Litros (digitação livre com vírgula)
-  const [litersText, setLitersText] = useState('');
-
-  // Inicializa o texto de litros quando estiver editando um registro existente
-  useEffect(() => {
-    const v = initialData?.liters;
-    if (v !== undefined && v !== null) {
-      try {
-        setLitersText(new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v));
-      } catch {
-        setLitersText(String(v));
-      }
-    } else {
-      setLitersText('');
-    }
-  }, [initialData]);
   
   // Filtrar apenas veículos de tração
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
@@ -772,18 +756,10 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     <FormControl>
                       <Input 
                         type="text"
-                        placeholder="Ex: 330,00"
+                        placeholder="Ex: 330,50"
                         {...field}
-                        value={litersText}
-                        onChange={(e) => {
-                          const { display, value } = maskDecimalPtBRInput(e.target.value);
-                          setLitersText(display);
-                          field.onChange(value);
-                        }}
-                        onBlur={() => {
-                          const { value } = maskDecimalPtBRInput(litersText);
-                          setLitersText(formatDecimalPtBRFixed2(value));
-                        }}
+                        value={field.value ? formatCurrency(field.value) : ''}
+                        onChange={(e) => handleCurrencyInput(e, field.onChange)}
                         inputMode="decimal"
                       />
                     </FormControl>
@@ -908,18 +884,10 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     <FormControl>
                       <Input 
                         type="text"
-                        placeholder="Ex: 330,00"
+                        placeholder="Ex: 330,50"
                         {...field}
-                        value={litersText}
-                        onChange={(e) => {
-                          const { display, value } = maskDecimalPtBRInput(e.target.value);
-                          setLitersText(display);
-                          field.onChange(value);
-                        }}
-                        onBlur={() => {
-                          const { value } = maskDecimalPtBRInput(litersText);
-                          setLitersText(formatDecimalPtBRFixed2(value));
-                        }}
+                        value={field.value ? formatCurrency(field.value) : ''}
+                        onChange={(e) => handleCurrencyInput(e, field.onChange)}
                         inputMode="decimal"
                       />
                     </FormControl>
