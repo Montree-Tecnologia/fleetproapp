@@ -278,11 +278,18 @@ export default function Refrigeration() {
       });
     } else {
       updateRefrigerationUnit(unitId, { vehicleId: actualVehicleId });
+      
+      const vehicle = actualVehicleId ? allVehicles.find(v => v.id === actualVehicleId) : null;
       toast({
         title: actualVehicleId ? 'Vinculação realizada' : 'Vínculo removido',
-        description: actualVehicleId ? 'Equipamento vinculado ao veículo' : 'Equipamento desvinculado',
+        description: actualVehicleId 
+          ? `Equipamento vinculado ao veículo ${vehicle?.plate || ''}` 
+          : 'Equipamento desvinculado do veículo',
       });
     }
+    
+    // Fechar o popover após vinculação
+    setOpenVehicleLink(prev => ({ ...prev, [unitId]: false }));
   };
 
   const handleSellClick = (unit: RefrigerationUnit) => {
@@ -371,7 +378,7 @@ export default function Refrigeration() {
           const stats = getRefrigerationStats(unit.id, unit.initialUsageHours || 0);
           const needsVehicle = !unit.vehicleId && unit.status !== 'sold' && unit.status !== 'inactive';
           return (
-            <Card key={unit.id} className={cn(
+            <Card key={`${unit.id}-${unit.vehicleId || 'no-vehicle'}-${unit.status}`} className={cn(
               "hover:shadow-lg transition-shadow",
               unit.status === 'sold' && "opacity-60 grayscale",
               needsVehicle && "border-l-4 border-l-yellow-500"
