@@ -1056,10 +1056,10 @@ const mockVehicles: Vehicle[] = [
     crlvDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80'
   },
   {
-    id: '26',
+    id: '28',
     plate: 'UVW-3456',
-    chassis: '9BWZZZ377VT004276',
-    renavam: '00123456814',
+    chassis: '9BWZZZ377VT004278',
+    renavam: '00123456816',
     brand: 'Librelato',
     model: 'Rodotrem Graneleiro 7 Eixos',
     manufacturingYear: 2023,
