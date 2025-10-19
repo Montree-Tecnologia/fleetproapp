@@ -353,6 +353,7 @@ O **FleetPro** é um sistema de gestão de frota que permite o controle completo
 
 **Dados do Abastecimento de Refrigeração:**
 - Equipamento de refrigeração
+- Filtro por veículo (opcional - mostra equipamentos do veículo e seus reboques)
 - Data e hora
 - Motorista responsável (do veículo vinculado)
 - Fornecedor (posto)
@@ -374,9 +375,15 @@ O **FleetPro** é um sistema de gestão de frota que permite o controle completo
 - Se veículo não tiver motorista vinculado, motorista do abastecimento pode ser vinculado automaticamente
 
 **Regras de Negócio - Refrigeração:**
-- Equipamento deve estar vinculado a um veículo para abastecer
+- Equipamento pode estar vinculado a qualquer veículo (tração ou reboque)
+- Filtro por veículo mostra:
+  - Equipamentos acoplados diretamente ao veículo selecionado
+  - Equipamentos acoplados aos reboques da composição do veículo
+- Ao selecionar veículo de tração com composição, todos equipamentos da composição são exibidos
 - Horímetro deve ser maior ou igual ao horímetro do último abastecimento
-- Motorista do abastecimento é o motorista vinculado ao veículo do equipamento
+- Motorista do abastecimento:
+  - Se equipamento em veículo de tração: motorista do veículo
+  - Se equipamento em reboque: motorista do veículo de tração que possui o reboque na composição
 - Consumo calculado em litros por hora (l/h)
 
 **Validações:**
@@ -403,7 +410,10 @@ O **FleetPro** é um sistema de gestão de frota que permite o controle completo
 - Data inicial e final
 - Veículo específico (em abastecimentos de veículos)
 - Equipamento específico (em abastecimentos de refrigeração)
-- Veículo vinculado ao equipamento (em abastecimentos de refrigeração)
+- Filtro por veículo (em abastecimentos de refrigeração):
+  - Mostra equipamentos do veículo selecionado
+  - Mostra equipamentos dos reboques da composição
+  - Permite filtrar por veículos que possuem equipamentos de refrigeração
 - Motorista
 - Fornecedor
 
@@ -442,11 +452,17 @@ O **FleetPro** é um sistema de gestão de frota que permite o controle completo
 - Horímetro atual (atualizado via abastecimentos)
 - Preço de compra
 - Status: ativo, manutenção, defeito, inativo, vendido
-- Veículo vinculado (opcional)
+- Veículo vinculado (opcional - pode ser veículo de tração ou reboque)
 
 **Regras de Negócio:**
 - Número de série deve ser único
-- Equipamento pode estar vinculado a apenas um veículo
+- Equipamento pode estar vinculado a apenas um veículo (tração ou reboque)
+- Equipamentos podem ser vinculados a:
+  - Veículos de tração (cavalo mecânico, truck, etc.) - montado no próprio veículo
+  - Veículos de reboque (baú frigorífico, carreta, etc.) - montado no reboque
+- Ao listar equipamentos por veículo de tração:
+  - Mostra equipamentos vinculados diretamente ao veículo
+  - Mostra equipamentos vinculados aos reboques da composição
 - Equipamentos vendidos não podem ser editados
 - Equipamentos inativos não podem ser vinculados a veículos
 - Ao vincular a veículo, se status não for válido (ativo/defeito), muda para ativo automaticamente
@@ -838,10 +854,13 @@ Base64 (demonstração - em produção usar storage real)
 **Veículo:**
 - Pertence a uma empresa
 - Fornecido por um fornecedor (concessionária)
-- Pode ter um motorista vinculado
-- Pode ter composições (reboques)
-- Pode ter equipamento de refrigeração vinculado
-- Possui múltiplos abastecimentos
+- Pode ter um motorista vinculado (apenas veículos de tração)
+- Pode ter composições/reboques (apenas veículos de tração)
+- Pode ter equipamento(s) de refrigeração vinculado(s):
+  - Veículo de tração: equipamentos montados diretamente nele
+  - Veículo de reboque: equipamentos montados no reboque
+  - Veículo de tração com composição: todos equipamentos da composição
+- Possui múltiplos abastecimentos (apenas veículos de tração)
 
 **Motorista:**
 - Vinculado a múltiplas empresas
@@ -851,7 +870,8 @@ Base64 (demonstração - em produção usar storage real)
 **Equipamento de Refrigeração:**
 - Pertence a uma empresa
 - Fornecido por um fornecedor
-- Pode estar vinculado a um veículo
+- Pode estar vinculado a um veículo (tração ou reboque)
+- Equipamentos em reboques aparecem automaticamente ao filtrar pelo veículo de tração da composição
 - Possui múltiplos abastecimentos
 
 **Abastecimento:**
@@ -875,6 +895,19 @@ Base64 (demonstração - em produção usar storage real)
 ### 15.1 Dados Mock
 
 Sistema atualmente utiliza dados mock (simulados) para demonstração. Estrutura preparada para integração com backend real.
+
+**Exemplo de Vinculação de Equipamentos:**
+- Veículo NOP-2468 (Cavalo Mecânico Volvo FH 460):
+  - 1 equipamento vinculado diretamente (Thermo King TriPac Evolution - climatizado)
+  - 2 equipamentos vinculados em reboques da composição:
+    - Reboque QRS-3579 (Baú Frigorífico): Thermo King SLXi-400 (freezer)
+    - Reboque TUV-4680 (Baú Frigorífico): Carrier Supra 1050 (freezer)
+  - Total: 3 equipamentos aparecem ao filtrar por NOP-2468
+
+**Exemplo de Vinculação de Motorista:**
+- Equipamentos em reboques herdam motorista do veículo de tração
+- NOP-2468 tem motorista Carlos Santos (ID '1')
+- Todos os 3 equipamentos herdam este motorista para abastecimentos
 
 ### 15.2 Autenticação
 
