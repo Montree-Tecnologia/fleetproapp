@@ -324,11 +324,21 @@ export default function Companies() {
                 <span>{company.city} - {company.state}</span>
               </div>
               <div className="text-sm font-medium text-primary min-h-[20px]">
-                {company.type === 'matriz' && (
+                {company.type === 'matriz' ? (
                   <>
                     {getCompanyBranches(company.id)} {getCompanyBranches(company.id) === 1 ? 'filial' : 'filiais'}
                   </>
-                )}
+                ) : company.matrizId ? (
+                  <div className="space-y-1">
+                    <div className="text-xs text-muted-foreground">Matriz:</div>
+                    <div className="font-medium">
+                      {allCompanies.find(c => c.id === company.matrizId)?.name || 'Não encontrada'}
+                    </div>
+                    <div className="font-mono text-xs">
+                      {allCompanies.find(c => c.id === company.matrizId)?.cnpj || ''}
+                    </div>
+                  </div>
+                ) : null}
               </div>
               
               <div className="flex gap-2 pt-3 mt-auto">
