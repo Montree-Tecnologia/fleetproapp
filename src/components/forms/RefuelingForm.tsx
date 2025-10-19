@@ -122,8 +122,9 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     r.status !== 'sold' && r.fuelType
   );
 
-  // Veículos que possuem equipamentos de refrigeração vinculados
-  const vehiclesWithRefrigeration = tractionVehicles.filter(v => 
+  // Veículos (tração E reboque) que possuem equipamentos de refrigeração vinculados
+  const vehiclesWithRefrigeration = vehicles.filter(v => 
+    v.status !== 'sold' &&
     refrigerationUnits.some(r => r.vehicleId === v.id && r.status !== 'sold')
   );
 
