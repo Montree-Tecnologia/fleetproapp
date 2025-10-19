@@ -1,5 +1,9 @@
 # FleetPro - Fleet Management System
 
+## Recent Changes - October 19, 2025
+
+- **Fixed refrigeration refueling form alignment**: Reorganized the field layout in RefuelingForm component to ensure proper alignment between "Data" (Date) and "Horímetro - Atual" (Usage Hours) fields when registering fuel consumption for refrigeration equipment. The fields now appear side-by-side in a proper two-column grid layout.
+
 ## Overview
 
 FleetPro is a comprehensive fleet management system designed for transportation companies, with special focus on refrigerated transport. The system provides multi-tenant capabilities (headquarters/branches), complete vehicle lifecycle management, driver tracking, fuel consumption monitoring, refrigeration equipment control, and supplier management.
