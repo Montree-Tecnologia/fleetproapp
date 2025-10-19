@@ -108,6 +108,23 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     city: '',
     state: '',
   });
+
+  // Estado controlado para o input de Litros (digitação livre com vírgula)
+  const [litersText, setLitersText] = useState('');
+
+  // Inicializa o texto de litros quando estiver editando um registro existente
+  useEffect(() => {
+    const v = initialData?.liters;
+    if (v !== undefined && v !== null) {
+      try {
+        setLitersText(new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v));
+      } catch {
+        setLitersText(String(v));
+      }
+    } else {
+      setLitersText('');
+    }
+  }, [initialData]);
   
   // Filtrar apenas veículos de tração
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
@@ -757,8 +774,23 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                         type="text"
                         placeholder="Ex: 6,50"
                         {...field}
-                        value={field.value ? formatDecimal(field.value) : ''}
-                        onChange={(e) => handleDecimalInput(e, field.onChange)}
+                        value={litersText}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/[^\d,\.]/g, '').replace(/\./g, ',');
+                          const [i, d = ''] = raw.split(',');
+                          const intPart = (i || '').replace(/\D/g, '');
+                          const decPart = (d || '').replace(/\D/g, '').slice(0, 2);
+                          const next = decPart.length > 0 ? `${intPart},${decPart}` : intPart;
+                          setLitersText(next);
+                          const parsed = next ? parseFloat(next.replace(/\./g, '').replace(',', '.')) : 0;
+                          field.onChange(parsed);
+                        }}
+                        onBlur={() => {
+                          const parsed = litersText ? parseFloat(litersText.replace(/\./g, '').replace(',', '.')) : 0;
+                          const formatted = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parsed);
+                          setLitersText(formatted);
+                        }}
+                        inputMode="decimal"
                       />
                     </FormControl>
                     <FormMessage />
@@ -884,8 +916,23 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                         type="text"
                         placeholder="Ex: 6,50"
                         {...field}
-                        value={field.value ? formatDecimal(field.value) : ''}
-                        onChange={(e) => handleDecimalInput(e, field.onChange)}
+                        value={litersText}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/[^\d,\.]/g, '').replace(/\./g, ',');
+                          const [i, d = ''] = raw.split(',');
+                          const intPart = (i || '').replace(/\D/g, '');
+                          const decPart = (d || '').replace(/\D/g, '').slice(0, 2);
+                          const next = decPart.length > 0 ? `${intPart},${decPart}` : intPart;
+                          setLitersText(next);
+                          const parsed = next ? parseFloat(next.replace(/\./g, '').replace(',', '.')) : 0;
+                          field.onChange(parsed);
+                        }}
+                        onBlur={() => {
+                          const parsed = litersText ? parseFloat(litersText.replace(/\./g, '').replace(',', '.')) : 0;
+                          const formatted = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parsed);
+                          setLitersText(formatted);
+                        }}
+                        inputMode="decimal"
                       />
                     </FormControl>
                     <FormMessage />
