@@ -150,7 +150,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
       type: 'freezer',
       minTemp: -18,
       maxTemp: -15,
-      status: 'maintenance',
+      status: 'active',
       installDate: new Date(),
       initialUsageHours: 0,
     },
