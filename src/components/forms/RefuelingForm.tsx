@@ -757,7 +757,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     <FormControl>
                       <Input 
                         type="text"
-                        placeholder="Ex: 500,50"
+                        placeholder="Ex: 330,00"
                         {...field}
                         value={field.value ? formatDecimal(field.value) : ''}
                         onChange={(e) => handleDecimalInput(e, field.onChange)}
@@ -884,7 +884,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
                     <FormControl>
                       <Input 
                         type="text"
-                        placeholder="Ex: 500,50"
+                        placeholder="Ex: 330,00"
                         {...field}
                         value={field.value ? formatDecimal(field.value) : ''}
                         onChange={(e) => handleDecimalInput(e, field.onChange)}
