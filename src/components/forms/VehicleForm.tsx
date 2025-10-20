@@ -1175,31 +1175,6 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="ownerBranch"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Matriz/Filial Proprietária *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a matriz/filial" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {availableBranches.map((branch) => (
-                        <SelectItem key={branch.id} value={branch.id}>
-                          {branch.name} - {branch.cnpj}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">Fornecedor</label>
               <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
@@ -1273,6 +1248,31 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 </PopoverContent>
               </Popover>
             </div>
+
+            <FormField
+              control={form.control}
+              name="ownerBranch"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Matriz/Filial Proprietária *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a matriz/filial" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableBranches.map((branch) => (
+                        <SelectItem key={branch.id} value={branch.id}>
+                          {branch.name} - {branch.cnpj}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </>
         ) : (
           <>
@@ -1384,6 +1384,31 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
               />
             </div>
             
+            <FormField
+              control={form.control}
+              name="ownerBranch"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Matriz/Filial Proprietária *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a matriz/filial" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableBranches.map((branch) => (
+                        <SelectItem key={branch.id} value={branch.id}>
+                          {branch.name} - {branch.cnpj}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">Fornecedor</label>
               <Popover open={openSupplier} onOpenChange={setOpenSupplier}>
@@ -1457,31 +1482,6 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 </PopoverContent>
               </Popover>
             </div>
-
-            <FormField
-              control={form.control}
-              name="ownerBranch"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Matriz/Filial Proprietária *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a matriz/filial" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {availableBranches.map((branch) => (
-                        <SelectItem key={branch.id} value={branch.id}>
-                          {branch.name} - {branch.cnpj}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </>
         )}
 

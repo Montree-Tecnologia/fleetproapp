@@ -42,6 +42,7 @@ export default function Vehicles() {
   const { vehicles, drivers, refuelings, companies, suppliers, refrigerationUnits, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale, sellRefrigerationUnit, updateRefrigerationUnit } = useMockData();
   const { isAdmin } = usePermissions();
   const { toast } = useToast();
+  const [refreshKey, setRefreshKey] = useState(0);
   const allVehicles = vehicles();
   const allDrivers = drivers();
   const allRefuelings = refuelings();
@@ -110,6 +111,7 @@ export default function Vehicles() {
       });
       setVehicleToDelete(null);
       setDeleteDialogOpen(false);
+      setRefreshKey(prev => prev + 1);
     }
   };
 
@@ -159,6 +161,7 @@ export default function Vehicles() {
 
       setVehicleToSell(null);
       setSaleDialogOpen(false);
+      setRefreshKey(prev => prev + 1);
     }
   };
 
@@ -176,6 +179,7 @@ export default function Vehicles() {
       });
       setVehicleToReverseSale(null);
       setReverseSaleDialogOpen(false);
+      setRefreshKey(prev => prev + 1);
     }
   };
 
@@ -255,6 +259,7 @@ export default function Vehicles() {
 
     setStatusChangeDialogOpen(false);
     setVehicleToChangeStatus(null);
+    setRefreshKey(prev => prev + 1);
   };
 
   const handleDriverChange = (vehicleId: string, driverId: string) => {
@@ -282,6 +287,7 @@ export default function Vehicles() {
         variant: 'destructive',
       });
     }
+    setRefreshKey(prev => prev + 1);
   };
 
   const getAvailableDrivers = (currentVehicleId: string) => {
@@ -325,6 +331,7 @@ export default function Vehicles() {
         variant: 'destructive',
       });
     }
+    setRefreshKey(prev => prev + 1);
   };
 
   const handleRemoveComposition = (vehicleId: string, trailerPlate: string) => {
@@ -369,6 +376,7 @@ export default function Vehicles() {
         variant: 'destructive',
       });
     }
+    setRefreshKey(prev => prev + 1);
   };
 
   const formatCurrency = (value: number) => {
