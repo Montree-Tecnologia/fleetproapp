@@ -82,8 +82,7 @@ type RefuelingFormData = z.infer<typeof refuelingSchema>;
 interface RefuelingFormProps {
   onSubmit: (data: Omit<Refueling, 'id'>, driverId?: string) => void;
   onCancel: () => void;
-  vehicles: Vehicle[]; // usado para o fluxo de abastecimento de veículos
-  allVehicles?: Vehicle[]; // usado para o filtro em refrigeração (inclui reboques)
+  vehicles: Vehicle[];
   drivers: Driver[];
   suppliers: Supplier[];
   refrigerationUnits: RefrigerationUnit[];
@@ -92,7 +91,7 @@ interface RefuelingFormProps {
   onUpdateVehicleDriver?: (vehicleId: string, driverId?: string) => void;
 }
 
-export function RefuelingForm({ onSubmit, onCancel, vehicles, allVehicles, drivers, suppliers, refrigerationUnits, initialData, onAddSupplier, onUpdateVehicleDriver }: RefuelingFormProps) {
+export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers, refrigerationUnits, initialData, onAddSupplier, onUpdateVehicleDriver }: RefuelingFormProps) {
   const { toast } = useToast();
   const gasStations = suppliers.filter(s => s.type === 'gas_station' && s.active);
   const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>(initialData?.paymentReceipt);
@@ -110,12 +109,9 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, allVehicles, drive
     state: '',
   });
   
-  // Fonte de veículos para o filtro (todos os veículos quando disponível)
-  const vehiclesForFilter = (allVehicles ?? vehicles);
-  
   // Filtrar apenas veículos de tração
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
-  const tractionVehicles = vehiclesForFilter.filter(v => 
+  const tractionVehicles = vehicles.filter(v => 
     tractionVehicleTypes.includes(v.vehicleType) && 
     v.status !== 'sold'
   );
@@ -128,7 +124,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, allVehicles, drive
 
   // Veículos que possuem equipamentos de refrigeração vinculados
   // a) TODOS os veículos (tração e reboque) que possuam equipamento de refrigeração acoplado diretamente
-  const vehiclesWithRefrigerationDirectly = vehiclesForFilter.filter(v => {
+  const vehiclesWithRefrigerationDirectly = vehicles.filter(v => {
     if (v.status === 'sold') return false;
     return activeRefrigerationUnits.some(r => r.vehicleId === v.id);
   });
@@ -139,7 +135,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, allVehicles, drive
     if (!v.compositionPlates || v.compositionPlates.length === 0) return false;
     
     return v.compositionPlates.some(plate => {
-      const compositionVehicle = vehiclesForFilter.find(cv => cv.plate === plate);
+      const compositionVehicle = vehicles.find(cv => cv.plate === plate);
       if (!compositionVehicle) return false;
       
       return activeRefrigerationUnits.some(r => r.vehicleId === compositionVehicle.id);
