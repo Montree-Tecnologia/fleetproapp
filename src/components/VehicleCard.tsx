@@ -82,6 +82,8 @@ export function VehicleCard({
   
   // Veículos de reboque disponíveis para adicionar
   const availableTrailers = allVehicles.filter(v => {
+    // Não permitir veículos de tração como composição
+    if (tractionVehicleTypes.includes(v.vehicleType)) return false;
     if (!trailerVehicleTypes.includes(v.vehicleType)) return false;
     if (v.status !== 'active') return false;
     if (vehicle.compositionPlates?.includes(v.plate)) return false;
