@@ -1202,43 +1202,76 @@ export default function Vehicles() {
                       </div>
                     </div>
 
-                    {(viewingVehicle.saleInfo.paymentReceipt || viewingVehicle.saleInfo.transferDocument) && (
+                    {(viewingVehicle.saleInfo.paymentReceipt || viewingVehicle.saleInfo.transferDocument || viewingVehicle.saleInfo.saleInvoice) && (
                       <div className="pt-4 border-t border-green-500/20">
                         <h4 className="font-semibold mb-3">Documentos da Venda</h4>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {viewingVehicle.saleInfo.paymentReceipt && (
                             <div className="space-y-2">
                               <span className="text-sm font-medium text-muted-foreground">Comprovante de Recebimento</span>
-                              {viewingVehicle.saleInfo.paymentReceipt.startsWith('data:image') ? (
+                              {viewingVehicle.saleInfo.paymentReceipt.startsWith('data:image') || viewingVehicle.saleInfo.paymentReceipt.includes('unsplash') ? (
                                 <img
                                   src={viewingVehicle.saleInfo.paymentReceipt}
                                   alt="Comprovante"
-                                  className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
+                                  className="w-full h-40 object-cover rounded-lg border border-border cursor-pointer hover:opacity-90"
                                   onClick={() => window.open(viewingVehicle.saleInfo!.paymentReceipt, '_blank')}
                                 />
                               ) : (
-                                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                                <a
+                                  href={viewingVehicle.saleInfo.paymentReceipt}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border hover:bg-muted/80 transition-colors"
+                                >
                                   <FileText className="h-5 w-5" />
-                                  <span className="text-sm">Comprovante anexado</span>
-                                </div>
+                                  <span className="text-sm">Ver Comprovante</span>
+                                </a>
                               )}
                             </div>
                           )}
                           {viewingVehicle.saleInfo.transferDocument && (
                             <div className="space-y-2">
                               <span className="text-sm font-medium text-muted-foreground">CRV Assinado</span>
-                              {viewingVehicle.saleInfo.transferDocument.startsWith('data:image') ? (
+                              {viewingVehicle.saleInfo.transferDocument.startsWith('data:image') || viewingVehicle.saleInfo.transferDocument.includes('unsplash') ? (
                                 <img
                                   src={viewingVehicle.saleInfo.transferDocument}
                                   alt="CRV"
-                                  className="w-full rounded-lg border border-border cursor-pointer hover:opacity-90"
+                                  className="w-full h-40 object-cover rounded-lg border border-border cursor-pointer hover:opacity-90"
                                   onClick={() => window.open(viewingVehicle.saleInfo!.transferDocument, '_blank')}
                                 />
                               ) : (
-                                <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                                <a
+                                  href={viewingVehicle.saleInfo.transferDocument}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border hover:bg-muted/80 transition-colors"
+                                >
                                   <FileText className="h-5 w-5" />
-                                  <span className="text-sm">CRV anexado</span>
-                                </div>
+                                  <span className="text-sm">Ver CRV</span>
+                                </a>
+                              )}
+                            </div>
+                          )}
+                          {viewingVehicle.saleInfo.saleInvoice && (
+                            <div className="space-y-2">
+                              <span className="text-sm font-medium text-muted-foreground">Nota Fiscal de Venda</span>
+                              {viewingVehicle.saleInfo.saleInvoice.startsWith('data:image') || viewingVehicle.saleInfo.saleInvoice.includes('unsplash') ? (
+                                <img
+                                  src={viewingVehicle.saleInfo.saleInvoice}
+                                  alt="Nota Fiscal de Venda"
+                                  className="w-full h-40 object-cover rounded-lg border border-border cursor-pointer hover:opacity-90"
+                                  onClick={() => window.open(viewingVehicle.saleInfo!.saleInvoice, '_blank')}
+                                />
+                              ) : (
+                                <a
+                                  href={viewingVehicle.saleInfo.saleInvoice}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border hover:bg-muted/80 transition-colors"
+                                >
+                                  <FileText className="h-5 w-5" />
+                                  <span className="text-sm">Ver Nota Fiscal</span>
+                                </a>
                               )}
                             </div>
                           )}
