@@ -21,10 +21,11 @@ export function useInfiniteScroll<T>(
 
   // Inicializa com os primeiros itens
   useEffect(() => {
-    const initial = allItems.slice(0, initialItemsCount);
-    setDisplayedItems(initial);
-    setHasMore(allItems.length > initialItemsCount);
-  }, [allItems.length, initialItemsCount]);
+    const initialCount = Math.max(initialItemsCount, displayedItems.length);
+    const next = allItems.slice(0, initialCount);
+    setDisplayedItems(next);
+    setHasMore(allItems.length > next.length);
+  }, [allItems, initialItemsCount]);
 
   // Função para carregar mais itens
   const loadMore = useCallback(() => {
