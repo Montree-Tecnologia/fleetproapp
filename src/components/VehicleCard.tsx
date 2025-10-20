@@ -71,7 +71,7 @@ export function VehicleCard({
   const isTractionVehicle = tractionVehicleTypes.includes(vehicle.vehicleType);
   const isTrailerVehicle = trailerVehicleTypes.includes(vehicle.vehicleType);
   const canHaveCompositions = vehicle.vehicleType === 'Cavalo Mecânico'; // Apenas Cavalo Mecânico pode ter composições
-  const showCompositionsSection = isTractionVehicle; // Mostrar seção para todos os tipos de tração
+  const showCompositionsSection = canHaveCompositions; // Mostrar seção apenas para Cavalo Mecânico
   
   // Motoristas disponíveis (não vinculados a outros veículos)
   const availableDrivers = getAvailableDrivers(vehicle.id);
