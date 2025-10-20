@@ -199,42 +199,57 @@ export default function Vehicles() {
 
   const confirmStatusChange = (vehicleId: string, newStatus: string) => {
     const vehicle = allVehicles.find(v => v.id === vehicleId);
-    if (!vehicle) return;
+    if (!vehicle) {
+      toast({
+        title: 'Erro',
+        description: 'Veículo não encontrado.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const trailerTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
     const isTrailer = trailerTypes.includes(vehicle.vehicleType);
     const isInactiveOrMaintenance = newStatus === 'inactive' || newStatus === 'maintenance' || newStatus === 'defective';
 
-    updateVehicle(vehicleId, { status: newStatus as 'active' | 'maintenance' | 'inactive' | 'defective' });
-    
-    const statusLabels = {
-      active: 'Ativo',
-      defective: 'Defeito',
-      maintenance: 'Manutenção',
-      inactive: 'Inativo'
-    };
-    
-    toast({
-      title: 'Status alterado',
-      description: `Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}.`,
-    });
+    try {
+      updateVehicle(vehicleId, { status: newStatus as 'active' | 'maintenance' | 'inactive' | 'defective' });
+      
+      const statusLabels = {
+        active: 'Ativo',
+        defective: 'Defeito',
+        maintenance: 'Manutenção',
+        inactive: 'Inativo'
+      };
+      
+      toast({
+        title: 'Status alterado',
+        description: `Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]} com sucesso.`,
+      });
 
-    // Notifica sobre desvinculação automática de reboque
-    if (isTrailer && isInactiveOrMaintenance) {
-      const tractionVehicles = allVehicles.filter(v => 
-        v.hasComposition && v.compositionPlates?.includes(vehicle.plate)
-      );
-      if (tractionVehicles.length > 0) {
+      // Notifica sobre desvinculação automática de reboque
+      if (isTrailer && isInactiveOrMaintenance) {
+        const tractionVehicles = allVehicles.filter(v => 
+          v.hasComposition && v.compositionPlates?.includes(vehicle.plate)
+        );
+        if (tractionVehicles.length > 0) {
+          toast({
+            description: 'Veículo desvinculado automaticamente das composições.',
+          });
+        }
+      }
+
+      // Notifica sobre alteração de status das composições
+      if (!isTrailer && isInactiveOrMaintenance && vehicle.hasComposition && vehicle.compositionPlates) {
         toast({
-          description: 'Veículo desvinculado automaticamente das composições.',
+          description: `Status das composições acopladas também alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}.`,
         });
       }
-    }
-
-    // Notifica sobre alteração de status das composições
-    if (!isTrailer && isInactiveOrMaintenance && vehicle.hasComposition && vehicle.compositionPlates) {
+    } catch (error) {
       toast({
-        description: `Status das composições acopladas também alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}.`,
+        title: 'Erro',
+        description: 'Não foi possível alterar o status.',
+        variant: 'destructive',
       });
     }
 
@@ -245,18 +260,26 @@ export default function Vehicles() {
   const handleDriverChange = (vehicleId: string, driverId: string) => {
     const actualDriverId = driverId === 'none' ? undefined : driverId;
     
-    updateVehicle(vehicleId, { driverId: actualDriverId });
-    
-    if (actualDriverId) {
-      const driver = allDrivers.find(d => d.id === actualDriverId);
+    try {
+      updateVehicle(vehicleId, { driverId: actualDriverId });
+      
+      if (actualDriverId) {
+        const driver = allDrivers.find(d => d.id === actualDriverId);
+        toast({
+          title: 'Motorista vinculado',
+          description: `${driver?.name} foi vinculado ao veículo com sucesso.`,
+        });
+      } else {
+        toast({
+          title: 'Vínculo removido',
+          description: 'Vínculo com motorista foi removido com sucesso.',
+        });
+      }
+    } catch (error) {
       toast({
-        title: 'Motorista vinculado',
-        description: `${driver?.name} foi vinculado ao veículo.`,
-      });
-    } else {
-      toast({
-        title: 'Vínculo removido',
-        description: 'Vínculo com motorista foi removido.',
+        title: 'Erro',
+        description: 'Não foi possível alterar o vínculo do motorista.',
+        variant: 'destructive',
       });
     }
   };
@@ -272,43 +295,80 @@ export default function Vehicles() {
     const vehicle = allVehicles.find(v => v.id === vehicleId);
     const trailer = allVehicles.find(v => v.id === trailerId);
     
-    if (!vehicle || !trailer) return;
+    if (!vehicle || !trailer) {
+      toast({
+        title: 'Erro',
+        description: 'Veículo ou reboque não encontrado.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     const newCompositionPlates = [...(vehicle.compositionPlates || []), trailer.plate];
     const newCompositionAxles = [...(vehicle.compositionAxles || []), trailer.axles];
     
-    updateVehicle(vehicleId, {
-      hasComposition: true,
-      compositionPlates: newCompositionPlates,
-      compositionAxles: newCompositionAxles
-    });
-    
-    toast({
-      title: 'Reboque vinculado',
-      description: `${trailer.plate} foi vinculado ao veículo.`,
-    });
+    try {
+      updateVehicle(vehicleId, {
+        hasComposition: true,
+        compositionPlates: newCompositionPlates,
+        compositionAxles: newCompositionAxles
+      });
+      
+      toast({
+        title: 'Reboque vinculado',
+        description: `${trailer.plate} foi vinculado ao veículo com sucesso.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível vincular o reboque.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleRemoveComposition = (vehicleId: string, trailerPlate: string) => {
     const vehicle = allVehicles.find(v => v.id === vehicleId);
-    if (!vehicle || !vehicle.compositionPlates) return;
+    if (!vehicle || !vehicle.compositionPlates) {
+      toast({
+        title: 'Erro',
+        description: 'Veículo ou composição não encontrada.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     const plateIndex = vehicle.compositionPlates.indexOf(trailerPlate);
-    if (plateIndex === -1) return;
+    if (plateIndex === -1) {
+      toast({
+        title: 'Erro',
+        description: 'Composição não encontrada.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     const newCompositionPlates = vehicle.compositionPlates.filter((_, i) => i !== plateIndex);
     const newCompositionAxles = vehicle.compositionAxles?.filter((_, i) => i !== plateIndex) || [];
     
-    updateVehicle(vehicleId, {
-      hasComposition: newCompositionPlates.length > 0,
-      compositionPlates: newCompositionPlates,
-      compositionAxles: newCompositionAxles
-    });
-    
-    toast({
-      title: 'Reboque desvinculado',
-      description: `${trailerPlate} foi desvinculado do veículo.`,
-    });
+    try {
+      updateVehicle(vehicleId, {
+        hasComposition: newCompositionPlates.length > 0,
+        compositionPlates: newCompositionPlates.length > 0 ? newCompositionPlates : undefined,
+        compositionAxles: newCompositionAxles.length > 0 ? newCompositionAxles : undefined
+      });
+      
+      toast({
+        title: 'Reboque desvinculado',
+        description: `${trailerPlate} foi desvinculado do veículo com sucesso.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível desvincular o reboque.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const formatCurrency = (value: number) => {
@@ -622,6 +682,36 @@ export default function Vehicles() {
                           >
                             <FileText className="h-5 w-5" />
                             <span className="text-sm font-medium">Ver CRLV</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {viewingVehicle.purchaseInvoice && (
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground">Nota Fiscal de Compra:</span>
+                      <div className="mt-2 grid grid-cols-4 gap-3">
+                        {viewingVehicle.purchaseInvoice.startsWith('data:image') || viewingVehicle.purchaseInvoice.includes('unsplash') ? (
+                          <div className="relative group cursor-pointer">
+                            <img
+                              src={viewingVehicle.purchaseInvoice}
+                              alt="Nota Fiscal"
+                              className="w-full h-32 object-cover rounded-lg border border-border hover:border-primary transition-colors"
+                              onClick={() => window.open(viewingVehicle.purchaseInvoice, '_blank')}
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                              <Eye className="h-6 w-6 text-white" />
+                            </div>
+                          </div>
+                        ) : (
+                          <a
+                            href={viewingVehicle.purchaseInvoice}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border hover:bg-muted/80 transition-colors"
+                          >
+                            <FileText className="h-5 w-5" />
+                            <span className="text-sm font-medium">Ver Nota Fiscal</span>
                           </a>
                         )}
                       </div>
