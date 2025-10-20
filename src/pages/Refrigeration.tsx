@@ -872,10 +872,19 @@ export default function Refrigeration() {
                             <img
                               src={viewingUnit.saleInfo.paymentReceipt}
                               alt="Comprovante"
-                              className="mt-2 w-full max-w-md h-48 object-cover rounded-lg border"
+                              className="mt-2 w-full max-w-md h-48 object-cover rounded-lg border cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => window.open(viewingUnit.saleInfo.paymentReceipt, '_blank')}
                             />
                           ) : (
-                            <p className="text-sm text-green-600 mt-1">✓ Anexado</p>
+                            <a
+                              href={viewingUnit.saleInfo.paymentReceipt}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-2 inline-flex items-center gap-2 text-sm text-primary hover:underline"
+                            >
+                              <Eye className="h-4 w-4" />
+                              Visualizar documento
+                            </a>
                           )}
                         </div>
                       )}
@@ -886,10 +895,19 @@ export default function Refrigeration() {
                             <img
                               src={viewingUnit.saleInfo.transferDocument}
                               alt="Nota Fiscal"
-                              className="mt-2 w-full max-w-md h-48 object-cover rounded-lg border"
+                              className="mt-2 w-full max-w-md h-48 object-cover rounded-lg border cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => window.open(viewingUnit.saleInfo.transferDocument, '_blank')}
                             />
                           ) : (
-                            <p className="text-sm text-green-600 mt-1">✓ Anexado</p>
+                            <a
+                              href={viewingUnit.saleInfo.transferDocument}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-2 inline-flex items-center gap-2 text-sm text-primary hover:underline"
+                            >
+                              <Eye className="h-4 w-4" />
+                              Visualizar documento
+                            </a>
                           )}
                         </div>
                       )}
