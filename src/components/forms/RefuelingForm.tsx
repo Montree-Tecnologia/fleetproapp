@@ -122,8 +122,33 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   );
 
   // Veículos que possuem equipamentos de refrigeração vinculados
-  const vehiclesWithRefrigeration = tractionVehicles.filter(v => 
+  // a) TODOS os veículos (tração e reboque) que possuam equipamento de refrigeração acoplado
+  const vehiclesWithRefrigerationDirectly = vehicles.filter(v => 
+    v.status !== 'sold' &&
     refrigerationUnits.some(r => r.vehicleId === v.id && r.status !== 'sold')
+  );
+
+  // b) Veículos de tração que possuam pelo menos uma composição com equipamento de refrigeração
+  const tractionVehiclesWithRefrigeratedCompositions = tractionVehicles.filter(v => {
+    // Verificar se alguma composição tem equipamento de refrigeração
+    if (!v.compositionPlates || v.compositionPlates.length === 0) return false;
+    
+    return v.compositionPlates.some(plate => {
+      const compositionVehicle = vehicles.find(cv => cv.plate === plate);
+      if (!compositionVehicle) return false;
+      
+      return refrigerationUnits.some(r => 
+        r.vehicleId === compositionVehicle.id && r.status !== 'sold'
+      );
+    });
+  });
+
+  // Combinar ambas as listas removendo duplicatas
+  const vehiclesWithRefrigeration = Array.from(
+    new Map(
+      [...vehiclesWithRefrigerationDirectly, ...tractionVehiclesWithRefrigeratedCompositions]
+        .map(v => [v.id, v])
+    ).values()
   );
 
   // Filtrar equipamentos de refrigeração baseado no veículo selecionado
