@@ -770,11 +770,22 @@ export default function Vehicles() {
                   <div>
                     <span className="text-muted-foreground text-sm">Matriz/Filiais Vinculadas:</span>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {viewingVehicle.branches.map((branch, index) => (
-                        <Badge key={index} variant="secondary">
-                          {branch}
-                        </Badge>
-                      ))}
+                      {(() => {
+                        // Mapeia IDs para nomes e remove duplicatas
+                        const branchNames = viewingVehicle.branches.map(branchIdOrName => {
+                          const company = allCompanies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
+                          return company ? company.name : branchIdOrName;
+                        });
+                        
+                        // Remove duplicatas
+                        const uniqueBranchNames = Array.from(new Set(branchNames));
+                        
+                        return uniqueBranchNames.map((displayName, index) => (
+                          <Badge key={index} variant="secondary">
+                            {displayName}
+                          </Badge>
+                        ));
+                      })()}
                     </div>
                   </div>
                 </div>
