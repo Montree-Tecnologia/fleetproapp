@@ -152,7 +152,23 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
 
   // Filtrar equipamentos de refrigeração baseado no veículo selecionado
   const filteredRefrigerationUnits = selectedVehicleFilter
-    ? activeRefrigerationUnits.filter(r => r.vehicleId === selectedVehicleFilter)
+    ? (() => {
+        const selectedVehicle = vehicles.find(v => v.id === selectedVehicleFilter);
+        
+        // Se for Cavalo Mecânico, retornar equipamentos das composições
+        if (selectedVehicle?.vehicleType === 'Cavalo Mecânico' && selectedVehicle.compositionPlates) {
+          return activeRefrigerationUnits.filter(r => {
+            if (!r.vehicleId) return false;
+            // Buscar o veículo do equipamento
+            const equipmentVehicle = vehicles.find(v => v.id === r.vehicleId);
+            // Verificar se o veículo do equipamento está nas composições
+            return equipmentVehicle && selectedVehicle.compositionPlates?.includes(equipmentVehicle.plate);
+          });
+        }
+        
+        // Para outros veículos, retornar equipamentos vinculados diretamente
+        return activeRefrigerationUnits.filter(r => r.vehicleId === selectedVehicleFilter);
+      })()
     : activeRefrigerationUnits;
   
   const [selectedDriverId, setSelectedDriverId] = useState<string | undefined>(undefined);
