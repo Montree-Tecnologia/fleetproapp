@@ -251,7 +251,32 @@ export function VehicleSaleForm({ onSubmit, onCancel, currentKm, hasRefrigeratio
                 <FormItem>
                   <FormLabel>CPF/CNPJ do Comprador *</FormLabel>
                   <FormControl>
-                    <Input placeholder="000.000.000-00" {...field} />
+                    <Input 
+                      placeholder="000.000.000-00 ou 00.000.000/0000-00" 
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        let formatted = '';
+                        
+                        if (value.length <= 11) {
+                          // Formata como CPF
+                          formatted = value
+                            .replace(/(\d{3})(\d)/, '$1.$2')
+                            .replace(/(\d{3})(\d)/, '$1.$2')
+                            .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                        } else {
+                          // Formata como CNPJ
+                          formatted = value
+                            .replace(/(\d{2})(\d)/, '$1.$2')
+                            .replace(/(\d{3})(\d)/, '$1.$2')
+                            .replace(/(\d{3})(\d)/, '$1/$2')
+                            .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+                        }
+                        
+                        field.onChange(formatted);
+                      }}
+                      maxLength={18}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
