@@ -2,14 +2,7 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: [
-    "./client/**/*.{ts,tsx,html}", 
-    "./client/src/**/*.{ts,tsx,html}",
-    "./client/src/pages/**/*.{ts,tsx}",
-    "./client/src/components/**/*.{ts,tsx}",
-    "./client/src/layouts/**/*.{ts,tsx}",
-    "./client/index.html"
-  ],
+  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
     container: {
@@ -78,10 +71,6 @@ export default {
           "3": "hsl(var(--chart-3))",
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
-        },
-        info: {
-          DEFAULT: "hsl(var(--info))",
-          foreground: "hsl(var(--info-foreground))",
         },
       },
       borderRadius: {
