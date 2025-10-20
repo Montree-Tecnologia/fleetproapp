@@ -241,11 +241,22 @@ export default function Suppliers() {
               <div className="pt-3 border-t border-border">
                 <p className="text-sm text-muted-foreground mb-2">Matriz/Filiais Vinculadas:</p>
                 <div className="flex flex-wrap gap-1">
-                  {supplier.branches.map((branch, idx) => (
-                    <Badge key={idx} variant="outline" className="text-xs">
-                      {branch}
-                    </Badge>
-                  ))}
+                  {(() => {
+                    // Mapeia IDs para nomes e remove duplicatas
+                    const branchNames = supplier.branches.map(branchIdOrName => {
+                      const company = allCompanies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
+                      return company ? company.name : branchIdOrName;
+                    });
+                    
+                    // Remove duplicatas
+                    const uniqueBranchNames = Array.from(new Set(branchNames));
+                    
+                    return uniqueBranchNames.map((displayName, idx) => (
+                      <Badge key={idx} variant="outline" className="text-xs">
+                        {displayName}
+                      </Badge>
+                    ));
+                  })()}
                 </div>
               </div>
 
@@ -420,11 +431,22 @@ export default function Suppliers() {
               <div>
                 <h3 className="font-semibold mb-3">Matriz/Filiais Vinculadas</h3>
                 <div className="flex flex-wrap gap-2">
-                  {viewingSupplier.branches.map((branch, index) => (
-                    <Badge key={index} variant="secondary">
-                      {branch}
-                    </Badge>
-                  ))}
+                  {(() => {
+                    // Mapeia IDs para nomes e remove duplicatas
+                    const branchNames = viewingSupplier.branches.map(branchIdOrName => {
+                      const company = allCompanies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
+                      return company ? company.name : branchIdOrName;
+                    });
+                    
+                    // Remove duplicatas
+                    const uniqueBranchNames = Array.from(new Set(branchNames));
+                    
+                    return uniqueBranchNames.map((displayName, index) => (
+                      <Badge key={index} variant="secondary">
+                        {displayName}
+                      </Badge>
+                    ));
+                  })()}
                 </div>
               </div>
 
