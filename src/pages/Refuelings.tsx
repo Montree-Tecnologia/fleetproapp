@@ -257,6 +257,7 @@ export default function Refuelings() {
             onSubmit={handleSubmit}
             onCancel={handleCloseDialog}
             vehicles={tractionVehicles}
+            allVehicles={allVehicles}
             drivers={allDrivers}
             suppliers={allSuppliers}
             refrigerationUnits={allRefrigerationUnits}
