@@ -1121,6 +1121,97 @@ const mockVehicles: Vehicle[] = [
       paymentReceipt: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
       transferDocument: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
     }
+  },
+  // Novos mockups para teste de funcionalidade
+  {
+    id: '27',
+    plate: 'TEST-1000',
+    chassis: '9BWZZZ377VT004277',
+    renavam: '00123456815',
+    brand: 'Scania',
+    model: 'R 450 A6x4',
+    manufacturingYear: 2024,
+    modelYear: 2024,
+    color: 'Branco',
+    vehicleType: 'Cavalo Mecânico',
+    status: 'active',
+    purchaseKm: 0,
+    currentKm: 5000,
+    fuelType: 'Diesel S10',
+    axles: 3,
+    weight: 7.8,
+    branches: ['Matriz'],
+    ownerBranch: 'Matriz',
+    driverId: '1',
+    hasComposition: true,
+    compositionPlates: ['TEST-1001', 'TEST-1002'],
+    compositionAxles: [3, 3],
+    purchaseDate: '2024-01-15',
+    purchaseValue: 650000,
+    supplierId: '5',
+    images: [
+      'https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=800&q=80'
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
+  },
+  {
+    id: '28',
+    plate: 'TEST-1001',
+    chassis: '9BWZZZ377VT004278',
+    renavam: '00123456816',
+    brand: 'Librelato',
+    model: 'Baú Frigorífico 3 Eixos',
+    manufacturingYear: 2024,
+    modelYear: 2024,
+    color: 'Branco',
+    vehicleType: 'Baú Frigorífico',
+    status: 'active',
+    purchaseKm: 0,
+    currentKm: 0,
+    fuelType: 'Diesel S10',
+    axles: 3,
+    weight: 14.0,
+    branches: ['Matriz'],
+    ownerBranch: 'Matriz',
+    hasComposition: false,
+    purchaseDate: '2024-01-20',
+    purchaseValue: 230000,
+    supplierId: '4',
+    images: [
+      'https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?w=800&q=80'
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
+  },
+  {
+    id: '29',
+    plate: 'TEST-1002',
+    chassis: '9BWZZZ377VT004279',
+    renavam: '00123456817',
+    brand: 'Librelato',
+    model: 'Baú Frigorífico 3 Eixos',
+    manufacturingYear: 2024,
+    modelYear: 2024,
+    color: 'Branco',
+    vehicleType: 'Baú Frigorífico',
+    status: 'active',
+    purchaseKm: 0,
+    currentKm: 0,
+    fuelType: 'Diesel S10',
+    axles: 3,
+    weight: 14.0,
+    branches: ['Matriz'],
+    ownerBranch: 'Matriz',
+    hasComposition: false,
+    purchaseDate: '2024-01-20',
+    purchaseValue: 230000,
+    supplierId: '4',
+    images: [
+      'https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?w=800&q=80'
+    ],
+    crlvDocument: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
+    purchaseInvoice: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&q=80'
   }
 ];
 
@@ -2063,6 +2154,43 @@ const mockRefrigerationUnits: RefrigerationUnit[] = [
       salePrice: 38000,
       paymentReceipt: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80'
     }
+  },
+  // Novos equipamentos de refrigeração para teste
+  {
+    id: '14',
+    vehicleId: '28', // Baú Frigorífico TEST-1001
+    companyId: '1',
+    brand: 'Thermo King',
+    model: 'SLXe-400',
+    serialNumber: 'TK-TEST-001',
+    type: 'freezer',
+    minTemp: -25,
+    maxTemp: -18,
+    installDate: '2024-01-25',
+    purchaseDate: '2024-01-20',
+    purchaseValue: 88000,
+    supplierId: '9',
+    initialUsageHours: 0,
+    fuelType: 'Diesel S10',
+    status: 'active'
+  },
+  {
+    id: '15',
+    vehicleId: '29', // Baú Frigorífico TEST-1002
+    companyId: '1',
+    brand: 'Carrier',
+    model: 'Vector 1850',
+    serialNumber: 'CR-TEST-002',
+    type: 'freezer',
+    minTemp: -25,
+    maxTemp: -18,
+    installDate: '2024-01-25',
+    purchaseDate: '2024-01-20',
+    purchaseValue: 92000,
+    supplierId: '9',
+    initialUsageHours: 0,
+    fuelType: 'Diesel S10',
+    status: 'active'
   }
 ];
 
