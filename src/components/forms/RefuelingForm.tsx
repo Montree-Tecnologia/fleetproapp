@@ -122,11 +122,11 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   );
 
   // Veículos que possuem equipamentos de refrigeração vinculados
-  // a) TODOS os veículos (tração e reboque) que possuam equipamento de refrigeração acoplado
-  const vehiclesWithRefrigerationDirectly = vehicles.filter(v => 
-    v.status !== 'sold' &&
-    refrigerationUnits.some(r => r.vehicleId === v.id && r.status !== 'sold')
-  );
+  // a) TODOS os veículos (tração e reboque) que possuam equipamento de refrigeração acoplado diretamente
+  const vehiclesWithRefrigerationDirectly = vehicles.filter(v => {
+    if (v.status === 'sold') return false;
+    return activeRefrigerationUnits.some(r => r.vehicleId === v.id);
+  });
 
   // b) Veículos de tração que possuam pelo menos uma composição com equipamento de refrigeração
   const tractionVehiclesWithRefrigeratedCompositions = tractionVehicles.filter(v => {
@@ -137,19 +137,17 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       const compositionVehicle = vehicles.find(cv => cv.plate === plate);
       if (!compositionVehicle) return false;
       
-      return refrigerationUnits.some(r => 
-        r.vehicleId === compositionVehicle.id && r.status !== 'sold'
-      );
+      return activeRefrigerationUnits.some(r => r.vehicleId === compositionVehicle.id);
     });
   });
 
-  // Combinar ambas as listas removendo duplicatas
-  const vehiclesWithRefrigeration = Array.from(
-    new Map(
-      [...vehiclesWithRefrigerationDirectly, ...tractionVehiclesWithRefrigeratedCompositions]
-        .map(v => [v.id, v])
-    ).values()
-  );
+  // Combinar ambas as listas removendo duplicatas por ID
+  const vehiclesWithRefrigeration = [
+    ...vehiclesWithRefrigerationDirectly,
+    ...tractionVehiclesWithRefrigeratedCompositions.filter(
+      tv => !vehiclesWithRefrigerationDirectly.some(v => v.id === tv.id)
+    )
+  ];
 
   // Filtrar equipamentos de refrigeração baseado no veículo selecionado
   const filteredRefrigerationUnits = selectedVehicleFilter
