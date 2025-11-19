@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useMockData, Driver } from '@/hooks/useMockData';
+import { createDriver } from '@/services/driversApi';
+import { ApiError } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,8 +61,9 @@ const driverSchema = z.object({
 });
 
 export default function Drivers() {
-  const { drivers, addDriver, updateDriver, deleteDriver } = useMockData();
+  const { drivers, addDriver, updateDriver, deleteDriver, companies } = useMockData();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -109,10 +112,15 @@ export default function Drivers() {
     setFormData({ ...formData, cnhDocument: undefined });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (isSubmitting) return;
+    
     try {
+      setIsSubmitting(true);
+      setErrors({});
+      
       const validatedData = driverSchema.parse(formData);
       
       if (allDrivers.some(d => d.cpf === validatedData.cpf && d.id !== editingDriver?.id)) {
@@ -121,6 +129,7 @@ export default function Drivers() {
       }
 
       if (editingDriver) {
+        // Modo edição - continua usando mock
         updateDriver(editingDriver.id, {
           name: validatedData.name,
           cpf: validatedData.cpf,
@@ -136,26 +145,86 @@ export default function Drivers() {
           description: `${validatedData.name} foi atualizado com sucesso.`,
         });
       } else {
-        addDriver({
+        // Modo criação - chama a API
+        const allCompanies = companies();
+        
+        // Mapear nomes das branches para IDs numéricos
+        const branchIds = validatedData.branches
+          .map(branchName => {
+            const company = allCompanies.find(c => c.name === branchName);
+            return company ? parseInt(company.id) : null;
+          })
+          .filter((id): id is number => id !== null);
+
+        if (branchIds.length === 0) {
+          setErrors({ branches: 'Nenhuma filial válida selecionada' });
+          return;
+        }
+
+        // Extrair apenas o base64 do documento (remover o prefixo data:image/...;base64,)
+        let cnhDocumentBase64 = '';
+        if (formData.cnhDocument) {
+          const base64Match = formData.cnhDocument.match(/^data:.*;base64,(.+)$/);
+          cnhDocumentBase64 = base64Match ? base64Match[1] : formData.cnhDocument;
+        }
+
+        const response = await createDriver({
           name: validatedData.name,
           cpf: validatedData.cpf,
           birthDate: validatedData.birthDate,
           cnhCategory: validatedData.cnhCategory,
           cnhValidity: validatedData.cnhValidity,
-          branches: validatedData.branches,
-          active: true,
-          cnhDocument: formData.cnhDocument,
+          cnhDocumentBase64,
+          branches: branchIds,
         });
 
-        toast({
-          title: 'Motorista cadastrado',
-          description: `${validatedData.name} foi adicionado com sucesso.`,
-        });
+        if (response.success && response.data) {
+          // Adicionar o motorista aos dados locais com os dados retornados pela API
+          const newDriver: Driver = {
+            id: response.data.driver.id,
+            name: response.data.driver.name,
+            cpf: response.data.driver.cpf,
+            birthDate: response.data.driver.birthDate,
+            cnhCategory: response.data.driver.cnhCategory,
+            cnhValidity: response.data.driver.cnhValidity,
+            branches: validatedData.branches, // Manter os nomes das branches
+            active: true,
+            cnhDocument: formData.cnhDocument,
+          };
+
+          addDriver(newDriver);
+
+          toast({
+            title: 'Motorista cadastrado',
+            description: response.message || `${validatedData.name} foi adicionado com sucesso.`,
+          });
+        }
       }
 
       handleDialogClose();
     } catch (error) {
-      if (error instanceof z.ZodError) {
+      if (error instanceof ApiError) {
+        // Tratar erros de validação da API
+        if (error.validationErrors) {
+          const fieldErrors: Record<string, string> = {};
+          error.validationErrors.forEach((err) => {
+            fieldErrors[err.field] = err.message;
+          });
+          setErrors(fieldErrors);
+          
+          toast({
+            title: 'Erro de validação',
+            description: 'Verifique os campos destacados',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Erro ao cadastrar motorista',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
+      } else if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
         error.errors.forEach((err) => {
           if (err.path[0]) {
@@ -163,7 +232,21 @@ export default function Drivers() {
           }
         });
         setErrors(fieldErrors);
+        
+        toast({
+          title: 'Erro de validação',
+          description: 'Verifique os campos destacados',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Erro inesperado',
+          description: 'Ocorreu um erro ao cadastrar o motorista',
+          variant: 'destructive',
+        });
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -486,10 +569,12 @@ export default function Drivers() {
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline-destructive" onClick={handleDialogClose}>
+                <Button type="button" variant="outline-destructive" onClick={handleDialogClose} disabled={isSubmitting}>
                   Cancelar
                 </Button>
-                <Button type="submit">{editingDriver ? 'Atualizar' : 'Cadastrar'}</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Salvando...' : (editingDriver ? 'Atualizar' : 'Cadastrar')}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
