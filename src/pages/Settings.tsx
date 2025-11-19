@@ -86,7 +86,7 @@ export default function Settings() {
   // Obter empresas vinculadas ao usuário
   const allCompanies = companies();
   const linkedCompanies = allCompanies.filter(c => user.linkedCompanyIds.includes(c.id));
-  const primaryCompany = allCompanies.find(c => c.id === user.companyId);
+  const primaryCompany = allCompanies.find(c => c.id === user.primaryCompanyId);
 
 
   return (

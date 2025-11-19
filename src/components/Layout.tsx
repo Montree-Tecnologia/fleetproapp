@@ -228,7 +228,7 @@ export function Layout() {
           {sidebarOpen && user && (
             <div className="px-3 py-2 space-y-1">
               <p className="text-sm font-medium text-sidebar-foreground">{user.name}</p>
-              <p className="text-xs text-sidebar-foreground/60">{user.company}</p>
+              <p className="text-xs text-sidebar-foreground/60">{user.email}</p>
               <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
                 {getRoleLabel(user.role)}
               </Badge>
