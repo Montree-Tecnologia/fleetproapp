@@ -82,15 +82,6 @@ export default function Login() {
               {loading ? 'Entrando...' : 'Entrar'}
             </Button>
 
-            <div className="mt-4 p-3 bg-muted rounded-md text-sm">
-              <p className="font-medium mb-2">Credenciais de teste:</p>
-              <p className="text-muted-foreground">
-                <strong>Admin:</strong> admin@frota.com / admin123
-              </p>
-              <p className="text-muted-foreground">
-                <strong>Gestor:</strong> gestor@frota.com / gestor123
-              </p>
-            </div>
           </form>
         </CardContent>
       </Card>

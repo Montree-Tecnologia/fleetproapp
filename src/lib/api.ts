@@ -67,11 +67,11 @@ export async function apiRequest<T>(
     'Content-Type': 'application/json',
   };
 
-  // TODO: Adicionar token de autenticação quando implementado
-  // const token = localStorage.getItem('token');
-  // if (token) {
-  //   defaultHeaders.Authorization = `Bearer ${token}`;
-  // }
+  // Adicionar token de autenticação se disponível
+  const token = localStorage.getItem('fleet_token');
+  if (token) {
+    defaultHeaders['Authorization'] = `Bearer ${token}`;
+  }
 
   const config: RequestInit = {
     ...options,
