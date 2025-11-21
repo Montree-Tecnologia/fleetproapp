@@ -528,15 +528,29 @@ export default function Suppliers() {
                 <h3 className="font-semibold mb-3">Matriz/Filiais Vinculadas</h3>
                 <div className="flex flex-wrap gap-2">
                   {(() => {
-                    // Mapeia IDs para nomes e remove duplicatas
-                    const branches = viewingSupplier.branches || [];
-                    const branchNames = branches.map(branchIdOrName => {
-                      const company = companies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
-                      return company ? company.name : branchIdOrName;
+                    // Mapeia IDs/objetos para nomes de empresa e remove duplicatas
+                    const rawBranches = viewingSupplier.branches || [];
+                    const branchNames = rawBranches.map((branch) => {
+                      if (typeof branch === 'string') {
+                        const company = companies.find(
+                          (c) => c.id === branch || c.name === branch
+                        );
+                        return company ? company.name : branch;
+                      }
+
+                      if (branch && typeof branch === 'object') {
+                        const companyId = (branch as any).companyId;
+                        const company = companies.find((c) => c.id === companyId);
+                        return company ? company.name : companyId;
+                      }
+
+                      return String(branch);
                     });
                     
-                    // Remove duplicatas
-                    const uniqueBranchNames = Array.from(new Set(branchNames));
+                    // Remove duplicatas e valores vazios
+                    const uniqueBranchNames = Array.from(
+                      new Set(branchNames.filter(Boolean))
+                    );
 
                     if (uniqueBranchNames.length === 0) {
                       return <Badge variant="outline" className="text-xs">Nenhuma</Badge>;
