@@ -130,8 +130,8 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
     setIsSubmitting(true);
     try {
       await onSubmit({
-        cnpj: data.documentType === 'cnpj' ? data.cnpj : undefined,
-        cpf: data.documentType === 'cpf' ? data.cpf : undefined,
+        cnpj: data.documentType === 'cnpj' ? data.cnpj?.replace(/\D/g, '') : undefined,
+        cpf: data.documentType === 'cpf' ? data.cpf?.replace(/\D/g, '') : undefined,
         name: data.name,
         fantasyName: (data.type === 'other' && data.documentType === 'cpf') ? undefined : data.fantasyName,
         type: data.type,

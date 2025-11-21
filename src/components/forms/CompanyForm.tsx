@@ -111,7 +111,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel, allCompanies }: 
         await updateCompany(initialData.id, {
           type: data.type,
           name: data.name,
-          cnpj: data.cnpj,
+          cnpj: data.cnpj.replace(/\D/g, ''),
           city: data.city,
           state: data.state,
           matrizId: data.type === 'filial' ? data.matrizId : undefined,
@@ -124,7 +124,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel, allCompanies }: 
         await createCompany({
           type: data.type,
           name: data.name,
-          cnpj: data.cnpj,
+          cnpj: data.cnpj.replace(/\D/g, ''),
           city: data.city,
           state: data.state,
           matrizId: data.type === 'filial' ? data.matrizId : undefined,
