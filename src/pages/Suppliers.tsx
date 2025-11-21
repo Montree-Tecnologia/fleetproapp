@@ -317,15 +317,31 @@ export default function Suppliers() {
                 <p className="text-sm text-muted-foreground mb-2">Matriz/Filiais Vinculadas:</p>
                 <div className="flex flex-wrap gap-1">
                   {(() => {
-                    // Mapeia IDs para nomes e remove duplicatas
-                    const branches = supplier.branches || [];
-                    const branchNames = branches.map(branchIdOrName => {
-                      const company = companies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
-                      return company ? company.name : branchIdOrName;
+                    const rawBranches = supplier.branches || [];
+
+                    const branchNames = rawBranches.map((branch) => {
+                      // Quando o backend retorna apenas IDs/nomes
+                      if (typeof branch === 'string') {
+                        const company = companies.find(
+                          (c) => c.id === branch || c.name === branch
+                        );
+                        return company ? company.name : branch;
+                      }
+
+                      // Quando o backend retorna objetos de relação { supplierId, companyId, ... }
+                      if (branch && typeof branch === 'object') {
+                        const companyId = (branch as any).companyId;
+                        const company = companies.find((c) => c.id === companyId);
+                        return company ? company.name : companyId;
+                      }
+
+                      return String(branch);
                     });
                     
-                    // Remove duplicatas
-                    const uniqueBranchNames = Array.from(new Set(branchNames));
+                    // Remove duplicatas e valores vazios
+                    const uniqueBranchNames = Array.from(
+                      new Set(branchNames.filter(Boolean))
+                    );
                     
                     if (uniqueBranchNames.length === 0) {
                       return <Badge variant="outline" className="text-xs">Nenhuma</Badge>;
