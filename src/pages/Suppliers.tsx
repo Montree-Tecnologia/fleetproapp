@@ -513,13 +513,18 @@ export default function Suppliers() {
                 <div className="flex flex-wrap gap-2">
                   {(() => {
                     // Mapeia IDs para nomes e remove duplicatas
-                    const branchNames = viewingSupplier.branches.map(branchIdOrName => {
+                    const branches = viewingSupplier.branches || [];
+                    const branchNames = branches.map(branchIdOrName => {
                       const company = companies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
                       return company ? company.name : branchIdOrName;
                     });
                     
                     // Remove duplicatas
                     const uniqueBranchNames = Array.from(new Set(branchNames));
+
+                    if (uniqueBranchNames.length === 0) {
+                      return <Badge variant="outline" className="text-xs">Nenhuma</Badge>;
+                    }
                     
                     return uniqueBranchNames.map((displayName, index) => (
                       <Badge key={index} variant="secondary">
