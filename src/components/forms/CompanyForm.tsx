@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useMockData, Company } from '@/hooks/useMockData';
+import { Company, createCompany, updateCompany } from '@/services/companiesApi';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 
@@ -37,12 +37,12 @@ interface CompanyFormProps {
   initialData?: Company;
   onSuccess: () => void;
   onCancel?: () => void;
+  allCompanies: Company[];
 }
 
-export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormProps) {
-  const { addCompany, updateCompany, companies } = useMockData();
+export function CompanyForm({ initialData, onSuccess, onCancel, allCompanies }: CompanyFormProps) {
   const { toast } = useToast();
-  const allCompanies = companies();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const matrizes = allCompanies.filter(c => c.type === 'matriz');
   
   // Se não há nenhuma empresa cadastrada e não está editando, deve ser matriz
@@ -83,7 +83,7 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
 
   const watchType = form.watch('type');
 
-  const onSubmit = (data: CompanyFormValues) => {
+  const onSubmit = async (data: CompanyFormValues) => {
     // Validação: primeiro cadastro deve ser matriz
     if (!initialData && allCompanies.length === 0 && data.type !== 'matriz') {
       toast({
@@ -104,35 +104,47 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
       return;
     }
 
-    if (initialData) {
-      updateCompany(initialData.id, {
-        type: data.type,
-        name: data.name,
-        cnpj: data.cnpj,
-        city: data.city,
-        state: data.state,
-        matrizId: data.type === 'filial' ? data.matrizId : undefined,
-      });
+    try {
+      setIsSubmitting(true);
+      
+      if (initialData) {
+        await updateCompany(initialData.id, {
+          type: data.type,
+          name: data.name,
+          cnpj: data.cnpj,
+          city: data.city,
+          state: data.state,
+          matrizId: data.type === 'filial' ? data.matrizId : undefined,
+        });
+        toast({
+          title: 'Empresa atualizada',
+          description: `${data.name} foi atualizada com sucesso.`,
+        });
+      } else {
+        await createCompany({
+          type: data.type,
+          name: data.name,
+          cnpj: data.cnpj,
+          city: data.city,
+          state: data.state,
+          matrizId: data.type === 'filial' ? data.matrizId : undefined,
+        });
+        toast({
+          title: 'Empresa cadastrada',
+          description: `${data.name} foi adicionada com sucesso.`,
+        });
+      }
+      onSuccess();
+    } catch (error: any) {
+      console.error("Erro ao salvar empresa:", error);
       toast({
-        title: 'Empresa atualizada',
-        description: `${data.name} foi atualizada com sucesso.`,
+        title: 'Erro ao salvar',
+        description: error?.message || 'Ocorreu um erro ao salvar a empresa. Tente novamente.',
+        variant: 'destructive',
       });
-    } else {
-      addCompany({
-        type: data.type,
-        name: data.name,
-        cnpj: data.cnpj,
-        city: data.city,
-        state: data.state,
-        matrizId: data.type === 'filial' ? data.matrizId : undefined,
-        active: true,
-      });
-      toast({
-        title: 'Empresa cadastrada',
-        description: `${data.name} foi adicionada com sucesso.`,
-      });
+    } finally {
+      setIsSubmitting(false);
     }
-    onSuccess();
   };
 
   const formatCNPJ = (value: string) => {
@@ -284,7 +296,9 @@ export function CompanyForm({ initialData, onSuccess, onCancel }: CompanyFormPro
               Cancelar
             </Button>
           )}
-          <Button type="submit">Salvar</Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Salvando..." : "Salvar"}
+          </Button>
         </div>
       </form>
     </Form>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Building2, MapPin, Plus, Pencil, Trash2, Search, Power, Eye } from 'lucide-react';
 import { CompanyForm } from '@/components/forms/CompanyForm';
-import { useMockData, Company } from '@/hooks/useMockData';
+import { Company, getCompanies, deleteCompany, toggleCompanyActive } from '@/services/companiesApi';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Companies() {
@@ -38,12 +38,33 @@ export default function Companies() {
   const [searchTerm, setSearchTerm] = useState('');
   const [toggleActiveDialogOpen, setToggleActiveDialogOpen] = useState(false);
   const [companyToToggle, setCompanyToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
-  const { companies, updateCompany, deleteCompany } = useMockData();
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const allCompanies = companies();
+
+  const fetchCompanies = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getCompanies();
+      setCompanies(response.data);
+    } catch (error: any) {
+      console.error("Erro ao buscar empresas:", error);
+      toast({
+        title: "Erro ao carregar empresas",
+        description: error?.message || "Não foi possível carregar as empresas. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
 
   const getCompanyBranches = (matrizId: string) => {
-    return allCompanies.filter(c => c.type === 'filial' && c.matrizId === matrizId).length;
+    return companies.filter(c => c.type === 'filial' && c.matrizId === matrizId).length;
   };
 
   const handleEdit = (company: Company) => {
@@ -64,15 +85,25 @@ export default function Companies() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (companyToDelete) {
-      deleteCompany(companyToDelete.id);
-      toast({
-        title: 'Empresa excluída',
-        description: `${companyToDelete.name} foi removida do sistema.`,
-      });
-      setCompanyToDelete(null);
-      setDeleteDialogOpen(false);
+      try {
+        await deleteCompany(companyToDelete.id);
+        toast({
+          title: 'Empresa excluída',
+          description: `${companyToDelete.name} foi removida do sistema.`,
+        });
+        setCompanyToDelete(null);
+        setDeleteDialogOpen(false);
+        await fetchCompanies();
+      } catch (error: any) {
+        console.error("Erro ao excluir empresa:", error);
+        toast({
+          title: "Erro ao excluir",
+          description: error?.message || "Não foi possível excluir a empresa. Tente novamente.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -88,19 +119,29 @@ export default function Companies() {
     setToggleActiveDialogOpen(true);
   };
 
-  const confirmToggleActive = () => {
+  const confirmToggleActive = async () => {
     if (companyToToggle) {
-      updateCompany(companyToToggle.id, { active: !companyToToggle.currentStatus });
-      toast({
-        title: companyToToggle.currentStatus ? 'Empresa inativada' : 'Empresa ativada',
-        description: 'Status atualizado com sucesso.',
-      });
-      setToggleActiveDialogOpen(false);
-      setCompanyToToggle(null);
-      
-      // Atualiza a empresa sendo visualizada se estiver aberta
-      if (viewingCompany && viewingCompany.id === companyToToggle.id) {
-        setViewingCompany({ ...viewingCompany, active: !companyToToggle.currentStatus });
+      try {
+        await toggleCompanyActive(companyToToggle.id);
+        toast({
+          title: companyToToggle.currentStatus ? 'Empresa inativada' : 'Empresa ativada',
+          description: 'Status atualizado com sucesso.',
+        });
+        setToggleActiveDialogOpen(false);
+        setCompanyToToggle(null);
+        await fetchCompanies();
+        
+        // Atualiza a empresa sendo visualizada se estiver aberta
+        if (viewingCompany && viewingCompany.id === companyToToggle.id) {
+          setViewingCompany({ ...viewingCompany, active: !companyToToggle.currentStatus });
+        }
+      } catch (error: any) {
+        console.error("Erro ao alterar status:", error);
+        toast({
+          title: "Erro ao alterar status",
+          description: error?.message || "Não foi possível alterar o status da empresa. Tente novamente.",
+          variant: "destructive",
+        });
       }
     }
   };
@@ -114,7 +155,7 @@ export default function Companies() {
     return new Date(date).toLocaleDateString('pt-BR');
   };
 
-  const filteredCompanies = allCompanies.filter(company => {
+  const filteredCompanies = companies.filter(company => {
     const search = searchTerm.toLowerCase();
     return (
       company.name.toLowerCase().includes(search) ||
@@ -154,8 +195,12 @@ export default function Companies() {
               </DialogHeader>
               <CompanyForm 
                 initialData={editingCompany || undefined}
-                onSuccess={() => handleDialogClose(false)}
+                onSuccess={async () => {
+                  handleDialogClose(false);
+                  await fetchCompanies();
+                }}
                 onCancel={() => handleDialogClose(false)}
+                allCompanies={companies}
               />
             </DialogContent>
           </Dialog>
@@ -246,7 +291,7 @@ export default function Companies() {
                     <div className="col-span-2">
                       <span className="text-muted-foreground">Matriz:</span>
                       <p className="font-medium">
-                        {allCompanies.find(c => c.id === viewingCompany.matrizId)?.name || 'Não encontrada'}
+                        {companies.find(c => c.id === viewingCompany.matrizId)?.name || 'Não encontrada'}
                       </p>
                     </div>
                   )}
@@ -297,78 +342,86 @@ export default function Companies() {
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {displayedItems.map((company) => (
-          <Card key={company.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <Building2 className="h-8 w-8 text-primary" />
-                <div className="flex gap-2">
-                  <Badge variant={company.type === 'matriz' ? 'default' : 'secondary'}>
-                    {company.type === 'matriz' ? 'Matriz' : 'Filial'}
-                  </Badge>
-                  <Badge variant={company.active ? "default" : "destructive"} className={company.active ? "bg-green-600 hover:bg-green-700" : ""}>
-                    {company.active ? 'Ativa' : 'Inativa'}
-                  </Badge>
-                </div>
-              </div>
-              <CardTitle className="mt-4">{company.name}</CardTitle>
-              <CardDescription>{company.cnpj}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2 flex flex-col h-full">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span>{company.city} - {company.state}</span>
-              </div>
-              <div className="text-sm font-medium text-primary min-h-[20px]">
-                {company.type === 'matriz' && (
-                  <>
-                    {getCompanyBranches(company.id)} {getCompanyBranches(company.id) === 1 ? 'filial' : 'filiais'}
-                  </>
-                )}
-              </div>
-              
-              <div className="flex gap-2 pt-3 mt-auto">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => handleViewDetails(company)}
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  Detalhes
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleEdit(company)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant={company.active ? 'outline' : 'default'}
-                  onClick={() => handleToggleActive(company.id, company.name, company.active)}
-                >
-                  <Power className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => handleDelete(company)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {hasMore && (
-        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
-          <div className="animate-pulse text-muted-foreground text-sm">Carregando mais empresas...</div>
+      {isLoading ? (
+        <div className="flex justify-center items-center py-12">
+          <p className="text-muted-foreground">Carregando empresas...</p>
         </div>
+      ) : (
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {displayedItems.map((company) => (
+              <Card key={company.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <Building2 className="h-8 w-8 text-primary" />
+                    <div className="flex gap-2">
+                      <Badge variant={company.type === 'matriz' ? 'default' : 'secondary'}>
+                        {company.type === 'matriz' ? 'Matriz' : 'Filial'}
+                      </Badge>
+                      <Badge variant={company.active ? "default" : "destructive"} className={company.active ? "bg-green-600 hover:bg-green-700" : ""}>
+                        {company.active ? 'Ativa' : 'Inativa'}
+                      </Badge>
+                    </div>
+                  </div>
+                  <CardTitle className="mt-4">{company.name}</CardTitle>
+                  <CardDescription>{company.cnpj}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2 flex flex-col h-full">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4" />
+                    <span>{company.city} - {company.state}</span>
+                  </div>
+                  <div className="text-sm font-medium text-primary min-h-[20px]">
+                    {company.type === 'matriz' && (
+                      <>
+                        {getCompanyBranches(company.id)} {getCompanyBranches(company.id) === 1 ? 'filial' : 'filiais'}
+                      </>
+                    )}
+                  </div>
+                  
+                  <div className="flex gap-2 pt-3 mt-auto">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => handleViewDetails(company)}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Detalhes
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEdit(company)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={company.active ? 'outline' : 'default'}
+                      onClick={() => handleToggleActive(company.id, company.name, company.active)}
+                    >
+                      <Power className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDelete(company)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {hasMore && (
+            <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+              <div className="animate-pulse text-muted-foreground text-sm">Carregando mais empresas...</div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
