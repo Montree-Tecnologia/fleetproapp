@@ -63,9 +63,10 @@ export async function deleteSupplier(id: string) {
 }
 
 export async function toggleSupplierActive(id: string, active: boolean) {
-  const response = await apiRequest<Supplier>(`/suppliers/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify({ active }),
+  const endpoint = active ? `/suppliers/${id}` : `/suppliers/${id}/inactivate`;
+  const response = await apiRequest<Supplier>(endpoint, {
+    method: active ? 'PUT' : 'POST',
+    body: active ? JSON.stringify({ active }) : undefined,
   });
   return response.data;
 }
