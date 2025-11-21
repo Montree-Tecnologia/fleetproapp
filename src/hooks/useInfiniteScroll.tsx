@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
 interface UseInfiniteScrollOptions {
   initialItemsCount?: number;
@@ -14,25 +14,29 @@ export function useInfiniteScroll<T>(
     itemsPerPage = 10, // Itens carregados por scroll
   } = options;
 
-  const [displayedItems, setDisplayedItems] = useState<T[]>([]);
-  const [hasMore, setHasMore] = useState(true);
+  const [itemsCount, setItemsCount] = useState(initialItemsCount);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-  // Inicializa com os primeiros itens
+  // Recomeça a paginação quando a lista base muda de tamanho
   useEffect(() => {
-    const next = allItems.slice(0, initialItemsCount);
-    setDisplayedItems(next);
-    setHasMore(allItems.length > next.length);
+    setItemsCount(initialItemsCount);
   }, [allItems.length, initialItemsCount]);
+
+  const displayedItems = useMemo(
+    () => allItems.slice(0, itemsCount),
+    [allItems, itemsCount]
+  );
+
+  const hasMore = itemsCount < allItems.length;
 
   // Função para carregar mais itens
   const loadMore = useCallback(() => {
-    const currentLength = displayedItems.length;
-    const nextItems = allItems.slice(0, currentLength + itemsPerPage);
-    setDisplayedItems(nextItems);
-    setHasMore(nextItems.length < allItems.length);
-  }, [allItems, displayedItems.length, itemsPerPage]);
+    setItemsCount((current) => {
+      const nextCount = current + itemsPerPage;
+      return nextCount >= allItems.length ? allItems.length : nextCount;
+    });
+  }, [allItems.length, itemsPerPage]);
 
   // Observer para detectar quando chegar ao final
   useEffect(() => {
@@ -40,10 +44,14 @@ export function useInfiniteScroll<T>(
       observerRef.current.disconnect();
     }
 
+    if (!hasMore) {
+      return;
+    }
+
     observerRef.current = new IntersectionObserver(
       (entries) => {
         const first = entries[0];
-        if (first.isIntersecting && hasMore) {
+        if (first.isIntersecting) {
           loadMore();
         }
       },
