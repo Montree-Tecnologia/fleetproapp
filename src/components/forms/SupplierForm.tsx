@@ -20,7 +20,8 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
-import { Supplier, Company } from '@/hooks/useMockData';
+import { Supplier } from '@/services/suppliersApi';
+import { Company } from '@/services/companiesApi';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const supplierSchema = z.object({
@@ -72,11 +73,12 @@ interface SupplierFormProps {
 
 export function SupplierForm({ onSubmit, onCancel, initialData, companies }: SupplierFormProps) {
   const [selectedBranches, setSelectedBranches] = useState<string[]>(
-    initialData?.branches || ['Matriz']
+    initialData?.branches || []
   );
   const [documentType, setDocumentType] = useState<'cnpj' | 'cpf'>(
     initialData?.cpf ? 'cpf' : 'cnpj'
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SupplierFormData>({
     resolver: zodResolver(supplierSchema),
@@ -124,21 +126,26 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
     return value;
   };
 
-  const handleSubmit = (data: SupplierFormData) => {
-    onSubmit({
-      cnpj: data.documentType === 'cnpj' ? data.cnpj : undefined,
-      cpf: data.documentType === 'cpf' ? data.cpf : undefined,
-      name: data.name,
-      fantasyName: (data.type === 'other' && data.documentType === 'cpf') ? undefined : data.fantasyName,
-      type: data.type,
-      brand: data.brand,
-      city: data.city,
-      state: data.state.toUpperCase(),
-      phone: data.phone,
-      contactPerson: data.contactPerson,
-      branches: selectedBranches,
-      active: initialData?.active ?? true,
-    });
+  const handleSubmit = async (data: SupplierFormData) => {
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        cnpj: data.documentType === 'cnpj' ? data.cnpj : undefined,
+        cpf: data.documentType === 'cpf' ? data.cpf : undefined,
+        name: data.name,
+        fantasyName: (data.type === 'other' && data.documentType === 'cpf') ? undefined : data.fantasyName,
+        type: data.type,
+        brand: data.brand,
+        city: data.city,
+        state: data.state.toUpperCase(),
+        phone: data.phone,
+        contactPerson: data.contactPerson,
+        branches: selectedBranches,
+        active: initialData?.active ?? true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const toggleBranch = (branchId: string) => {
@@ -425,11 +432,11 @@ export function SupplierForm({ onSubmit, onCancel, initialData, companies }: Sup
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="outline-destructive" onClick={onCancel}>
+          <Button type="button" variant="outline-destructive" onClick={onCancel} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit">
-            {initialData ? 'Atualizar' : 'Cadastrar'}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Salvando...' : (initialData ? 'Atualizar' : 'Cadastrar')}
           </Button>
         </div>
       </form>

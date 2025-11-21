@@ -1,6 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { useMockData, Supplier } from '@/hooks/useMockData';
+import { 
+  Supplier, 
+  getSuppliers, 
+  createSupplier, 
+  updateSupplier, 
+  deleteSupplier, 
+  toggleSupplierActive 
+} from '@/services/suppliersApi';
+import { Company, getCompanies } from '@/services/companiesApi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,8 +36,10 @@ import { SupplierForm } from '@/components/forms/SupplierForm';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Suppliers() {
-  const { suppliers, companies, addSupplier, updateSupplier, deleteSupplier } = useMockData();
   const { toast } = useToast();
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -39,24 +49,61 @@ export default function Suppliers() {
   const [searchTerm, setSearchTerm] = useState('');
   const [toggleActiveDialogOpen, setToggleActiveDialogOpen] = useState(false);
   const [supplierToToggle, setSupplierToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
-  const allSuppliers = suppliers();
-  const allCompanies = companies();
 
-  const handleSubmit = (data: any) => {
-    if (editingSupplier) {
-      updateSupplier(editingSupplier.id, data);
+  useEffect(() => {
+    fetchSuppliers();
+    fetchCompanies();
+  }, []);
+
+  const fetchSuppliers = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getSuppliers();
+      setSuppliers(data);
+    } catch (error) {
       toast({
-        title: 'Fornecedor atualizado',
-        description: 'Fornecedor atualizado com sucesso.',
+        title: 'Erro ao carregar fornecedores',
+        description: 'Não foi possível carregar a lista de fornecedores.',
+        variant: 'destructive',
       });
-    } else {
-      addSupplier(data);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchCompanies = async () => {
+    try {
+      const response = await getCompanies();
+      setCompanies(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar empresas:', error);
+    }
+  };
+
+  const handleSubmit = async (data: any) => {
+    try {
+      if (editingSupplier) {
+        await updateSupplier(editingSupplier.id, data);
+        toast({
+          title: 'Fornecedor atualizado',
+          description: 'Fornecedor atualizado com sucesso.',
+        });
+      } else {
+        await createSupplier(data);
+        toast({
+          title: 'Fornecedor cadastrado',
+          description: 'Fornecedor adicionado com sucesso.',
+        });
+      }
+      handleDialogClose();
+      await fetchSuppliers();
+    } catch (error) {
       toast({
-        title: 'Fornecedor cadastrado',
-        description: 'Fornecedor adicionado com sucesso.',
+        title: 'Erro ao salvar fornecedor',
+        description: 'Não foi possível salvar o fornecedor.',
+        variant: 'destructive',
       });
     }
-    handleDialogClose();
   };
 
   const handleEdit = (supplier: Supplier) => {
@@ -74,15 +121,25 @@ export default function Suppliers() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (supplierToDelete) {
-      deleteSupplier(supplierToDelete.id);
-      toast({
-        title: 'Fornecedor removido',
-        description: `${supplierToDelete.name} foi removido do sistema.`,
-      });
-      setDeleteDialogOpen(false);
-      setSupplierToDelete(null);
+      try {
+        await deleteSupplier(supplierToDelete.id);
+        toast({
+          title: 'Fornecedor removido',
+          description: `${supplierToDelete.name} foi removido do sistema.`,
+        });
+        await fetchSuppliers();
+      } catch (error) {
+        toast({
+          title: 'Erro ao remover fornecedor',
+          description: 'Não foi possível remover o fornecedor.',
+          variant: 'destructive',
+        });
+      } finally {
+        setDeleteDialogOpen(false);
+        setSupplierToDelete(null);
+      }
     }
   };
 
@@ -123,24 +180,34 @@ export default function Suppliers() {
     setToggleActiveDialogOpen(true);
   };
 
-  const confirmToggleActive = () => {
+  const confirmToggleActive = async () => {
     if (supplierToToggle) {
-      updateSupplier(supplierToToggle.id, { active: !supplierToToggle.currentStatus });
-      toast({
-        title: supplierToToggle.currentStatus ? 'Fornecedor inativado' : 'Fornecedor ativado',
-        description: `${supplierToToggle.name} foi ${supplierToToggle.currentStatus ? 'inativado' : 'ativado'} com sucesso.`,
-      });
-      setToggleActiveDialogOpen(false);
-      setSupplierToToggle(null);
-      
-      // Atualiza o fornecedor sendo visualizado se estiver aberto
-      if (viewingSupplier && viewingSupplier.id === supplierToToggle.id) {
-        setViewingSupplier({ ...viewingSupplier, active: !supplierToToggle.currentStatus });
+      try {
+        await toggleSupplierActive(supplierToToggle.id, !supplierToToggle.currentStatus);
+        toast({
+          title: supplierToToggle.currentStatus ? 'Fornecedor inativado' : 'Fornecedor ativado',
+          description: `${supplierToToggle.name} foi ${supplierToToggle.currentStatus ? 'inativado' : 'ativado'} com sucesso.`,
+        });
+        await fetchSuppliers();
+        
+        // Atualiza o fornecedor sendo visualizado se estiver aberto
+        if (viewingSupplier && viewingSupplier.id === supplierToToggle.id) {
+          setViewingSupplier({ ...viewingSupplier, active: !supplierToToggle.currentStatus });
+        }
+      } catch (error) {
+        toast({
+          title: 'Erro ao alterar status',
+          description: 'Não foi possível alterar o status do fornecedor.',
+          variant: 'destructive',
+        });
+      } finally {
+        setToggleActiveDialogOpen(false);
+        setSupplierToToggle(null);
       }
     }
   };
 
-  const filteredSuppliers = allSuppliers.filter(supplier => {
+  const filteredSuppliers = suppliers.filter(supplier => {
     const search = searchTerm.toLowerCase();
     return (
       (supplier.fantasyName?.toLowerCase().includes(search)) ||
@@ -155,6 +222,14 @@ export default function Suppliers() {
     initialItemsCount: 20,
     itemsPerPage: 10
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-pulse text-muted-foreground">Carregando fornecedores...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 lg:space-y-6">
@@ -181,8 +256,8 @@ export default function Suppliers() {
               <SupplierForm
                 onSubmit={handleSubmit}
                 onCancel={handleDialogClose}
-                initialData={editingSupplier}
-                companies={allCompanies}
+                initialData={editingSupplier || undefined}
+                companies={companies}
               />
             </DialogContent>
           </Dialog>
@@ -244,7 +319,7 @@ export default function Suppliers() {
                   {(() => {
                     // Mapeia IDs para nomes e remove duplicatas
                     const branchNames = supplier.branches.map(branchIdOrName => {
-                      const company = allCompanies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
+                      const company = companies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
                       return company ? company.name : branchIdOrName;
                     });
                     
@@ -434,7 +509,7 @@ export default function Suppliers() {
                   {(() => {
                     // Mapeia IDs para nomes e remove duplicatas
                     const branchNames = viewingSupplier.branches.map(branchIdOrName => {
-                      const company = allCompanies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
+                      const company = companies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
                       return company ? company.name : branchIdOrName;
                     });
                     
