@@ -39,8 +39,10 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { getVehicleTypes, getVehicleBrands, getVehicleModels, VehicleType, VehicleBrand, VehicleModel } from '@/services/vehiclesApi';
+import { useToast } from '@/hooks/use-toast';
 
-// Mapeamento de marcas para modelos de veículos de tração
+// Mapeamento de marcas para modelos de veículos de tração (DEPRECATED - mantido como fallback)
 const TRACTION_BRAND_MODELS: Record<string, string[]> = {
   'Agrale': [
     '8500 TCA', '8500 TDX', '9200 TCA', '13000 TCA', '14000 TCA', '16000',
@@ -251,6 +253,7 @@ interface VehicleFormProps {
 }
 
 export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles = [], companies, suppliers }: VehicleFormProps) {
+  const { toast } = useToast();
   const [selectedBranches, setSelectedBranches] = useState<string[]>(
     initialData?.branches || ['Matriz']
   );
@@ -275,6 +278,16 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
   );
   const [customModel, setCustomModel] = useState(false);
   const [customBrand, setCustomBrand] = useState(false);
+
+  // API data states
+  const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([]);
+  const [vehicleBrands, setVehicleBrands] = useState<VehicleBrand[]>([]);
+  const [vehicleModels, setVehicleModels] = useState<VehicleModel[]>([]);
+  const [selectedVehicleTypeId, setSelectedVehicleTypeId] = useState<number | undefined>();
+  const [selectedBrandId, setSelectedBrandId] = useState<number | undefined>();
+  const [loadingTypes, setLoadingTypes] = useState(false);
+  const [loadingBrands, setLoadingBrands] = useState(false);
+  const [loadingModels, setLoadingModels] = useState(false);
 
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
@@ -308,6 +321,84 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     getVehicleCategory(initialData?.vehicleType)
   );
 
+  // Load vehicle types on mount
+  useEffect(() => {
+    const loadVehicleTypes = async () => {
+      setLoadingTypes(true);
+      try {
+        const response = await getVehicleTypes();
+        if (response.success && response.data) {
+          setVehicleTypes(response.data);
+        }
+      } catch (error) {
+        toast({
+          title: 'Erro ao carregar tipos de veículos',
+          description: 'Não foi possível carregar os tipos de veículos',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoadingTypes(false);
+      }
+    };
+    loadVehicleTypes();
+  }, []);
+
+  // Load brands when vehicle type changes
+  useEffect(() => {
+    if (!selectedVehicleTypeId) {
+      setVehicleBrands([]);
+      setVehicleModels([]);
+      return;
+    }
+
+    const loadBrands = async () => {
+      setLoadingBrands(true);
+      try {
+        const response = await getVehicleBrands(selectedVehicleTypeId);
+        if (response.success && response.data) {
+          setVehicleBrands(response.data);
+          setVehicleModels([]);
+          setSelectedBrandId(undefined);
+        }
+      } catch (error) {
+        toast({
+          title: 'Erro ao carregar marcas',
+          description: 'Não foi possível carregar as marcas de veículos',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoadingBrands(false);
+      }
+    };
+    loadBrands();
+  }, [selectedVehicleTypeId]);
+
+  // Load models when brand changes
+  useEffect(() => {
+    if (!selectedBrandId) {
+      setVehicleModels([]);
+      return;
+    }
+
+    const loadModels = async () => {
+      setLoadingModels(true);
+      try {
+        const response = await getVehicleModels(selectedBrandId);
+        if (response.success && response.data) {
+          setVehicleModels(response.data);
+        }
+      } catch (error) {
+        toast({
+          title: 'Erro ao carregar modelos',
+          description: 'Não foi possível carregar os modelos de veículos',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoadingModels(false);
+      }
+    };
+    loadModels();
+  }, [selectedBrandId]);
 
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
@@ -346,10 +437,15 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
 
   // Filtra os modelos disponíveis baseado na marca selecionada e categoria do veículo
   const availableModels = useMemo(() => {
+    // Use API data if available
+    if (vehicleModels.length > 0) {
+      return vehicleModels.map(m => m.name);
+    }
+    // Fallback to static data
     if (!selectedBrand) return [];
     const brandModels = vehicleCategory === 'trailer' ? TRAILER_BRAND_MODELS : TRACTION_BRAND_MODELS;
     return brandModels[selectedBrand] || [];
-  }, [selectedBrand, vehicleCategory]);
+  }, [selectedBrand, vehicleCategory, vehicleModels]);
 
   // Extrai o número de eixos do nome do modelo
   const extractAxlesFromModel = (modelName: string): number | null => {
@@ -487,39 +583,36 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         {!initialData && (
           <div className="p-4 bg-muted/50 rounded-lg border border-border">
-            <label className="text-sm font-medium mb-3 block">Categoria do Veículo *</label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setVehicleCategory('traction');
-                  form.setValue('vehicleType', 'Truck');
-                }}
-                className={`p-4 rounded-lg border-2 transition-all ${
-                  vehicleCategory === 'traction'
-                    ? 'border-primary bg-primary/10'
-                    : 'border-border hover:border-primary/50'
-                }`}
-              >
-                <div className="font-semibold mb-1">Veículo de Tração</div>
-                <div className="text-xs text-muted-foreground">Truck, Cavalo Mecânico, Toco, VUC, 3/4, Bitruck</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setVehicleCategory('trailer');
-                  form.setValue('vehicleType', 'Baú');
-                }}
-                className={`p-4 rounded-lg border-2 transition-all ${
-                  vehicleCategory === 'trailer'
-                    ? 'border-primary bg-primary/10'
-                    : 'border-border hover:border-primary/50'
-                }`}
-              >
-                <div className="font-semibold mb-1">Veículo de Reboque</div>
-                <div className="text-xs text-muted-foreground">Baú, Sider, Carreta, Graneleiro, etc.</div>
-              </button>
-            </div>
+            <label className="text-sm font-medium mb-3 block">Tipo de Veículo *</label>
+            <Select 
+              onValueChange={(value) => {
+                const typeId = parseInt(value);
+                setSelectedVehicleTypeId(typeId);
+                const selectedType = vehicleTypes.find(t => t.id === typeId);
+                if (selectedType) {
+                  // Determina a categoria baseada no nome
+                  if (selectedType.name.toLowerCase().includes('tração')) {
+                    setVehicleCategory('traction');
+                    form.setValue('vehicleType', 'Truck');
+                  } else if (selectedType.name.toLowerCase().includes('reboque')) {
+                    setVehicleCategory('trailer');
+                    form.setValue('vehicleType', 'Baú');
+                  }
+                }
+              }}
+              disabled={loadingTypes}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={loadingTypes ? "Carregando..." : "Selecione o tipo de veículo"} />
+              </SelectTrigger>
+              <SelectContent>
+                {vehicleTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id.toString()}>
+                    {type.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         )}
 
@@ -614,121 +707,36 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Marca *</FormLabel>
-                {customBrand ? (
+                <Select 
+                  onValueChange={(value) => {
+                    const brandId = parseInt(value);
+                    setSelectedBrandId(brandId);
+                    const selectedBrand = vehicleBrands.find(b => b.id === brandId);
+                    if (selectedBrand) {
+                      field.onChange(selectedBrand.name);
+                      setSelectedBrand(selectedBrand.name);
+                      form.setValue('model', '');
+                    }
+                  }} 
+                  disabled={!selectedVehicleTypeId || loadingBrands}
+                >
                   <FormControl>
-                    <div className="flex gap-2">
-                      <Input 
-                        placeholder="Digite a marca" 
-                        value={field.value}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          setSelectedBrand(e.target.value);
-                        }}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setCustomBrand(false);
-                          field.onChange('');
-                          setSelectedBrand(undefined);
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <SelectTrigger>
+                      <SelectValue placeholder={
+                        loadingBrands ? "Carregando..." : 
+                        !selectedVehicleTypeId ? "Selecione o tipo primeiro" : 
+                        "Selecione a marca"
+                      } />
+                    </SelectTrigger>
                   </FormControl>
-                ) : (
-                  <Select 
-                    onValueChange={(value) => {
-                      if (value === "Outra") {
-                        setCustomBrand(true);
-                        field.onChange('');
-                        setSelectedBrand(undefined);
-                        form.setValue('model', '');
-                      } else {
-                        field.onChange(value);
-                        setSelectedBrand(value);
-                        form.setValue('model', '');
-                      }
-                    }} 
-                    defaultValue={field.value}
-                    disabled={!vehicleCategory && !initialData}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={vehicleCategory ? "Selecione a marca" : "Selecione primeiro a categoria"} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {vehicleCategory === 'traction' && (
-                        <>
-                          <SelectItem value="Agrale">Agrale</SelectItem>
-                          <SelectItem value="DAF">DAF</SelectItem>
-                          <SelectItem value="Ford">Ford</SelectItem>
-                          <SelectItem value="International">International</SelectItem>
-                          <SelectItem value="Iveco">Iveco</SelectItem>
-                          <SelectItem value="MAN">MAN</SelectItem>
-                          <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
-                          <SelectItem value="Mitsubishi">Mitsubishi</SelectItem>
-                          <SelectItem value="Peugeot">Peugeot</SelectItem>
-                          <SelectItem value="Renault">Renault</SelectItem>
-                          <SelectItem value="Scania">Scania</SelectItem>
-                          <SelectItem value="Volvo">Volvo</SelectItem>
-                          <SelectItem value="Volkswagen">Volkswagen</SelectItem>
-                          <SelectItem value="Outra">Outra (digitar manualmente)</SelectItem>
-                        </>
-                      )}
-                      {vehicleCategory === 'trailer' && (
-                        <>
-                          <SelectItem value="Randon">Randon</SelectItem>
-                          <SelectItem value="Librelato">Librelato</SelectItem>
-                          <SelectItem value="Guerra">Guerra</SelectItem>
-                          <SelectItem value="Noma">Noma</SelectItem>
-                          <SelectItem value="Facchini">Facchini</SelectItem>
-                          <SelectItem value="Vanderleia">Vanderleia</SelectItem>
-                          <SelectItem value="Rodotec">Rodotec</SelectItem>
-                          <SelectItem value="Rondon">Rondon</SelectItem>
-                          <SelectItem value="Kässbohrer">Kässbohrer</SelectItem>
-                          <SelectItem value="Recrusul">Recrusul</SelectItem>
-                          <SelectItem value="Schiffer">Schiffer</SelectItem>
-                          <SelectItem value="Pastre">Pastre</SelectItem>
-                          <SelectItem value="Outra">Outra (digitar manualmente)</SelectItem>
-                        </>
-                      )}
-                      {initialData && !vehicleCategory && (
-                        <>
-                          <SelectItem value="Agrale">Agrale</SelectItem>
-                          <SelectItem value="DAF">DAF</SelectItem>
-                          <SelectItem value="Ford">Ford</SelectItem>
-                          <SelectItem value="International">International</SelectItem>
-                          <SelectItem value="Iveco">Iveco</SelectItem>
-                          <SelectItem value="MAN">MAN</SelectItem>
-                          <SelectItem value="Mercedes-Benz">Mercedes-Benz</SelectItem>
-                          <SelectItem value="Mitsubishi">Mitsubishi</SelectItem>
-                          <SelectItem value="Peugeot">Peugeot</SelectItem>
-                          <SelectItem value="Renault">Renault</SelectItem>
-                          <SelectItem value="Scania">Scania</SelectItem>
-                          <SelectItem value="Volvo">Volvo</SelectItem>
-                          <SelectItem value="Volkswagen">Volkswagen</SelectItem>
-                          <SelectItem value="Randon">Randon</SelectItem>
-                          <SelectItem value="Librelato">Librelato</SelectItem>
-                          <SelectItem value="Guerra">Guerra</SelectItem>
-                          <SelectItem value="Noma">Noma</SelectItem>
-                          <SelectItem value="Facchini">Facchini</SelectItem>
-                          <SelectItem value="Vanderleia">Vanderleia</SelectItem>
-                          <SelectItem value="Rodotec">Rodotec</SelectItem>
-                          <SelectItem value="Rondon">Rondon</SelectItem>
-                          <SelectItem value="Kässbohrer">Kässbohrer</SelectItem>
-                          <SelectItem value="Recrusul">Recrusul</SelectItem>
-                          <SelectItem value="Schiffer">Schiffer</SelectItem>
-                          <SelectItem value="Pastre">Pastre</SelectItem>
-                          <SelectItem value="Outra">Outra (digitar manualmente)</SelectItem>
-                        </>
-                      )}
-                    </SelectContent>
-                  </Select>
-                )}
+                  <SelectContent>
+                    {vehicleBrands.map((brand) => (
+                      <SelectItem key={brand.id} value={brand.id.toString()}>
+                        {brand.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -740,55 +748,32 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Modelo *</FormLabel>
-                {customModel || customBrand ? (
+                <Select 
+                  onValueChange={(value) => {
+                    const selectedModel = vehicleModels.find(m => m.id === parseInt(value));
+                    if (selectedModel) {
+                      field.onChange(selectedModel.name);
+                    }
+                  }} 
+                  disabled={!selectedBrandId || loadingModels}
+                >
                   <FormControl>
-                    <div className="flex gap-2">
-                      <Input 
-                        placeholder="Digite o modelo" 
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                      {!customBrand && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            setCustomModel(false);
-                            field.onChange('');
-                          }}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
+                    <SelectTrigger>
+                      <SelectValue placeholder={
+                        loadingModels ? "Carregando..." :
+                        !selectedBrandId ? "Selecione a marca primeiro" : 
+                        "Selecione o modelo"
+                      } />
+                    </SelectTrigger>
                   </FormControl>
-                ) : (
-                  <Select 
-                    onValueChange={(value) => {
-                      if (value === "Outro (digitar manualmente)") {
-                        setCustomModel(true);
-                        field.onChange('');
-                      } else {
-                        field.onChange(value);
-                      }
-                    }} 
-                    defaultValue={field.value}
-                    disabled={!selectedBrand}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={selectedBrand ? "Selecione o modelo" : "Selecione a marca primeiro"} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {availableModels.map((model) => (
-                        <SelectItem key={model} value={model}>
-                          {model}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
+                  <SelectContent>
+                    {vehicleModels.map((model) => (
+                      <SelectItem key={model.id} value={model.id.toString()}>
+                        {model.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
