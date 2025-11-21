@@ -21,8 +21,7 @@ export function useInfiniteScroll<T>(
 
   // Inicializa com os primeiros itens
   useEffect(() => {
-    const initialCount = Math.max(initialItemsCount, displayedItems.length);
-    const next = allItems.slice(0, initialCount);
+    const next = allItems.slice(0, initialItemsCount);
     setDisplayedItems(next);
     setHasMore(allItems.length > next.length);
   }, [allItems, initialItemsCount]);
