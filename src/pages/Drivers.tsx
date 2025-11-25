@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useState, useEffect } from 'react';
 import { useMockData, Driver } from '@/hooks/useMockData';
-import { createDriver } from '@/services/driversApi';
+import { createDriver, fetchDrivers, DriverResponse } from '@/services/driversApi';
 import { ApiError } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +24,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil, Eye, Upload, X, Search, Power, AlertTriangle } from 'lucide-react';
+import { UserPlus, IdCard, Calendar, FileText, Trash2, Building2, Pencil, Eye, Upload, X, Search, Power, AlertTriangle, Loader2 } from 'lucide-react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -64,6 +72,7 @@ export default function Drivers() {
   const { drivers, addDriver, updateDriver, deleteDriver, companies } = useMockData();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -83,6 +92,40 @@ export default function Drivers() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(20);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalDrivers, setTotalDrivers] = useState(0);
+  const [apiDrivers, setApiDrivers] = useState<DriverResponse[]>([]);
+
+  // Load drivers from API
+  useEffect(() => {
+    const loadDrivers = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetchDrivers(currentPage, perPage);
+        if (response.success && response.data) {
+          setApiDrivers(response.data.drivers);
+          setTotalPages(response.data.meta.lastPage);
+          setTotalDrivers(response.data.meta.total);
+        }
+      } catch (error) {
+        if (error instanceof ApiError) {
+          toast({
+            title: 'Erro ao carregar motoristas',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDrivers();
+  }, [currentPage, perPage, toast]);
 
   const allDrivers = drivers();
 
@@ -352,7 +395,20 @@ export default function Drivers() {
     return age;
   };
 
-  const filteredDrivers = allDrivers.filter(driver => {
+  // Convert API drivers to local format
+  const convertedApiDrivers: Driver[] = apiDrivers.map(apiDriver => ({
+    id: apiDriver.id,
+    name: apiDriver.name,
+    cpf: apiDriver.cpf,
+    birthDate: apiDriver.birthDate,
+    cnhCategory: apiDriver.cnhCategory,
+    cnhValidity: apiDriver.cnhValidity,
+    branches: ['Matriz'], // TODO: map from API when available
+    active: true,
+    cnhDocument: undefined,
+  }));
+
+  const filteredDrivers = convertedApiDrivers.filter(driver => {
     const search = searchTerm.toLowerCase();
     return (
       driver.name.toLowerCase().includes(search) ||
@@ -361,10 +417,7 @@ export default function Drivers() {
     );
   });
 
-  const { displayedItems, hasMore, loadMoreRef } = useInfiniteScroll(filteredDrivers, {
-    initialItemsCount: 20,
-    itemsPerPage: 10
-  });
+  const displayedDrivers = filteredDrivers;
 
   return (
     <div className="space-y-4 lg:space-y-6">
@@ -591,8 +644,18 @@ export default function Drivers() {
         />
       </div>
 
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {displayedItems.map((driver) => {
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : displayedDrivers.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Nenhum motorista encontrado</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {displayedDrivers.map((driver) => {
           const cnhStatus = getCNHStatus(driver.cnhValidity);
           
           return (
@@ -688,9 +751,76 @@ export default function Drivers() {
                 </div>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-6">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage > 1) setCurrentPage(currentPage - 1);
+                      }}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                    // Show first page, last page, current page, and pages around current
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setCurrentPage(page);
+                            }}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    } else if (
+                      page === currentPage - 2 ||
+                      page === currentPage + 2
+                    ) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      );
+                    }
+                    return null;
+                  })}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                      }}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </>
+      )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
@@ -850,11 +980,6 @@ export default function Drivers() {
         </DialogContent>
       </Dialog>
 
-      {hasMore && (
-        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
-          <div className="animate-pulse text-muted-foreground text-sm">Carregando mais motoristas...</div>
-        </div>
-      )}
     </div>
   );
 }
