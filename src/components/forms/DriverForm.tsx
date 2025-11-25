@@ -75,16 +75,6 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
     fetchCompanies();
   }, []);
 
-  // Atualizar badges selecionados quando initialData mudar
-  useEffect(() => {
-    if (initialData?.branches) {
-      setSelectedBranches(initialData.branches.map(b => parseInt(b)));
-    }
-    if (initialData?.cnhDocument) {
-      setCnhDocument(initialData.cnhDocument);
-    }
-  }, [initialData]);
-
   const form = useForm<DriverFormData>({
     resolver: zodResolver(driverSchema),
     defaultValues: initialData ? {
