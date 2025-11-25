@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useMockData, Driver } from '@/hooks/useMockData';
 import { createDriver, fetchDrivers, DriverResponse } from '@/services/driversApi';
-import { DriverForm } from '@/components/forms/DriverForm';
 import { ApiError } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -156,55 +155,130 @@ export default function Drivers() {
     setFormData({ ...formData, cnhDocument: undefined });
   };
 
-  const handleFormSubmit = async (data: Omit<Driver, 'id'>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (isSubmitting) return;
     
     try {
       setIsSubmitting(true);
-
-      // Converter branches (string array) para IDs numéricos
-      const branchIds = data.branches.map(b => parseInt(b)).filter(id => !isNaN(id));
-
-      if (branchIds.length === 0) {
-        toast({
-          title: 'Erro de validação',
-          description: 'Nenhuma filial válida selecionada',
-          variant: 'destructive',
-        });
+      setErrors({});
+      
+      const validatedData = driverSchema.parse(formData);
+      
+      if (allDrivers.some(d => d.cpf === validatedData.cpf && d.id !== editingDriver?.id)) {
+        setErrors({ cpf: 'CPF já cadastrado' });
         return;
       }
 
-      const response = await createDriver({
-        name: data.name,
-        cpf: data.cpf,
-        birthDate: data.birthDate,
-        cnhCategory: data.cnhCategory,
-        cnhValidity: data.cnhValidity,
-        cnhDocumentBase64: '',
-        branches: branchIds,
-      });
-
-      if (response.success && response.data) {
-        toast({
-          title: 'Motorista cadastrado',
-          description: response.message || `${data.name} foi adicionado com sucesso.`,
+      if (editingDriver) {
+        // Modo edição - continua usando mock
+        updateDriver(editingDriver.id, {
+          name: validatedData.name,
+          cpf: validatedData.cpf,
+          birthDate: validatedData.birthDate,
+          cnhCategory: validatedData.cnhCategory,
+          cnhValidity: validatedData.cnhValidity,
+          branches: validatedData.branches,
+          cnhDocument: formData.cnhDocument,
         });
 
-        // Recarregar a lista de motoristas
-        const driversResponse = await fetchDrivers(currentPage, perPage);
-        if (driversResponse.success && driversResponse.data) {
-          setApiDrivers(driversResponse.data.data);
-          setTotalPages(driversResponse.data.pagination.totalPages);
-          setTotalDrivers(driversResponse.data.pagination.totalRecords);
+        toast({
+          title: 'Motorista atualizado',
+          description: `${validatedData.name} foi atualizado com sucesso.`,
+        });
+      } else {
+        // Modo criação - chama a API
+        const allCompanies = companies();
+        
+        // Mapear nomes das branches para IDs numéricos
+        const branchIds = validatedData.branches
+          .map(branchName => {
+            const company = allCompanies.find(c => c.name === branchName);
+            return company ? parseInt(company.id) : null;
+          })
+          .filter((id): id is number => id !== null);
+
+        if (branchIds.length === 0) {
+          setErrors({ branches: 'Nenhuma filial válida selecionada' });
+          return;
         }
 
-        handleDialogClose();
+        // Extrair apenas o base64 do documento (remover o prefixo data:image/...;base64,)
+        let cnhDocumentBase64 = '';
+        if (formData.cnhDocument) {
+          const base64Match = formData.cnhDocument.match(/^data:.*;base64,(.+)$/);
+          cnhDocumentBase64 = base64Match ? base64Match[1] : formData.cnhDocument;
+        }
+
+        const response = await createDriver({
+          name: validatedData.name,
+          cpf: validatedData.cpf,
+          birthDate: validatedData.birthDate,
+          cnhCategory: validatedData.cnhCategory,
+          cnhValidity: validatedData.cnhValidity,
+          cnhDocumentBase64,
+          branches: branchIds,
+        });
+
+        if (response.success && response.data) {
+          // Adicionar o motorista aos dados locais com os dados retornados pela API
+          const newDriver: Driver = {
+            id: response.data.driver.id,
+            name: response.data.driver.name,
+            cpf: response.data.driver.cpf,
+            birthDate: response.data.driver.birthDate,
+            cnhCategory: response.data.driver.cnhCategory,
+            cnhValidity: response.data.driver.cnhValidity,
+            branches: validatedData.branches, // Manter os nomes das branches
+            active: true,
+            cnhDocument: formData.cnhDocument,
+          };
+
+          addDriver(newDriver);
+
+          toast({
+            title: 'Motorista cadastrado',
+            description: response.message || `${validatedData.name} foi adicionado com sucesso.`,
+          });
+        }
       }
+
+      handleDialogClose();
     } catch (error) {
       if (error instanceof ApiError) {
+        // Tratar erros de validação da API
+        if (error.validationErrors) {
+          const fieldErrors: Record<string, string> = {};
+          error.validationErrors.forEach((err) => {
+            fieldErrors[err.field] = err.message;
+          });
+          setErrors(fieldErrors);
+          
+          toast({
+            title: 'Erro de validação',
+            description: 'Verifique os campos destacados',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Erro ao cadastrar motorista',
+            description: error.message,
+            variant: 'destructive',
+          });
+        }
+      } else if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0].toString()] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+        
         toast({
-          title: 'Erro ao cadastrar motorista',
-          description: error.message,
+          title: 'Erro de validação',
+          description: 'Verifique os campos destacados',
           variant: 'destructive',
         });
       } else {
@@ -363,19 +437,199 @@ export default function Drivers() {
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingDriver ? 'Editar Motorista' : 'Cadastrar Motorista'}</DialogTitle>
-              <DialogDescription>
-                {editingDriver ? 'Atualize as informações do motorista.' : 'Adicione um novo motorista à sua frota.'}
-              </DialogDescription>
-            </DialogHeader>
-            <DriverForm
-              onSubmit={handleFormSubmit}
-              onCancel={handleDialogClose}
-              initialData={editingDriver || undefined}
-              existingCpfs={allDrivers.map(d => d.cpf)}
-              companies={companies()}
-            />
+            <form onSubmit={handleSubmit}>
+              <DialogHeader>
+                <DialogTitle>{editingDriver ? 'Editar Motorista' : 'Cadastrar Motorista'}</DialogTitle>
+                <DialogDescription>
+                  {editingDriver ? 'Atualize as informações do motorista.' : 'Adicione um novo motorista à sua frota.'}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome Completo</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => {
+                      setFormData({ ...formData, name: e.target.value });
+                      setErrors({ ...errors, name: '' });
+                    }}
+                    placeholder="João da Silva"
+                    maxLength={100}
+                  />
+                  {errors.name && (
+                    <p className="text-sm text-destructive">{errors.name}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cpf">CPF</Label>
+                  <Input
+                    id="cpf"
+                    value={formData.cpf}
+                    onChange={(e) => {
+                      const formatted = formatCPF(e.target.value);
+                      setFormData({ ...formData, cpf: formatted });
+                      setErrors({ ...errors, cpf: '' });
+                    }}
+                    placeholder="000.000.000-00"
+                    maxLength={14}
+                  />
+                  {errors.cpf && (
+                    <p className="text-sm text-destructive">{errors.cpf}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="birthDate">Data de Nascimento</Label>
+                  <Input
+                    id="birthDate"
+                    type="date"
+                    value={formData.birthDate}
+                    onChange={(e) => {
+                      setFormData({ ...formData, birthDate: e.target.value });
+                      setErrors({ ...errors, birthDate: '' });
+                    }}
+                  />
+                  {errors.birthDate && (
+                    <p className="text-sm text-destructive">{errors.birthDate}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cnhCategory">Categoria da CNH</Label>
+                  <Select
+                    value={formData.cnhCategory}
+                    onValueChange={(value: any) =>
+                      setFormData({ ...formData, cnhCategory: value })
+                    }
+                  >
+                    <SelectTrigger id="cnhCategory">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="A">A - Motocicletas</SelectItem>
+                      <SelectItem value="B">B - Carros</SelectItem>
+                      <SelectItem value="C">C - Veículos de Carga</SelectItem>
+                      <SelectItem value="D">D - Veículos de Passageiros</SelectItem>
+                      <SelectItem value="E">E - Combinações de Veículos</SelectItem>
+                      <SelectItem value="AB">AB - A + B</SelectItem>
+                      <SelectItem value="AC">AC - A + C</SelectItem>
+                      <SelectItem value="AD">AD - A + D</SelectItem>
+                      <SelectItem value="AE">AE - A + E</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cnhValidity">Validade da CNH</Label>
+                  <Input
+                    id="cnhValidity"
+                    type="date"
+                    value={formData.cnhValidity}
+                    onChange={(e) => {
+                      setFormData({ ...formData, cnhValidity: e.target.value });
+                      setErrors({ ...errors, cnhValidity: '' });
+                    }}
+                  />
+                  {errors.cnhValidity && (
+                    <p className="text-sm text-destructive">{errors.cnhValidity}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Matriz/Filiais Vinculadas</Label>
+                  <div className="flex flex-wrap gap-2 p-3 border rounded-md">
+                    {['Matriz', 'Filial SP', 'Filial RJ', 'Filial MG'].map((branch) => (
+                      <Badge
+                        key={branch}
+                        variant={formData.branches.includes(branch) ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => {
+                          if (formData.branches.includes(branch)) {
+                            if (formData.branches.length > 1) {
+                              setFormData({
+                                ...formData,
+                                branches: formData.branches.filter(b => b !== branch)
+                              });
+                            }
+                          } else {
+                            setFormData({
+                              ...formData,
+                              branches: [...formData.branches, branch]
+                            });
+                          }
+                        }}
+                      >
+                        {branch}
+                      </Badge>
+                    ))}
+                  </div>
+                  {errors.branches && (
+                    <p className="text-sm text-destructive">{errors.branches}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Documento CNH (Foto/PDF)</Label>
+                  <div className="space-y-2">
+                    {formData.cnhDocument ? (
+                      <div className="relative">
+                        {formData.cnhDocument.startsWith('data:image') ? (
+                          <img
+                            src={formData.cnhDocument}
+                            alt="CNH"
+                            className="w-full h-40 object-cover rounded-lg border border-border"
+                          />
+                        ) : (
+                          <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                            <FileText className="h-5 w-5" />
+                            <span className="text-sm">Documento anexado</span>
+                          </div>
+                        )}
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2 h-8 w-8"
+                          onClick={removeCNHDocument}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <Input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          onChange={handleCNHUpload}
+                          className="hidden"
+                          id="cnh-upload"
+                        />
+                        <label htmlFor="cnh-upload">
+                          <Button type="button" variant="outline" className="w-full" asChild>
+                            <span className="cursor-pointer">
+                              <Upload className="h-4 w-4 mr-2" />
+                              Anexar CNH
+                            </span>
+                          </Button>
+                        </label>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button type="button" variant="outline-destructive" onClick={handleDialogClose} disabled={isSubmitting}>
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Salvando...' : (editingDriver ? 'Atualizar' : 'Cadastrar')}
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       </div>

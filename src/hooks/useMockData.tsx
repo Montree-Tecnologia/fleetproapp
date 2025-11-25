@@ -9,7 +9,6 @@ export interface Driver {
   cnhCategory: string;
   cnhValidity: string;
   cnhDocument?: string;
-  cnhDocumentBase64?: string;
   active: boolean;
   branches: string[];
 }
