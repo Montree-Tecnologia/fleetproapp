@@ -65,13 +65,18 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
+        console.log('🔍 Buscando empresas da API /companies/combo...');
         const response = await getCompaniesCombo();
+        console.log('📦 Resposta da API:', response);
         if (response.success && response.data) {
+          console.log('✅ Empresas carregadas:', response.data);
           setApiCompanies(response.data);
+        } else {
+          console.warn('⚠️ Resposta sem dados:', response);
         }
       } catch (error) {
+        console.error('❌ Erro ao carregar empresas:', error);
         toast.error('Erro ao carregar empresas');
-        console.error(error);
       } finally {
         setLoadingCompanies(false);
       }
