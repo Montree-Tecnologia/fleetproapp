@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useMockData, Driver } from '@/hooks/useMockData';
-import { createDriver, fetchDrivers, DriverResponse } from '@/services/driversApi';
+import { createDriver, fetchDrivers, deleteDriver as deleteDriverApi, DriverResponse } from '@/services/driversApi';
 import { DriverForm } from '@/components/forms/DriverForm';
 import { ApiError } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,7 +70,7 @@ const driverSchema = z.object({
 });
 
 export default function Drivers() {
-  const { drivers, addDriver, updateDriver, deleteDriver, companies } = useMockData();
+  const { drivers, addDriver, updateDriver, companies } = useMockData();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -102,29 +102,29 @@ export default function Drivers() {
   const [apiDrivers, setApiDrivers] = useState<DriverResponse[]>([]);
 
   // Load drivers from API
-  useEffect(() => {
-    const loadDrivers = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetchDrivers(currentPage, perPage);
-        if (response.success && response.data) {
-          setApiDrivers(response.data.data);
-          setTotalPages(response.data.pagination.totalPages);
-          setTotalDrivers(response.data.pagination.totalRecords);
-        }
-      } catch (error) {
-        if (error instanceof ApiError) {
-          toast({
-            title: 'Erro ao carregar motoristas',
-            description: error.message,
-            variant: 'destructive',
-          });
-        }
-      } finally {
-        setIsLoading(false);
+  const loadDrivers = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetchDrivers(currentPage, perPage);
+      if (response.success && response.data) {
+        setApiDrivers(response.data.data);
+        setTotalPages(response.data.pagination.totalPages);
+        setTotalDrivers(response.data.pagination.totalRecords);
       }
-    };
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast({
+          title: 'Erro ao carregar motoristas',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadDrivers();
   }, [currentPage, perPage, toast]);
 
@@ -351,15 +351,35 @@ export default function Drivers() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (driverToDelete) {
-      deleteDriver(driverToDelete.id);
-      toast({
-        title: 'Motorista removido',
-        description: `${driverToDelete.name} foi removido do sistema.`,
-      });
-      setDeleteDialogOpen(false);
-      setDriverToDelete(null);
+      try {
+        setIsSubmitting(true);
+        const response = await deleteDriverApi(driverToDelete.id);
+        
+        if (response.success) {
+          toast({
+            title: 'Motorista removido',
+            description: `${driverToDelete.name} foi removido do sistema.`,
+          });
+          setDeleteDialogOpen(false);
+          setDriverToDelete(null);
+          
+          // Recarrega a lista de motoristas
+          loadDrivers();
+        } else {
+          throw new Error(response.error?.message || 'Erro ao excluir motorista');
+        }
+      } catch (error) {
+        console.error('Erro ao excluir motorista:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao excluir',
+          description: error instanceof Error ? error.message : 'Não foi possível excluir o motorista. Tente novamente.',
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
