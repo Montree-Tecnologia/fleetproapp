@@ -76,6 +76,7 @@ export default function Drivers() {
   const [isLoading, setIsLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
+  const [editingDriverBranchIds, setEditingDriverBranchIds] = useState<number[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [driverToDelete, setDriverToDelete] = useState<{ id: string; name: string } | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
@@ -299,9 +300,10 @@ export default function Drivers() {
     const apiDriver = apiDrivers.find(d => d.id === driver.id);
     
     // Extrair os IDs das empresas vinculadas
-    const branchIds = apiDriver?.branches.map(branch => branch.companyId) || [];
+    const branchIds = apiDriver?.branches.map(branch => parseInt(branch.companyId)) || [];
     
     setEditingDriver(driver);
+    setEditingDriverBranchIds(branchIds);
     setFormData({
       name: driver.name,
       cpf: driver.cpf,
@@ -318,6 +320,7 @@ export default function Drivers() {
   const handleDialogClose = () => {
     setOpen(false);
     setEditingDriver(null);
+    setEditingDriverBranchIds([]);
     setFormData({
       name: '',
       cpf: '',
@@ -568,6 +571,7 @@ export default function Drivers() {
               initialData={editingDriver || undefined}
               existingCpfs={allDrivers.map(d => d.cpf)}
               companies={companies()}
+              initialBranchIds={editingDriverBranchIds}
             />
           </DialogContent>
         </Dialog>
