@@ -460,13 +460,20 @@ export default function Drivers() {
                     // Modo criação - chama a API
                     const branchIds = driverData.branches.map(b => parseInt(b));
 
+                    // Extrair apenas o base64 do documento (remover o prefixo data:image/...;base64,)
+                    let cnhDocumentBase64 = '';
+                    if (driverData.cnhDocument) {
+                      const base64Match = driverData.cnhDocument.match(/^data:.*;base64,(.+)$/);
+                      cnhDocumentBase64 = base64Match ? base64Match[1] : driverData.cnhDocument;
+                    }
+
                     const response = await createDriver({
                       name: driverData.name,
                       cpf: driverData.cpf,
                       birthDate: driverData.birthDate,
                       cnhCategory: driverData.cnhCategory,
                       cnhValidity: driverData.cnhValidity,
-                      cnhDocumentBase64: '',
+                      cnhDocumentBase64,
                       branches: branchIds,
                     });
 
