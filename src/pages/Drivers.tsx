@@ -459,7 +459,13 @@ export default function Drivers() {
           </p>
         </div>
 
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(isOpen) => {
+          setOpen(isOpen);
+          if (isOpen && !editingDriver) {
+            // Limpa os badges quando abre para novo cadastro
+            setEditingDriverBranchIds([]);
+          }
+        }}>
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto">
               <UserPlus className="mr-2 h-4 w-4" />
