@@ -342,7 +342,7 @@ export default function Drivers() {
     if (driverToToggle) {
       try {
         setIsSubmitting(true);
-        const response = await toggleDriverStatus(driverToToggle.id);
+        const response = await toggleDriverStatus(driverToToggle.id, !driverToToggle.currentStatus);
         
         if (response.success) {
           toast({
