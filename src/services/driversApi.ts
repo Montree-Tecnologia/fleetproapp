@@ -17,6 +17,8 @@ export interface DriverResponse {
   birthDate: string;
   cnhCategory: string;
   cnhValidity: string;
+  cnhDocumentUrl: string | null;
+  active: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -34,12 +36,12 @@ export interface CreateDriverResponse {
 }
 
 export interface PaginatedDriversResponse {
-  drivers: DriverResponse[];
-  meta: {
-    total: number;
-    perPage: number;
+  data: DriverResponse[];
+  pagination: {
     currentPage: number;
-    lastPage: number;
+    itemsPerPage: number;
+    totalRecords: number;
+    totalPages: number;
   };
 }
 
