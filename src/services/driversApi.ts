@@ -77,3 +77,11 @@ export async function createDriver(
     body: JSON.stringify(payload),
   });
 }
+
+export async function deleteDriver(
+  id: string
+): Promise<ApiResponse<void>> {
+  return apiRequest<void>(`/drivers/${id}`, {
+    method: 'DELETE',
+  });
+}
