@@ -43,6 +43,7 @@ const driverSchema = z.object({
   cnhValidity: z.date({
     required_error: 'Validade da CNH é obrigatória',
   }),
+  cnhDocument: z.any().optional(),
 });
 
 type DriverFormData = z.infer<typeof driverSchema>;
@@ -221,6 +222,9 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
                         date > new Date() || date < new Date('1900-01-01')
                       }
                       initialFocus
+                      captionLayout="dropdown-buttons"
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
                       className={cn("p-3 pointer-events-auto")}
                     />
                   </PopoverContent>
@@ -293,6 +297,9 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
                       onSelect={field.onChange}
                       disabled={(date) => date < new Date()}
                       initialFocus
+                      captionLayout="dropdown-buttons"
+                      fromYear={new Date().getFullYear()}
+                      toYear={new Date().getFullYear() + 20}
                       className={cn("p-3 pointer-events-auto")}
                     />
                   </PopoverContent>
@@ -302,6 +309,25 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="cnhDocument"
+          render={({ field: { value, onChange, ...field } }) => (
+            <FormItem>
+              <FormLabel>Documento CNH (Opcional)</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => onChange(e.target.files?.[0])}
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div>
           <FormLabel>Matriz/Filiais Vinculadas *</FormLabel>
