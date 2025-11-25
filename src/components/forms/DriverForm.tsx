@@ -18,31 +18,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Driver, Company } from '@/hooks/useMockData';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { toast } from 'sonner';
+import { Upload, X, FileText } from 'lucide-react';
 
 const driverSchema = z.object({
   name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
   cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, 'CPF inválido (formato: 000.000.000-00)'),
-  birthDate: z.date({
-    required_error: 'Data de nascimento é obrigatória',
-  }),
+  birthDate: z.string().min(1, 'Data de nascimento é obrigatória'),
   cnhCategory: z.enum(['A', 'B', 'C', 'D', 'E', 'AB', 'AC', 'AD', 'AE']),
-  cnhValidity: z.date({
-    required_error: 'Validade da CNH é obrigatória',
-  }),
+  cnhValidity: z.string().min(1, 'Validade da CNH é obrigatória'),
 });
 
 type DriverFormData = z.infer<typeof driverSchema>;
@@ -61,6 +50,7 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
   );
   const [apiCompanies, setApiCompanies] = useState<CompanyCombo[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [cnhDocument, setCnhDocument] = useState<string | undefined>(initialData?.cnhDocument);
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -90,13 +80,30 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
     defaultValues: initialData ? {
       name: initialData.name,
       cpf: initialData.cpf,
-      birthDate: new Date(initialData.birthDate),
+      birthDate: initialData.birthDate,
       cnhCategory: initialData.cnhCategory as any,
-      cnhValidity: new Date(initialData.cnhValidity),
+      cnhValidity: initialData.cnhValidity,
     } : {
       cnhCategory: 'E',
+      birthDate: '',
+      cnhValidity: '',
     },
   });
+
+  const handleCNHUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCnhDocument(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeCNHDocument = () => {
+    setCnhDocument(undefined);
+  };
 
   const handleSubmit = (data: DriverFormData) => {
     // Validate CPF uniqueness
@@ -106,14 +113,16 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
     }
 
     // Validate age
-    const age = new Date().getFullYear() - data.birthDate.getFullYear();
+    const birthDate = new Date(data.birthDate);
+    const age = new Date().getFullYear() - birthDate.getFullYear();
     if (age < 18 || age > 80) {
       form.setError('birthDate', { message: 'Idade deve estar entre 18 e 80 anos' });
       return;
     }
 
     // Validate CNH validity
-    if (data.cnhValidity < new Date()) {
+    const cnhValidity = new Date(data.cnhValidity);
+    if (cnhValidity < new Date()) {
       form.setError('cnhValidity', { message: 'CNH vencida' });
       return;
     }
@@ -128,9 +137,10 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
       cpf: data.cpf.replace(/\D/g, ''), // Remover pontos e traços
       cnhCategory: data.cnhCategory,
       branches: selectedBranches.map(String),
-      birthDate: format(data.birthDate, 'yyyy-MM-dd'),
-      cnhValidity: format(data.cnhValidity, 'yyyy-MM-dd'),
+      birthDate: data.birthDate,
+      cnhValidity: data.cnhValidity,
       active: initialData?.active ?? true,
+      cnhDocument,
     });
   };
 
@@ -172,145 +182,85 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="cpf"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CPF *</FormLabel>
+        <FormField
+          control={form.control}
+          name="cpf"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>CPF *</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="000.000.000-00"
+                  {...field}
+                  onChange={(e) => field.onChange(formatCPF(e.target.value))}
+                  maxLength={14}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="birthDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Data de Nascimento *</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="cnhCategory"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Categoria CNH *</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <Input
-                    placeholder="000.000.000-00"
-                    {...field}
-                    onChange={(e) => field.onChange(formatCPF(e.target.value))}
-                    maxLength={14}
-                  />
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                <SelectContent>
+                  <SelectItem value="A">A - Motocicletas</SelectItem>
+                  <SelectItem value="B">B - Carros</SelectItem>
+                  <SelectItem value="C">C - Veículos de Carga</SelectItem>
+                  <SelectItem value="D">D - Veículos de Passageiros</SelectItem>
+                  <SelectItem value="E">E - Combinações de Veículos</SelectItem>
+                  <SelectItem value="AB">AB - A + B</SelectItem>
+                  <SelectItem value="AC">AC - A + C</SelectItem>
+                  <SelectItem value="AD">AD - A + D</SelectItem>
+                  <SelectItem value="AE">AE - A + E</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="birthDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Data de Nascimento *</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "dd/MM/yyyy")
-                        ) : (
-                          <span>Selecione a data</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date('1900-01-01')
-                      }
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="cnhCategory"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Categoria CNH *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="A">A</SelectItem>
-                    <SelectItem value="B">B</SelectItem>
-                    <SelectItem value="C">C</SelectItem>
-                    <SelectItem value="D">D</SelectItem>
-                    <SelectItem value="E">E</SelectItem>
-                    <SelectItem value="AB">AB</SelectItem>
-                    <SelectItem value="AC">AC</SelectItem>
-                    <SelectItem value="AD">AD</SelectItem>
-                    <SelectItem value="AE">AE</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="cnhValidity"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Validade CNH *</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "dd/MM/yyyy")
-                        ) : (
-                          <span>Selecione a data</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="cnhValidity"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Validade CNH *</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div>
           <FormLabel>Matriz/Filiais Vinculadas *</FormLabel>
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div className="flex flex-wrap gap-2 mt-2 p-3 border rounded-md">
             {loadingCompanies ? (
               <p className="text-sm text-muted-foreground">Carregando empresas...</p>
             ) : apiCompanies.length > 0 ? (
@@ -326,6 +276,55 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
               ))
             ) : (
               <p className="text-sm text-muted-foreground">Nenhuma empresa disponível</p>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <FormLabel>Documento CNH (Foto/PDF)</FormLabel>
+          <div className="space-y-2 mt-2">
+            {cnhDocument ? (
+              <div className="relative">
+                {cnhDocument.startsWith('data:image') ? (
+                  <img
+                    src={cnhDocument}
+                    alt="CNH"
+                    className="w-full h-40 object-cover rounded-lg border border-border"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
+                    <FileText className="h-5 w-5" />
+                    <span className="text-sm">Documento anexado</span>
+                  </div>
+                )}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 h-8 w-8"
+                  onClick={removeCNHDocument}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleCNHUpload}
+                  className="hidden"
+                  id="cnh-upload"
+                />
+                <label htmlFor="cnh-upload">
+                  <Button type="button" variant="outline" className="w-full" asChild>
+                    <span className="cursor-pointer">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Anexar CNH
+                    </span>
+                  </Button>
+                </label>
+              </>
             )}
           </div>
         </div>
