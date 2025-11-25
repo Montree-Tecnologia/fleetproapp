@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMockData, Driver } from '@/hooks/useMockData';
 import { createDriver, fetchDrivers, DriverResponse } from '@/services/driversApi';
+import { DriverForm } from '@/components/forms/DriverForm';
 import { ApiError } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -437,199 +438,71 @@ export default function Drivers() {
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-            <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>{editingDriver ? 'Editar Motorista' : 'Cadastrar Motorista'}</DialogTitle>
-                <DialogDescription>
-                  {editingDriver ? 'Atualize as informações do motorista.' : 'Adicione um novo motorista à sua frota.'}
-                </DialogDescription>
-              </DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{editingDriver ? 'Editar Motorista' : 'Cadastrar Motorista'}</DialogTitle>
+              <DialogDescription>
+                {editingDriver ? 'Atualize as informações do motorista.' : 'Adicione um novo motorista à sua frota.'}
+              </DialogDescription>
+            </DialogHeader>
 
-              <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nome Completo</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => {
-                      setFormData({ ...formData, name: e.target.value });
-                      setErrors({ ...errors, name: '' });
-                    }}
-                    placeholder="João da Silva"
-                    maxLength={100}
-                  />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">{errors.name}</p>
-                  )}
-                </div>
+            <DriverForm
+              onSubmit={async (driverData) => {
+                setIsSubmitting(true);
+                try {
+                  if (editingDriver) {
+                    // Modo edição - continua usando mock
+                    updateDriver(editingDriver.id, driverData);
+                    toast({
+                      title: 'Motorista atualizado',
+                      description: `${driverData.name} foi atualizado com sucesso.`,
+                    });
+                  } else {
+                    // Modo criação - chama a API
+                    const branchIds = driverData.branches.map(b => parseInt(b));
 
-                <div className="space-y-2">
-                  <Label htmlFor="cpf">CPF</Label>
-                  <Input
-                    id="cpf"
-                    value={formData.cpf}
-                    onChange={(e) => {
-                      const formatted = formatCPF(e.target.value);
-                      setFormData({ ...formData, cpf: formatted });
-                      setErrors({ ...errors, cpf: '' });
-                    }}
-                    placeholder="000.000.000-00"
-                    maxLength={14}
-                  />
-                  {errors.cpf && (
-                    <p className="text-sm text-destructive">{errors.cpf}</p>
-                  )}
-                </div>
+                    const response = await createDriver({
+                      name: driverData.name,
+                      cpf: driverData.cpf,
+                      birthDate: driverData.birthDate,
+                      cnhCategory: driverData.cnhCategory,
+                      cnhValidity: driverData.cnhValidity,
+                      cnhDocumentBase64: '',
+                      branches: branchIds,
+                    });
 
-                <div className="space-y-2">
-                  <Label htmlFor="birthDate">Data de Nascimento</Label>
-                  <Input
-                    id="birthDate"
-                    type="date"
-                    value={formData.birthDate}
-                    onChange={(e) => {
-                      setFormData({ ...formData, birthDate: e.target.value });
-                      setErrors({ ...errors, birthDate: '' });
-                    }}
-                  />
-                  {errors.birthDate && (
-                    <p className="text-sm text-destructive">{errors.birthDate}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="cnhCategory">Categoria da CNH</Label>
-                  <Select
-                    value={formData.cnhCategory}
-                    onValueChange={(value: any) =>
-                      setFormData({ ...formData, cnhCategory: value })
+                    if (response.success && response.data) {
+                      toast({
+                        title: 'Motorista cadastrado',
+                        description: response.message || `${driverData.name} foi adicionado com sucesso.`,
+                      });
+                      
+                      // Recarregar a lista de motoristas
+                      const driversResponse = await fetchDrivers(currentPage, perPage);
+                      if (driversResponse.success && driversResponse.data) {
+                        setApiDrivers(driversResponse.data.data);
+                        setTotalPages(driversResponse.data.pagination.totalPages);
+                        setTotalDrivers(driversResponse.data.pagination.totalRecords);
+                      }
                     }
-                  >
-                    <SelectTrigger id="cnhCategory">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="A">A - Motocicletas</SelectItem>
-                      <SelectItem value="B">B - Carros</SelectItem>
-                      <SelectItem value="C">C - Veículos de Carga</SelectItem>
-                      <SelectItem value="D">D - Veículos de Passageiros</SelectItem>
-                      <SelectItem value="E">E - Combinações de Veículos</SelectItem>
-                      <SelectItem value="AB">AB - A + B</SelectItem>
-                      <SelectItem value="AC">AC - A + C</SelectItem>
-                      <SelectItem value="AD">AD - A + D</SelectItem>
-                      <SelectItem value="AE">AE - A + E</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="cnhValidity">Validade da CNH</Label>
-                  <Input
-                    id="cnhValidity"
-                    type="date"
-                    value={formData.cnhValidity}
-                    onChange={(e) => {
-                      setFormData({ ...formData, cnhValidity: e.target.value });
-                      setErrors({ ...errors, cnhValidity: '' });
-                    }}
-                  />
-                  {errors.cnhValidity && (
-                    <p className="text-sm text-destructive">{errors.cnhValidity}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Matriz/Filiais Vinculadas</Label>
-                  <div className="flex flex-wrap gap-2 p-3 border rounded-md">
-                    {['Matriz', 'Filial SP', 'Filial RJ', 'Filial MG'].map((branch) => (
-                      <Badge
-                        key={branch}
-                        variant={formData.branches.includes(branch) ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => {
-                          if (formData.branches.includes(branch)) {
-                            if (formData.branches.length > 1) {
-                              setFormData({
-                                ...formData,
-                                branches: formData.branches.filter(b => b !== branch)
-                              });
-                            }
-                          } else {
-                            setFormData({
-                              ...formData,
-                              branches: [...formData.branches, branch]
-                            });
-                          }
-                        }}
-                      >
-                        {branch}
-                      </Badge>
-                    ))}
-                  </div>
-                  {errors.branches && (
-                    <p className="text-sm text-destructive">{errors.branches}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Documento CNH (Foto/PDF)</Label>
-                  <div className="space-y-2">
-                    {formData.cnhDocument ? (
-                      <div className="relative">
-                        {formData.cnhDocument.startsWith('data:image') ? (
-                          <img
-                            src={formData.cnhDocument}
-                            alt="CNH"
-                            className="w-full h-40 object-cover rounded-lg border border-border"
-                          />
-                        ) : (
-                          <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
-                            <FileText className="h-5 w-5" />
-                            <span className="text-sm">Documento anexado</span>
-                          </div>
-                        )}
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-2 right-2 h-8 w-8"
-                          onClick={removeCNHDocument}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <Input
-                          type="file"
-                          accept="image/*,application/pdf"
-                          onChange={handleCNHUpload}
-                          className="hidden"
-                          id="cnh-upload"
-                        />
-                        <label htmlFor="cnh-upload">
-                          <Button type="button" variant="outline" className="w-full" asChild>
-                            <span className="cursor-pointer">
-                              <Upload className="h-4 w-4 mr-2" />
-                              Anexar CNH
-                            </span>
-                          </Button>
-                        </label>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <DialogFooter>
-                <Button type="button" variant="outline-destructive" onClick={handleDialogClose} disabled={isSubmitting}>
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Salvando...' : (editingDriver ? 'Atualizar' : 'Cadastrar')}
-                </Button>
-              </DialogFooter>
-            </form>
+                  }
+                  handleDialogClose();
+                } catch (error) {
+                  if (error instanceof ApiError) {
+                    toast({
+                      title: 'Erro ao salvar motorista',
+                      description: error.message,
+                      variant: 'destructive',
+                    });
+                  }
+                } finally {
+                  setIsSubmitting(false);
+                }
+              }}
+              onCancel={handleDialogClose}
+              initialData={editingDriver || undefined}
+              existingCpfs={allDrivers.map(d => d.cpf)}
+              companies={companies()}
+            />
           </DialogContent>
         </Dialog>
       </div>
