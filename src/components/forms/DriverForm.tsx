@@ -94,7 +94,7 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
     },
   });
 
-  const handleSubmit = (data: DriverFormData) => {
+  const handleSubmit = async (data: DriverFormData) => {
     // Validate CPF uniqueness
     if (!initialData && existingCpfs.includes(data.cpf)) {
       form.setError('cpf', { message: 'CPF já cadastrado' });
@@ -119,6 +119,19 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
       return;
     }
 
+    // Convert CNH document to base64 if provided
+    let cnhDocumentBase64 = '';
+    if (data.cnhDocument) {
+      const reader = new FileReader();
+      cnhDocumentBase64 = await new Promise((resolve) => {
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          resolve(base64.split(',')[1]); // Remove data:image/...;base64, prefix
+        };
+        reader.readAsDataURL(data.cnhDocument);
+      });
+    }
+
     onSubmit({
       name: data.name,
       cpf: data.cpf.replace(/\D/g, ''), // Remover pontos e traços
@@ -127,6 +140,7 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
       birthDate: format(data.birthDate, 'yyyy-MM-dd'),
       cnhValidity: format(data.cnhValidity, 'yyyy-MM-dd'),
       active: initialData?.active ?? true,
+      cnhDocumentBase64,
     });
   };
 
@@ -200,16 +214,16 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full pl-3 text-left font-normal",
+                          "w-full justify-start text-left font-normal",
                           !field.value && "text-muted-foreground"
                         )}
                       >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value ? (
                           format(field.value, "dd/MM/yyyy")
                         ) : (
                           <span>Selecione a data</span>
                         )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
@@ -277,16 +291,16 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full pl-3 text-left font-normal",
+                          "w-full justify-start text-left font-normal",
                           !field.value && "text-muted-foreground"
                         )}
                       >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value ? (
                           format(field.value, "dd/MM/yyyy")
                         ) : (
                           <span>Selecione a data</span>
                         )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
