@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useMockData, Driver } from '@/hooks/useMockData';
-import { createDriver, fetchDrivers, deleteDriver as deleteDriverApi, updateDriver as updateDriverApi, DriverResponse } from '@/services/driversApi';
+import { createDriver, fetchDrivers, deleteDriver as deleteDriverApi, updateDriver as updateDriverApi, toggleDriverStatus, DriverResponse } from '@/services/driversApi';
 import { DriverForm } from '@/components/forms/DriverForm';
 import { ApiError } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -338,19 +338,39 @@ export default function Drivers() {
     setToggleActiveDialogOpen(true);
   };
 
-  const confirmToggleActive = () => {
+  const confirmToggleActive = async () => {
     if (driverToToggle) {
-      updateDriver(driverToToggle.id, { active: !driverToToggle.currentStatus });
-      toast({
-        title: driverToToggle.currentStatus ? 'Motorista inativado' : 'Motorista ativado',
-        description: 'Status atualizado com sucesso.',
-      });
-      setToggleActiveDialogOpen(false);
-      setDriverToToggle(null);
-      
-      // Atualiza o motorista sendo visualizado se estiver aberto
-      if (viewingDriver && viewingDriver.id === driverToToggle.id) {
-        setViewingDriver({ ...viewingDriver, active: !driverToToggle.currentStatus });
+      try {
+        setIsSubmitting(true);
+        const response = await toggleDriverStatus(driverToToggle.id);
+        
+        if (response.success) {
+          toast({
+            title: driverToToggle.currentStatus ? 'Motorista inativado' : 'Motorista ativado',
+            description: 'Status atualizado com sucesso.',
+          });
+          setToggleActiveDialogOpen(false);
+          setDriverToToggle(null);
+          
+          // Atualiza o motorista sendo visualizado se estiver aberto
+          if (viewingDriver && viewingDriver.id === driverToToggle.id) {
+            setViewingDriver({ ...viewingDriver, active: !driverToToggle.currentStatus });
+          }
+          
+          // Recarrega a lista de motoristas
+          loadDrivers();
+        } else {
+          throw new Error(response.error?.message || 'Erro ao alterar status do motorista');
+        }
+      } catch (error) {
+        console.error('Erro ao alterar status do motorista:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao alterar status',
+          description: error instanceof Error ? error.message : 'Não foi possível alterar o status do motorista. Tente novamente.',
+        });
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
