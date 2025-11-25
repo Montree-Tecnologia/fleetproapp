@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMockData, User } from '@/hooks/useMockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { createUser } from '@/services/usersApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -84,8 +85,9 @@ export default function Users() {
 
   const allUsers = users();
   const allCompanies = companies();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
@@ -122,25 +124,33 @@ export default function Users() {
           title: 'Usuário atualizado',
           description: `${validatedData.name} foi atualizado com sucesso.`,
         });
+        
+        handleDialogClose();
       } else {
-        addUser({
+        setIsSubmitting(true);
+        
+        const response = await createUser({
           name: validatedData.name,
           email: validatedData.email,
+          password: validatedData.password!,
           role: validatedData.role,
-          company: validatedData.company,
+          companyId: validatedData.company,
           linkedCompanies: formData.linkedCompanies,
           hasAccessToAllCompanies: formData.hasAccessToAllCompanies,
-          active: true,
-          customPermissions: formData.customPermissions,
         });
 
-        toast({
-          title: 'Usuário criado',
-          description: `${validatedData.name} foi adicionado com sucesso. Senha provisória definida.`,
-        });
+        if (response.success) {
+          toast({
+            title: 'Usuário criado',
+            description: `${validatedData.name} foi adicionado com sucesso.`,
+          });
+          
+          handleDialogClose();
+          // TODO: Recarregar lista de usuários
+        } else {
+          throw new Error(response.error?.message || 'Erro ao criar usuário');
+        }
       }
-
-      handleDialogClose();
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
@@ -150,7 +160,16 @@ export default function Users() {
           }
         });
         setErrors(fieldErrors);
+      } else {
+        console.error('Erro ao criar usuário:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao criar usuário',
+          description: error instanceof Error ? error.message : 'Não foi possível criar o usuário. Tente novamente.',
+        });
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -512,10 +531,12 @@ export default function Users() {
               </Tabs>
 
               <DialogFooter>
-                <Button type="button" variant="outline-destructive" onClick={handleDialogClose}>
+                <Button type="button" variant="outline-destructive" onClick={handleDialogClose} disabled={isSubmitting}>
                   Cancelar
                 </Button>
-                <Button type="submit">{editingUser ? 'Atualizar' : 'Criar Usuário'}</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Criando...' : (editingUser ? 'Atualizar' : 'Criar Usuário')}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
