@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useMockData, Driver } from '@/hooks/useMockData';
-import { createDriver, fetchDrivers, deleteDriver as deleteDriverApi, DriverResponse } from '@/services/driversApi';
+import { createDriver, fetchDrivers, deleteDriver as deleteDriverApi, updateDriver as updateDriverApi, DriverResponse } from '@/services/driversApi';
 import { DriverForm } from '@/components/forms/DriverForm';
 import { ApiError } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -295,6 +295,9 @@ export default function Drivers() {
   };
 
   const handleEdit = (driver: Driver) => {
+    // Buscar o motorista original da API para ter o cnhDocumentUrl
+    const apiDriver = apiDrivers.find(d => d.id === driver.id);
+    
     setEditingDriver(driver);
     setFormData({
       name: driver.name,
@@ -303,7 +306,7 @@ export default function Drivers() {
       cnhCategory: driver.cnhCategory as typeof formData.cnhCategory,
       cnhValidity: driver.cnhValidity,
       branches: driver.branches,
-      cnhDocument: driver.cnhDocument,
+      cnhDocument: apiDriver?.cnhDocumentUrl || driver.cnhDocument,
     });
     setErrors({});
     setOpen(true);
@@ -470,12 +473,45 @@ export default function Drivers() {
                 setIsSubmitting(true);
                 try {
                   if (editingDriver) {
-                    // Modo edição - continua usando mock
-                    updateDriver(editingDriver.id, driverData);
-                    toast({
-                      title: 'Motorista atualizado',
-                      description: `${driverData.name} foi atualizado com sucesso.`,
+                    // Modo edição - chama a API
+                    const branchIds = driverData.branches.map(b => parseInt(b));
+
+                    // Determinar se deve enviar cnhUrl ou cnhDocumentBase64
+                    let cnhUrl: string | undefined;
+                    let cnhDocumentBase64: string | undefined;
+
+                    if (driverData.cnhDocument) {
+                      // Verifica se é um novo upload (base64) ou URL existente
+                      if (driverData.cnhDocument.startsWith('data:')) {
+                        // É um novo upload, extrair o base64
+                        const base64Match = driverData.cnhDocument.match(/^data:.*;base64,(.+)$/);
+                        cnhDocumentBase64 = base64Match ? base64Match[1] : driverData.cnhDocument;
+                      } else {
+                        // É uma URL existente
+                        cnhUrl = driverData.cnhDocument;
+                      }
+                    }
+
+                    const response = await updateDriverApi(editingDriver.id, {
+                      name: driverData.name,
+                      cpf: driverData.cpf,
+                      birthDate: driverData.birthDate,
+                      cnhCategory: driverData.cnhCategory,
+                      branches: branchIds,
+                      cnhUrl,
+                      cnhDocumentBase64,
                     });
+
+                    if (response.success && response.data) {
+                      toast({
+                        title: 'Motorista atualizado',
+                        description: `${driverData.name} foi atualizado com sucesso.`,
+                      });
+                      
+                      // Recarrega a lista de motoristas
+                      loadDrivers();
+                      handleDialogClose();
+                    }
                   } else {
                     // Modo criação - chama a API
                     const branchIds = driverData.branches.map(b => parseInt(b));

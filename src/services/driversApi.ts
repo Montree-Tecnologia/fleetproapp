@@ -78,6 +78,26 @@ export async function createDriver(
   });
 }
 
+export interface UpdateDriverPayload {
+  name: string;
+  cpf: string;
+  birthDate: string;
+  cnhCategory: string;
+  branches: number[];
+  cnhUrl?: string;
+  cnhDocumentBase64?: string;
+}
+
+export async function updateDriver(
+  id: string,
+  payload: UpdateDriverPayload
+): Promise<ApiResponse<{ driver: DriverResponse }>> {
+  return apiRequest<{ driver: DriverResponse }>(`/drivers/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function deleteDriver(
   id: string
 ): Promise<ApiResponse<void>> {
