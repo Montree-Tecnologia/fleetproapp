@@ -107,9 +107,9 @@ export default function Drivers() {
       try {
         const response = await fetchDrivers(currentPage, perPage);
         if (response.success && response.data) {
-          setApiDrivers(response.data.drivers);
-          setTotalPages(response.data.meta.lastPage);
-          setTotalDrivers(response.data.meta.total);
+          setApiDrivers(response.data.data);
+          setTotalPages(response.data.pagination.totalPages);
+          setTotalDrivers(response.data.pagination.totalRecords);
         }
       } catch (error) {
         if (error instanceof ApiError) {
@@ -404,8 +404,8 @@ export default function Drivers() {
     cnhCategory: apiDriver.cnhCategory,
     cnhValidity: apiDriver.cnhValidity,
     branches: ['Matriz'], // TODO: map from API when available
-    active: true,
-    cnhDocument: undefined,
+    active: apiDriver.active,
+    cnhDocument: apiDriver.cnhDocumentUrl || undefined,
   }));
 
   const filteredDrivers = convertedApiDrivers.filter(driver => {
