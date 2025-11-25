@@ -42,12 +42,11 @@ interface DriverFormProps {
   initialData?: Driver;
   existingCpfs?: string[];
   companies: Company[];
+  initialBranchIds?: number[];
 }
 
-export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [], companies }: DriverFormProps) {
-  const [selectedBranches, setSelectedBranches] = useState<number[]>(
-    initialData?.branches?.map(b => parseInt(b)) || []
-  );
+export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [], companies, initialBranchIds = [] }: DriverFormProps) {
+  const [selectedBranches, setSelectedBranches] = useState<number[]>(initialBranchIds);
   const [apiCompanies, setApiCompanies] = useState<CompanyCombo[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
   const [cnhDocument, setCnhDocument] = useState<string | undefined>(initialData?.cnhDocument);
@@ -74,6 +73,10 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
 
     fetchCompanies();
   }, []);
+
+  useEffect(() => {
+    setSelectedBranches(initialBranchIds);
+  }, [initialBranchIds]);
 
   const form = useForm<DriverFormData>({
     resolver: zodResolver(driverSchema),
