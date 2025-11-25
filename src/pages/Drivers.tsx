@@ -295,8 +295,11 @@ export default function Drivers() {
   };
 
   const handleEdit = (driver: Driver) => {
-    // Buscar o motorista original da API para ter o cnhDocumentUrl
+    // Buscar o motorista original da API para ter o cnhDocumentUrl e os IDs das branches
     const apiDriver = apiDrivers.find(d => d.id === driver.id);
+    
+    // Extrair os IDs das empresas vinculadas
+    const branchIds = apiDriver?.branches.map(branch => branch.companyId) || [];
     
     setEditingDriver(driver);
     setFormData({
@@ -305,7 +308,7 @@ export default function Drivers() {
       birthDate: driver.birthDate,
       cnhCategory: driver.cnhCategory as typeof formData.cnhCategory,
       cnhValidity: driver.cnhValidity,
-      branches: driver.branches,
+      branches: branchIds.map(String), // Converter para string pois o formData espera strings
       cnhDocument: apiDriver?.cnhDocumentUrl || driver.cnhDocument,
     });
     setErrors({});
