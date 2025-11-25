@@ -33,6 +33,25 @@ export interface CreateDriverResponse {
   branches: DriverBranch[];
 }
 
+export interface PaginatedDriversResponse {
+  drivers: DriverResponse[];
+  meta: {
+    total: number;
+    perPage: number;
+    currentPage: number;
+    lastPage: number;
+  };
+}
+
+export async function fetchDrivers(
+  page: number = 1,
+  perPage: number = 20
+): Promise<ApiResponse<PaginatedDriversResponse>> {
+  return apiRequest<PaginatedDriversResponse>(`/drivers?page=${page}&perPage=${perPage}`, {
+    method: 'GET',
+  });
+}
+
 export async function createDriver(
   payload: CreateDriverPayload
 ): Promise<ApiResponse<CreateDriverResponse>> {
