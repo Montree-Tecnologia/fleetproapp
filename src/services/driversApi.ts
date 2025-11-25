@@ -105,3 +105,11 @@ export async function deleteDriver(
     method: 'DELETE',
   });
 }
+
+export async function toggleDriverStatus(
+  id: string
+): Promise<ApiResponse<{ driver: DriverResponse }>> {
+  return apiRequest<{ driver: DriverResponse }>(`/drivers/${id}/status`, {
+    method: 'PATCH',
+  });
+}
