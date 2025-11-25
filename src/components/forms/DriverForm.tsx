@@ -29,7 +29,9 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Driver, Company } from '@/hooks/useMockData';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
+import { toast } from 'sonner';
 
 const driverSchema = z.object({
   name: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
@@ -54,9 +56,29 @@ interface DriverFormProps {
 }
 
 export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [], companies }: DriverFormProps) {
-  const [selectedBranches, setSelectedBranches] = useState<string[]>(
-    initialData?.branches || ['Matriz']
+  const [selectedBranches, setSelectedBranches] = useState<number[]>(
+    initialData?.branches?.map(b => parseInt(b)) || []
   );
+  const [apiCompanies, setApiCompanies] = useState<CompanyCombo[]>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(true);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const response = await getCompaniesCombo();
+        if (response.success && response.data) {
+          setApiCompanies(response.data);
+        }
+      } catch (error) {
+        toast.error('Erro ao carregar empresas');
+        console.error(error);
+      } finally {
+        setLoadingCompanies(false);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
 
   const form = useForm<DriverFormData>({
     resolver: zodResolver(driverSchema),
@@ -98,27 +120,24 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
 
     onSubmit({
       name: data.name,
-      cpf: data.cpf,
+      cpf: data.cpf.replace(/\D/g, ''), // Remover pontos e traços
       cnhCategory: data.cnhCategory,
-      branches: selectedBranches,
+      branches: selectedBranches.map(String),
       birthDate: format(data.birthDate, 'yyyy-MM-dd'),
       cnhValidity: format(data.cnhValidity, 'yyyy-MM-dd'),
       active: initialData?.active ?? true,
     });
   };
 
-  const toggleBranch = (branch: string) => {
-    if (selectedBranches.includes(branch)) {
+  const toggleBranch = (branchId: number) => {
+    if (selectedBranches.includes(branchId)) {
       if (selectedBranches.length > 1) {
-        setSelectedBranches(selectedBranches.filter(b => b !== branch));
+        setSelectedBranches(selectedBranches.filter(b => b !== branchId));
       }
     } else {
-      setSelectedBranches([...selectedBranches, branch]);
+      setSelectedBranches([...selectedBranches, branchId]);
     }
   };
-
-  // Filtrar apenas empresas ativas
-  const availableBranches = companies.filter(c => c.active);
 
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, '');
@@ -287,16 +306,22 @@ export function DriverForm({ onSubmit, onCancel, initialData, existingCpfs = [],
         <div>
           <FormLabel>Matriz/Filiais Vinculadas *</FormLabel>
           <div className="flex flex-wrap gap-2 mt-2">
-            {availableBranches.map((branch) => (
-              <Badge
-                key={branch.id}
-                variant={selectedBranches.includes(branch.id) ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => toggleBranch(branch.id)}
-              >
-                {branch.name}
-              </Badge>
-            ))}
+            {loadingCompanies ? (
+              <p className="text-sm text-muted-foreground">Carregando empresas...</p>
+            ) : apiCompanies.length > 0 ? (
+              apiCompanies.map((company) => (
+                <Badge
+                  key={company.id}
+                  variant={selectedBranches.includes(company.id) ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => toggleBranch(company.id)}
+                >
+                  {company.name}
+                </Badge>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhuma empresa disponível</p>
+            )}
           </div>
         </div>
 

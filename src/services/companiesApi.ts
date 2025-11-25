@@ -51,3 +51,12 @@ export async function toggleCompanyActive(id: string) {
     method: 'PATCH',
   });
 }
+
+export interface CompanyCombo {
+  id: number;
+  name: string;
+}
+
+export async function getCompaniesCombo() {
+  return apiRequest<CompanyCombo[]>('/companies/combo');
+}
