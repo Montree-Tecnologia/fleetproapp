@@ -403,7 +403,7 @@ export default function Drivers() {
     birthDate: apiDriver.birthDate,
     cnhCategory: apiDriver.cnhCategory,
     cnhValidity: apiDriver.cnhValidity,
-    branches: ['Matriz'], // TODO: map from API when available
+    branches: apiDriver.branches.map(branch => branch.company.name),
     active: apiDriver.active,
     cnhDocument: apiDriver.cnhDocumentUrl || undefined,
   }));

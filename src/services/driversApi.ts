@@ -21,6 +21,20 @@ export interface DriverResponse {
   active: boolean;
   createdAt: string;
   updatedAt: string;
+  branches: DriverBranch[];
+}
+
+export interface Company {
+  id: string;
+  type: string;
+  name: string;
+  cnpj: string;
+  city: string;
+  state: string;
+  matrizId: string | null;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface DriverBranch {
@@ -28,6 +42,7 @@ export interface DriverBranch {
   companyId: string;
   createdAt: string;
   updatedAt: string;
+  company: Company;
 }
 
 export interface CreateDriverResponse {
