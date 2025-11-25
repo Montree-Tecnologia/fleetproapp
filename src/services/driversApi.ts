@@ -107,9 +107,11 @@ export async function deleteDriver(
 }
 
 export async function toggleDriverStatus(
-  id: string
+  id: string,
+  isActive: boolean
 ): Promise<ApiResponse<{ driver: DriverResponse }>> {
   return apiRequest<{ driver: DriverResponse }>(`/drivers/${id}/status`, {
     method: 'PATCH',
+    body: JSON.stringify({ isActive }),
   });
 }
