@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign, FileSpreadsheet } from 'lucide-react';
 import { exportVehiclesToExcel } from '@/lib/excelExport';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
+import { getSuppliersCombo, SupplierCombo } from '@/services/suppliersApi';
 import {
   Select,
   SelectContent,
@@ -65,30 +66,43 @@ export default function Vehicles() {
   const [vehicleToChangeStatus, setVehicleToChangeStatus] = useState<{ vehicleId: string; plate: string; newStatus: string; currentStatus: string } | null>(null);
   const [apiCompanies, setApiCompanies] = useState<CompanyCombo[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
+  const [apiSuppliers, setApiSuppliers] = useState<SupplierCombo[]>([]);
+  const [loadingSuppliers, setLoadingSuppliers] = useState(false);
 
-  // Buscar empresas da API quando o modal abrir
+  // Buscar empresas e fornecedores da API quando o modal abrir
   useEffect(() => {
     if (isDialogOpen) {
-      const fetchCompanies = async () => {
+      const fetchData = async () => {
         setLoadingCompanies(true);
+        setLoadingSuppliers(true);
+        
         try {
-          const response = await getCompaniesCombo();
-          if (response.success && response.data) {
-            setApiCompanies(response.data);
+          const [companiesResponse, suppliersResponse] = await Promise.all([
+            getCompaniesCombo(),
+            getSuppliersCombo()
+          ]);
+          
+          if (companiesResponse.success && companiesResponse.data) {
+            setApiCompanies(companiesResponse.data);
+          }
+          
+          if (suppliersResponse.success && suppliersResponse.data) {
+            setApiSuppliers(suppliersResponse.data);
           }
         } catch (error) {
-          console.error('Erro ao buscar empresas:', error);
+          console.error('Erro ao buscar dados:', error);
           toast({
-            title: 'Erro ao carregar empresas',
-            description: 'Não foi possível carregar a lista de empresas.',
+            title: 'Erro ao carregar dados',
+            description: 'Não foi possível carregar empresas e/ou fornecedores.',
             variant: 'destructive',
           });
         } finally {
           setLoadingCompanies(false);
+          setLoadingSuppliers(false);
         }
       };
       
-      fetchCompanies();
+      fetchData();
     }
   }, [isDialogOpen, toast]);
 
@@ -506,7 +520,7 @@ export default function Vehicles() {
             initialData={editingVehicle || undefined}
             availableVehicles={allVehicles}
             companies={apiCompanies}
-            suppliers={allSuppliers}
+            suppliers={apiSuppliers}
             onSubmit={(data) => {
               if (editingVehicle) {
                 updateVehicle(editingVehicle.id, data);

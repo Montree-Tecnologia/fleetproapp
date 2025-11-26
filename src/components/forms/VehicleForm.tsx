@@ -249,7 +249,17 @@ interface VehicleFormProps {
   initialData?: Vehicle;
   availableVehicles?: Vehicle[];
   companies: Array<{ id: string | number; name: string; cnpj?: string; active?: boolean }>;
-  suppliers: Supplier[];
+  suppliers: Array<{ 
+    id: string | number; 
+    name: string; 
+    fantasyName?: string;
+    cnpj?: string;
+    cpf?: string;
+    city?: string;
+    state?: string;
+    type?: string;
+    active?: boolean;
+  }>;
 }
 
 export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles = [], companies, suppliers }: VehicleFormProps) {
@@ -1174,7 +1184,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                   >
                     {selectedSupplier && selectedSupplier !== 'none'
                       ? (() => {
-                          const supplier = suppliers.find(s => s.id === selectedSupplier);
+                          const supplier = suppliers.find(s => String(s.id) === selectedSupplier);
                           return supplier ? supplier.fantasyName : "Selecione o fornecedor";
                         })()
                       : "Selecione o fornecedor"}
@@ -1202,19 +1212,19 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                           />
                           Nenhum
                         </CommandItem>
-                        {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
+                        {suppliers.filter(s => s.active !== false && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
                           <CommandItem
                             key={supplier.id}
-                            value={`${supplier.fantasyName} ${supplier.cnpj || supplier.cpf} ${supplier.city} ${supplier.state}`}
+                            value={`${supplier.fantasyName || supplier.name} ${supplier.cnpj || supplier.cpf || ''} ${supplier.city || ''} ${supplier.state || ''}`}
                             onSelect={() => {
-                              setSelectedSupplier(supplier.id);
+                              setSelectedSupplier(String(supplier.id));
                               setOpenSupplier(false);
                             }}
                           >
                             <Check
                               className={cn(
                                 "mr-2 h-4 w-4",
-                                supplier.id === selectedSupplier ? "opacity-100" : "opacity-0"
+                                supplier.id === selectedSupplier || String(supplier.id) === selectedSupplier ? "opacity-100" : "opacity-0"
                               )}
                             />
                             <div className="flex flex-col gap-1">
@@ -1222,7 +1232,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                                 {supplier.fantasyName || supplier.name}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                {supplier.cnpj ? `CNPJ: ${supplier.cnpj}` : `CPF: ${supplier.cpf}`} | {supplier.city}/{supplier.state}
+                                {supplier.cnpj ? `CNPJ: ${supplier.cnpj}` : supplier.cpf ? `CPF: ${supplier.cpf}` : ''}{supplier.city && supplier.state ? ` | ${supplier.city}/${supplier.state}` : ''}
                               </div>
                             </div>
                           </CommandItem>
@@ -1408,7 +1418,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                   >
                     {selectedSupplier && selectedSupplier !== 'none'
                       ? (() => {
-                          const supplier = suppliers.find(s => s.id === selectedSupplier);
+                          const supplier = suppliers.find(s => String(s.id) === selectedSupplier);
                           return supplier ? supplier.fantasyName : "Selecione o fornecedor";
                         })()
                       : "Selecione o fornecedor"}
@@ -1436,19 +1446,19 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                           />
                           Nenhum
                         </CommandItem>
-                        {suppliers.filter(s => s.active && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
+                        {suppliers.filter(s => s.active !== false && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
                           <CommandItem
                             key={supplier.id}
-                            value={`${supplier.fantasyName} ${supplier.cnpj || supplier.cpf} ${supplier.city} ${supplier.state}`}
+                            value={`${supplier.fantasyName || supplier.name} ${supplier.cnpj || supplier.cpf || ''} ${supplier.city || ''} ${supplier.state || ''}`}
                             onSelect={() => {
-                              setSelectedSupplier(supplier.id);
+                              setSelectedSupplier(String(supplier.id));
                               setOpenSupplier(false);
                             }}
                           >
                             <Check
                               className={cn(
                                 "mr-2 h-4 w-4",
-                                supplier.id === selectedSupplier ? "opacity-100" : "opacity-0"
+                                supplier.id === selectedSupplier || String(supplier.id) === selectedSupplier ? "opacity-100" : "opacity-0"
                               )}
                             />
                             <div className="flex flex-col gap-1">
@@ -1456,7 +1466,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                                 {supplier.fantasyName || supplier.name}
                               </div>
                               <div className="text-xs text-muted-foreground">
-                                {supplier.cnpj ? `CNPJ: ${supplier.cnpj}` : `CPF: ${supplier.cpf}`} | {supplier.city}/{supplier.state}
+                                {supplier.cnpj ? `CNPJ: ${supplier.cnpj}` : supplier.cpf ? `CPF: ${supplier.cpf}` : ''}{supplier.city && supplier.state ? ` | ${supplier.city}/${supplier.state}` : ''}
                               </div>
                             </div>
                           </CommandItem>

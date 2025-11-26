@@ -70,3 +70,19 @@ export async function toggleSupplierActive(id: string, active: boolean) {
   });
   return response.data;
 }
+
+export interface SupplierCombo {
+  id: number;
+  name: string;
+  fantasyName?: string;
+  cnpj?: string;
+  cpf?: string;
+  city?: string;
+  state?: string;
+  type?: string;
+  active?: boolean;
+}
+
+export async function getSuppliersCombo() {
+  return apiRequest<SupplierCombo[]>('/suppliers/combo');
+}
