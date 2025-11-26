@@ -1212,7 +1212,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                           />
                           Nenhum
                         </CommandItem>
-                        {suppliers.filter(s => s.active !== false && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
+                        {suppliers.filter(s => s.active !== false && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'gas_station' || s.type === 'other')).map((supplier) => (
                           <CommandItem
                             key={supplier.id}
                             value={`${supplier.fantasyName || supplier.name} ${supplier.cnpj || supplier.cpf || ''} ${supplier.city || ''} ${supplier.state || ''}`}
@@ -1446,7 +1446,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                           />
                           Nenhum
                         </CommandItem>
-                        {suppliers.filter(s => s.active !== false && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'other')).map((supplier) => (
+                        {suppliers.filter(s => s.active !== false && (s.type === 'dealer' || s.type === 'workshop' || s.type === 'gas_station' || s.type === 'other')).map((supplier) => (
                           <CommandItem
                             key={supplier.id}
                             value={`${supplier.fantasyName || supplier.name} ${supplier.cnpj || supplier.cpf || ''} ${supplier.city || ''} ${supplier.state || ''}`}
