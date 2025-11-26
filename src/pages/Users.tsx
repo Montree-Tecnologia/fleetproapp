@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMockData, User } from '@/hooks/useMockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createUser } from '@/services/usersApi';
+import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -84,8 +85,32 @@ export default function Users() {
   const [newPassword, setNewPassword] = useState('');
 
   const allUsers = users();
-  const allCompanies = companies();
+  const [allCompanies, setAllCompanies] = useState<CompanyCombo[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      setIsLoadingCompanies(true);
+      try {
+        const response = await getCompaniesCombo();
+        if (response.success && response.data) {
+          setAllCompanies(response.data);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar empresas:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao carregar empresas',
+          description: 'Não foi possível carregar a lista de empresas.',
+        });
+      } finally {
+        setIsLoadingCompanies(false);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -286,8 +311,8 @@ export default function Users() {
   };
 
   const getCompanyName = (companyId: string) => {
-    const company = allCompanies.find(c => c.id === companyId);
-    return company ? `${company.name} (${company.cnpj})` : companyId;
+    const company = allCompanies.find(c => c.id.toString() === companyId);
+    return company ? company.name : companyId;
   };
 
   const handleResetPasswordClick = (user: User) => {
@@ -435,8 +460,8 @@ export default function Users() {
                       </SelectTrigger>
                       <SelectContent>
                         {allCompanies.map((company) => (
-                          <SelectItem key={company.id} value={company.id}>
-                            {company.name} - {company.cnpj}
+                          <SelectItem key={company.id} value={company.id.toString()}>
+                            {company.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -500,17 +525,14 @@ export default function Users() {
                               <div key={company.id} className="flex items-center space-x-2">
                                 <Checkbox
                                   id={`company-${company.id}`}
-                                  checked={formData.linkedCompanies.includes(company.id)}
-                                  onCheckedChange={() => toggleCompany(company.id)}
+                                  checked={formData.linkedCompanies.includes(company.id.toString())}
+                                  onCheckedChange={() => toggleCompany(company.id.toString())}
                                 />
                                 <Label
                                   htmlFor={`company-${company.id}`}
                                   className="text-sm cursor-pointer flex-1"
                                 >
                                   {company.name}
-                                  <span className="text-xs text-muted-foreground ml-2">
-                                    ({company.cnpj})
-                                  </span>
                                 </Label>
                               </div>
                             ))}
