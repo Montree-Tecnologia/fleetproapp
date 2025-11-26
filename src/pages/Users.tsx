@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMockData, User } from '@/hooks/useMockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { createUser } from '@/services/usersApi';
+import { createUser, getUsers, UserResponse } from '@/services/usersApi';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -80,6 +80,12 @@ export default function Users() {
   const [allCompanies, setAllCompanies] = useState<CompanyCombo[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
+  const [apiUsers, setApiUsers] = useState<UserResponse[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const perPage = 10;
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -103,6 +109,31 @@ export default function Users() {
 
     fetchCompanies();
   }, []);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setIsLoadingUsers(true);
+      try {
+        const response = await getUsers({ page: currentPage, perPage });
+        if (response.success && response.data) {
+          setApiUsers(response.data.data);
+          setTotalPages(response.data.pagination.totalPages);
+          setTotalRecords(response.data.pagination.totalRecords);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar usuários:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao carregar usuários',
+          description: 'Não foi possível carregar a lista de usuários.',
+        });
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
+  }, [currentPage, perPage, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,7 +181,13 @@ export default function Users() {
           });
           
           handleDialogClose();
-          // TODO: Recarregar lista de usuários
+          // Recarregar lista de usuários
+          const response = await getUsers({ page: currentPage, perPage });
+          if (response.success && response.data) {
+            setApiUsers(response.data.data);
+            setTotalPages(response.data.pagination.totalPages);
+            setTotalRecords(response.data.pagination.totalRecords);
+          }
         } else {
           throw new Error(response.error?.message || 'Erro ao criar usuário');
         }
@@ -328,6 +365,31 @@ export default function Users() {
     setUserForPasswordReset(null);
     setNewPassword('');
   };
+
+  // Converter UserResponse da API para o formato User usado no componente
+  const convertApiUserToUser = (apiUser: UserResponse): User => ({
+    id: apiUser.id,
+    name: apiUser.name,
+    email: apiUser.email,
+    role: apiUser.role,
+    company: apiUser.primaryCompanyId,
+    active: apiUser.active,
+    createdAt: apiUser.createdAt,
+    linkedCompanies: apiUser.linkedCompanies.map(lc => lc.companyId),
+    hasAccessToAllCompanies: apiUser.hasAccessToAllCompanies,
+  });
+
+  // Filtrar e converter usuários da API
+  const filteredUsers = apiUsers
+    .map(convertApiUserToUser)
+    .filter(user => {
+      const search = searchTerm.toLowerCase();
+      return (
+        user.name.toLowerCase().includes(search) ||
+        user.email.toLowerCase().includes(search) ||
+        getCompanyName(user.company).toLowerCase().includes(search)
+      );
+    });
 
   return (
     <div className="space-y-4 lg:space-y-6">
@@ -521,16 +583,16 @@ export default function Users() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {allUsers
-          .filter(user => {
-            const search = searchTerm.toLowerCase();
-            return (
-              user.name.toLowerCase().includes(search) ||
-              user.email.toLowerCase().includes(search) ||
-              user.company.toLowerCase().includes(search)
-            );
-          })
-          .map((user) => (
+        {isLoadingUsers ? (
+          <div className="col-span-full text-center py-8">
+            <p className="text-muted-foreground">Carregando usuários...</p>
+          </div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="col-span-full text-center py-8">
+            <p className="text-muted-foreground">Nenhum usuário encontrado.</p>
+          </div>
+        ) : (
+          filteredUsers.map((user) => (
           <Card key={user.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -599,8 +661,39 @@ export default function Users() {
               </div>
             </CardContent>
           </Card>
-        ))}
+        )))}
       </div>
+
+      {!isLoadingUsers && totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Mostrando {filteredUsers.length} de {totalRecords} usuários
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </Button>
+            <div className="flex items-center gap-2">
+              <span className="text-sm">
+                Página {currentPage} de {totalPages}
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Próxima
+            </Button>
+          </div>
+        </div>
+      )}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

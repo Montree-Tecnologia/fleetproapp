@@ -9,15 +9,63 @@ export interface CreateUserRequest {
   hasAccessToAllCompanies?: boolean;
 }
 
+export interface CompanyData {
+  id: string;
+  type: string;
+  name: string;
+  cnpj: string;
+  city: string;
+  state: string;
+  matrizId: string | null;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LinkedCompany {
+  userId: string;
+  companyId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface UserResponse {
   id: string;
   name: string;
   email: string;
   role: 'admin' | 'manager' | 'operator';
-  companyId: string;
+  primaryCompanyId: string;
+  hasAccessToAllCompanies: boolean;
   active: boolean;
+  lastLogin: string | null;
   createdAt: string;
   updatedAt: string;
+  primaryCompany: CompanyData;
+  linkedCompanies: LinkedCompany[];
+}
+
+export interface PaginationInfo {
+  currentPage: number;
+  itemsPerPage: number;
+  totalRecords: number;
+  totalPages: number;
+}
+
+export interface GetUsersResponse {
+  data: UserResponse[];
+  pagination: PaginationInfo;
+}
+
+export interface GetUsersParams {
+  page?: number;
+  perPage?: number;
+}
+
+export async function getUsers(
+  params: GetUsersParams = {}
+): Promise<ApiResponse<GetUsersResponse>> {
+  const { page = 1, perPage = 10 } = params;
+  return apiRequest<GetUsersResponse>(`/users?page=${page}&perPage=${perPage}`);
 }
 
 export async function createUser(
