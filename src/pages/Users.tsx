@@ -37,9 +37,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
-import { PermissionsManager } from '@/components/PermissionsManager';
-import { UserPermissions } from '@/hooks/useMockData';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 
 const userSchema = z.object({
@@ -47,7 +44,6 @@ const userSchema = z.object({
   email: z.string().trim().email('E-mail inválido').max(255, 'E-mail muito longo'),
   role: z.enum(['admin', 'manager', 'operator']),
   company: z.string().trim().min(1, 'Selecione a empresa de vínculo').max(100, 'Nome muito longo'),
-  password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').max(50, 'Senha muito longa').optional().or(z.literal('')),
 });
 
 export default function Users() {
@@ -62,19 +58,15 @@ export default function Users() {
     email: string;
     role: 'admin' | 'manager' | 'operator';
     company: string;
-    password: string;
     linkedCompanies: string[];
     hasAccessToAllCompanies: boolean;
-    customPermissions: UserPermissions;
   }>({
     name: '',
     email: '',
     role: 'manager',
     company: '',
-    password: '',
     linkedCompanies: [],
     hasAccessToAllCompanies: false,
-    customPermissions: {},
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [searchTerm, setSearchTerm] = useState('');
@@ -116,17 +108,6 @@ export default function Users() {
     e.preventDefault();
     
     try {
-      // Validação customizada para senha
-      if (!editingUser && (!formData.password || formData.password.length < 6)) {
-        setErrors({ password: 'Senha deve ter no mínimo 6 caracteres' });
-        return;
-      }
-      
-      if (formData.password && formData.password.length > 50) {
-        setErrors({ password: 'Senha muito longa' });
-        return;
-      }
-      
       const validatedData = userSchema.parse(formData);
       
       if (allUsers.some(u => u.email === validatedData.email && u.id !== editingUser?.id)) {
@@ -142,7 +123,6 @@ export default function Users() {
           company: validatedData.company,
           linkedCompanies: formData.linkedCompanies,
           hasAccessToAllCompanies: formData.hasAccessToAllCompanies,
-          customPermissions: formData.customPermissions,
         });
 
         toast({
@@ -157,7 +137,6 @@ export default function Users() {
         const response = await createUser({
           name: validatedData.name,
           email: validatedData.email,
-          password: validatedData.password!,
           role: validatedData.role,
           companyId: validatedData.company,
           linkedCompanies: formData.linkedCompanies,
@@ -205,10 +184,8 @@ export default function Users() {
       email: user.email,
       role: user.role,
       company: user.company,
-      password: '',
       linkedCompanies: user.linkedCompanies || [],
       hasAccessToAllCompanies: user.hasAccessToAllCompanies || false,
-      customPermissions: user.customPermissions || {},
     });
     setErrors({});
     setOpen(true);
@@ -222,10 +199,8 @@ export default function Users() {
       email: '',
       role: 'manager',
       company: '',
-      password: '',
       linkedCompanies: [],
       hasAccessToAllCompanies: false,
-      customPermissions: {},
     });
     setErrors({});
   };
@@ -376,152 +351,129 @@ export default function Users() {
               <DialogHeader>
                 <DialogTitle>{editingUser ? 'Editar Usuário' : 'Criar Novo Usuário'}</DialogTitle>
                 <DialogDescription>
-                  {editingUser ? 'Atualize as informações do usuário.' : 'Adicione um novo usuário ao sistema e defina suas permissões.'}
+                  {editingUser ? 'Atualize as informações do usuário.' : 'Adicione um novo usuário ao sistema.'}
                 </DialogDescription>
               </DialogHeader>
 
-              <Tabs defaultValue="basic" className="py-4">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="basic">Informações Básicas</TabsTrigger>
-                  <TabsTrigger value="permissions">Permissões</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="basic" className="space-y-4 mt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nome Completo</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => {
-                        setFormData({ ...formData, name: e.target.value });
-                        setErrors({ ...errors, name: '' });
-                      }}
-                      placeholder="João da Silva"
-                      maxLength={100}
-                    />
-                    {errors.name && (
-                      <p className="text-sm text-destructive">{errors.name}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">E-mail</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => {
-                        setFormData({ ...formData, email: e.target.value });
-                        setErrors({ ...errors, email: '' });
-                      }}
-                      placeholder="joao@empresa.com"
-                      maxLength={255}
-                    />
-                    {errors.email && (
-                      <p className="text-sm text-destructive">{errors.email}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="role">Perfil</Label>
-                    <Select
-                      value={formData.role}
-                      onValueChange={(value: 'admin' | 'manager' | 'operator') =>
-                        setFormData({ ...formData, role: value })
-                      }
-                    >
-                      <SelectTrigger id="role">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="manager">Gestor</SelectItem>
-                        <SelectItem value="operator">Operador</SelectItem>
-                        <SelectItem value="admin">Administrador</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground">
-                      {formData.role === 'admin' && 'Acesso total ao sistema'}
-                      {formData.role === 'manager' && 'Acesso operacional completo'}
-                      {formData.role === 'operator' && 'Acesso limitado às operações'}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="company">Empresa (Vínculo Empregatício) *</Label>
-                    <Select
-                      value={formData.company}
-                      onValueChange={(value) => {
-                        setFormData({ ...formData, company: value });
-                        setErrors({ ...errors, company: '' });
-                      }}
-                    >
-                      <SelectTrigger id="company">
-                        <SelectValue placeholder="Selecione a empresa de vínculo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {allCompanies.map((company) => (
-                          <SelectItem key={company.id} value={company.id.toString()}>
-                            {company.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground">
-                      Matriz/Filial de vínculo empregatício do usuário
-                    </p>
-                    {errors.company && (
-                      <p className="text-sm text-destructive">{errors.company}</p>
-                    )}
-                  </div>
-
-                  {!editingUser && (
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Senha Provisória *</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) => {
-                          setFormData({ ...formData, password: e.target.value });
-                          setErrors({ ...errors, password: '' });
-                        }}
-                        placeholder="Mínimo 6 caracteres"
-                        maxLength={50}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Senha que o usuário usará no primeiro acesso
-                      </p>
-                      {errors.password && (
-                        <p className="text-sm text-destructive">{errors.password}</p>
-                      )}
-                    </div>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome Completo</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => {
+                      setFormData({ ...formData, name: e.target.value });
+                      setErrors({ ...errors, name: '' });
+                    }}
+                    placeholder="João da Silva"
+                    maxLength={100}
+                  />
+                  {errors.name && (
+                    <p className="text-sm text-destructive">{errors.name}</p>
                   )}
+                </div>
 
-                  <div className="space-y-3">
-                    <Label>Acesso às Empresas *</Label>
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2 p-3 bg-primary/5 rounded-md border border-primary/20">
-                        <Checkbox
-                          id="all-companies"
-                          checked={formData.hasAccessToAllCompanies}
-                          onCheckedChange={(checked) => toggleAllCompanies(checked as boolean)}
-                        />
-                        <Label
-                          htmlFor="all-companies"
-                          className="text-sm font-medium cursor-pointer flex-1"
-                        >
-                          Todas as Empresas
-                          <span className="block text-xs text-muted-foreground font-normal mt-0.5">
-                            Acesso a todas empresas atuais e futuras
-                          </span>
-                        </Label>
-                      </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-mail</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => {
+                      setFormData({ ...formData, email: e.target.value });
+                      setErrors({ ...errors, email: '' });
+                    }}
+                    placeholder="joao@empresa.com"
+                    maxLength={255}
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">{errors.email}</p>
+                  )}
+                </div>
 
-                      {!formData.hasAccessToAllCompanies && (
-                        <div className="space-y-2 mt-3">
-                          <p className="text-sm text-muted-foreground">Ou selecione empresas específicas:</p>
-                          <div className="max-h-[200px] overflow-y-auto space-y-2 p-2 border rounded-md">
-                            {allCompanies.map((company) => (
+                <div className="space-y-2">
+                  <Label htmlFor="role">Perfil</Label>
+                  <Select
+                    value={formData.role}
+                    onValueChange={(value: 'admin' | 'manager' | 'operator') =>
+                      setFormData({ ...formData, role: value })
+                    }
+                  >
+                    <SelectTrigger id="role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="manager">Gestor</SelectItem>
+                      <SelectItem value="operator">Operador</SelectItem>
+                      <SelectItem value="admin">Administrador</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    {formData.role === 'admin' && 'Acesso total ao sistema'}
+                    {formData.role === 'manager' && 'Acesso operacional completo'}
+                    {formData.role === 'operator' && 'Acesso limitado às operações'}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="company">Empresa (Vínculo Empregatício) *</Label>
+                  <Select
+                    value={formData.company}
+                    onValueChange={(value) => {
+                      setFormData({ ...formData, company: value });
+                      setErrors({ ...errors, company: '' });
+                    }}
+                    disabled={isLoadingCompanies}
+                  >
+                    <SelectTrigger id="company">
+                      <SelectValue placeholder={isLoadingCompanies ? "Carregando..." : "Selecione a empresa de vínculo"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allCompanies.map((company) => (
+                        <SelectItem key={company.id} value={company.id.toString()}>
+                          {company.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Matriz/Filial de vínculo empregatício do usuário
+                  </p>
+                  {errors.company && (
+                    <p className="text-sm text-destructive">{errors.company}</p>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <Label>Acesso às Empresas *</Label>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2 p-3 bg-primary/5 rounded-md border border-primary/20">
+                      <Checkbox
+                        id="all-companies"
+                        checked={formData.hasAccessToAllCompanies}
+                        onCheckedChange={(checked) => toggleAllCompanies(checked as boolean)}
+                      />
+                      <Label
+                        htmlFor="all-companies"
+                        className="text-sm font-medium cursor-pointer flex-1"
+                      >
+                        Todas as Empresas
+                        <span className="block text-xs text-muted-foreground font-normal mt-0.5">
+                          Acesso a todas empresas atuais e futuras
+                        </span>
+                      </Label>
+                    </div>
+
+                    {!formData.hasAccessToAllCompanies && (
+                      <div className="space-y-2 mt-3">
+                        <p className="text-sm text-muted-foreground">Ou selecione empresas específicas:</p>
+                        <div className="max-h-[200px] overflow-y-auto space-y-2 p-2 border rounded-md">
+                          {isLoadingCompanies ? (
+                            <p className="text-sm text-muted-foreground">Carregando empresas...</p>
+                          ) : allCompanies.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">Nenhuma empresa disponível</p>
+                          ) : (
+                            allCompanies.map((company) => (
                               <div key={company.id} className="flex items-center space-x-2">
                                 <Checkbox
                                   id={`company-${company.id}`}
@@ -535,22 +487,14 @@ export default function Users() {
                                   {company.name}
                                 </Label>
                               </div>
-                            ))}
-                          </div>
+                            ))
+                          )}
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
-                </TabsContent>
-
-                <TabsContent value="permissions" className="mt-4">
-                  <PermissionsManager
-                    permissions={formData.customPermissions}
-                    onChange={(permissions) => setFormData({ ...formData, customPermissions: permissions })}
-                    role={formData.role}
-                  />
-                </TabsContent>
-              </Tabs>
+                </div>
+              </div>
 
               <DialogFooter>
                 <Button type="button" variant="outline-destructive" onClick={handleDialogClose} disabled={isSubmitting}>

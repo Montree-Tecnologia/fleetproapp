@@ -3,7 +3,6 @@ import { apiRequest, ApiResponse } from '@/lib/api';
 export interface CreateUserRequest {
   name: string;
   email: string;
-  password: string;
   role: 'admin' | 'manager' | 'operator';
   companyId: string;
   linkedCompanies?: string[];
