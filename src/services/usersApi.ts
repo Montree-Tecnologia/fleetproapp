@@ -76,3 +76,11 @@ export async function createUser(
     body: JSON.stringify(data),
   });
 }
+
+export async function deleteUser(
+  userId: string
+): Promise<ApiResponse<void>> {
+  return apiRequest<void>(`/users/${userId}`, {
+    method: 'DELETE',
+  });
+}
