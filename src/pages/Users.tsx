@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMockData, User } from '@/hooks/useMockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { createUser, getUsers, UserResponse, deleteUser as deleteUserApi, toggleUserStatus } from '@/services/usersApi';
+import { createUser, getUsers, UserResponse, deleteUser as deleteUserApi, toggleUserStatus, updateUser as updateUserApi } from '@/services/usersApi';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -149,21 +149,35 @@ export default function Users() {
       }
 
       if (editingUser) {
-        updateUser(editingUser.id, {
+        setIsSubmitting(true);
+        
+        const response = await updateUserApi(editingUser.id, {
           name: validatedData.name,
           email: validatedData.email,
           role: validatedData.role,
-          company: validatedData.company,
+          companyId: validatedData.company,
           linkedCompanies: formData.linkedCompanies,
           hasAccessToAllCompanies: formData.hasAccessToAllCompanies,
         });
 
-        toast({
-          title: 'Usuário atualizado',
-          description: `${validatedData.name} foi atualizado com sucesso.`,
-        });
-        
-        handleDialogClose();
+        if (response.success) {
+          toast({
+            title: 'Usuário atualizado',
+            description: `${validatedData.name} foi atualizado com sucesso.`,
+          });
+          
+          handleDialogClose();
+          
+          // Recarregar lista de usuários
+          const usersResponse = await getUsers({ page: currentPage, perPage });
+          if (usersResponse.success && usersResponse.data) {
+            setApiUsers(usersResponse.data.data);
+            setTotalPages(usersResponse.data.pagination.totalPages);
+            setTotalRecords(usersResponse.data.pagination.totalRecords);
+          }
+        } else {
+          throw new Error(response.error?.message || 'Erro ao atualizar usuário');
+        }
       } else {
         setIsSubmitting(true);
         
@@ -204,11 +218,11 @@ export default function Users() {
         });
         setErrors(fieldErrors);
       } else {
-        console.error('Erro ao criar usuário:', error);
+        console.error('Erro ao processar usuário:', error);
         toast({
           variant: 'destructive',
-          title: 'Erro ao criar usuário',
-          description: error instanceof Error ? error.message : 'Não foi possível criar o usuário. Tente novamente.',
+          title: editingUser ? 'Erro ao atualizar usuário' : 'Erro ao criar usuário',
+          description: error instanceof Error ? error.message : 'Não foi possível processar o usuário. Tente novamente.',
         });
       }
     } finally {
