@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMockData, User } from '@/hooks/useMockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { createUser, getUsers, UserResponse, deleteUser as deleteUserApi } from '@/services/usersApi';
+import { createUser, getUsers, UserResponse, deleteUser as deleteUserApi, toggleUserStatus } from '@/services/usersApi';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -264,12 +264,32 @@ export default function Users() {
     });
   };
 
-  const handleToggleActive = (userId: string, currentStatus: boolean) => {
-    updateUser(userId, { active: !currentStatus });
-    toast({
-      title: currentStatus ? 'Usuário desativado' : 'Usuário ativado',
-      description: 'Status atualizado com sucesso.',
-    });
+  const handleToggleActive = async (userId: string, currentStatus: boolean) => {
+    try {
+      const response = await toggleUserStatus(userId);
+      
+      if (response.success) {
+        toast({
+          title: currentStatus ? 'Usuário desativado' : 'Usuário ativado',
+          description: 'Status atualizado com sucesso.',
+        });
+        
+        // Recarregar lista de usuários
+        const usersResponse = await getUsers({ page: currentPage, perPage });
+        if (usersResponse.success && usersResponse.data) {
+          setApiUsers(usersResponse.data.data);
+          setTotalPages(usersResponse.data.pagination.totalPages);
+          setTotalRecords(usersResponse.data.pagination.totalRecords);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao alterar status do usuário:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao alterar status',
+        description: 'Não foi possível alterar o status do usuário.',
+      });
+    }
   };
 
   const handleDeleteClick = (userId: string, userName: string) => {

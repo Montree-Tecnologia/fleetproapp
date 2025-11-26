@@ -84,3 +84,11 @@ export async function deleteUser(
     method: 'DELETE',
   });
 }
+
+export async function toggleUserStatus(
+  userId: string
+): Promise<ApiResponse<{ user: UserResponse }>> {
+  return apiRequest<{ user: UserResponse }>(`/users/${userId}/status`, {
+    method: 'PATCH',
+  });
+}
