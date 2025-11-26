@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useMockData, User } from '@/hooks/useMockData';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { createUser, getUsers, UserResponse } from '@/services/usersApi';
+import { createUser, getUsers, UserResponse, deleteUser as deleteUserApi } from '@/services/usersApi';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -273,25 +273,38 @@ export default function Users() {
   };
 
   const handleDeleteClick = (userId: string, userName: string) => {
-    if (userId === '1' || userId === '2') {
-      toast({
-        title: 'Erro',
-        description: 'Não é possível excluir usuários padrão.',
-        variant: 'destructive',
-      });
-      return;
-    }
     setUserToDelete({ id: userId, name: userName });
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (userToDelete) {
-      deleteUser(userToDelete.id);
+  const confirmDelete = async () => {
+    if (!userToDelete) return;
+
+    try {
+      const response = await deleteUserApi(userToDelete.id);
+      
+      if (response.success) {
+        toast({
+          title: 'Usuário excluído',
+          description: `${userToDelete.name} foi removido com sucesso.`,
+        });
+        
+        // Recarregar lista de usuários
+        const usersResponse = await getUsers({ page: currentPage, perPage });
+        if (usersResponse.success && usersResponse.data) {
+          setApiUsers(usersResponse.data.data);
+          setTotalPages(usersResponse.data.pagination.totalPages);
+          setTotalRecords(usersResponse.data.pagination.totalRecords);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao excluir usuário:', error);
       toast({
-        title: 'Usuário removido',
-        description: `${userToDelete.name} foi removido do sistema.`,
+        variant: 'destructive',
+        title: 'Erro ao excluir usuário',
+        description: 'Não foi possível excluir o usuário.',
       });
+    } finally {
       setDeleteDialogOpen(false);
       setUserToDelete(null);
     }
