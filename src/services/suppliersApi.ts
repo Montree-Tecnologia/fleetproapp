@@ -72,7 +72,7 @@ export async function toggleSupplierActive(id: string, active: boolean) {
 }
 
 export interface SupplierCombo {
-  id: number;
+  id: string;
   name: string;
   fantasyName?: string;
   cnpj?: string;
