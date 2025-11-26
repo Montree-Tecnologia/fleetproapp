@@ -53,6 +53,8 @@ export default function Users() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [toggleStatusDialogOpen, setToggleStatusDialogOpen] = useState(false);
+  const [userToToggle, setUserToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
   const [formData, setFormData] = useState<{
     name: string;
     email: string;
@@ -264,13 +266,20 @@ export default function Users() {
     });
   };
 
-  const handleToggleActive = async (userId: string, currentStatus: boolean) => {
+  const handleToggleActive = (userId: string, userName: string, currentStatus: boolean) => {
+    setUserToToggle({ id: userId, name: userName, currentStatus });
+    setToggleStatusDialogOpen(true);
+  };
+
+  const confirmToggleStatus = async () => {
+    if (!userToToggle) return;
+
     try {
-      const response = await toggleUserStatus(userId);
+      const response = await toggleUserStatus(userToToggle.id);
       
       if (response.success) {
         toast({
-          title: currentStatus ? 'Usuário desativado' : 'Usuário ativado',
+          title: userToToggle.currentStatus ? 'Usuário desativado' : 'Usuário ativado',
           description: 'Status atualizado com sucesso.',
         });
         
@@ -289,6 +298,9 @@ export default function Users() {
         title: 'Erro ao alterar status',
         description: 'Não foi possível alterar o status do usuário.',
       });
+    } finally {
+      setToggleStatusDialogOpen(false);
+      setUserToToggle(null);
     }
   };
 
@@ -673,7 +685,7 @@ export default function Users() {
                 <Button
                   size="sm"
                   variant={user.active ? 'outline' : 'default'}
-                  onClick={() => handleToggleActive(user.id, user.active)}
+                  onClick={() => handleToggleActive(user.id, user.name, user.active)}
                 >
                   <Power className="h-4 w-4" />
                 </Button>
@@ -740,6 +752,23 @@ export default function Users() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={toggleStatusDialogOpen} onOpenChange={setToggleStatusDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar alteração de status</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja {userToToggle?.currentStatus ? 'desativar' : 'ativar'} o usuário <strong>{userToToggle?.name}</strong>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmToggleStatus}>
+              {userToToggle?.currentStatus ? 'Desativar' : 'Ativar'}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
