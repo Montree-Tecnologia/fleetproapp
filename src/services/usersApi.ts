@@ -9,6 +9,15 @@ export interface CreateUserRequest {
   hasAccessToAllCompanies?: boolean;
 }
 
+export interface UpdateUserRequest {
+  name: string;
+  email: string;
+  role: 'admin' | 'manager' | 'operator';
+  companyId: string;
+  linkedCompanies?: string[];
+  hasAccessToAllCompanies?: boolean;
+}
+
 export interface CompanyData {
   id: string;
   type: string;
@@ -82,6 +91,16 @@ export async function deleteUser(
 ): Promise<ApiResponse<void>> {
   return apiRequest<void>(`/users/${userId}`, {
     method: 'DELETE',
+  });
+}
+
+export async function updateUser(
+  userId: string,
+  data: UpdateUserRequest
+): Promise<ApiResponse<{ user: UserResponse }>> {
+  return apiRequest<{ user: UserResponse }>(`/users/${userId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
   });
 }
 
