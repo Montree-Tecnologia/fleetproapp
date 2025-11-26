@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign, FileSpreadsheet } from 'lucide-react';
 import { exportVehiclesToExcel } from '@/lib/excelExport';
+import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import {
   Select,
   SelectContent,
@@ -34,7 +35,7 @@ import { VehicleForm } from '@/components/forms/VehicleForm';
 import { VehicleSaleForm, VehicleSale } from '@/components/forms/VehicleSaleForm';
 import { VehicleCard } from '@/components/VehicleCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
@@ -62,6 +63,34 @@ export default function Vehicles() {
   const [vehicleToReverseSale, setVehicleToReverseSale] = useState<Vehicle | null>(null);
   const [statusChangeDialogOpen, setStatusChangeDialogOpen] = useState(false);
   const [vehicleToChangeStatus, setVehicleToChangeStatus] = useState<{ vehicleId: string; plate: string; newStatus: string; currentStatus: string } | null>(null);
+  const [apiCompanies, setApiCompanies] = useState<CompanyCombo[]>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
+
+  // Buscar empresas da API quando o modal abrir
+  useEffect(() => {
+    if (isDialogOpen) {
+      const fetchCompanies = async () => {
+        setLoadingCompanies(true);
+        try {
+          const response = await getCompaniesCombo();
+          if (response.success && response.data) {
+            setApiCompanies(response.data);
+          }
+        } catch (error) {
+          console.error('Erro ao buscar empresas:', error);
+          toast({
+            title: 'Erro ao carregar empresas',
+            description: 'Não foi possível carregar a lista de empresas.',
+            variant: 'destructive',
+          });
+        } finally {
+          setLoadingCompanies(false);
+        }
+      };
+      
+      fetchCompanies();
+    }
+  }, [isDialogOpen, toast]);
 
   const getDriverName = (driverId?: string) => {
     if (!driverId) return null;
@@ -476,7 +505,7 @@ export default function Vehicles() {
           <VehicleForm
             initialData={editingVehicle || undefined}
             availableVehicles={allVehicles}
-            companies={allCompanies}
+            companies={apiCompanies}
             suppliers={allSuppliers}
             onSubmit={(data) => {
               if (editingVehicle) {

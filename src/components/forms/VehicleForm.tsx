@@ -248,7 +248,7 @@ interface VehicleFormProps {
   onCancel: () => void;
   initialData?: Vehicle;
   availableVehicles?: Vehicle[];
-  companies: Company[];
+  companies: Array<{ id: string | number; name: string; cnpj?: string; active?: boolean }>;
   suppliers: Supplier[];
 }
 
@@ -575,8 +575,8 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     }
   };
 
-  // Filtrar apenas empresas ativas
-  const availableBranches = companies.filter(c => c.active);
+  // Filtrar apenas empresas ativas (se a propriedade active existir)
+  const availableBranches = companies.filter(c => c.active !== false);
 
   return (
     <Form {...form}>
@@ -1248,8 +1248,8 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     </FormControl>
                     <SelectContent>
                       {availableBranches.map((branch) => (
-                        <SelectItem key={branch.id} value={branch.id}>
-                          {branch.name} - {branch.cnpj}
+                        <SelectItem key={branch.id} value={String(branch.id)}>
+                          {branch.name}{branch.cnpj ? ` - ${branch.cnpj}` : ''}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -1383,8 +1383,8 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                     </FormControl>
                     <SelectContent>
                       {availableBranches.map((branch) => (
-                        <SelectItem key={branch.id} value={branch.id}>
-                          {branch.name} - {branch.cnpj}
+                        <SelectItem key={branch.id} value={String(branch.id)}>
+                          {branch.name}{branch.cnpj ? ` - ${branch.cnpj}` : ''}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -1477,9 +1477,9 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
             {availableBranches.map((branch) => (
               <Badge
                 key={branch.id}
-                variant={selectedBranches.includes(branch.id) ? "default" : "outline"}
+                variant={selectedBranches.includes(String(branch.id)) ? "default" : "outline"}
                 className="cursor-pointer"
-                onClick={() => toggleBranch(branch.id)}
+                onClick={() => toggleBranch(String(branch.id))}
               >
                 {branch.name}
               </Badge>
