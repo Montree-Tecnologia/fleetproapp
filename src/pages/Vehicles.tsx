@@ -8,6 +8,7 @@ import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign, FileSpr
 import { exportVehiclesToExcel } from '@/lib/excelExport';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { getSuppliersCombo, SupplierCombo } from '@/services/suppliersApi';
+import { createVehicle, updateVehicle as updateVehicleApi } from '@/services/vehiclesApi';
 import {
   Select,
   SelectContent,
@@ -521,21 +522,61 @@ export default function Vehicles() {
             availableVehicles={allVehicles}
             companies={apiCompanies}
             suppliers={apiSuppliers}
-            onSubmit={(data) => {
-              if (editingVehicle) {
-                updateVehicle(editingVehicle.id, data);
+            onSubmit={async (data) => {
+              try {
+                // Preparar payload para a API
+                const payload = {
+                  plate: data.plate,
+                  chassis: data.chassis,
+                  renavam: data.renavam,
+                  brand: data.brand,
+                  model: data.model,
+                  manufacturingYear: data.manufacturingYear,
+                  modelYear: data.modelYear,
+                  color: data.color,
+                  vehicleType: data.vehicleType,
+                  status: data.status,
+                  purchaseKm: data.purchaseKm,
+                  fuelType: data.fuelType,
+                  axles: data.axles,
+                  weight: data.weight,
+                  purchaseDate: data.purchaseDate,
+                  purchaseValue: data.purchaseValue,
+                  ownerBranch: data.ownerBranch,
+                  supplierId: data.supplierId,
+                  branches: data.branches,
+                  driverId: data.driverId,
+                  hasComposition: data.hasComposition,
+                  compositionPlates: data.compositionPlates,
+                  compositionAxles: data.compositionAxles,
+                  images: data.images,
+                  crlvDocument: data.crlvDocument,
+                  purchaseInvoice: data.purchaseInvoice,
+                } as any;
+
+                if (editingVehicle) {
+                  await updateVehicleApi(editingVehicle.id, payload);
+                  toast({
+                    title: 'Veículo atualizado',
+                    description: 'Dados do veículo foram atualizados com sucesso.',
+                  });
+                } else {
+                  await createVehicle(payload);
+                  toast({
+                    title: 'Veículo cadastrado',
+                    description: 'Novo veículo foi adicionado à frota.',
+                  });
+                }
+                handleDialogClose(false);
+                setRefreshKey(prev => prev + 1);
+              } catch (error: any) {
+                console.error('Erro ao salvar veículo:', error);
                 toast({
-                  title: 'Veículo atualizado',
-                  description: 'Dados do veículo foram atualizados com sucesso.',
-                });
-              } else {
-                addVehicle(data);
-                toast({
-                  title: 'Veículo cadastrado',
-                  description: 'Novo veículo foi adicionado à frota.',
+                  title: 'Erro ao salvar veículo',
+                  description: error.message || 'Não foi possível salvar o veículo.',
+                  variant: 'destructive',
                 });
               }
-              handleDialogClose(false);
             }}
             onCancel={() => handleDialogClose(false)}
           />
