@@ -27,6 +27,11 @@ export async function getVehicleModels(brandId: number) {
   return apiRequest<VehicleModel[]>(`/vehicle-models?brandId=${brandId}`);
 }
 
+export interface ImagePayload {
+  base64: string;
+  extension: string;
+}
+
 export interface CreateVehiclePayload {
   plate: string;
   chassis: string;
@@ -39,21 +44,22 @@ export interface CreateVehiclePayload {
   vehicleType: string;
   status: string;
   purchaseKm: number;
+  currentKm: number;
   fuelType: string;
   axles: number;
   weight?: number;
   purchaseDate: string;
   purchaseValue: number;
-  ownerBranch: string;
+  ownerBranchId: string;
   supplierId?: string;
-  branches?: string[];
+  branches?: number[];
   driverId?: string;
   hasComposition?: boolean;
   compositionPlates?: string[];
   compositionAxles?: number[];
-  images?: string[];
-  crlvDocument?: string;
-  purchaseInvoice?: string;
+  images?: ImagePayload[];
+  crlvDocument?: ImagePayload;
+  purchaseInvoice?: ImagePayload;
 }
 
 export interface Vehicle {

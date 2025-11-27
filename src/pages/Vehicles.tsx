@@ -524,7 +524,20 @@ export default function Vehicles() {
             suppliers={apiSuppliers}
             onSubmit={async (data) => {
               try {
-                // Preparar payload para a API
+                // Helper function to convert base64 string to ImagePayload format
+                const convertToImagePayload = (base64String: string | undefined) => {
+                  if (!base64String) return undefined;
+                  
+                  // Extract extension from base64 string (e.g., "data:image/png;base64,...")
+                  const match = base64String.match(/^data:image\/(\w+);base64,/);
+                  const extension = match ? match[1] : 'png';
+                  
+                  return {
+                    base64: base64String,
+                    extension: extension
+                  };
+                };
+
                 const payload = {
                   plate: data.plate,
                   chassis: data.chassis,
@@ -545,15 +558,15 @@ export default function Vehicles() {
                   purchaseValue: data.purchaseValue,
                   ownerBranchId: data.ownerBranch,
                   supplierId: data.supplierId,
-                  branches: data.branches,
+                  branches: data.branches?.map(b => parseInt(b)),
                   driverId: data.driverId,
                   hasComposition: data.hasComposition,
                   compositionPlates: data.compositionPlates,
                   compositionAxles: data.compositionAxles,
-                  images: data.images,
-                  crlvDocument: data.crlvDocument,
-                  purchaseInvoice: data.purchaseInvoice,
-                } as any;
+                  images: data.images?.map(img => convertToImagePayload(img)).filter(Boolean),
+                  crlvDocument: convertToImagePayload(data.crlvDocument),
+                  purchaseInvoice: convertToImagePayload(data.purchaseInvoice),
+                };
 
                 if (editingVehicle) {
                   await updateVehicleApi(editingVehicle.id, payload);
