@@ -54,6 +54,10 @@ export interface Vehicle {
   purchaseInvoice?: string;
   saleInfo?: VehicleSale;
   previousStatus?: 'active' | 'defective' | 'maintenance' | 'inactive';
+  // Campos opcionais para controle de deleção
+  deleteImageIds?: string[];
+  deleteCrlvDocument?: boolean;
+  deletePurchaseInvoice?: boolean;
 }
 
 export interface Refueling {

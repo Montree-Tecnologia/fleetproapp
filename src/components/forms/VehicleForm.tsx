@@ -243,6 +243,12 @@ const vehicleSchema = z.object({
 
 type VehicleFormData = z.infer<typeof vehicleSchema>;
 
+interface ImageItem {
+  id?: string;        // ID da API (se existente)
+  url: string;        // URL ou base64
+  isNew: boolean;     // true = base64 novo, false = URL existente
+}
+
 interface VehicleFormProps {
   onSubmit: (data: Omit<Vehicle, 'id' | 'currentKm'>) => void;
   onCancel: () => void;
@@ -293,13 +299,33 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
   const [selectedSupplier, setSelectedSupplier] = useState<string | undefined>(initialData?.supplierId);
   const [openSupplier, setOpenSupplier] = useState(false);
-  const [vehicleImages, setVehicleImages] = useState<string[]>(
+  
+  // Rastreamento de imagens originais e suas modificações
+  const [originalImageIds, setOriginalImageIds] = useState<string[]>(
     initialData?.images
-      ? initialData.images.map(img => typeof img === 'string' ? img : img.url)
+      ? initialData.images
+          .filter((img): img is { id: string; url: string; category: string; createdAt: string; updatedAt: string } => 
+            typeof img === 'object' && 'id' in img
+          )
+          .map(img => img.id)
       : []
   );
+  const [currentImageIds, setCurrentImageIds] = useState<string[]>(originalImageIds);
+  
+  const [vehicleImages, setVehicleImages] = useState<ImageItem[]>(
+    initialData?.images
+      ? initialData.images.map(img => ({
+          id: typeof img === 'object' ? img.id : undefined,
+          url: typeof img === 'string' ? img : img.url,
+          isNew: false
+        }))
+      : []
+  );
+  
   const [crlvDocument, setCrlvDocument] = useState<string | undefined>(initialData?.crlvDocument);
   const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
+  const [originalCrlvUrl] = useState<string | undefined>(initialData?.crlvDocument);
+  const [originalPurchaseInvoiceUrl] = useState<string | undefined>(initialData?.purchaseInvoice);
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>(initialData?.brand);
   const [ownerBranch, setOwnerBranch] = useState<string>(() => {
     if (initialData?.ownerBranch) return initialData.ownerBranch;
@@ -506,7 +532,10 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       Array.from(files).forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setVehicleImages((prev) => [...prev, reader.result as string]);
+          setVehicleImages((prev) => [...prev, {
+            url: reader.result as string,
+            isNew: true
+          }]);
         };
         reader.readAsDataURL(file);
       });
@@ -514,6 +543,13 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
   };
 
   const removeImage = (index: number) => {
+    const imageToRemove = vehicleImages[index];
+    
+    // Se tinha ID (era do servidor), marcar para deleção
+    if (imageToRemove.id) {
+      setCurrentImageIds(prev => prev.filter(id => id !== imageToRemove.id));
+    }
+    
     setVehicleImages((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -549,6 +585,15 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
 
 
   const handleSubmit = (data: VehicleFormData) => {
+    // Calcular IDs das imagens que foram removidas
+    const deletedImageIds = originalImageIds.filter(
+      id => !currentImageIds.includes(id)
+    );
+
+    // Verificar se documentos foram removidos
+    const deleteCrlv = originalCrlvUrl && !crlvDocument;
+    const deletePurchaseInvoice = originalPurchaseInvoiceUrl && !purchaseInvoice;
+
     onSubmit({
       plate: data.plate,
       chassis: data.chassis,
@@ -564,7 +609,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       fuelType: data.fuelType,
       axles: data.axles,
       weight: data.weight,
-      branches: selectedBranches.map(id => String(id)),  // Converter IDs para strings para o Vehicle interface local
+      branches: selectedBranches.map(id => String(id)),
       ownerBranch: data.ownerBranch,
       hasComposition: compositionIds.length > 0,
       compositions: compositionIds.length > 0 ? compositionIds : undefined,
@@ -572,9 +617,14 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd'),
       purchaseValue: data.purchaseValue,
       supplierId: selectedSupplier,
-      images: vehicleImages.length > 0 ? vehicleImages : undefined,
-      crlvDocument: crlvDocument,
-      purchaseInvoice: purchaseInvoice,
+      images: vehicleImages
+        .filter(img => img.isNew)
+        .map(img => img.url),
+      deleteImageIds: deletedImageIds.length > 0 ? deletedImageIds : undefined,
+      crlvDocument: crlvDocument?.startsWith('data:') ? crlvDocument : undefined,
+      deleteCrlvDocument: deleteCrlv || undefined,
+      purchaseInvoice: purchaseInvoice?.startsWith('data:') ? purchaseInvoice : undefined,
+      deletePurchaseInvoice: deletePurchaseInvoice || undefined,
     });
   };
 
@@ -1617,7 +1667,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 {vehicleImages.map((image, index) => (
                   <div key={index} className="relative group">
                     <img
-                      src={image}
+                      src={image.url}
                       alt={`Veículo ${index + 1}`}
                       className="w-full h-24 object-cover rounded-lg border border-border"
                     />

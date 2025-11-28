@@ -57,8 +57,11 @@ export interface CreateVehiclePayload {
   hasComposition?: boolean;
   compositions?: number[];  // IDs dos veículos acoplados
   images?: ImagePayload[];
+  deleteImageIds?: string[];           // IDs das imagens a serem excluídas
   crlvDocument?: ImagePayload;
+  deleteCrlvDocument?: boolean;        // Flag para excluir CRLV
   purchaseInvoice?: ImagePayload;
+  deletePurchaseInvoice?: boolean;     // Flag para excluir Nota Fiscal
 }
 
 export interface VehicleImage {
