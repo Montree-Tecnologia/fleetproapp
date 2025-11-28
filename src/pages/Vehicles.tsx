@@ -626,7 +626,7 @@ export default function Vehicles() {
                   });
                 }
                 handleDialogClose(false);
-                setRefreshKey(prev => prev + 1);
+                await fetchVehicles(1, false);
               } catch (error: any) {
                 console.error('Erro ao salvar veículo:', error);
                 toast({
