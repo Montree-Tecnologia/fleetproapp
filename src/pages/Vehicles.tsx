@@ -598,7 +598,16 @@ export default function Vehicles() {
                   driverId: data.driverId,
                   hasComposition: data.hasComposition,
                   compositions: data.compositions,
-                  images: data.images?.map(img => convertToImagePayload(img)).filter(Boolean),
+                  images: data.images
+                    ?.map(img => {
+                      // Se já for string, converte para payload
+                      if (typeof img === 'string') {
+                        return convertToImagePayload(img);
+                      }
+                      // Se for objeto da API, não precisa converter (já está no servidor)
+                      return null;
+                    })
+                    .filter(Boolean),
                   crlvDocument: convertToImagePayload(data.crlvDocument),
                   purchaseInvoice: convertToImagePayload(data.purchaseInvoice),
                 };
@@ -699,22 +708,25 @@ export default function Vehicles() {
                 <div>
                   <h3 className="font-semibold mb-3">Imagens do Veículo</h3>
                   <div className="grid grid-cols-4 gap-3">
-                    {viewingVehicle.images.map((image, index) => (
-                      <div 
-                        key={index}
-                        className="relative group cursor-pointer"
-                        onClick={() => setSelectedImage(image)}
-                      >
-                        <img
-                          src={image}
-                          alt={`${viewingVehicle.plate} - ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-lg border border-border hover:border-primary transition-colors"
-                        />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                          <Eye className="h-6 w-6 text-white" />
+                    {viewingVehicle.images.map((image, index) => {
+                      const imageUrl = typeof image === 'string' ? image : image.url;
+                      return (
+                        <div 
+                          key={index}
+                          className="relative group cursor-pointer"
+                          onClick={() => setSelectedImage(imageUrl)}
+                        >
+                          <img
+                            src={imageUrl}
+                            alt={`${viewingVehicle.plate} - ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg border border-border hover:border-primary transition-colors"
+                          />
+                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                            <Eye className="h-6 w-6 text-white" />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}

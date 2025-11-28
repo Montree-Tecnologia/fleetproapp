@@ -49,7 +49,7 @@ export interface Vehicle {
   purchaseDate: string;
   purchaseValue: number;
   supplierId?: string;
-  images?: string[];
+  images?: string[] | Array<{ id: string; url: string; category: string; createdAt: string; updatedAt: string }>;
   crlvDocument?: string;
   purchaseInvoice?: string;
   saleInfo?: VehicleSale;

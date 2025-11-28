@@ -293,7 +293,11 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
   const [selectedSupplier, setSelectedSupplier] = useState<string | undefined>(initialData?.supplierId);
   const [openSupplier, setOpenSupplier] = useState(false);
-  const [vehicleImages, setVehicleImages] = useState<string[]>(initialData?.images || []);
+  const [vehicleImages, setVehicleImages] = useState<string[]>(
+    initialData?.images
+      ? initialData.images.map(img => typeof img === 'string' ? img : img.url)
+      : []
+  );
   const [crlvDocument, setCrlvDocument] = useState<string | undefined>(initialData?.crlvDocument);
   const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>(initialData?.brand);
