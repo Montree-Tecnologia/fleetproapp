@@ -8,7 +8,7 @@ import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign, FileSpr
 import { exportVehiclesToExcel } from '@/lib/excelExport';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { getSuppliersCombo, SupplierCombo } from '@/services/suppliersApi';
-import { createVehicle, updateVehicle as updateVehicleApi, getVehicles, Vehicle as ApiVehicle } from '@/services/vehiclesApi';
+import { createVehicle, updateVehicle as updateVehicleApi, getVehicles, Vehicle as ApiVehicle, deleteVehicle as deleteVehicleApi } from '@/services/vehiclesApi';
 import {
   Select,
   SelectContent,
@@ -204,16 +204,25 @@ export default function Vehicles() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (vehicleToDelete) {
-      deleteVehicle(vehicleToDelete.id);
-      toast({
-        title: 'Veículo excluído',
-        description: `${vehicleToDelete.plate} foi removido com sucesso.`,
-      });
-      setVehicleToDelete(null);
-      setDeleteDialogOpen(false);
-      setRefreshKey(prev => prev + 1);
+      try {
+        await deleteVehicleApi(vehicleToDelete.id);
+        toast({
+          title: 'Veículo excluído',
+          description: `${vehicleToDelete.plate} foi removido com sucesso.`,
+        });
+        setVehicleToDelete(null);
+        setDeleteDialogOpen(false);
+        // Recarregar lista de veículos
+        await fetchVehicles(1, false);
+      } catch (error) {
+        toast({
+          title: 'Erro ao excluir veículo',
+          description: 'Não foi possível excluir o veículo. Tente novamente.',
+          variant: 'destructive',
+        });
+      }
     }
   };
 
