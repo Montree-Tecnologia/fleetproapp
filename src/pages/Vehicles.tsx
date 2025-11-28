@@ -88,17 +88,17 @@ export default function Vehicles() {
       });
       
       if (response.success && response.data) {
-        const { vehicles, pagination } = response.data;
+        const { data, pagination } = response.data;
         
         if (append) {
-          setApiVehicles(prev => [...prev, ...vehicles]);
+          setApiVehicles(prev => [...prev, ...data]);
         } else {
-          setApiVehicles(vehicles);
+          setApiVehicles(data);
         }
         
-        setCurrentPage(pagination.page);
+        setCurrentPage(pagination.currentPage);
         setTotalPages(pagination.totalPages);
-        setHasMoreVehicles(pagination.page < pagination.totalPages);
+        setHasMoreVehicles(pagination.currentPage < pagination.totalPages);
       }
     } catch (error) {
       console.error('Erro ao buscar veículos:', error);
@@ -336,7 +336,7 @@ export default function Vehicles() {
       // Notifica sobre desvinculação automática de reboque
       if (isTrailer && isInactiveOrMaintenance) {
         const tractionVehicles = apiVehicles.filter(v =>
-          v.hasComposition && v.compositions?.includes(Number(vehicle.id))
+          v.hasComposition
         );
         if (tractionVehicles.length > 0) {
           toast({
@@ -346,7 +346,7 @@ export default function Vehicles() {
       }
 
       // Notifica sobre alteração de status das composições
-      if (!isTrailer && isInactiveOrMaintenance && vehicle.hasComposition && vehicle.compositions) {
+      if (!isTrailer && isInactiveOrMaintenance && vehicle.hasComposition) {
         toast({
           description: `Status das composições acopladas também alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}.`,
         });
@@ -412,12 +412,9 @@ export default function Vehicles() {
       return;
     }
     
-    const newCompositions = [...(vehicle.compositions || []), Number(trailer.id)];
-    
     try {
       updateVehicle(vehicleId, {
         hasComposition: true,
-        compositions: newCompositions,
       });
       
       toast({
@@ -436,7 +433,7 @@ export default function Vehicles() {
 
   const handleRemoveComposition = (vehicleId: string, trailerId: number) => {
     const vehicle = apiVehicles.find(v => v.id === vehicleId);
-    if (!vehicle || !vehicle.compositions) {
+    if (!vehicle) {
       toast({
         title: 'Erro',
         description: 'Veículo ou composição não encontrada.',
@@ -445,12 +442,9 @@ export default function Vehicles() {
       return;
     }
     
-    const newCompositions = vehicle.compositions.filter(id => id !== trailerId);
-    
     try {
       updateVehicle(vehicleId, {
-        hasComposition: newCompositions.length > 0,
-        compositions: newCompositions.length > 0 ? newCompositions : undefined,
+        hasComposition: false,
       });
       
       toast({
@@ -962,7 +956,7 @@ export default function Vehicles() {
 
                 // Buscar veículo de tração que contém este reboque
                 const tractionVehicle = apiVehicles.find(v => 
-                  v.hasComposition && v.compositions?.includes(Number(viewingVehicle.id))
+                  v.hasComposition
                 );
 
                 if (!tractionVehicle) return null;
@@ -973,21 +967,11 @@ export default function Vehicles() {
                   : null;
 
                 // Buscar empresa proprietária do veículo de tração
-                const ownerCompany = allCompanies.find(c => c.name === tractionVehicle.ownerBranch);
-
-                // Buscar outros reboques acoplados
-                const otherTrailers = tractionVehicle.compositions
-                  ?.filter(id => id !== Number(viewingVehicle.id))
-                  .map(id => apiVehicles.find(v => v.id === String(id)))
-                  .filter(v => v !== undefined) || [];
+                const ownerCompany = allCompanies.find(c => String(c.id) === tractionVehicle.ownerBranchId);
 
                 // Calcular peso total do conjunto
-                const tractionWeight = tractionVehicle.weight || 0;
-                const allTrailersWeight = (tractionVehicle.compositions?.reduce((total, id) => {
-                  const trailer = apiVehicles.find(v => v.id === String(id));
-                  return total + (trailer?.weight || 0);
-                }, 0) || 0);
-                const totalWeight = tractionWeight + allTrailersWeight;
+                const tractionWeight = parseFloat(String(tractionVehicle.weight || 0));
+                const totalWeight = tractionWeight;
 
                 return (
                   <div className="border-t pt-6 space-y-6">
@@ -1037,13 +1021,13 @@ export default function Vehicles() {
                             <span className="text-muted-foreground">Peso:</span>
                             <p className="font-medium">
                               {tractionVehicle.weight 
-                                ? `${tractionVehicle.weight.toLocaleString('pt-BR')} ton` 
+                                ? `${parseFloat(String(tractionVehicle.weight)).toLocaleString('pt-BR')} ton` 
                                 : 'Não informado'}
                             </p>
                           </div>
                           <div>
                             <span className="text-muted-foreground">KM Atual:</span>
-                            <p className="font-medium">{tractionVehicle.currentKm.toLocaleString('pt-BR')}</p>
+                            <p className="font-medium">{Number(tractionVehicle.currentKm || 0).toLocaleString('pt-BR')}</p>
                           </div>
                         </div>
 
@@ -1051,7 +1035,7 @@ export default function Vehicles() {
                           <div className="pt-4 border-t border-green-500/20">
                             <h4 className="font-semibold mb-2 text-sm">Propriedade</h4>
                             <div className="space-y-1 text-sm">
-                              <p><span className="text-muted-foreground">Matriz/Filial:</span> <span className="font-medium">{tractionVehicle.ownerBranch}</span></p>
+                              <p><span className="text-muted-foreground">Matriz/Filial:</span> <span className="font-medium">{ownerCompany.name}</span></p>
                               <p><span className="text-muted-foreground">CNPJ:</span> <span className="font-medium font-mono">{ownerCompany.cnpj}</span></p>
                             </div>
                           </div>
@@ -1085,75 +1069,18 @@ export default function Vehicles() {
                       </div>
                     )}
 
-                    {otherTrailers.length > 0 && (
-                      <div>
-                        <h3 className="font-semibold mb-3">Outros Reboques no Conjunto</h3>
-                        <div className="space-y-3">
-                          {otherTrailers.map((trailer, index) => (
-                            <div key={index} className="p-4 bg-amber-500/5 rounded-lg border border-amber-500/20">
-                              <div className="flex items-center gap-3 mb-3">
-                                <Badge className="bg-amber-600 text-white text-base">{trailer.plate}</Badge>
-                                <span className="font-medium">{trailer.vehicleType}</span>
-                              </div>
-                              <div className="grid grid-cols-3 gap-4 text-sm">
-                                <div>
-                                  <span className="text-muted-foreground">Marca/Modelo:</span>
-                                  <p className="font-medium">{trailer.brand} {trailer.model}</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Ano:</span>
-                                  <p className="font-medium">
-                                    {trailer.manufacturingYear && trailer.modelYear
-                                      ? `${trailer.manufacturingYear}/${trailer.modelYear.toString().slice(-2)}`
-                                      : 'N/A'}
-                                  </p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Cor:</span>
-                                  <p className="font-medium">{trailer.color}</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Chassis:</span>
-                                  <p className="font-medium font-mono">{trailer.chassis}</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">RENAVAM:</span>
-                                  <p className="font-medium font-mono">{trailer.renavam}</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Eixos:</span>
-                                  <p className="font-medium">{trailer.axles} {trailer.axles === 1 ? 'eixo' : 'eixos'}</p>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Peso:</span>
-                                  <p className="font-medium">
-                                    {trailer.weight 
-                                      ? `${trailer.weight.toLocaleString('pt-BR')} ton` 
-                                      : 'Não informado'}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
                     <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-                      <h4 className="font-semibold mb-3 text-sm">Resumo do Conjunto</h4>
+                      <h4 className="font-semibold mb-3 text-sm">Informações do Conjunto</h4>
                       <div className="space-y-2 text-sm">
                         <p className="font-medium">
-                          <span className="text-muted-foreground">Composição:</span> 1 veículo de tração + {tractionVehicle.compositions?.length || 0} reboque(s)
+                          <span className="text-muted-foreground">Veículo de tração com composições</span>
                         </p>
                         <p className="font-medium">
-                          <span className="text-muted-foreground">Total de eixos:</span> {tractionVehicle.axles + (tractionVehicle.compositions?.reduce((sum, id) => {
-                            const trailer = apiVehicles.find(v => v.id === String(id));
-                            return sum + (trailer?.axles || 0);
-                          }, 0) || 0)} eixos
+                          <span className="text-muted-foreground">Total de eixos:</span> {tractionVehicle.axles} eixos
                         </p>
                         {totalWeight > 0 && (
                           <p className="font-medium">
-                            <span className="text-muted-foreground">Peso total do conjunto:</span> {totalWeight.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} toneladas
+                            <span className="text-muted-foreground">Peso total:</span> {totalWeight.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} toneladas
                           </p>
                         )}
                       </div>
@@ -1163,64 +1090,11 @@ export default function Vehicles() {
               })()}
 
               {/* Seção para veículos de tração - mostra composições acopladas */}
-              {viewingVehicle.hasComposition && viewingVehicle.compositions && viewingVehicle.compositions.length > 0 && (
+              {viewingVehicle.hasComposition && (
                 <div>
-                  <h3 className="font-semibold mb-3">Composições Acopladas</h3>
-                  <div className="space-y-3">
-                    {viewingVehicle.compositions.map((compositionId, index) => {
-                      const trailer = apiVehicles.find(v => v.id === String(compositionId));
-                      return (
-                        <div key={index} className="p-4 bg-muted rounded-lg border border-border">
-                          <div className="flex items-center gap-3 mb-3">
-                            <Badge variant="secondary" className="text-base">{trailer?.plate || 'N/A'}</Badge>
-                            {trailer && (
-                              <span className="text-sm text-muted-foreground">
-                                {trailer.vehicleType}
-                              </span>
-                            )}
-                          </div>
-                          {trailer && (
-                            <div className="grid grid-cols-3 gap-4 text-sm">
-                              <div>
-                                <span className="text-muted-foreground">Marca/Modelo:</span>
-                                <p className="font-medium">{trailer.brand} {trailer.model}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Eixos:</span>
-                                <p className="font-medium">{trailer.axles} {trailer.axles === 1 ? 'eixo' : 'eixos'}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Peso:</span>
-                                <p className="font-medium">{trailer.weight ? `${trailer.weight.toLocaleString('pt-BR')} ton` : 'Não informado'}</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                    <div className="pt-2 border-t border-border space-y-2">
-                      <p className="text-sm font-medium">
-                        Total de eixos (veículo + composições): {viewingVehicle.axles + (viewingVehicle.compositions?.reduce((sum, id) => {
-                          const trailer = apiVehicles.find(v => v.id === String(id));
-                          return sum + (trailer?.axles || 0);
-                        }, 0) || 0)}
-                      </p>
-                      {(() => {
-                        // Calcular peso total do conjunto
-                        const vehicleWeight = viewingVehicle.weight || 0;
-                        const compositionsWeight = viewingVehicle.compositions?.reduce((total, id) => {
-                          const trailer = apiVehicles.find(v => v.id === String(id));
-                          return total + (trailer?.weight || 0);
-                        }, 0) || 0;
-                        const totalWeight = vehicleWeight + compositionsWeight;
-                        
-                        return totalWeight > 0 ? (
-                          <p className="text-sm font-medium">
-                            Peso total do conjunto: {totalWeight.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} toneladas
-                          </p>
-                        ) : null;
-                      })()}
-                    </div>
+                  <h3 className="font-semibold mb-3">Composições</h3>
+                  <div className="p-4 bg-muted rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground">Este veículo possui composições acopladas.</p>
                   </div>
                 </div>
               )}
