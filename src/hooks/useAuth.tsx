@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Verificar se o usuário está ativo
         if (!user.active) {
-          return false;
+          throw new Error('INACTIVE_USER');
         }
         
         // Mapear dados do usuário para o formato local
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error instanceof ApiError) {
         console.error('Erro de autenticação:', error.message);
       }
-      return false;
+      throw error;
     }
   };
 

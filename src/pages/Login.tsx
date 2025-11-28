@@ -28,8 +28,12 @@ export default function Login() {
       } else {
         setError('Email ou senha inválidos');
       }
-    } catch (err) {
-      setError('Erro ao fazer login. Tente novamente.');
+    } catch (err: any) {
+      if (err.message === 'INACTIVE_USER') {
+        setError('Usuário inativo. Entre em contato com o administrador.');
+      } else {
+        setError('Erro ao fazer login. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
