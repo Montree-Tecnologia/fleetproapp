@@ -61,6 +61,14 @@ export interface CreateVehiclePayload {
   purchaseInvoice?: ImagePayload;
 }
 
+export interface VehicleImage {
+  id: string;
+  url: string;
+  category: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Vehicle {
   id: string;
   plate: string;
@@ -73,24 +81,25 @@ export interface Vehicle {
   color: string;
   vehicleType: string;
   status: string;
+  previousStatus: string | null;
   purchaseKm: number;
   currentKm: number;
   fuelType: string;
   axles: number;
-  weight?: number;
+  weight: string;
+  ownerBranchId: string;
+  supplierId: string | null;
+  driverId: string | null;
+  hasComposition: boolean;
   purchaseDate: string;
-  purchaseValue: number;
-  ownerBranch: string;
-  supplierId?: string;
-  branches: string[];
-  driverId?: string;
-  hasComposition?: boolean;
-  compositions?: number[];  // IDs dos veículos acoplados
-  vehicleImages?: string[];
-  crlvImage?: string;
-  purchaseInvoiceImage?: string;
+  purchaseValue: string;
+  crlvDocumentUrl: string | null;
+  purchaseInvoiceUrl: string | null;
+  saleInfo: any | null;
   createdAt: string;
   updatedAt: string;
+  driver: any | null;
+  images: VehicleImage[];
 }
 
 export async function createVehicle(data: CreateVehiclePayload) {
@@ -110,11 +119,11 @@ export async function updateVehicle(id: string, data: Partial<CreateVehiclePaylo
 }
 
 export interface PaginatedVehiclesResponse {
-  vehicles: Vehicle[];
+  data: Vehicle[];
   pagination: {
-    page: number;
-    limit: number;
-    total: number;
+    currentPage: number;
+    itemsPerPage: number;
+    totalRecords: number;
     totalPages: number;
   };
 }
@@ -127,7 +136,7 @@ export interface GetVehiclesParams {
 }
 
 export async function getVehicles(params: GetVehiclesParams = {}) {
-  const { page = 1, limit = 10, search, vehicleType } = params;
+  const { page = 1, limit = 20, search, vehicleType } = params;
   
   const queryParams = new URLSearchParams({
     page: page.toString(),
@@ -137,5 +146,6 @@ export async function getVehicles(params: GetVehiclesParams = {}) {
   if (search) queryParams.append('search', search);
   if (vehicleType) queryParams.append('vehicleType', vehicleType);
   
-  return apiRequest<PaginatedVehiclesResponse>(`/vehicles?${queryParams.toString()}`);
+  const response = await apiRequest<PaginatedVehiclesResponse>(`/vehicles?${queryParams.toString()}`);
+  return response;
 }
