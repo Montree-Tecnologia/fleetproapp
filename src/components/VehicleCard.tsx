@@ -86,28 +86,28 @@ export function VehicleCard({
     if (tractionVehicleTypes.includes(v.vehicleType)) return false;
     if (!trailerVehicleTypes.includes(v.vehicleType)) return false;
     if (v.status !== 'active') return false;
-    if (vehicle.compositionPlates?.includes(v.plate)) return false;
+    if (vehicle.compositions?.includes(Number(v.id))) return false;
     
     // Verifica se o reboque já está vinculado a outro veículo de tração
     const isLinkedToOther = allVehicles.some(vehicle2 => 
       vehicle2.id !== vehicle.id &&
       vehicle2.hasComposition && 
-      vehicle2.compositionPlates?.includes(v.plate)
+      vehicle2.compositions?.includes(Number(v.id))
     );
     
     return !isLinkedToOther;
   });
   
   // Encontra os detalhes dos reboques vinculados (para veículos de tração)
-  const linkedTrailers = vehicle.compositionPlates?.map(plate => 
-    allVehicles.find(v => v.plate === plate)
+  const linkedTrailers = vehicle.compositions?.map(id => 
+    allVehicles.find(v => v.id === String(id))
   ).filter(Boolean) || [];
   
   // Encontra os veículos de tração que têm este reboque vinculado (para veículos de reboque)
   const linkedToTractionVehicles = isTrailerVehicle ? allVehicles.filter(v => 
     tractionVehicleTypes.includes(v.vehicleType) &&
     v.hasComposition && 
-    v.compositionPlates?.includes(vehicle.plate)
+    v.compositions?.includes(Number(vehicle.id))
   ) : [];
   
   // Verifica se deve mostrar a etiqueta "Refrigerado"
@@ -372,7 +372,7 @@ export function VehicleCard({
                 ))}
                 <div className="mt-2 pt-2 border-t border-border/50">
                   <p className="text-xs text-muted-foreground">
-                    Total de eixos: {vehicle.axles + (vehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
+                    Total de eixos: {vehicle.axles + linkedTrailers.reduce((sum, trailer) => sum + (trailer?.axles || 0), 0)}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Peso do conjunto: {

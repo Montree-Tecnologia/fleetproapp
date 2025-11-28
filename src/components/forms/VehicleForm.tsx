@@ -267,14 +267,9 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
   const [selectedBranches, setSelectedBranches] = useState<string[]>(
     initialData?.branches || ['Matriz']
   );
-  const [compositionPlates, setCompositionPlates] = useState<string[]>(
-    initialData?.compositionPlates || []
+  const [compositionIds, setCompositionIds] = useState<number[]>(
+    initialData?.compositions || []
   );
-  const [compositionAxles, setCompositionAxles] = useState<number[]>(
-    initialData?.compositionAxles || []
-  );
-  const [newCompositionPlate, setNewCompositionPlate] = useState('');
-  const [newCompositionAxles, setNewCompositionAxles] = useState<number | ''>('');
   const [newCompositionVehicleId, setNewCompositionVehicleId] = useState<string>('');
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
   const [selectedSupplier, setSelectedSupplier] = useState<string | undefined>(initialData?.supplierId);
@@ -308,13 +303,13 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     if (!trailerVehicleTypes.includes(v.vehicleType)) return false;
     if (v.status !== 'active') return false;
     if (v.id === initialData?.id) return false;
-    if (compositionPlates.includes(v.plate)) return false;
+    if (compositionIds.includes(Number(v.id))) return false;
     
     // Verifica se o reboque já está vinculado a outro veículo de tração
     const isLinkedToOtherTraction = availableVehicles.some(vehicle => 
       vehicle.id !== initialData?.id && // Exclui o veículo atual sendo editado
       vehicle.hasComposition && 
-      vehicle.compositionPlates?.includes(v.plate)
+      vehicle.compositions?.includes(Number(v.id))
     );
     
     return !isLinkedToOtherTraction;
@@ -474,8 +469,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
         }
       }
       // Limpa composições e motorista para veículos de reboque
-      setCompositionPlates([]);
-      setCompositionAxles([]);
+      setCompositionIds([]);
       setSelectedDriver(undefined);
     }
   }, [form.watch('model'), vehicleCategory]);
@@ -546,9 +540,8 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       weight: data.weight,
       branches: selectedBranches,
       ownerBranch: data.ownerBranch,
-      hasComposition: compositionPlates.length > 0,
-      compositionPlates: compositionPlates.length > 0 ? compositionPlates : undefined,
-      compositionAxles: compositionAxles.length > 0 ? compositionAxles : undefined,
+      hasComposition: compositionIds.length > 0,
+      compositions: compositionIds.length > 0 ? compositionIds : undefined,
       driverId: vehicleCategory !== 'trailer' ? selectedDriver : undefined,
       purchaseDate: format(data.purchaseDate, 'yyyy-MM-dd'),
       purchaseValue: data.purchaseValue,
@@ -561,18 +554,16 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
 
   const addCompositionPlate = () => {
     if (newCompositionVehicleId) {
-      const selectedVehicle = availableTrailerVehicles.find(v => v.id === newCompositionVehicleId);
-      if (selectedVehicle && !compositionPlates.includes(selectedVehicle.plate)) {
-        setCompositionPlates([...compositionPlates, selectedVehicle.plate]);
-        setCompositionAxles([...compositionAxles, selectedVehicle.axles]);
+      const vehicleId = Number(newCompositionVehicleId);
+      if (!compositionIds.includes(vehicleId)) {
+        setCompositionIds([...compositionIds, vehicleId]);
         setNewCompositionVehicleId('');
       }
     }
   };
 
   const removeCompositionPlate = (index: number) => {
-    setCompositionPlates(compositionPlates.filter((_, i) => i !== index));
-    setCompositionAxles(compositionAxles.filter((_, i) => i !== index));
+    setCompositionIds(compositionIds.filter((_, i) => i !== index));
   };
 
   const toggleBranch = (branch: string) => {
@@ -1531,29 +1522,35 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            {compositionPlates.length > 0 && (
+            {compositionIds.length > 0 && (
               <div className="space-y-2 mt-3">
-                {compositionPlates.map((plate, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary">{plate}</Badge>
-                      <span className="text-sm text-muted-foreground">
-                        {compositionAxles[index]} {compositionAxles[index] === 1 ? 'eixo' : 'eixos'}
-                      </span>
+                {compositionIds.map((vehicleId, index) => {
+                  const composedVehicle = availableVehicles.find(v => v.id === vehicleId.toString());
+                  return (
+                    <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">{composedVehicle?.plate || 'N/A'}</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {composedVehicle?.axles || 0} {composedVehicle?.axles === 1 ? 'eixo' : 'eixos'}
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeCompositionPlate(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeCompositionPlate(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
                 <div className="pt-2 border-t border-border">
                   <p className="text-sm font-medium">
-                    Total de Eixos: {form.watch('axles') + compositionAxles.reduce((sum, axles) => sum + axles, 0)}
+                    Total de Eixos: {form.watch('axles') + compositionIds.reduce((id) => {
+                      const vehicle = availableVehicles.find(v => v.id === id.toString());
+                      return (vehicle?.axles || 0);
+                    }, 0)}
                   </p>
                 </div>
               </div>

@@ -55,8 +55,7 @@ export interface CreateVehiclePayload {
   branches?: number[];
   driverId?: string;
   hasComposition?: boolean;
-  compositionPlates?: string[];
-  compositionAxles?: number[];
+  compositions?: number[];  // IDs dos veículos acoplados
   images?: ImagePayload[];
   crlvDocument?: ImagePayload;
   purchaseInvoice?: ImagePayload;
@@ -86,8 +85,7 @@ export interface Vehicle {
   branches: string[];
   driverId?: string;
   hasComposition?: boolean;
-  compositionPlates?: string[];
-  compositionAxles?: number[];
+  compositions?: number[];  // IDs dos veículos acoplados
   vehicleImages?: string[];
   crlvImage?: string;
   purchaseInvoiceImage?: string;
