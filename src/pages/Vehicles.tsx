@@ -278,7 +278,7 @@ export default function Vehicles() {
       // Notifica sobre desvinculação automática de reboque
       if (isTrailer && isInactiveOrMaintenance) {
         const tractionVehicles = allVehicles.filter(v => 
-          v.hasComposition && v.compositionPlates?.includes(vehicle.plate)
+          v.hasComposition && v.compositions?.includes(Number(vehicle.id))
         );
         if (tractionVehicles.length > 0) {
           toast({
@@ -288,7 +288,7 @@ export default function Vehicles() {
       }
 
       // Notifica sobre alteração de status das composições
-      if (!isTrailer && isInactiveOrMaintenance && vehicle.hasComposition && vehicle.compositionPlates) {
+      if (!isTrailer && isInactiveOrMaintenance && vehicle.hasComposition && vehicle.compositions) {
         toast({
           description: `Status das composições acopladas também alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}.`,
         });
@@ -354,14 +354,12 @@ export default function Vehicles() {
       return;
     }
     
-    const newCompositionPlates = [...(vehicle.compositionPlates || []), trailer.plate];
-    const newCompositionAxles = [...(vehicle.compositionAxles || []), trailer.axles];
+    const newCompositions = [...(vehicle.compositions || []), Number(trailer.id)];
     
     try {
       updateVehicle(vehicleId, {
         hasComposition: true,
-        compositionPlates: newCompositionPlates,
-        compositionAxles: newCompositionAxles
+        compositions: newCompositions,
       });
       
       toast({
@@ -378,9 +376,9 @@ export default function Vehicles() {
     setRefreshKey(prev => prev + 1);
   };
 
-  const handleRemoveComposition = (vehicleId: string, trailerPlate: string) => {
+  const handleRemoveComposition = (vehicleId: string, trailerId: number) => {
     const vehicle = allVehicles.find(v => v.id === vehicleId);
-    if (!vehicle || !vehicle.compositionPlates) {
+    if (!vehicle || !vehicle.compositions) {
       toast({
         title: 'Erro',
         description: 'Veículo ou composição não encontrada.',
@@ -389,29 +387,17 @@ export default function Vehicles() {
       return;
     }
     
-    const plateIndex = vehicle.compositionPlates.indexOf(trailerPlate);
-    if (plateIndex === -1) {
-      toast({
-        title: 'Erro',
-        description: 'Composição não encontrada.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    const newCompositionPlates = vehicle.compositionPlates.filter((_, i) => i !== plateIndex);
-    const newCompositionAxles = vehicle.compositionAxles?.filter((_, i) => i !== plateIndex) || [];
+    const newCompositions = vehicle.compositions.filter(id => id !== trailerId);
     
     try {
       updateVehicle(vehicleId, {
-        hasComposition: newCompositionPlates.length > 0,
-        compositionPlates: newCompositionPlates.length > 0 ? newCompositionPlates : undefined,
-        compositionAxles: newCompositionAxles.length > 0 ? newCompositionAxles : undefined
+        hasComposition: newCompositions.length > 0,
+        compositions: newCompositions.length > 0 ? newCompositions : undefined,
       });
       
       toast({
         title: 'Reboque desvinculado',
-        description: `${trailerPlate} foi desvinculado do veículo com sucesso.`,
+        description: `Reboque foi desvinculado do veículo com sucesso.`,
       });
     } catch (error) {
       toast({
@@ -558,11 +544,10 @@ export default function Vehicles() {
                   purchaseValue: data.purchaseValue,
                   ownerBranchId: data.ownerBranch,
                   supplierId: data.supplierId,
-                  branches: data.branches?.map(b => parseInt(b)),
+                  branches: data.branches?.map(b => Number(b)),  // Converter strings de volta para números para a API
                   driverId: data.driverId,
                   hasComposition: data.hasComposition,
-                  compositionPlates: data.compositionPlates,
-                  compositionAxles: data.compositionAxles,
+                  compositions: data.compositions,
                   images: data.images?.map(img => convertToImagePayload(img)).filter(Boolean),
                   crlvDocument: convertToImagePayload(data.crlvDocument),
                   purchaseInvoice: convertToImagePayload(data.purchaseInvoice),
@@ -871,8 +856,13 @@ export default function Vehicles() {
                       {(() => {
                         // Mapeia IDs para nomes e remove duplicatas
                         const branchNames = viewingVehicle.branches.map(branchIdOrName => {
-                          const company = allCompanies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
-                          return company ? company.name : branchIdOrName;
+                          // Tentar encontrar pelo ID first
+                          const companyById = allCompanies.find(c => String(c.id) === branchIdOrName);
+                          if (companyById) return companyById.name;
+                          
+                          // Se não encontrar, tentar pelo nome ou retornar o próprio valor
+                          const companyByName = allCompanies.find(c => c.name === branchIdOrName);
+                          return companyByName ? companyByName.name : branchIdOrName;
                         });
                         
                         // Remove duplicatas
@@ -925,7 +915,7 @@ export default function Vehicles() {
 
                 // Buscar veículo de tração que contém este reboque
                 const tractionVehicle = allVehicles.find(v => 
-                  v.hasComposition && v.compositionPlates?.includes(viewingVehicle.plate)
+                  v.hasComposition && v.compositions?.includes(Number(viewingVehicle.id))
                 );
 
                 if (!tractionVehicle) return null;
@@ -939,15 +929,15 @@ export default function Vehicles() {
                 const ownerCompany = allCompanies.find(c => c.name === tractionVehicle.ownerBranch);
 
                 // Buscar outros reboques acoplados
-                const otherTrailers = tractionVehicle.compositionPlates
-                  ?.filter(plate => plate !== viewingVehicle.plate)
-                  .map(plate => allVehicles.find(v => v.plate === plate))
+                const otherTrailers = tractionVehicle.compositions
+                  ?.filter(id => id !== Number(viewingVehicle.id))
+                  .map(id => allVehicles.find(v => v.id === String(id)))
                   .filter(v => v !== undefined) || [];
 
                 // Calcular peso total do conjunto
                 const tractionWeight = tractionVehicle.weight || 0;
-                const allTrailersWeight = (tractionVehicle.compositionPlates?.reduce((total, plate) => {
-                  const trailer = allVehicles.find(v => v.plate === plate);
+                const allTrailersWeight = (tractionVehicle.compositions?.reduce((total, id) => {
+                  const trailer = allVehicles.find(v => v.id === String(id));
                   return total + (trailer?.weight || 0);
                 }, 0) || 0);
                 const totalWeight = tractionWeight + allTrailersWeight;
@@ -1106,10 +1096,13 @@ export default function Vehicles() {
                       <h4 className="font-semibold mb-3 text-sm">Resumo do Conjunto</h4>
                       <div className="space-y-2 text-sm">
                         <p className="font-medium">
-                          <span className="text-muted-foreground">Composição:</span> 1 veículo de tração + {tractionVehicle.compositionPlates?.length || 0} reboque(s)
+                          <span className="text-muted-foreground">Composição:</span> 1 veículo de tração + {tractionVehicle.compositions?.length || 0} reboque(s)
                         </p>
                         <p className="font-medium">
-                          <span className="text-muted-foreground">Total de eixos:</span> {tractionVehicle.axles + (tractionVehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)} eixos
+                          <span className="text-muted-foreground">Total de eixos:</span> {tractionVehicle.axles + (tractionVehicle.compositions?.reduce((sum, id) => {
+                            const trailer = allVehicles.find(v => v.id === String(id));
+                            return sum + (trailer?.axles || 0);
+                          }, 0) || 0)} eixos
                         </p>
                         {totalWeight > 0 && (
                           <p className="font-medium">
@@ -1123,16 +1116,16 @@ export default function Vehicles() {
               })()}
 
               {/* Seção para veículos de tração - mostra composições acopladas */}
-              {viewingVehicle.hasComposition && viewingVehicle.compositionPlates && viewingVehicle.compositionPlates.length > 0 && (
+              {viewingVehicle.hasComposition && viewingVehicle.compositions && viewingVehicle.compositions.length > 0 && (
                 <div>
                   <h3 className="font-semibold mb-3">Composições Acopladas</h3>
                   <div className="space-y-3">
-                    {viewingVehicle.compositionPlates.map((plate, index) => {
-                      const trailer = allVehicles.find(v => v.plate === plate);
+                    {viewingVehicle.compositions.map((compositionId, index) => {
+                      const trailer = allVehicles.find(v => v.id === String(compositionId));
                       return (
                         <div key={index} className="p-4 bg-muted rounded-lg border border-border">
                           <div className="flex items-center gap-3 mb-3">
-                            <Badge variant="secondary" className="text-base">{plate}</Badge>
+                            <Badge variant="secondary" className="text-base">{trailer?.plate || 'N/A'}</Badge>
                             {trailer && (
                               <span className="text-sm text-muted-foreground">
                                 {trailer.vehicleType}
@@ -1160,13 +1153,16 @@ export default function Vehicles() {
                     })}
                     <div className="pt-2 border-t border-border space-y-2">
                       <p className="text-sm font-medium">
-                        Total de eixos (veículo + composições): {viewingVehicle.axles + (viewingVehicle.compositionAxles?.reduce((sum, axles) => sum + axles, 0) || 0)}
+                        Total de eixos (veículo + composições): {viewingVehicle.axles + (viewingVehicle.compositions?.reduce((sum, id) => {
+                          const trailer = allVehicles.find(v => v.id === String(id));
+                          return sum + (trailer?.axles || 0);
+                        }, 0) || 0)}
                       </p>
                       {(() => {
                         // Calcular peso total do conjunto
                         const vehicleWeight = viewingVehicle.weight || 0;
-                        const compositionsWeight = viewingVehicle.compositionPlates?.reduce((total, plate) => {
-                          const trailer = allVehicles.find(v => v.plate === plate);
+                        const compositionsWeight = viewingVehicle.compositions?.reduce((total, id) => {
+                          const trailer = allVehicles.find(v => v.id === String(id));
                           return total + (trailer?.weight || 0);
                         }, 0) || 0;
                         const totalWeight = vehicleWeight + compositionsWeight;

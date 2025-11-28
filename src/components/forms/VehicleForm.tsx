@@ -264,9 +264,28 @@ interface VehicleFormProps {
 
 export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles = [], companies, suppliers }: VehicleFormProps) {
   const { toast } = useToast();
-  const [selectedBranches, setSelectedBranches] = useState<string[]>(
-    initialData?.branches || ['Matriz']
-  );
+  const [selectedBranches, setSelectedBranches] = useState<number[]>(() => {
+    // Se tem initialData com branches como strings, converter para IDs
+    if (initialData?.branches && initialData.branches.length > 0) {
+      return initialData.branches
+        .map(branchNameOrId => {
+          // Tentar encontrar pelo ID primeiro
+          const companyById = companies.find(c => String(c.id) === branchNameOrId);
+          if (companyById) return Number(companyById.id);
+          
+          // Se não encontrar, tentar pelo nome
+          const companyByName = companies.find(c => c.name === branchNameOrId);
+          if (companyByName) return Number(companyByName.id);
+          
+          return null;
+        })
+        .filter((id): id is number => id !== null);
+    }
+    
+    // Se não tem initialData, usar a primeira empresa disponível
+    const firstCompany = companies.find(c => c.active !== false);
+    return firstCompany ? [Number(firstCompany.id)] : [];
+  });
   const [compositionIds, setCompositionIds] = useState<number[]>(
     initialData?.compositions || []
   );
@@ -538,7 +557,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       fuelType: data.fuelType,
       axles: data.axles,
       weight: data.weight,
-      branches: selectedBranches,
+      branches: selectedBranches.map(id => String(id)),  // Converter IDs para strings para o Vehicle interface local
       ownerBranch: data.ownerBranch,
       hasComposition: compositionIds.length > 0,
       compositions: compositionIds.length > 0 ? compositionIds : undefined,
@@ -566,13 +585,13 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     setCompositionIds(compositionIds.filter((_, i) => i !== index));
   };
 
-  const toggleBranch = (branch: string) => {
-    if (selectedBranches.includes(branch)) {
+  const toggleBranch = (branchId: number) => {
+    if (selectedBranches.includes(branchId)) {
       if (selectedBranches.length > 1) {
-        setSelectedBranches(selectedBranches.filter(b => b !== branch));
+        setSelectedBranches(selectedBranches.filter(b => b !== branchId));
       }
     } else {
-      setSelectedBranches([...selectedBranches, branch]);
+      setSelectedBranches([...selectedBranches, branchId]);
     }
   };
 
@@ -1478,9 +1497,9 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
             {availableBranches.map((branch) => (
               <Badge
                 key={branch.id}
-                variant={selectedBranches.includes(String(branch.id)) ? "default" : "outline"}
+                variant={selectedBranches.includes(Number(branch.id)) ? "default" : "outline"}
                 className="cursor-pointer"
-                onClick={() => toggleBranch(String(branch.id))}
+                onClick={() => toggleBranch(Number(branch.id))}
               >
                 {branch.name}
               </Badge>
