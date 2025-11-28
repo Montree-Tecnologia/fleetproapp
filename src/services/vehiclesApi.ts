@@ -149,3 +149,10 @@ export async function getVehicles(params: GetVehiclesParams = {}) {
   const response = await apiRequest<PaginatedVehiclesResponse>(`/vehicles?${queryParams.toString()}`);
   return response;
 }
+
+export async function deleteVehicle(id: string) {
+  const response = await apiRequest<void>(`/vehicles/${id}`, {
+    method: 'DELETE',
+  });
+  return response;
+}
