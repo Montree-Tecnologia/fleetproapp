@@ -45,8 +45,7 @@ export interface Vehicle {
   ownerBranch: string;
   driverId?: string;
   hasComposition: boolean;
-  compositionPlates?: string[];
-  compositionAxles?: number[];
+  compositions?: number[];  // IDs dos veículos acoplados
   purchaseDate: string;
   purchaseValue: number;
   supplierId?: string;
@@ -365,8 +364,7 @@ const mockVehicles: Vehicle[] = [
     ownerBranch: 'Matriz',
     driverId: '1',
     hasComposition: true,
-    compositionPlates: ['XYZ-1111'],
-    compositionAxles: [3],
+    compositions: [4],  // ID do veículo XYZ-1111
     purchaseDate: '2022-03-15',
     purchaseValue: 650000,
     images: [
@@ -720,8 +718,7 @@ const mockVehicles: Vehicle[] = [
     branches: ['Filial SP'],
     ownerBranch: 'Filial SP',
     hasComposition: true,
-    compositionPlates: ['JKL-2345', 'MNO-3456'],
-    compositionAxles: [3, 3],
+    compositions: [5, 6],  // IDs dos veículos JKL-2345 e MNO-3456
     purchaseDate: '2021-04-10',
     purchaseValue: 590000,
     images: [
@@ -802,8 +799,7 @@ const mockVehicles: Vehicle[] = [
     branches: ['Filial RJ'],
     ownerBranch: 'Filial RJ',
     hasComposition: true,
-    compositionPlates: ['VWX-6789'],
-    compositionAxles: [3],
+    compositions: [9],  // ID do veículo VWX-6789
     purchaseDate: '2022-05-20',
     purchaseValue: 620000,
     images: [
@@ -855,8 +851,7 @@ const mockVehicles: Vehicle[] = [
     ownerBranch: 'Matriz',
     driverId: '1',
     hasComposition: true,
-    compositionPlates: ['BCD-8901', 'QRS-3456'],
-    compositionAxles: [3, 3],
+    compositions: [11, 16],  // IDs dos veículos BCD-8901 e QRS-3456
     purchaseDate: '2023-01-25',
     purchaseValue: 680000,
     images: [
@@ -907,8 +902,7 @@ const mockVehicles: Vehicle[] = [
     branches: ['Filial MG'],
     ownerBranch: 'Filial MG',
     hasComposition: true,
-    compositionPlates: ['EFG-9012', 'KLM-1234'],
-    compositionAxles: [3, 3],
+    compositions: [12, 14],  // IDs dos veículos EFG-9012 e KLM-1234
     purchaseDate: '2021-03-18',
     purchaseValue: 570000,
     images: [
@@ -959,8 +953,7 @@ const mockVehicles: Vehicle[] = [
     branches: ['Filial SP'],
     ownerBranch: 'Filial SP',
     hasComposition: true,
-    compositionPlates: ['WXY-5678'],
-    compositionAxles: [3],
+    compositions: [18],  // ID do veículo WXY-5678
     purchaseDate: '2023-06-05',
     purchaseValue: 710000,
     supplierId: '5',
@@ -1144,8 +1137,7 @@ const mockVehicles: Vehicle[] = [
     ownerBranch: 'Matriz',
     driverId: '1',
     hasComposition: true,
-    compositionPlates: ['TEST-1001', 'TEST-1002'],
-    compositionAxles: [3, 3],
+    compositions: [28, 29],  // IDs dos veículos TEST-1001 e TEST-1002
     purchaseDate: '2024-01-15',
     purchaseValue: 650000,
     supplierId: '5',
@@ -2484,23 +2476,18 @@ export function useMockData() {
     };
     
     // Se o veículo sendo adicionado tem composições, remove essas composições de outros veículos de tração
-    if (newVehicle.hasComposition && newVehicle.compositionPlates) {
+    if (newVehicle.hasComposition && newVehicle.compositions) {
       setVehicles(prev => {
         const updatedVehicles = prev.map(v => {
-          if (v.hasComposition && v.compositionPlates) {
-            const hasConflict = v.compositionPlates.some(plate => newVehicle.compositionPlates?.includes(plate));
+          if (v.hasComposition && v.compositions) {
+            const hasConflict = v.compositions.some(id => newVehicle.compositions?.includes(id));
             if (hasConflict) {
-              const newCompositionPlates = v.compositionPlates.filter(plate => !newVehicle.compositionPlates?.includes(plate));
-              const filteredIndexes = v.compositionPlates.map((plate, idx) => 
-                newVehicle.compositionPlates?.includes(plate) ? -1 : idx
-              ).filter(idx => idx !== -1);
-              const newCompositionAxles = filteredIndexes.map(idx => v.compositionAxles![idx]);
+              const newCompositions = v.compositions.filter(id => !newVehicle.compositions?.includes(id));
               
               return {
                 ...v,
-                compositionPlates: newCompositionPlates,
-                compositionAxles: newCompositionAxles,
-                hasComposition: newCompositionPlates.length > 0
+                compositions: newCompositions,
+                hasComposition: newCompositions.length > 0
               };
             }
           }
@@ -2527,7 +2514,7 @@ export function useMockData() {
       const newStatusIsInactiveOrMaintenance = data.status === 'inactive' || data.status === 'maintenance';
       
       // Verifica se há mudanças nas composições (novas composições sendo adicionadas)
-      const compositionsChanged = data.compositionPlates && JSON.stringify(data.compositionPlates) !== JSON.stringify(updatedVehicle.compositionPlates);
+      const compositionsChanged = data.compositions && JSON.stringify(data.compositions) !== JSON.stringify(updatedVehicle.compositions);
 
       // Caso 1: Veículo de reboque mudou para inativo/manutenção - desvincular de veículos de tração
       if (isTrailer && statusChanged && newStatusIsInactiveOrMaintenance) {
@@ -2540,16 +2527,13 @@ export function useMockData() {
             return { ...v, ...data };
           }
           // Remove este reboque das composições de outros veículos de tração
-          if (v.hasComposition && v.compositionPlates?.includes(updatedVehicle.plate)) {
-            const plateIndex = v.compositionPlates.indexOf(updatedVehicle.plate);
-            const newCompositionPlates = v.compositionPlates.filter((_, i) => i !== plateIndex);
-            const newCompositionAxles = v.compositionAxles?.filter((_, i) => i !== plateIndex);
+          if (v.hasComposition && v.compositions?.includes(Number(id))) {
+            const newCompositions = v.compositions.filter(compId => compId !== Number(id));
             
             return {
               ...v,
-              compositionPlates: newCompositionPlates,
-              compositionAxles: newCompositionAxles,
-              hasComposition: newCompositionPlates.length > 0
+              compositions: newCompositions,
+              hasComposition: newCompositions.length > 0
             };
           }
           return v;
@@ -2557,7 +2541,7 @@ export function useMockData() {
       }
 
       // Caso 2: Veículo de tração mudou para inativo/manutenção - alterar status das composições
-      if (isTraction && statusChanged && newStatusIsInactiveOrMaintenance && updatedVehicle.hasComposition && updatedVehicle.compositionPlates) {
+      if (isTraction && statusChanged && newStatusIsInactiveOrMaintenance && updatedVehicle.hasComposition && updatedVehicle.compositions) {
         return prev.map(v => {
           if (v.id === id) {
             // Atualiza o veículo de tração
@@ -2567,7 +2551,7 @@ export function useMockData() {
             return { ...v, ...data };
           }
           // Atualiza status dos reboques acoplados
-          if (updatedVehicle.compositionPlates.includes(v.plate)) {
+          if (updatedVehicle.compositions.includes(Number(v.id))) {
             return { ...v, status: data.status! };
           }
           return v;
@@ -2576,7 +2560,7 @@ export function useMockData() {
 
       // Caso 3: Veículo de tração teve composições adicionadas/alteradas
       // Remove os reboques de outras composições se estiverem sendo vinculados a este veículo
-      if (isTraction && compositionsChanged && data.compositionPlates) {
+      if (isTraction && compositionsChanged && data.compositions) {
         return prev.map(v => {
           if (v.id === id) {
             // Atualiza o veículo de tração
@@ -2587,20 +2571,15 @@ export function useMockData() {
           }
           
           // Remove os reboques que agora pertencem ao veículo sendo atualizado de outras composições
-          if (v.id !== id && v.hasComposition && v.compositionPlates) {
-            const hasConflict = v.compositionPlates.some(plate => data.compositionPlates?.includes(plate));
+          if (v.id !== id && v.hasComposition && v.compositions) {
+            const hasConflict = v.compositions.some(compId => data.compositions?.includes(compId));
             if (hasConflict) {
-              const newCompositionPlates = v.compositionPlates.filter(plate => !data.compositionPlates?.includes(plate));
-              const filteredIndexes = v.compositionPlates.map((plate, idx) => 
-                data.compositionPlates?.includes(plate) ? -1 : idx
-              ).filter(idx => idx !== -1);
-              const newCompositionAxles = filteredIndexes.map(idx => v.compositionAxles![idx]);
+              const newCompositions = v.compositions.filter(compId => !data.compositions?.includes(compId));
               
               return {
                 ...v,
-                compositionPlates: newCompositionPlates,
-                compositionAxles: newCompositionAxles,
-                hasComposition: newCompositionPlates.length > 0
+                compositions: newCompositions,
+                hasComposition: newCompositions.length > 0
               };
             }
           }
@@ -2640,13 +2619,12 @@ export function useMockData() {
             driverId: undefined,
             // Remover composições ao vender
             hasComposition: false,
-            compositionPlates: [],
-            compositionAxles: []
+            compositions: []
           };
         }
         
         // Se o veículo vendido tinha composições, desvincular os reboques
-        if (vehicleBeingSold?.hasComposition && vehicleBeingSold.compositionPlates?.includes(v.plate)) {
+        if (vehicleBeingSold?.hasComposition && vehicleBeingSold.compositions?.includes(Number(v.id))) {
           return v; // Os reboques permanecem inalterados, apenas são desvinculados pela remoção das composições acima
         }
         
@@ -2692,7 +2670,7 @@ export function useMockData() {
         }
         
         // Atualiza os reboques vinculados ao veículo de tração
-        if (vehicle.hasComposition && vehicle.compositionPlates?.includes(v.plate)) {
+        if (vehicle.hasComposition && vehicle.compositions?.includes(Number(v.id))) {
           return { ...v, currentKm: v.currentKm + kmIncrement };
         }
         
