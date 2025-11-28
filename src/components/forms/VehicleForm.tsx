@@ -322,12 +322,23 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       : []
   );
   
-  const [crlvDocument, setCrlvDocument] = useState<string | undefined>(initialData?.crlvDocument);
-  const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
-  const [originalCrlvUrl] = useState<string | undefined>(initialData?.crlvDocument);
-  const [originalPurchaseInvoiceUrl] = useState<string | undefined>(initialData?.purchaseInvoice);
+  // Usar os campos corretos da API (crlvDocumentUrl e purchaseInvoiceUrl)
+  const [crlvDocument, setCrlvDocument] = useState<string | undefined>(
+    (initialData as any)?.crlvDocumentUrl || initialData?.crlvDocument
+  );
+  const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(
+    (initialData as any)?.purchaseInvoiceUrl || initialData?.purchaseInvoice
+  );
+  const [originalCrlvUrl] = useState<string | undefined>(
+    (initialData as any)?.crlvDocumentUrl || initialData?.crlvDocument
+  );
+  const [originalPurchaseInvoiceUrl] = useState<string | undefined>(
+    (initialData as any)?.purchaseInvoiceUrl || initialData?.purchaseInvoice
+  );
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>(initialData?.brand);
   const [ownerBranch, setOwnerBranch] = useState<string>(() => {
+    // Usar ownerBranchId da API
+    if ((initialData as any)?.ownerBranchId) return (initialData as any).ownerBranchId;
     if (initialData?.ownerBranch) return initialData.ownerBranch;
     // Usar o ID da primeira empresa ativa como padrão
     const firstCompany = companies.find(c => c.active !== false);
@@ -473,10 +484,15 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       purchaseKm: initialData.purchaseKm,
       fuelType: initialData.fuelType,
       axles: initialData.axles,
-      weight: initialData.weight,
+      // Fazer parse de string para number
+      weight: initialData.weight ? parseFloat(String(initialData.weight).replace(',', '.')) : undefined,
       purchaseDate: new Date(initialData.purchaseDate),
-      purchaseValue: initialData.purchaseValue,
-      ownerBranch: initialData.ownerBranch || (companies.find(c => c.active !== false)?.id ? String(companies.find(c => c.active !== false)?.id) : ''),
+      // Fazer parse de string para number
+      purchaseValue: initialData.purchaseValue ? parseFloat(String(initialData.purchaseValue).replace(/\./g, '').replace(',', '.')) : 0,
+      // Usar ownerBranchId da API
+      ownerBranch: (initialData as any)?.ownerBranchId || initialData.ownerBranch || (companies.find(c => c.active !== false)?.id ? String(companies.find(c => c.active !== false)?.id) : ''),
+      // Adicionar supplierId
+      supplierId: initialData.supplierId || undefined,
     } : {
       manufacturingYear: new Date().getFullYear(),
       modelYear: new Date().getFullYear(),
@@ -1700,8 +1716,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                   />
                 ) : (
                   <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
-                    <FileText className="h-5 w-5" />
-                    <span className="text-sm">Documento CRLV anexado</span>
+                    <FileText className="h-5 w-5 text-primary" />
+                    <div className="flex-1">
+                      <span className="text-sm font-medium">Documento CRLV anexado</span>
+                      <p className="text-xs text-muted-foreground">Clique no X para substituir</p>
+                    </div>
+                    <Check className="h-5 w-5 text-primary" />
                   </div>
                 )}
                 <Button
@@ -1716,6 +1736,15 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
               </div>
             ) : (
               <>
+                {originalCrlvUrl && (
+                  <div className="flex items-center gap-2 p-3 mb-2 bg-muted/50 rounded-lg border border-dashed border-border">
+                    <FileText className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex-1">
+                      <span className="text-sm text-muted-foreground">Documento CRLV existente</span>
+                      <p className="text-xs text-muted-foreground">Anexe um novo arquivo para substituir</p>
+                    </div>
+                  </div>
+                )}
                 <Input
                   type="file"
                   accept="image/*,application/pdf"
@@ -1727,7 +1756,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                   <Button type="button" variant="outline" className="w-full" asChild>
                     <span className="cursor-pointer">
                       <Upload className="h-4 w-4 mr-2" />
-                      Anexar CRLV
+                      {originalCrlvUrl ? 'Substituir CRLV' : 'Anexar CRLV'}
                     </span>
                   </Button>
                 </label>
@@ -1749,8 +1778,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                   />
                 ) : (
                   <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
-                    <FileText className="h-5 w-5" />
-                    <span className="text-sm">Nota Fiscal de Compra anexada</span>
+                    <FileText className="h-5 w-5 text-primary" />
+                    <div className="flex-1">
+                      <span className="text-sm font-medium">Nota Fiscal de Compra anexada</span>
+                      <p className="text-xs text-muted-foreground">Clique no X para substituir</p>
+                    </div>
+                    <Check className="h-5 w-5 text-primary" />
                   </div>
                 )}
                 <Button
@@ -1765,6 +1798,15 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
               </div>
             ) : (
               <>
+                {originalPurchaseInvoiceUrl && (
+                  <div className="flex items-center gap-2 p-3 mb-2 bg-muted/50 rounded-lg border border-dashed border-border">
+                    <FileText className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex-1">
+                      <span className="text-sm text-muted-foreground">Nota Fiscal existente</span>
+                      <p className="text-xs text-muted-foreground">Anexe um novo arquivo para substituir</p>
+                    </div>
+                  </div>
+                )}
                 <Input
                   type="file"
                   accept="image/*,application/pdf"
@@ -1776,7 +1818,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
                   <Button type="button" variant="outline" className="w-full" asChild>
                     <span className="cursor-pointer">
                       <Upload className="h-4 w-4 mr-2" />
-                      Anexar Nota Fiscal de Compra
+                      {originalPurchaseInvoiceUrl ? 'Substituir Nota Fiscal' : 'Anexar Nota Fiscal de Compra'}
                     </span>
                   </Button>
                 </label>
