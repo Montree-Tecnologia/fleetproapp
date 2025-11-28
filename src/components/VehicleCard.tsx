@@ -136,7 +136,7 @@ export function VehicleCard({
           <div className="flex items-center gap-3">
             {vehicle.images && vehicle.images.length > 0 ? (
               <img
-                src={vehicle.images[0]}
+                src={typeof vehicle.images[0] === 'string' ? vehicle.images[0] : vehicle.images[0].url}
                 alt={vehicle.plate}
                 className="w-12 h-12 object-cover rounded-lg"
               />
