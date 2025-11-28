@@ -761,8 +761,8 @@ export default function Refuelings() {
                             <p className="font-medium text-sm sm:text-base truncate">{vehicle?.plate} - {vehicle?.model}</p>
                             <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
                               {vehicle?.vehicleType}
-                              {vehicle?.hasComposition && vehicle.compositionPlates && vehicle.compositionPlates.length > 0 && 
-                                ` • ${vehicle.compositionPlates.length} ${vehicle.compositionPlates.length === 1 ? 'reboque' : 'reboques'}`
+                              {vehicle?.hasComposition && vehicle.compositions && vehicle.compositions.length > 0 && 
+                                ` • ${vehicle.compositions.length} ${vehicle.compositions.length === 1 ? 'reboque' : 'reboques'}`
                               }
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">

@@ -38,7 +38,7 @@ interface VehicleCardProps {
   handleDelete: (vehicle: Vehicle) => void;
   handleReverseSale: (vehicle: Vehicle) => void;
   handleAddComposition: (vehicleId: string, trailerId: string) => void;
-  handleRemoveComposition: (vehicleId: string, trailerPlate: string) => void;
+  handleRemoveComposition: (vehicleId: string, trailerId: number) => void;
   isAdmin: () => boolean;
 }
 
@@ -363,7 +363,7 @@ export function VehicleCard({
                         size="sm"
                         variant="ghost"
                         className="h-6 w-6 p-0"
-                        onClick={() => handleRemoveComposition(vehicle.id, trailer!.plate)}
+                        onClick={() => handleRemoveComposition(vehicle.id, Number(trailer!.id))}
                       >
                         <X className="h-3 w-3" />
                       </Button>
@@ -417,7 +417,7 @@ export function VehicleCard({
                         size="sm"
                         variant="ghost"
                         className="h-6 w-6 p-0"
-                        onClick={() => handleRemoveComposition(tractionVehicle.id, vehicle.plate)}
+                        onClick={() => handleRemoveComposition(tractionVehicle.id, Number(vehicle.id))}
                       >
                         <X className="h-3 w-3" />
                       </Button>
