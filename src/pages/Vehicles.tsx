@@ -599,17 +599,13 @@ export default function Vehicles() {
                   hasComposition: data.hasComposition,
                   compositions: data.compositions,
                   images: data.images
-                    ?.map(img => {
-                      // Se já for string, converte para payload
-                      if (typeof img === 'string') {
-                        return convertToImagePayload(img);
-                      }
-                      // Se for objeto da API, não precisa converter (já está no servidor)
-                      return null;
-                    })
+                    ?.map(img => convertToImagePayload(img))
                     .filter(Boolean),
+                  deleteImageIds: data.deleteImageIds,
                   crlvDocument: convertToImagePayload(data.crlvDocument),
+                  deleteCrlvDocument: data.deleteCrlvDocument,
                   purchaseInvoice: convertToImagePayload(data.purchaseInvoice),
+                  deletePurchaseInvoice: data.deletePurchaseInvoice,
                 };
 
                 if (editingVehicle) {
