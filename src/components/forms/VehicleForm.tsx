@@ -297,9 +297,12 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
   const [crlvDocument, setCrlvDocument] = useState<string | undefined>(initialData?.crlvDocument);
   const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>(initialData?.brand);
-  const [ownerBranch, setOwnerBranch] = useState<string>(
-    initialData?.ownerBranch || 'Matriz'
-  );
+  const [ownerBranch, setOwnerBranch] = useState<string>(() => {
+    if (initialData?.ownerBranch) return initialData.ownerBranch;
+    // Usar o ID da primeira empresa ativa como padrão
+    const firstCompany = companies.find(c => c.active !== false);
+    return firstCompany ? String(firstCompany.id) : '';
+  });
   const [customModel, setCustomModel] = useState(false);
   const [customBrand, setCustomBrand] = useState(false);
 
@@ -443,7 +446,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       weight: initialData.weight,
       purchaseDate: new Date(initialData.purchaseDate),
       purchaseValue: initialData.purchaseValue,
-      ownerBranch: initialData.ownerBranch || 'Matriz',
+      ownerBranch: initialData.ownerBranch || (companies.find(c => c.active !== false)?.id ? String(companies.find(c => c.active !== false)?.id) : ''),
     } : {
       manufacturingYear: new Date().getFullYear(),
       modelYear: new Date().getFullYear(),
@@ -454,7 +457,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       vehicleType: 'Truck',
       fuelType: 'Diesel S10',
       purchaseDate: new Date(),
-      ownerBranch: 'Matriz',
+      ownerBranch: companies.find(c => c.active !== false)?.id ? String(companies.find(c => c.active !== false)?.id) : '',
       supplierId: undefined,
     },
   });

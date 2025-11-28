@@ -544,7 +544,10 @@ export default function Vehicles() {
                   purchaseValue: data.purchaseValue,
                   ownerBranchId: data.ownerBranch,
                   supplierId: data.supplierId,
-                  branches: data.branches?.map(b => Number(b)),  // Converter strings de volta para números para a API
+                  branches: data.branches
+                    ?.filter(b => b !== data.ownerBranch)  // Remover ownerBranch do array
+                    ?.map(b => Number(b))  // Converter strings para números
+                    .filter(n => !isNaN(n) && n !== null),  // Filtrar valores inválidos
                   driverId: data.driverId,
                   hasComposition: data.hasComposition,
                   compositions: data.compositions,
