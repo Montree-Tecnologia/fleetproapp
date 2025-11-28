@@ -249,27 +249,29 @@ export function VehicleCard({
               </div>
             </>
           )}
-          <div className="col-span-2">
-            <span className="text-muted-foreground">Matriz/Filiais Vinculadas:</span>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {(() => {
-                // Mapeia IDs para nomes e remove duplicatas
-                const branchNames = vehicle.branches.map(branchIdOrName => {
-                  const company = allCompanies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
-                  return company ? company.name : branchIdOrName;
-                });
-                
-                // Remove duplicatas
-                const uniqueBranchNames = Array.from(new Set(branchNames));
-                
-                return uniqueBranchNames.map((displayName, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {displayName}
-                  </Badge>
-                ));
-              })()}
+          {vehicle.branches && vehicle.branches.length > 0 && (
+            <div className="col-span-2">
+              <span className="text-muted-foreground">Matriz/Filiais Vinculadas:</span>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {(() => {
+                  // Mapeia IDs para nomes e remove duplicatas
+                  const branchNames = vehicle.branches.map(branchIdOrName => {
+                    const company = allCompanies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
+                    return company ? company.name : branchIdOrName;
+                  });
+                  
+                  // Remove duplicatas
+                  const uniqueBranchNames = Array.from(new Set(branchNames));
+                  
+                  return uniqueBranchNames.map((displayName, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {displayName}
+                    </Badge>
+                  ));
+                })()}
+              </div>
             </div>
-          </div>
+          )}
         </div>
         
         {showCompositionsSection && (
