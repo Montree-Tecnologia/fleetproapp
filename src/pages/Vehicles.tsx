@@ -895,20 +895,23 @@ export default function Vehicles() {
                     <span className="text-muted-foreground text-sm">Matriz/Filiais Vinculadas:</span>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {(() => {
-                        // Mapeia IDs para nomes e remove duplicatas
-                        const branchNames = viewingVehicle.branches.map(branchIdOrName => {
-                          // Tentar encontrar pelo ID first
-                          const companyById = allCompanies.find(c => String(c.id) === branchIdOrName);
-                          if (companyById) return companyById.name;
-                          
-                          // Se não encontrar, tentar pelo nome ou retornar o próprio valor
-                          const companyByName = allCompanies.find(c => c.name === branchIdOrName);
-                          return companyByName ? companyByName.name : branchIdOrName;
-                        });
-                        
+                        // Mapeia IDs para nomes e remove duplicatas (quando houver branches)
+                        const rawBranches = (viewingVehicle as any).branches || [];
+                        const branchNames = Array.isArray(rawBranches)
+                          ? rawBranches.map((branchIdOrName: string) => {
+                              // Tentar encontrar pelo ID first
+                              const companyById = allCompanies.find(c => String(c.id) === branchIdOrName);
+                              if (companyById) return companyById.name;
+
+                              // Se não encontrar, tentar pelo nome ou retornar o próprio valor
+                              const companyByName = allCompanies.find(c => c.name === branchIdOrName);
+                              return companyByName ? companyByName.name : branchIdOrName;
+                            })
+                          : [];
+
                         // Remove duplicatas
                         const uniqueBranchNames = Array.from(new Set(branchNames));
-                        
+
                         return uniqueBranchNames.map((displayName, index) => (
                           <Badge key={index} variant="secondary">
                             {displayName}
