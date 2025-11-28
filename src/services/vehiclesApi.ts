@@ -108,3 +108,34 @@ export async function updateVehicle(id: string, data: Partial<CreateVehiclePaylo
   });
   return response.data;
 }
+
+export interface PaginatedVehiclesResponse {
+  vehicles: Vehicle[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface GetVehiclesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  vehicleType?: string;
+}
+
+export async function getVehicles(params: GetVehiclesParams = {}) {
+  const { page = 1, limit = 10, search, vehicleType } = params;
+  
+  const queryParams = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+  
+  if (search) queryParams.append('search', search);
+  if (vehicleType) queryParams.append('vehicleType', vehicleType);
+  
+  return apiRequest<PaginatedVehiclesResponse>(`/vehicles?${queryParams.toString()}`);
+}

@@ -8,7 +8,7 @@ import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign, FileSpr
 import { exportVehiclesToExcel } from '@/lib/excelExport';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { getSuppliersCombo, SupplierCombo } from '@/services/suppliersApi';
-import { createVehicle, updateVehicle as updateVehicleApi } from '@/services/vehiclesApi';
+import { createVehicle, updateVehicle as updateVehicleApi, getVehicles, Vehicle as ApiVehicle } from '@/services/vehiclesApi';
 import {
   Select,
   SelectContent,
@@ -37,16 +37,23 @@ import { VehicleForm } from '@/components/forms/VehicleForm';
 import { VehicleSaleForm, VehicleSale } from '@/components/forms/VehicleSaleForm';
 import { VehicleCard } from '@/components/VehicleCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 export default function Vehicles() {
-  const { vehicles, drivers, refuelings, companies, suppliers, refrigerationUnits, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale, sellRefrigerationUnit, updateRefrigerationUnit } = useMockData();
+  const { drivers, refuelings, companies, suppliers, refrigerationUnits, getRefrigerationUnitByVehicle, addVehicle, updateVehicle, deleteVehicle, sellVehicle, reverseSale, sellRefrigerationUnit, updateRefrigerationUnit } = useMockData();
   const { isAdmin } = usePermissions();
   const { toast } = useToast();
   const [refreshKey, setRefreshKey] = useState(0);
-  const allVehicles = vehicles();
+  
+  // Estados para veículos da API
+  const [apiVehicles, setApiVehicles] = useState<ApiVehicle[]>([]);
+  const [loadingVehicles, setLoadingVehicles] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [hasMoreVehicles, setHasMoreVehicles] = useState(true);
+  const ITEMS_PER_PAGE = 20;
+  
   const allDrivers = drivers();
   const allRefuelings = refuelings();
   const allCompanies = companies();
@@ -69,6 +76,57 @@ export default function Vehicles() {
   const [loadingCompanies, setLoadingCompanies] = useState(false);
   const [apiSuppliers, setApiSuppliers] = useState<SupplierCombo[]>([]);
   const [loadingSuppliers, setLoadingSuppliers] = useState(false);
+
+  // Buscar veículos da API
+  const fetchVehicles = useCallback(async (page: number = 1, append: boolean = false) => {
+    setLoadingVehicles(true);
+    try {
+      const response = await getVehicles({
+        page,
+        limit: ITEMS_PER_PAGE,
+        search: searchTerm || undefined,
+      });
+      
+      if (response.success && response.data) {
+        const { vehicles, pagination } = response.data;
+        
+        if (append) {
+          setApiVehicles(prev => [...prev, ...vehicles]);
+        } else {
+          setApiVehicles(vehicles);
+        }
+        
+        setCurrentPage(pagination.page);
+        setTotalPages(pagination.totalPages);
+        setHasMoreVehicles(pagination.page < pagination.totalPages);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar veículos:', error);
+      toast({
+        title: 'Erro ao carregar veículos',
+        description: 'Não foi possível carregar a lista de veículos.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoadingVehicles(false);
+    }
+  }, [searchTerm, toast]);
+
+  // Carregar veículos ao montar e quando refreshKey mudar
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchVehicles(1, false);
+    }, 500); // Debounce de 500ms para a busca
+
+    return () => clearTimeout(timeoutId);
+  }, [fetchVehicles, refreshKey]);
+
+  // Função para carregar mais veículos (infinite scroll)
+  const loadMoreVehicles = () => {
+    if (hasMoreVehicles && !loadingVehicles) {
+      fetchVehicles(currentPage + 1, true);
+    }
+  };
 
   // Buscar empresas e fornecedores da API quando o modal abrir
   useEffect(() => {
@@ -246,7 +304,7 @@ export default function Vehicles() {
   };
 
   const confirmStatusChange = (vehicleId: string, newStatus: string) => {
-    const vehicle = allVehicles.find(v => v.id === vehicleId);
+    const vehicle = apiVehicles.find(v => v.id === vehicleId);
     if (!vehicle) {
       toast({
         title: 'Erro',
@@ -277,7 +335,7 @@ export default function Vehicles() {
 
       // Notifica sobre desvinculação automática de reboque
       if (isTrailer && isInactiveOrMaintenance) {
-        const tractionVehicles = allVehicles.filter(v => 
+        const tractionVehicles = apiVehicles.filter(v =>
           v.hasComposition && v.compositions?.includes(Number(vehicle.id))
         );
         if (tractionVehicles.length > 0) {
@@ -342,8 +400,8 @@ export default function Vehicles() {
   };
 
   const handleAddComposition = (vehicleId: string, trailerId: string) => {
-    const vehicle = allVehicles.find(v => v.id === vehicleId);
-    const trailer = allVehicles.find(v => v.id === trailerId);
+    const vehicle = apiVehicles.find(v => v.id === vehicleId);
+    const trailer = apiVehicles.find(v => v.id === trailerId);
     
     if (!vehicle || !trailer) {
       toast({
@@ -377,7 +435,7 @@ export default function Vehicles() {
   };
 
   const handleRemoveComposition = (vehicleId: string, trailerId: number) => {
-    const vehicle = allVehicles.find(v => v.id === vehicleId);
+    const vehicle = apiVehicles.find(v => v.id === vehicleId);
     if (!vehicle || !vehicle.compositions) {
       toast({
         title: 'Erro',
@@ -418,7 +476,7 @@ export default function Vehicles() {
   };
 
   const calculateAverageConsumption = (vehicleId: string): number | null => {
-    const vehicle = allVehicles.find(v => v.id === vehicleId);
+    const vehicle = apiVehicles.find(v => v.id === vehicleId);
     
     // Nunca calcular consumo para veículos de reboque
     if (vehicle && trailerVehicleTypes.includes(vehicle.vehicleType)) {
@@ -442,22 +500,8 @@ export default function Vehicles() {
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
 
-  const filteredVehicles = allVehicles.filter(vehicle => {
-    const search = searchTerm.toLowerCase();
-    return (
-      vehicle.plate.toLowerCase().includes(search) ||
-      vehicle.model.toLowerCase().includes(search) ||
-      vehicle.chassis.toLowerCase().includes(search) ||
-      (getDriverName(vehicle.driverId)?.toLowerCase() || '').includes(search)
-    );
-  });
-
-  const tractionVehicles = filteredVehicles.filter(v => tractionVehicleTypes.includes(v.vehicleType));
-  const trailerVehicles = filteredVehicles.filter(v => trailerVehicleTypes.includes(v.vehicleType));
-
-  // Infinite scroll para veículos de tração e reboque
-  const tractionScroll = useInfiniteScroll(tractionVehicles, { initialItemsCount: 20, itemsPerPage: 10 });
-  const trailerScroll = useInfiniteScroll(trailerVehicles, { initialItemsCount: 20, itemsPerPage: 10 });
+  const tractionVehicles = apiVehicles.filter(v => tractionVehicleTypes.includes(v.vehicleType));
+  const trailerVehicles = apiVehicles.filter(v => trailerVehicleTypes.includes(v.vehicleType));
 
   return (
     <div className="space-y-4 lg:space-y-6">
@@ -470,9 +514,9 @@ export default function Vehicles() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <Button 
+              <Button 
               variant="outline"
-              onClick={() => exportVehiclesToExcel(filteredVehicles)}
+              onClick={() => exportVehiclesToExcel(apiVehicles as any)}
             >
               <FileSpreadsheet className="mr-2 h-4 w-4" />
               Exportar Relatório
@@ -505,7 +549,7 @@ export default function Vehicles() {
           </DialogHeader>
           <VehicleForm
             initialData={editingVehicle || undefined}
-            availableVehicles={allVehicles}
+            availableVehicles={apiVehicles as any}
             companies={apiCompanies}
             suppliers={apiSuppliers}
             onSubmit={async (data) => {
@@ -917,7 +961,7 @@ export default function Vehicles() {
                 if (!isTrailer) return null;
 
                 // Buscar veículo de tração que contém este reboque
-                const tractionVehicle = allVehicles.find(v => 
+                const tractionVehicle = apiVehicles.find(v => 
                   v.hasComposition && v.compositions?.includes(Number(viewingVehicle.id))
                 );
 
@@ -934,13 +978,13 @@ export default function Vehicles() {
                 // Buscar outros reboques acoplados
                 const otherTrailers = tractionVehicle.compositions
                   ?.filter(id => id !== Number(viewingVehicle.id))
-                  .map(id => allVehicles.find(v => v.id === String(id)))
+                  .map(id => apiVehicles.find(v => v.id === String(id)))
                   .filter(v => v !== undefined) || [];
 
                 // Calcular peso total do conjunto
                 const tractionWeight = tractionVehicle.weight || 0;
                 const allTrailersWeight = (tractionVehicle.compositions?.reduce((total, id) => {
-                  const trailer = allVehicles.find(v => v.id === String(id));
+                  const trailer = apiVehicles.find(v => v.id === String(id));
                   return total + (trailer?.weight || 0);
                 }, 0) || 0);
                 const totalWeight = tractionWeight + allTrailersWeight;
@@ -1103,7 +1147,7 @@ export default function Vehicles() {
                         </p>
                         <p className="font-medium">
                           <span className="text-muted-foreground">Total de eixos:</span> {tractionVehicle.axles + (tractionVehicle.compositions?.reduce((sum, id) => {
-                            const trailer = allVehicles.find(v => v.id === String(id));
+                            const trailer = apiVehicles.find(v => v.id === String(id));
                             return sum + (trailer?.axles || 0);
                           }, 0) || 0)} eixos
                         </p>
@@ -1124,7 +1168,7 @@ export default function Vehicles() {
                   <h3 className="font-semibold mb-3">Composições Acopladas</h3>
                   <div className="space-y-3">
                     {viewingVehicle.compositions.map((compositionId, index) => {
-                      const trailer = allVehicles.find(v => v.id === String(compositionId));
+                      const trailer = apiVehicles.find(v => v.id === String(compositionId));
                       return (
                         <div key={index} className="p-4 bg-muted rounded-lg border border-border">
                           <div className="flex items-center gap-3 mb-3">
@@ -1157,7 +1201,7 @@ export default function Vehicles() {
                     <div className="pt-2 border-t border-border space-y-2">
                       <p className="text-sm font-medium">
                         Total de eixos (veículo + composições): {viewingVehicle.axles + (viewingVehicle.compositions?.reduce((sum, id) => {
-                          const trailer = allVehicles.find(v => v.id === String(id));
+                          const trailer = apiVehicles.find(v => v.id === String(id));
                           return sum + (trailer?.axles || 0);
                         }, 0) || 0)}
                       </p>
@@ -1165,7 +1209,7 @@ export default function Vehicles() {
                         // Calcular peso total do conjunto
                         const vehicleWeight = viewingVehicle.weight || 0;
                         const compositionsWeight = viewingVehicle.compositions?.reduce((total, id) => {
-                          const trailer = allVehicles.find(v => v.id === String(id));
+                          const trailer = apiVehicles.find(v => v.id === String(id));
                           return total + (trailer?.weight || 0);
                         }, 0) || 0;
                         const totalWeight = vehicleWeight + compositionsWeight;
@@ -1492,15 +1536,15 @@ export default function Vehicles() {
 
         <TabsContent value="traction" className="mt-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {tractionScroll.displayedItems.map((vehicle) => (
+            {tractionVehicles.map((vehicle) => (
               <VehicleCard
                 key={vehicle.id}
-                vehicle={vehicle}
+                vehicle={vehicle as any}
                 getStatusBadge={getStatusBadge}
                 getRefrigerationUnit={getRefrigerationUnitByVehicle}
                 calculateAverageConsumption={calculateAverageConsumption}
                 allDrivers={allDrivers}
-                allVehicles={allVehicles}
+                allVehicles={apiVehicles as any}
                 allCompanies={allCompanies}
                 getAvailableDrivers={getAvailableDrivers}
                 handleEdit={handleEdit}
@@ -1516,24 +1560,31 @@ export default function Vehicles() {
               />
             ))}
           </div>
-          {tractionScroll.hasMore && (
-            <div ref={tractionScroll.loadMoreRef} className="h-20 flex items-center justify-center">
-              <div className="animate-pulse text-muted-foreground text-sm">Carregando mais veículos...</div>
+          {loadingVehicles && (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-pulse text-muted-foreground text-sm">Carregando veículos...</div>
+            </div>
+          )}
+          {hasMoreVehicles && !loadingVehicles && (
+            <div className="flex items-center justify-center py-4">
+              <Button onClick={loadMoreVehicles} variant="outline">
+                Carregar mais veículos
+              </Button>
             </div>
           )}
         </TabsContent>
 
         <TabsContent value="trailer" className="mt-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {trailerScroll.displayedItems.map((vehicle) => (
+            {trailerVehicles.map((vehicle) => (
               <VehicleCard
                 key={vehicle.id}
-                vehicle={vehicle}
+                vehicle={vehicle as any}
                 getStatusBadge={getStatusBadge}
                 getRefrigerationUnit={getRefrigerationUnitByVehicle}
                 calculateAverageConsumption={calculateAverageConsumption}
                 allDrivers={allDrivers}
-                allVehicles={allVehicles}
+                allVehicles={apiVehicles as any}
                 allCompanies={allCompanies}
                 getAvailableDrivers={getAvailableDrivers}
                 handleEdit={handleEdit}
@@ -1549,9 +1600,16 @@ export default function Vehicles() {
               />
             ))}
           </div>
-          {trailerScroll.hasMore && (
-            <div ref={trailerScroll.loadMoreRef} className="h-20 flex items-center justify-center">
-              <div className="animate-pulse text-muted-foreground text-sm">Carregando mais veículos...</div>
+          {loadingVehicles && (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-pulse text-muted-foreground text-sm">Carregando veículos...</div>
+            </div>
+          )}
+          {hasMoreVehicles && !loadingVehicles && (
+            <div className="flex items-center justify-center py-4">
+              <Button onClick={loadMoreVehicles} variant="outline">
+                Carregar mais veículos
+              </Button>
             </div>
           )}
         </TabsContent>
