@@ -500,8 +500,8 @@ export default function Vehicles() {
   const tractionVehicleTypes = ['Truck', 'Cavalo Mecânico', 'Toco', 'VUC', '3/4', 'Bitruck'];
   const trailerVehicleTypes = ['Baú', 'Carreta', 'Graneleiro', 'Container', 'Caçamba', 'Baú Frigorífico', 'Sider', 'Prancha', 'Tanque', 'Cegonheiro', 'Rodotrem'];
 
-  const tractionVehicles = apiVehicles.filter(v => tractionVehicleTypes.includes(v.vehicleType));
-  const trailerVehicles = apiVehicles.filter(v => trailerVehicleTypes.includes(v.vehicleType));
+  const tractionVehicles = (apiVehicles || []).filter(v => tractionVehicleTypes.includes(v.vehicleType));
+  const trailerVehicles = (apiVehicles || []).filter(v => trailerVehicleTypes.includes(v.vehicleType));
 
   return (
     <div className="space-y-4 lg:space-y-6">
