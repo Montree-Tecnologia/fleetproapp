@@ -9,6 +9,7 @@ import { exportVehiclesToExcel } from '@/lib/excelExport';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { getSuppliersCombo, SupplierCombo } from '@/services/suppliersApi';
 import { createVehicle, updateVehicle as updateVehicleApi, getVehicles, Vehicle as ApiVehicle, deleteVehicle as deleteVehicleApi } from '@/services/vehiclesApi';
+import { fetchDrivers as fetchDriversApi, DriverResponse } from '@/services/driversApi';
 import {
   Select,
   SelectContent,
@@ -76,6 +77,8 @@ export default function Vehicles() {
   const [loadingCompanies, setLoadingCompanies] = useState(false);
   const [apiSuppliers, setApiSuppliers] = useState<SupplierCombo[]>([]);
   const [loadingSuppliers, setLoadingSuppliers] = useState(false);
+  const [apiDrivers, setApiDrivers] = useState<DriverResponse[]>([]);
+  const [loadingDrivers, setLoadingDrivers] = useState(false);
 
   // Buscar veículos da API
   const fetchVehicles = useCallback(async (page: number = 1, append: boolean = false) => {
@@ -120,6 +123,41 @@ export default function Vehicles() {
 
     return () => clearTimeout(timeoutId);
   }, [fetchVehicles, refreshKey]);
+
+  // Carregar empresas e motoristas ao montar o componente
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      setLoadingCompanies(true);
+      setLoadingDrivers(true);
+      
+      try {
+        const [companiesResponse, driversResponse] = await Promise.all([
+          getCompaniesCombo(),
+          fetchDriversApi(1, 1000) // Buscar todos os motoristas
+        ]);
+        
+        if (companiesResponse.success && companiesResponse.data) {
+          setApiCompanies(companiesResponse.data);
+        }
+        
+        if (driversResponse.success && driversResponse.data) {
+          setApiDrivers(driversResponse.data.data);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar dados iniciais:', error);
+        toast({
+          title: 'Erro ao carregar dados',
+          description: 'Não foi possível carregar empresas e/ou motoristas.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoadingCompanies(false);
+        setLoadingDrivers(false);
+      }
+    };
+    
+    fetchInitialData();
+  }, [toast]);
 
   // Função para carregar mais veículos (infinite scroll)
   const loadMoreVehicles = () => {
@@ -167,6 +205,10 @@ export default function Vehicles() {
 
   const getDriverName = (driverId?: string) => {
     if (!driverId) return null;
+    // Buscar primeiro nos motoristas da API
+    const apiDriver = apiDrivers.find(d => d.id === driverId);
+    if (apiDriver) return apiDriver.name;
+    // Fallback para motoristas mock (temporário)
     const driver = allDrivers.find(d => d.id === driverId);
     return driver?.name;
   };
@@ -402,7 +444,9 @@ export default function Vehicles() {
   };
 
   const getAvailableDrivers = (currentVehicleId: string) => {
-    return allDrivers.filter(driver => {
+    // Usar motoristas da API se disponível, senão usar mock
+    const driversToUse = apiDrivers.length > 0 ? apiDrivers : allDrivers;
+    return driversToUse.filter(driver => {
       if (!driver.active) return false;
       return true;
     });
@@ -1437,9 +1481,9 @@ export default function Vehicles() {
                 getStatusBadge={getStatusBadge}
                 getRefrigerationUnit={getRefrigerationUnitByVehicle}
                 calculateAverageConsumption={calculateAverageConsumption}
-                allDrivers={allDrivers}
+                allDrivers={apiDrivers.length > 0 ? apiDrivers : allDrivers}
                 allVehicles={apiVehicles as any}
-                allCompanies={allCompanies}
+                allCompanies={apiCompanies.length > 0 ? apiCompanies : allCompanies}
                 getAvailableDrivers={getAvailableDrivers}
                 handleEdit={handleEdit}
                 handleDelete={handleDelete}
@@ -1477,9 +1521,9 @@ export default function Vehicles() {
                 getStatusBadge={getStatusBadge}
                 getRefrigerationUnit={getRefrigerationUnitByVehicle}
                 calculateAverageConsumption={calculateAverageConsumption}
-                allDrivers={allDrivers}
+                allDrivers={apiDrivers.length > 0 ? apiDrivers : allDrivers}
                 allVehicles={apiVehicles as any}
-                allCompanies={allCompanies}
+                allCompanies={apiCompanies.length > 0 ? apiCompanies : allCompanies}
                 getAvailableDrivers={getAvailableDrivers}
                 handleEdit={handleEdit}
                 handleDelete={handleDelete}
