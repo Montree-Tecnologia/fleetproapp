@@ -8,7 +8,7 @@ import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign, FileSpr
 import { exportVehiclesToExcel } from '@/lib/excelExport';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { getSuppliersCombo, SupplierCombo } from '@/services/suppliersApi';
-import { createVehicle, updateVehicle as updateVehicleApi, getVehicles, Vehicle as ApiVehicle, deleteVehicle as deleteVehicleApi } from '@/services/vehiclesApi';
+import { createVehicle, updateVehicle as updateVehicleApi, getVehicles, Vehicle as ApiVehicle, deleteVehicle as deleteVehicleApi, updateVehicleStatus } from '@/services/vehiclesApi';
 import { fetchDrivers as fetchDriversApi, DriverResponse } from '@/services/driversApi';
 import {
   Select,
@@ -354,7 +354,7 @@ export default function Vehicles() {
     }
   };
 
-  const confirmStatusChange = (vehicleId: string, newStatus: string) => {
+  const confirmStatusChange = async (vehicleId: string, newStatus: string) => {
     const vehicle = apiVehicles.find(v => v.id === vehicleId);
     if (!vehicle) {
       toast({
@@ -370,7 +370,7 @@ export default function Vehicles() {
     const isInactiveOrMaintenance = newStatus === 'inactive' || newStatus === 'maintenance' || newStatus === 'defective';
 
     try {
-      updateVehicle(vehicleId, { status: newStatus as 'active' | 'maintenance' | 'inactive' | 'defective' });
+      await updateVehicleStatus(vehicleId, newStatus);
       
       const statusLabels = {
         active: 'Ativo',
@@ -402,6 +402,9 @@ export default function Vehicles() {
           description: `Status das composições acopladas também alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}.`,
         });
       }
+      
+      // Recarregar lista de veículos
+      await fetchVehicles(1, false);
     } catch (error) {
       toast({
         title: 'Erro',
@@ -412,7 +415,6 @@ export default function Vehicles() {
 
     setStatusChangeDialogOpen(false);
     setVehicleToChangeStatus(null);
-    setRefreshKey(prev => prev + 1);
   };
 
   const handleDriverChange = (vehicleId: string, driverId: string) => {

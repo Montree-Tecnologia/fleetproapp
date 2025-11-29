@@ -159,3 +159,11 @@ export async function deleteVehicle(id: string) {
   });
   return response;
 }
+
+export async function updateVehicleStatus(id: string, status: string) {
+  const response = await apiRequest<Vehicle>(`/vehicles/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+  return response;
+}
