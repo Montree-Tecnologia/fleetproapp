@@ -28,7 +28,7 @@ interface VehicleCardProps {
   calculateAverageConsumption: (vehicleId: string) => number | null;
   allDrivers: any[];
   allVehicles: Vehicle[];
-  allCompanies: any[];
+  allCompanies: any[]; // Can be CompanyCombo[] (from API) or mock company objects
   getAvailableDrivers: (currentVehicleId: string) => any[];
   handleDriverChange: (vehicleId: string, driverId: string) => void;
   handleStatusChange: (vehicleId: string, plate: string, status: string, currentStatus: string) => void;
@@ -77,7 +77,17 @@ export function VehicleCard({
   const availableDrivers = getAvailableDrivers(vehicle.id);
   
   // Buscar CNPJ da empresa proprietária
-  const ownerCompany = allCompanies.find(c => c.name === vehicle.ownerBranch);
+  // Suporta tanto CompanyCombo (API com id numérico) quanto objetos mock (com name)
+  const ownerCompany = allCompanies.find(c => {
+    // Se tem id numérico (CompanyCombo da API), converte para string e compara
+    if ('id' in c && typeof c.id === 'number') {
+      // Vehicle pode ter ownerBranchId (API) ou ownerBranch (mock)
+      const vehicleOwnerId = (vehicle as any).ownerBranchId || vehicle.ownerBranch;
+      return String(c.id) === vehicleOwnerId || c.name === vehicleOwnerId;
+    }
+    // Senão usa name (mock)
+    return c.name === vehicle.ownerBranch;
+  });
   const ownerCnpj = ownerCompany?.cnpj;
   
   // Veículos de reboque disponíveis para adicionar
@@ -256,7 +266,14 @@ export function VehicleCard({
                 {(() => {
                   // Mapeia IDs para nomes e remove duplicatas
                   const branchNames = vehicle.branches.map(branchIdOrName => {
-                    const company = allCompanies.find(c => c.id === branchIdOrName || c.name === branchIdOrName);
+                    const company = allCompanies.find(c => {
+                      // Suporta CompanyCombo (API) com id numérico
+                      if ('id' in c && typeof c.id === 'number') {
+                        return c.id === branchIdOrName || String(c.id) === branchIdOrName || c.name === branchIdOrName;
+                      }
+                      // Suporta objetos mock
+                      return c.id === branchIdOrName || c.name === branchIdOrName;
+                    });
                     return company ? company.name : branchIdOrName;
                   });
                   
