@@ -347,9 +347,6 @@ export default function Refrigeration() {
           <RefrigerationForm
             onSubmit={handleSubmit}
             onCancel={handleDialogClose}
-            vehicles={allVehicles}
-            suppliers={allSuppliers}
-            companies={allCompanies}
             initialData={editingUnit}
           />
         </DialogContent>
