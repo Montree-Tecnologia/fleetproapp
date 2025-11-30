@@ -406,15 +406,27 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
           if (initialData) {
             // Determinar o tipo baseado na categoria do veículo
             const category = getVehicleCategory(initialData.vehicleType);
-            const vehicleTypeName = category === 'traction' ? 'Veículos de Tração' : 'Veículos de Reboque';
-            const vehicleType = response.data.find(t => t.name === vehicleTypeName);
+            
+            // Busca mais flexível - case-insensitive e usando includes
+            const vehicleType = response.data.find(t => {
+              const typeName = t.name.toLowerCase();
+              if (category === 'traction') {
+                return typeName.includes('tração') || typeName.includes('tracao');
+              } else {
+                return typeName.includes('reboque');
+              }
+            });
             
             if (vehicleType) {
+              console.log('Vehicle type found:', vehicleType);
               setSelectedVehicleTypeId(vehicleType.id);
+            } else {
+              console.warn('Vehicle type not found for category:', category);
             }
           }
         }
       } catch (error) {
+        console.error('Error loading vehicle types:', error);
         toast({
           title: 'Erro ao carregar tipos de veículos',
           description: 'Não foi possível carregar os tipos de veículos',
@@ -441,12 +453,16 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
         const response = await getVehicleBrands(selectedVehicleTypeId);
         if (response.success && response.data) {
           setVehicleBrands(response.data);
+          console.log('Brands loaded:', response.data);
           
           // Se estiver em modo de edição, encontrar e selecionar a marca
           if (initialData?.brand) {
             const brand = response.data.find(b => b.name === initialData.brand);
             if (brand) {
+              console.log('Brand found:', brand);
               setSelectedBrandId(brand.id);
+            } else {
+              console.warn('Brand not found:', initialData.brand);
             }
           } else {
             setVehicleModels([]);
@@ -454,6 +470,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
           }
         }
       } catch (error) {
+        console.error('Error loading brands:', error);
         toast({
           title: 'Erro ao carregar marcas',
           description: 'Não foi possível carregar as marcas de veículos',
@@ -479,11 +496,20 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
         const response = await getVehicleModels(selectedBrandId);
         if (response.success && response.data) {
           setVehicleModels(response.data);
+          console.log('Models loaded:', response.data);
           
-          // Não limpar o modelo se estiver em modo de edição e o modelo ainda não foi carregado
-          // O valor do modelo já está definido no form através do initialData
+          // Verificar se o modelo atual existe na lista
+          if (initialData?.model) {
+            const modelExists = response.data.find(m => m.name === initialData.model);
+            if (modelExists) {
+              console.log('Model found:', modelExists);
+            } else {
+              console.warn('Model not found in list:', initialData.model);
+            }
+          }
         }
       } catch (error) {
+        console.error('Error loading models:', error);
         toast({
           title: 'Erro ao carregar modelos',
           description: 'Não foi possível carregar os modelos de veículos',
