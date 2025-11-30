@@ -8,7 +8,7 @@ import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign, FileSpr
 import { exportVehiclesToExcel } from '@/lib/excelExport';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { getSuppliersCombo, SupplierCombo } from '@/services/suppliersApi';
-import { createVehicle, updateVehicle as updateVehicleApi, getVehicles, Vehicle as ApiVehicle, deleteVehicle as deleteVehicleApi, updateVehicleStatus, assignDriverToVehicle, unassignDriverFromVehicle } from '@/services/vehiclesApi';
+import { createVehicle, updateVehicle as updateVehicleApi, getVehicles, Vehicle as ApiVehicle, deleteVehicle as deleteVehicleApi, updateVehicleStatus, assignDriverToVehicle, unassignDriverFromVehicle, addCompositionToVehicle, removeCompositionFromVehicle } from '@/services/vehiclesApi';
 import { fetchDrivers as fetchDriversApi, DriverResponse } from '@/services/driversApi';
 import {
   Select,
@@ -460,7 +460,7 @@ export default function Vehicles() {
     });
   };
 
-  const handleAddComposition = (vehicleId: string, trailerId: string) => {
+  const handleAddComposition = async (vehicleId: string, trailerId: string) => {
     const vehicle = apiVehicles.find(v => v.id === vehicleId);
     const trailer = apiVehicles.find(v => v.id === trailerId);
     
@@ -472,27 +472,36 @@ export default function Vehicles() {
       });
       return;
     }
+
+    if (trailer.status !== 'active') {
+      toast({
+        title: 'Erro',
+        description: 'O reboque deve estar ativo para ser vinculado.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     try {
-      updateVehicle(vehicleId, {
-        hasComposition: true,
-      });
+      await addCompositionToVehicle(vehicleId, trailerId);
       
       toast({
         title: 'Reboque vinculado',
         description: `${trailer.plate} foi vinculado ao veículo com sucesso.`,
       });
+
+      await fetchVehicles(1, false);
     } catch (error) {
+      console.error('Erro ao adicionar composição:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível vincular o reboque.',
         variant: 'destructive',
       });
     }
-    setRefreshKey(prev => prev + 1);
   };
 
-  const handleRemoveComposition = (vehicleId: string, trailerId: number) => {
+  const handleRemoveComposition = async (vehicleId: string, trailerId: number) => {
     const vehicle = apiVehicles.find(v => v.id === vehicleId);
     if (!vehicle) {
       toast({
@@ -504,22 +513,22 @@ export default function Vehicles() {
     }
     
     try {
-      updateVehicle(vehicleId, {
-        hasComposition: false,
-      });
+      await removeCompositionFromVehicle(vehicleId, String(trailerId));
       
       toast({
         title: 'Reboque desvinculado',
         description: `Reboque foi desvinculado do veículo com sucesso.`,
       });
+
+      await fetchVehicles(1, false);
     } catch (error) {
+      console.error('Erro ao remover composição:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível desvincular o reboque.',
         variant: 'destructive',
       });
     }
-    setRefreshKey(prev => prev + 1);
   };
 
   const formatCurrency = (value: number) => {
