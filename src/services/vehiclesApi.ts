@@ -181,3 +181,17 @@ export async function unassignDriverFromVehicle(vehicleId: string, driverId: str
   });
   return response;
 }
+
+export async function addCompositionToVehicle(mainVehicleId: string, trailerVehicleId: string) {
+  const response = await apiRequest<Vehicle>(`/vehicles/${mainVehicleId}/compositions/${trailerVehicleId}`, {
+    method: 'POST',
+  });
+  return response;
+}
+
+export async function removeCompositionFromVehicle(mainVehicleId: string, trailerVehicleId: string) {
+  const response = await apiRequest<Vehicle>(`/vehicles/${mainVehicleId}/compositions/${trailerVehicleId}`, {
+    method: 'DELETE',
+  });
+  return response;
+}
