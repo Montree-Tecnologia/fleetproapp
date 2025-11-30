@@ -167,3 +167,17 @@ export async function updateVehicleStatus(id: string, status: string) {
   });
   return response;
 }
+
+export async function assignDriverToVehicle(vehicleId: string, driverId: string) {
+  const response = await apiRequest<Vehicle>(`/vehicles/${vehicleId}/drivers/${driverId}`, {
+    method: 'POST',
+  });
+  return response;
+}
+
+export async function unassignDriverFromVehicle(vehicleId: string, driverId: string) {
+  const response = await apiRequest<Vehicle>(`/vehicles/${vehicleId}/drivers/${driverId}`, {
+    method: 'DELETE',
+  });
+  return response;
+}

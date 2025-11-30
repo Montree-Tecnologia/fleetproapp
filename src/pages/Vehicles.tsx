@@ -8,7 +8,7 @@ import { Plus, Truck, Pencil, Trash2, Eye, FileText, Search, DollarSign, FileSpr
 import { exportVehiclesToExcel } from '@/lib/excelExport';
 import { getCompaniesCombo, CompanyCombo } from '@/services/companiesApi';
 import { getSuppliersCombo, SupplierCombo } from '@/services/suppliersApi';
-import { createVehicle, updateVehicle as updateVehicleApi, getVehicles, Vehicle as ApiVehicle, deleteVehicle as deleteVehicleApi, updateVehicleStatus } from '@/services/vehiclesApi';
+import { createVehicle, updateVehicle as updateVehicleApi, getVehicles, Vehicle as ApiVehicle, deleteVehicle as deleteVehicleApi, updateVehicleStatus, assignDriverToVehicle, unassignDriverFromVehicle } from '@/services/vehiclesApi';
 import { fetchDrivers as fetchDriversApi, DriverResponse } from '@/services/driversApi';
 import {
   Select,
@@ -417,32 +417,38 @@ export default function Vehicles() {
     setVehicleToChangeStatus(null);
   };
 
-  const handleDriverChange = (vehicleId: string, driverId: string) => {
+  const handleDriverChange = async (vehicleId: string, driverId: string) => {
     const actualDriverId = driverId === 'none' ? undefined : driverId;
     
     try {
-      updateVehicle(vehicleId, { driverId: actualDriverId });
-      
       if (actualDriverId) {
-        const driver = allDrivers.find(d => d.id === actualDriverId);
+        await assignDriverToVehicle(vehicleId, actualDriverId);
+        const driver = apiDrivers.find(d => d.id === actualDriverId) || allDrivers.find(d => d.id === actualDriverId);
         toast({
           title: 'Motorista vinculado',
           description: `${driver?.name} foi vinculado ao veículo com sucesso.`,
         });
       } else {
-        toast({
-          title: 'Vínculo removido',
-          description: 'Vínculo com motorista foi removido com sucesso.',
-        });
+        const vehicle = apiVehicles.find(v => v.id === vehicleId);
+        if (vehicle?.driverId) {
+          await unassignDriverFromVehicle(vehicleId, vehicle.driverId);
+          toast({
+            title: 'Vínculo removido',
+            description: 'Vínculo com motorista foi removido com sucesso.',
+          });
+        }
       }
+      
+      // Recarregar veículos
+      await fetchVehicles(1, false);
     } catch (error) {
+      console.error('Erro ao alterar motorista:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível alterar o vínculo do motorista.',
         variant: 'destructive',
       });
     }
-    setRefreshKey(prev => prev + 1);
   };
 
   const getAvailableDrivers = (currentVehicleId: string) => {
