@@ -159,8 +159,8 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
     fetchData();
   }, [toast]);
 
-  // Filtrar apenas fornecedores ativos dos tipos refrigeration_equipment e other
-  const activeSuppliers = suppliers.filter(s => s.active && (s.type === 'refrigeration_equipment' || s.type === 'other'));
+  // Filtrar apenas fornecedores ativos
+  const activeSuppliers = suppliers.filter(s => s.active);
 
   const form = useForm<RefrigerationFormData>({
     resolver: zodResolver(refrigerationSchema),
