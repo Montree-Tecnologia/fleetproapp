@@ -96,28 +96,28 @@ export function VehicleCard({
     if (tractionVehicleTypes.includes(v.vehicleType)) return false;
     if (!trailerVehicleTypes.includes(v.vehicleType)) return false;
     if (v.status !== 'active') return false;
-    if (vehicle.compositions?.includes(Number(v.id))) return false;
+    if (vehicle.composition?.some(comp => comp.trailerVehicleId === v.id)) return false;
     
     // Verifica se o reboque já está vinculado a outro veículo de tração
     const isLinkedToOther = allVehicles.some(vehicle2 => 
       vehicle2.id !== vehicle.id &&
       vehicle2.hasComposition && 
-      vehicle2.compositions?.includes(Number(v.id))
+      vehicle2.composition?.some(comp => comp.trailerVehicleId === v.id)
     );
     
     return !isLinkedToOther;
   });
   
   // Encontra os detalhes dos reboques vinculados (para veículos de tração)
-  const linkedTrailers = vehicle.compositions?.map(id => 
-    allVehicles.find(v => v.id === String(id))
+  const linkedTrailers = vehicle.composition?.map(comp => 
+    allVehicles.find(v => v.id === comp.trailerVehicleId)
   ).filter(Boolean) || [];
   
   // Encontra os veículos de tração que têm este reboque vinculado (para veículos de reboque)
   const linkedToTractionVehicles = isTrailerVehicle ? allVehicles.filter(v => 
     tractionVehicleTypes.includes(v.vehicleType) &&
     v.hasComposition && 
-    v.compositions?.includes(Number(vehicle.id))
+    v.composition?.some(comp => comp.trailerVehicleId === vehicle.id)
   ) : [];
   
   // Verifica se deve mostrar a etiqueta "Refrigerado"

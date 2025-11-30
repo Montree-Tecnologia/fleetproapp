@@ -22,7 +22,7 @@ export const exportVehiclesToExcel = (vehicles: Vehicle[]) => {
     'Peso (ton)': v.weight || '-',
     'Eixos': v.axles,
     'Tem Composição': v.hasComposition ? 'Sim' : 'Não',
-    'Composições': v.compositions?.map(id => vehicles.find(v2 => v2.id === String(id))?.plate).filter(Boolean).join(', ') || '-',
+    'Composições': v.composition?.map(comp => vehicles.find(v2 => v2.id === comp.trailerVehicleId)?.plate).filter(Boolean).join(', ') || '-',
     'Valor Compra (R$)': v.purchaseValue ? new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(v.purchaseValue) : '-',
     'Data Compra': v.purchaseDate ? format(new Date(v.purchaseDate), 'dd/MM/yyyy') : '-',
     'Filial Proprietária': v.ownerBranch,
