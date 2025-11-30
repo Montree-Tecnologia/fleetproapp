@@ -27,12 +27,12 @@ export async function getVehicleModels(brandId: number) {
   return apiRequest<VehicleModel[]>(`/vehicle-models?brandId=${brandId}`);
 }
 
-export async function getVehicleBrandById(brandId: number) {
-  return apiRequest<VehicleBrand>(`/vehicle-brands/${brandId}`);
+export async function getVehicleBrandByIdOrName(identifier: number | string) {
+  return apiRequest<VehicleBrand>(`/vehicle-brands/${encodeURIComponent(identifier)}`);
 }
 
-export async function getVehicleModelById(modelId: number) {
-  return apiRequest<VehicleModel>(`/vehicle-models/${modelId}`);
+export async function getVehicleModelByIdOrName(identifier: number | string) {
+  return apiRequest<VehicleModel>(`/vehicle-models/${encodeURIComponent(identifier)}`);
 }
 
 export interface ImagePayload {
