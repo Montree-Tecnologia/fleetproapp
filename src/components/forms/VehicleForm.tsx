@@ -39,7 +39,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { getVehicleTypes, getVehicleBrands, getVehicleModels, getVehicleBrandById, getVehicleModelById, VehicleType, VehicleBrand, VehicleModel } from '@/services/vehiclesApi';
+import { getVehicleTypes, getVehicleBrands, getVehicleModels, getVehicleBrandByIdOrName, getVehicleModelByIdOrName, VehicleType, VehicleBrand, VehicleModel } from '@/services/vehiclesApi';
 import { useToast } from '@/hooks/use-toast';
 
 // Mapeamento de marcas para modelos de veículos de tração (DEPRECATED - mantido como fallback)
@@ -450,12 +450,14 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     const loadBrands = async () => {
       setLoadingBrands(true);
       try {
-        // Se temos brandId, buscar diretamente
-        if (initialData?.brandId && !selectedBrandId) {
-          const brandResponse = await getVehicleBrandById(initialData.brandId);
+        // Se estamos em modo de edição e temos o nome da marca, buscar diretamente
+        if (initialData?.brand && !selectedBrandId) {
+          const brandResponse = await getVehicleBrandByIdOrName(initialData.brand);
           if (brandResponse.success && brandResponse.data) {
-            console.log('Brand loaded by ID:', brandResponse.data);
+            console.log('Brand loaded by name:', brandResponse.data);
             setSelectedBrandId(brandResponse.data.id);
+            setVehicleBrands([brandResponse.data]);
+            return; // Não precisa carregar todas as marcas
           }
         }
         
@@ -463,34 +465,16 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
         if (response.success && response.data) {
           setVehicleBrands(response.data);
           console.log('Brands loaded:', response.data);
-          
-          // Se não temos brandId mas temos brand (nome), encontrar na lista
-          if (initialData?.brand && !initialData?.brandId && !selectedBrandId) {
-            const brand = response.data.find(b => b.name === initialData.brand);
-            if (brand) {
-              console.log('Brand found by name:', brand);
-              setSelectedBrandId(brand.id);
-            } else {
-              console.warn('Brand not found:', initialData.brand);
-            }
-          } else if (!initialData) {
-            setVehicleModels([]);
-            setSelectedBrandId(undefined);
-          }
         }
       } catch (error) {
         console.error('Error loading brands:', error);
-        toast({
-          title: 'Erro ao carregar marcas',
-          description: 'Não foi possível carregar as marcas de veículos',
-          variant: 'destructive',
-        });
+        setVehicleBrands([]);
       } finally {
         setLoadingBrands(false);
       }
     };
     loadBrands();
-  }, [selectedVehicleTypeId, initialData?.brand, initialData?.brandId]);
+  }, [selectedVehicleTypeId, initialData?.brand]);
 
   // Load models when brand changes
   useEffect(() => {
@@ -502,11 +486,13 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     const loadModels = async () => {
       setLoadingModels(true);
       try {
-        // Se temos modelId, buscar diretamente (apenas para verificação)
-        if (initialData?.modelId) {
-          const modelResponse = await getVehicleModelById(initialData.modelId);
+        // Se estamos em modo de edição e temos o nome do modelo, buscar diretamente
+        if (initialData?.model && selectedBrandId) {
+          const modelResponse = await getVehicleModelByIdOrName(initialData.model);
           if (modelResponse.success && modelResponse.data) {
-            console.log('Model loaded by ID:', modelResponse.data);
+            console.log('Model loaded by name:', modelResponse.data);
+            setVehicleModels([modelResponse.data]);
+            return; // Não precisa carregar todos os modelos
           }
         }
         
@@ -514,30 +500,16 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
         if (response.success && response.data) {
           setVehicleModels(response.data);
           console.log('Models loaded:', response.data);
-          
-          // Verificar se o modelo atual existe na lista
-          if (initialData?.model) {
-            const modelExists = response.data.find(m => m.name === initialData.model);
-            if (modelExists) {
-              console.log('Model found:', modelExists);
-            } else {
-              console.warn('Model not found in list:', initialData.model);
-            }
-          }
         }
       } catch (error) {
         console.error('Error loading models:', error);
-        toast({
-          title: 'Erro ao carregar modelos',
-          description: 'Não foi possível carregar os modelos de veículos',
-          variant: 'destructive',
-        });
+        setVehicleModels([]);
       } finally {
         setLoadingModels(false);
       }
     };
     loadModels();
-  }, [selectedBrandId, initialData?.model, initialData?.modelId]);
+  }, [selectedBrandId, initialData?.model]);
 
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
