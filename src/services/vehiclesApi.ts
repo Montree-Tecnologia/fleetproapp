@@ -27,6 +27,14 @@ export async function getVehicleModels(brandId: number) {
   return apiRequest<VehicleModel[]>(`/vehicle-models?brandId=${brandId}`);
 }
 
+export async function getVehicleBrandById(brandId: number) {
+  return apiRequest<VehicleBrand>(`/vehicle-brands/${brandId}`);
+}
+
+export async function getVehicleModelById(modelId: number) {
+  return apiRequest<VehicleModel>(`/vehicle-models/${modelId}`);
+}
+
 export interface ImagePayload {
   base64: string;
   extension: string;
@@ -89,11 +97,14 @@ export interface Vehicle {
   chassis: string;
   renavam: string;
   brand: string;
+  brandId?: number;
   model: string;
+  modelId?: number;
   manufacturingYear: number;
   modelYear: number;
   color: string;
   vehicleType: string;
+  vehicleTypeId?: number;
   status: string;
   previousStatus: string | null;
   purchaseKm: number;

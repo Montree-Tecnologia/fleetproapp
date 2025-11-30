@@ -39,7 +39,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { getVehicleTypes, getVehicleBrands, getVehicleModels, VehicleType, VehicleBrand, VehicleModel } from '@/services/vehiclesApi';
+import { getVehicleTypes, getVehicleBrands, getVehicleModels, getVehicleBrandById, getVehicleModelById, VehicleType, VehicleBrand, VehicleModel } from '@/services/vehiclesApi';
 import { useToast } from '@/hooks/use-toast';
 
 // Mapeamento de marcas para modelos de veículos de tração (DEPRECATED - mantido como fallback)
@@ -450,21 +450,30 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     const loadBrands = async () => {
       setLoadingBrands(true);
       try {
+        // Se temos brandId, buscar diretamente
+        if (initialData?.brandId && !selectedBrandId) {
+          const brandResponse = await getVehicleBrandById(initialData.brandId);
+          if (brandResponse.success && brandResponse.data) {
+            console.log('Brand loaded by ID:', brandResponse.data);
+            setSelectedBrandId(brandResponse.data.id);
+          }
+        }
+        
         const response = await getVehicleBrands(selectedVehicleTypeId);
         if (response.success && response.data) {
           setVehicleBrands(response.data);
           console.log('Brands loaded:', response.data);
           
-          // Se estiver em modo de edição, encontrar e selecionar a marca
-          if (initialData?.brand) {
+          // Se não temos brandId mas temos brand (nome), encontrar na lista
+          if (initialData?.brand && !initialData?.brandId && !selectedBrandId) {
             const brand = response.data.find(b => b.name === initialData.brand);
             if (brand) {
-              console.log('Brand found:', brand);
+              console.log('Brand found by name:', brand);
               setSelectedBrandId(brand.id);
             } else {
               console.warn('Brand not found:', initialData.brand);
             }
-          } else {
+          } else if (!initialData) {
             setVehicleModels([]);
             setSelectedBrandId(undefined);
           }
@@ -481,7 +490,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       }
     };
     loadBrands();
-  }, [selectedVehicleTypeId]);
+  }, [selectedVehicleTypeId, initialData?.brand, initialData?.brandId]);
 
   // Load models when brand changes
   useEffect(() => {
@@ -493,6 +502,14 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     const loadModels = async () => {
       setLoadingModels(true);
       try {
+        // Se temos modelId, buscar diretamente (apenas para verificação)
+        if (initialData?.modelId) {
+          const modelResponse = await getVehicleModelById(initialData.modelId);
+          if (modelResponse.success && modelResponse.data) {
+            console.log('Model loaded by ID:', modelResponse.data);
+          }
+        }
+        
         const response = await getVehicleModels(selectedBrandId);
         if (response.success && response.data) {
           setVehicleModels(response.data);
@@ -520,7 +537,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       }
     };
     loadModels();
-  }, [selectedBrandId]);
+  }, [selectedBrandId, initialData?.model, initialData?.modelId]);
 
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
