@@ -401,6 +401,18 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
         const response = await getVehicleTypes();
         if (response.success && response.data) {
           setVehicleTypes(response.data);
+          
+          // Se estiver em modo de edição, carregar os dados da API
+          if (initialData) {
+            // Determinar o tipo baseado na categoria do veículo
+            const category = getVehicleCategory(initialData.vehicleType);
+            const vehicleTypeName = category === 'traction' ? 'Veículos de Tração' : 'Veículos de Reboque';
+            const vehicleType = response.data.find(t => t.name === vehicleTypeName);
+            
+            if (vehicleType) {
+              setSelectedVehicleTypeId(vehicleType.id);
+            }
+          }
         }
       } catch (error) {
         toast({
@@ -429,8 +441,17 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
         const response = await getVehicleBrands(selectedVehicleTypeId);
         if (response.success && response.data) {
           setVehicleBrands(response.data);
-          setVehicleModels([]);
-          setSelectedBrandId(undefined);
+          
+          // Se estiver em modo de edição, encontrar e selecionar a marca
+          if (initialData?.brand) {
+            const brand = response.data.find(b => b.name === initialData.brand);
+            if (brand) {
+              setSelectedBrandId(brand.id);
+            }
+          } else {
+            setVehicleModels([]);
+            setSelectedBrandId(undefined);
+          }
         }
       } catch (error) {
         toast({
@@ -458,6 +479,9 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
         const response = await getVehicleModels(selectedBrandId);
         if (response.success && response.data) {
           setVehicleModels(response.data);
+          
+          // Não limpar o modelo se estiver em modo de edição e o modelo ainda não foi carregado
+          // O valor do modelo já está definido no form através do initialData
         }
       } catch (error) {
         toast({
@@ -806,6 +830,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
               <FormItem>
                 <FormLabel>Marca *</FormLabel>
                 <Select 
+                  value={selectedBrandId ? selectedBrandId.toString() : undefined}
                   onValueChange={(value) => {
                     const brandId = parseInt(value);
                     setSelectedBrandId(brandId);
@@ -843,38 +868,42 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
           <FormField
             control={form.control}
             name="model"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Modelo *</FormLabel>
-                <Select 
-                  onValueChange={(value) => {
-                    const selectedModel = vehicleModels.find(m => m.id === parseInt(value));
-                    if (selectedModel) {
-                      field.onChange(selectedModel.name);
-                    }
-                  }} 
-                  disabled={!selectedBrandId || loadingModels}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder={
-                        loadingModels ? "Carregando..." :
-                        !selectedBrandId ? "Selecione a marca primeiro" : 
-                        "Selecione o modelo"
-                      } />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {vehicleModels.map((model) => (
-                      <SelectItem key={model.id} value={model.id.toString()}>
-                        {model.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const currentModelId = vehicleModels.find(m => m.name === field.value)?.id;
+              return (
+                <FormItem>
+                  <FormLabel>Modelo *</FormLabel>
+                  <Select 
+                    value={currentModelId ? currentModelId.toString() : undefined}
+                    onValueChange={(value) => {
+                      const selectedModel = vehicleModels.find(m => m.id === parseInt(value));
+                      if (selectedModel) {
+                        field.onChange(selectedModel.name);
+                      }
+                    }} 
+                    disabled={!selectedBrandId || loadingModels}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={
+                          loadingModels ? "Carregando..." :
+                          !selectedBrandId ? "Selecione a marca primeiro" : 
+                          "Selecione o modelo"
+                        } />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {vehicleModels.map((model) => (
+                        <SelectItem key={model.id} value={model.id.toString()}>
+                          {model.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
 
