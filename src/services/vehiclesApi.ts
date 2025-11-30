@@ -73,6 +73,16 @@ export interface VehicleImage {
   updatedAt: string;
 }
 
+export interface VehicleComposition {
+  id: string;
+  mainVehicleId: string;
+  trailerVehicleId: string;
+  axles: number;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Vehicle {
   id: string;
   plate: string;
@@ -105,6 +115,7 @@ export interface Vehicle {
   updatedAt: string;
   driver: any | null;
   images: VehicleImage[];
+  composition: VehicleComposition[];
 }
 
 export async function createVehicle(data: CreateVehiclePayload) {

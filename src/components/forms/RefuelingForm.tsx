@@ -132,10 +132,10 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   // b) Veículos de tração que possuam pelo menos uma composição com equipamento de refrigeração
   const tractionVehiclesWithRefrigeratedCompositions = tractionVehicles.filter(v => {
     // Verificar se alguma composição tem equipamento de refrigeração
-    if (!v.compositions || v.compositions.length === 0) return false;
+    if (!v.composition || v.composition.length === 0) return false;
     
-    return v.compositions.some(compositionId => {
-      const compositionVehicle = vehicles.find(cv => cv.id === String(compositionId));
+    return v.composition.some(comp => {
+      const compositionVehicle = vehicles.find(cv => cv.id === comp.trailerVehicleId);
       if (!compositionVehicle) return false;
       
       return activeRefrigerationUnits.some(r => r.vehicleId === compositionVehicle.id);
@@ -156,13 +156,13 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
         const selectedVehicle = vehicles.find(v => v.id === selectedVehicleFilter);
         
         // Se for Cavalo Mecânico, retornar equipamentos das composições
-        if (selectedVehicle?.vehicleType === 'Cavalo Mecânico' && selectedVehicle.compositions) {
+        if (selectedVehicle?.vehicleType === 'Cavalo Mecânico' && selectedVehicle.composition) {
           return activeRefrigerationUnits.filter(r => {
             if (!r.vehicleId) return false;
             // Buscar o veículo do equipamento
             const equipmentVehicle = vehicles.find(v => v.id === r.vehicleId);
             // Verificar se o veículo do equipamento está nas composições
-            return equipmentVehicle && selectedVehicle.compositions?.includes(Number(equipmentVehicle.id));
+            return equipmentVehicle && selectedVehicle.composition?.some(comp => comp.trailerVehicleId === equipmentVehicle.id);
           });
         }
         
@@ -254,7 +254,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
           // Encontrar o veículo de tração que tem este reboque vinculado
           const tractionVehicle = vehicles.find(v => 
             v.hasComposition && 
-            v.compositions?.includes(Number(vehicle.id))
+            v.composition?.some(comp => comp.trailerVehicleId === vehicle.id)
           );
           
           if (tractionVehicle?.driverId) {

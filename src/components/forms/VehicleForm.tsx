@@ -249,8 +249,12 @@ interface ImageItem {
   isNew: boolean;     // true = base64 novo, false = URL existente
 }
 
+interface VehicleFormPayload extends Omit<Vehicle, 'id' | 'currentKm' | 'composition'> {
+  compositions?: number[];  // Array de IDs dos reboques
+}
+
 interface VehicleFormProps {
-  onSubmit: (data: Omit<Vehicle, 'id' | 'currentKm'>) => void;
+  onSubmit: (data: VehicleFormPayload) => void;
   onCancel: () => void;
   initialData?: Vehicle;
   availableVehicles?: Vehicle[];
@@ -293,7 +297,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     return firstCompany ? [Number(firstCompany.id)] : [];
   });
   const [compositionIds, setCompositionIds] = useState<number[]>(
-    initialData?.compositions || []
+    initialData?.composition?.map(comp => Number(comp.trailerVehicleId)) || []
   );
   const [newCompositionVehicleId, setNewCompositionVehicleId] = useState<string>('');
   const [selectedDriver, setSelectedDriver] = useState<string | undefined>(initialData?.driverId);
@@ -372,7 +376,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
     const isLinkedToOtherTraction = availableVehicles.some(vehicle => 
       vehicle.id !== initialData?.id && // Exclui o veículo atual sendo editado
       vehicle.hasComposition && 
-      vehicle.compositions?.includes(Number(v.id))
+      vehicle.composition?.some(comp => comp.trailerVehicleId === v.id)
     );
     
     return !isLinkedToOtherTraction;
