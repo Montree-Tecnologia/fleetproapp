@@ -657,6 +657,7 @@ export default function Vehicles() {
                     ?.map(b => Number(b))  // Converter strings para números
                     .filter(n => !isNaN(n) && n !== null),  // Filtrar valores inválidos
                   driverId: data.driverId,
+                  isTraction: data.isTraction,
                   hasComposition: data.hasComposition,
                   compositions: data.compositions,
                   images: data.images
