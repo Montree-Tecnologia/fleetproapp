@@ -28,8 +28,8 @@ import { CalendarIcon, Upload, X, FileText, Check, ChevronsUpDown } from 'lucide
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
-import { RefrigerationUnit, Vehicle, Supplier, Company } from '@/hooks/useMockData';
-import { useState } from 'react';
+import { RefrigerationUnit } from '@/hooks/useMockData';
+import { useState, useEffect } from 'react';
 import {
   Command,
   CommandEmpty,
@@ -38,6 +38,10 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { getCompaniesCombo, type CompanyCombo } from '@/services/companiesApi';
+import { getSuppliersCombo, type SupplierCombo } from '@/services/suppliersApi';
+import { getVehicles, type Vehicle } from '@/services/vehiclesApi';
+import { useToast } from '@/hooks/use-toast';
 
 const refrigerationSchema = z.object({
   vehicleId: z.string().optional(),
@@ -76,18 +80,20 @@ type RefrigerationFormData = z.infer<typeof refrigerationSchema>;
 interface RefrigerationFormProps {
   onSubmit: (data: Omit<RefrigerationUnit, 'id'>) => void;
   onCancel: () => void;
-  vehicles: Vehicle[];
-  suppliers: Supplier[];
-  companies: Company[];
   initialData?: RefrigerationUnit;
 }
 
-export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, companies, initialData }: RefrigerationFormProps) {
+export function RefrigerationForm({ onSubmit, onCancel, initialData }: RefrigerationFormProps) {
+  const { toast } = useToast();
   const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
   const [openSupplier, setOpenSupplier] = useState(false);
   const [openVehicle, setOpenVehicle] = useState(false);
   const [customModel, setCustomModel] = useState(false);
   const [customBrand, setCustomBrand] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [companies, setCompanies] = useState<CompanyCombo[]>([]);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [suppliers, setSuppliers] = useState<SupplierCombo[]>([]);
   
   // Mapeamento de modelos por marca
   const refrigerationModels: Record<string, string[]> = {
@@ -124,6 +130,35 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
     return isNaN(n) ? undefined : n;
   };
   
+  // Carregar dados da API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [companiesRes, vehiclesRes, suppliersRes] = await Promise.all([
+          getCompaniesCombo(),
+          getVehicles({ limit: 1000 }),
+          getSuppliersCombo()
+        ]);
+
+        setCompanies(companiesRes.data || []);
+        setVehicles(vehiclesRes.data?.data || []);
+        setSuppliers(suppliersRes.data || []);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        toast({
+          title: 'Erro ao carregar dados',
+          description: 'Não foi possível carregar empresas, veículos e fornecedores.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [toast]);
+
   // Filtrar apenas fornecedores ativos dos tipos refrigeration_equipment e other
   const activeSuppliers = suppliers.filter(s => s.active && (s.type === 'refrigeration_equipment' || s.type === 'other'));
 
@@ -195,6 +230,14 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
   const hasVehicle = form.watch('vehicleId');
   const selectedBrand = form.watch('brand');
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <p className="text-muted-foreground">Carregando dados...</p>
+      </div>
+    );
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -213,8 +256,8 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                   </FormControl>
                   <SelectContent>
                     {companies.map((company) => (
-                      <SelectItem key={company.id} value={company.id}>
-                        {company.name} - {company.cnpj}
+                      <SelectItem key={company.id} value={company.id.toString()}>
+                        {company.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -761,10 +804,10 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                             />
                             Nenhum
                           </CommandItem>
-                          {activeSuppliers.map((supplier) => (
+                           {activeSuppliers.map((supplier) => (
                             <CommandItem
                               key={supplier.id}
-                              value={`${supplier.fantasyName} ${supplier.cnpj || supplier.cpf} ${supplier.city} ${supplier.state}`}
+                              value={`${supplier.fantasyName || supplier.name} ${supplier.cnpj || supplier.cpf || ''} ${supplier.city || ''} ${supplier.state || ''}`}
                               onSelect={() => {
                                 form.setValue("supplierId", supplier.id);
                                 setOpenSupplier(false);
@@ -781,7 +824,7 @@ export function RefrigerationForm({ onSubmit, onCancel, vehicles, suppliers, com
                                   {supplier.fantasyName || supplier.name}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                  {supplier.cnpj ? `CNPJ: ${supplier.cnpj}` : `CPF: ${supplier.cpf}`} | {supplier.city}/{supplier.state}
+                                  {supplier.cnpj ? `CNPJ: ${supplier.cnpj}` : supplier.cpf ? `CPF: ${supplier.cpf}` : 'Sem documento'} {supplier.city && supplier.state ? `| ${supplier.city}/${supplier.state}` : ''}
                                 </div>
                               </div>
                             </CommandItem>
