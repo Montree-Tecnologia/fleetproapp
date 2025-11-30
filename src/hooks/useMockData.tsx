@@ -40,11 +40,14 @@ export interface Vehicle {
   chassis: string;
   renavam: string;
   brand: string;
+  brandId?: number;
   model: string;
+  modelId?: number;
   manufacturingYear: number;
   modelYear: number;
   color: string;
   vehicleType: 'Truck' | 'Baú' | 'Carreta' | 'Graneleiro' | 'Container' | 'Caçamba' | 'Cavalo Mecânico' | 'Baú Frigorífico' | 'Toco' | 'VUC' | '3/4' | 'Sider' | 'Prancha' | 'Tanque' | 'Cegonheiro' | 'Bitruck' | 'Rodotrem';
+  vehicleTypeId?: number;
   status: 'active' | 'defective' | 'maintenance' | 'inactive' | 'sold';
   purchaseKm: number;
   currentKm: number;
