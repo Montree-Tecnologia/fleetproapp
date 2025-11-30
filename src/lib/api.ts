@@ -38,6 +38,14 @@ async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
   const data = await response.json();
 
   if (!response.ok) {
+    // Token inválido ou expirado - fazer logout
+    if (response.status === 401) {
+      localStorage.removeItem('fleet_token');
+      localStorage.removeItem('fleet_user');
+      window.location.href = '/login';
+      throw new ApiError('Sessão expirada', 401);
+    }
+    
     // Erro de validação
     if (data.errors && Array.isArray(data.errors)) {
       throw new ApiError(
