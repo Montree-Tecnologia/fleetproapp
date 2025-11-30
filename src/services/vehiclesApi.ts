@@ -54,6 +54,7 @@ export interface CreateVehiclePayload {
   supplierId?: string;
   branches?: number[];
   driverId?: string;
+  isTraction?: boolean;
   hasComposition?: boolean;
   compositions?: number[];  // IDs dos veículos acoplados
   images?: ImagePayload[];
@@ -93,6 +94,7 @@ export interface Vehicle {
   ownerBranchId: string;
   supplierId: string | null;
   driverId: string | null;
+  isTraction: boolean;
   hasComposition: boolean;
   purchaseDate: string;
   purchaseValue: string;

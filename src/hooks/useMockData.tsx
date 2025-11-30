@@ -44,6 +44,7 @@ export interface Vehicle {
   branches: string[];
   ownerBranch: string;
   driverId?: string;
+  isTraction?: boolean;
   hasComposition: boolean;
   compositions?: number[];  // IDs dos veículos acoplados
   purchaseDate: string;

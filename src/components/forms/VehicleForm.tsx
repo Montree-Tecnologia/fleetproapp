@@ -627,6 +627,7 @@ export function VehicleForm({ onSubmit, onCancel, initialData, availableVehicles
       weight: data.weight,
       branches: selectedBranches.map(id => String(id)),
       ownerBranch: data.ownerBranch,
+      isTraction: vehicleCategory === 'traction',
       hasComposition: compositionIds.length > 0,
       compositions: compositionIds.length > 0 ? compositionIds : undefined,
       driverId: vehicleCategory !== 'trailer' ? selectedDriver : undefined,
