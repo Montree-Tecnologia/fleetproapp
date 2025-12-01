@@ -100,16 +100,20 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
   const [loadingModels, setLoadingModels] = useState(false);
   
   // Local state for temperature inputs to allow flexible typing
-  const [minTempInput, setMinTempInput] = useState<string>(
-    initialData?.minTemp !== undefined && initialData?.minTemp !== null
-      ? new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(initialData.minTemp)
-      : ''
-  );
-  const [maxTempInput, setMaxTempInput] = useState<string>(
-    initialData?.maxTemp !== undefined && initialData?.maxTemp !== null
-      ? new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(initialData.maxTemp)
-      : ''
-  );
+  const [minTempInput, setMinTempInput] = useState<string>('');
+  const [maxTempInput, setMaxTempInput] = useState<string>('');
+  
+  // Sincronizar estados locais quando initialData mudar
+  useEffect(() => {
+    if (initialData?.minTemp !== undefined && initialData?.minTemp !== null) {
+      const numValue = Number(initialData.minTemp);
+      setMinTempInput(new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(numValue));
+    }
+    if (initialData?.maxTemp !== undefined && initialData?.maxTemp !== null) {
+      const numValue = Number(initialData.maxTemp);
+      setMaxTempInput(new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(numValue));
+    }
+  }, [initialData]);
 
   const tempAllowedPattern = /^-?\d*(?:[.,]\d{0,2})?$/;
   const parseLocaleTemp = (s: string): number | undefined => {
@@ -129,14 +133,14 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
       model: initialData.model,
       serialNumber: initialData.serialNumber,
       type: initialData.type,
-      minTemp: initialData.minTemp,
-      maxTemp: initialData.maxTemp,
+      minTemp: Number(initialData.minTemp),
+      maxTemp: Number(initialData.maxTemp),
       status: initialData.status,
-      installDate: new Date(initialData.installDate),
+      installDate: initialData.installDate ? new Date(initialData.installDate) : new Date(),
       purchaseDate: initialData.purchaseDate ? new Date(initialData.purchaseDate) : undefined,
-      purchaseValue: initialData.purchaseValue,
+      purchaseValue: initialData.purchaseValue ? Number(initialData.purchaseValue) : undefined,
       supplierId: initialData.supplierId,
-      initialUsageHours: initialData.initialUsageHours,
+      initialUsageHours: initialData.initialUsageHours ? Number(initialData.initialUsageHours) : undefined,
       fuelType: initialData.fuelType,
     } : {
       companyId: '',
@@ -717,8 +721,7 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
                   <Input 
                     type="text"
                     placeholder="Ex: 50.000,00"
-                    {...field}
-                    value={field.value ? formatCurrency(field.value) : ''}
+                    value={field.value !== undefined && field.value !== null ? formatCurrency(Number(field.value)) : ''}
                     onChange={(e) => {
                       if (e.target.value) {
                         handleCurrencyInput(e, field.onChange);
@@ -743,8 +746,7 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
                   <Input 
                     type="text"
                     placeholder="Ex: 5.000"
-                    {...field}
-                    value={field.value ? formatInteger(field.value) : ''}
+                    value={field.value !== undefined && field.value !== null ? formatInteger(Number(field.value)) : ''}
                     onChange={(e) => {
                       if (e.target.value) {
                         handleIntegerInput(e, field.onChange);
