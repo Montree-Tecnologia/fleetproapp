@@ -49,7 +49,7 @@ import { RefrigerationForm } from '@/components/forms/RefrigerationForm';
 import { RefrigerationSaleForm, RefrigerationSale } from '@/components/forms/RefrigerationSaleForm';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { createRefrigerationUnit, getRefrigerationUnits, PaginatedRefrigerationUnits } from '@/services/refrigerationApi';
+import { createRefrigerationUnit, getRefrigerationUnits, deleteRefrigerationUnit as deleteRefrigerationUnitApi, PaginatedRefrigerationUnits } from '@/services/refrigerationApi';
 
 export default function Refrigeration() {
   const { 
@@ -221,15 +221,27 @@ export default function Refrigeration() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (unitToDelete) {
-      deleteRefrigerationUnit(unitToDelete.id);
-      toast({
-        title: 'Equipamento removido',
-        description: `${unitToDelete.name} foi removido do sistema.`,
-      });
-      setDeleteDialogOpen(false);
-      setUnitToDelete(null);
+      try {
+        await deleteRefrigerationUnitApi(unitToDelete.id);
+        toast({
+          title: 'Equipamento removido',
+          description: `${unitToDelete.name} foi removido do sistema.`,
+        });
+        // Atualizar a lista após excluir
+        fetchRefrigerationUnits(1);
+      } catch (error) {
+        console.error('Erro ao excluir equipamento:', error);
+        toast({
+          title: 'Erro ao excluir',
+          description: 'Não foi possível excluir o equipamento. Tente novamente.',
+          variant: 'destructive',
+        });
+      } finally {
+        setDeleteDialogOpen(false);
+        setUnitToDelete(null);
+      }
     }
   };
 
