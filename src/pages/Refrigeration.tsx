@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useMockData, RefrigerationUnit } from '@/hooks/useMockData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,7 +49,7 @@ import { RefrigerationForm } from '@/components/forms/RefrigerationForm';
 import { RefrigerationSaleForm, RefrigerationSale } from '@/components/forms/RefrigerationSaleForm';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { createRefrigerationUnit } from '@/services/refrigerationApi';
+import { createRefrigerationUnit, getRefrigerationUnits, PaginatedRefrigerationUnits } from '@/services/refrigerationApi';
 
 export default function Refrigeration() {
   const { 
@@ -71,8 +71,15 @@ export default function Refrigeration() {
   const [unitToDelete, setUnitToDelete] = useState<{ id: string; name: string } | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [viewingUnit, setViewingUnit] = useState<RefrigerationUnit | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [brandFilter, setBrandFilter] = useState('');
+  const [modelFilter, setModelFilter] = useState('');
+  const [serialNumberFilter, setSerialNumberFilter] = useState('');
   const [openVehicleLink, setOpenVehicleLink] = useState<{[key: string]: boolean}>({});
+  const [apiUnits, setApiUnits] = useState<RefrigerationUnit[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [hasMorePages, setHasMorePages] = useState(false);
   const [saleDialogOpen, setSaleDialogOpen] = useState(false);
   const [sellingUnit, setSellingUnit] = useState<RefrigerationUnit | null>(null);
   const [reverseSaleDialogOpen, setReverseSaleDialogOpen] = useState(false);
@@ -85,20 +92,71 @@ export default function Refrigeration() {
   const allCompanies = companies();
   const allRefuelings = refuelings();
 
-  const filteredUnits = allUnits.filter(unit => {
-    const search = searchTerm.toLowerCase();
-    return (
-      unit.brand.toLowerCase().includes(search) ||
-      unit.model.toLowerCase().includes(search) ||
-      unit.serialNumber.toLowerCase().includes(search)
-    );
-  });
+  // Função para buscar equipamentos da API
+  const fetchRefrigerationUnits = useCallback(async (page: number = 1) => {
+    // Só buscar se algum filtro tiver pelo menos 2 caracteres
+    const hasValidFilter = brandFilter.length >= 2 || modelFilter.length >= 2 || serialNumberFilter.length >= 2;
+    
+    if (!hasValidFilter) {
+      setApiUnits([]);
+      setCurrentPage(1);
+      setTotalPages(1);
+      setHasMorePages(false);
+      return;
+    }
 
-  // Infinite scroll para equipamentos
-  const { displayedItems, hasMore, loadMoreRef } = useInfiniteScroll(filteredUnits, {
-    initialItemsCount: 20,
-    itemsPerPage: 10
-  });
+    setLoading(true);
+    try {
+      const response = await getRefrigerationUnits({
+        page,
+        limit: 10,
+        brand: brandFilter.length >= 2 ? brandFilter : undefined,
+        model: modelFilter.length >= 2 ? modelFilter : undefined,
+        serialNumber: serialNumberFilter.length >= 2 ? serialNumberFilter : undefined,
+      });
+
+      if (response.success && response.data) {
+        const paginatedData = response.data as unknown as PaginatedRefrigerationUnits;
+        
+        if (page === 1) {
+          setApiUnits(paginatedData.data);
+        } else {
+          setApiUnits(prev => [...prev, ...paginatedData.data]);
+        }
+        
+        setCurrentPage(paginatedData.page);
+        setTotalPages(paginatedData.totalPages);
+        setHasMorePages(paginatedData.page < paginatedData.totalPages);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar equipamentos:', error);
+      toast({
+        title: 'Erro ao buscar',
+        description: 'Não foi possível carregar os equipamentos. Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [brandFilter, modelFilter, serialNumberFilter, toast]);
+
+  // Buscar quando os filtros mudarem
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchRefrigerationUnits(1);
+    }, 300); // Debounce de 300ms
+
+    return () => clearTimeout(timer);
+  }, [fetchRefrigerationUnits]);
+
+  // Carregar mais ao fazer scroll
+  const loadMore = useCallback(() => {
+    if (!loading && hasMorePages) {
+      fetchRefrigerationUnits(currentPage + 1);
+    }
+  }, [loading, hasMorePages, currentPage, fetchRefrigerationUnits]);
+
+  const displayedItems = apiUnits;
 
   // Função para calcular horímetro atual e consumo
   const getRefrigerationStats = (unitId: string, initialHours: number = 0) => {
@@ -333,7 +391,7 @@ export default function Refrigeration() {
           <div className="flex flex-col sm:flex-row gap-2">
             <Button 
               variant="outline"
-              onClick={() => exportRefrigerationsToExcel(filteredUnits)}
+              onClick={() => exportRefrigerationsToExcel(displayedItems)}
             >
               <FileSpreadsheet className="mr-2 h-4 w-4" />
               Exportar Relatório
@@ -362,15 +420,53 @@ export default function Refrigeration() {
         </DialogContent>
       </Dialog>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-        <Input
-          placeholder="Buscar por marca, modelo ou número de série..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Buscar por marca (mín. 2 caracteres)..."
+            value={brandFilter}
+            onChange={(e) => setBrandFilter(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Buscar por modelo (mín. 2 caracteres)..."
+            value={modelFilter}
+            onChange={(e) => setModelFilter(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Buscar por número de série (mín. 2 caracteres)..."
+            value={serialNumberFilter}
+            onChange={(e) => setSerialNumberFilter(e.target.value)}
+            className="pl-10"
+          />
+        </div>
       </div>
+
+      {loading && currentPage === 1 && (
+        <div className="text-center py-8 text-muted-foreground">
+          Carregando equipamentos...
+        </div>
+      )}
+
+      {!loading && displayedItems.length === 0 && (brandFilter.length >= 2 || modelFilter.length >= 2 || serialNumberFilter.length >= 2) && (
+        <div className="text-center py-8 text-muted-foreground">
+          Nenhum equipamento encontrado com os filtros aplicados.
+        </div>
+      )}
+
+      {displayedItems.length === 0 && brandFilter.length < 2 && modelFilter.length < 2 && serialNumberFilter.length < 2 && (
+        <div className="text-center py-8 text-muted-foreground">
+          Digite pelo menos 2 caracteres em um dos campos para buscar equipamentos.
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         {displayedItems.map((unit) => {
@@ -661,9 +757,15 @@ export default function Refrigeration() {
         })}
       </div>
 
-      {hasMore && (
-        <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
-          <div className="animate-pulse text-muted-foreground text-sm">Carregando mais equipamentos...</div>
+      {hasMorePages && (
+        <div className="flex items-center justify-center py-8">
+          <Button 
+            variant="outline" 
+            onClick={loadMore}
+            disabled={loading}
+          >
+            {loading ? 'Carregando...' : 'Carregar mais equipamentos'}
+          </Button>
         </div>
       )}
 
