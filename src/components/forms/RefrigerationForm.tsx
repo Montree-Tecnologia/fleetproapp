@@ -103,13 +103,20 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
   const [purchaseInvoiceExtension, setPurchaseInvoiceExtension] = useState<string | undefined>(
     typeof initialData?.purchaseInvoice === 'object' ? initialData.purchaseInvoice.extension : undefined
   );
-  const [originalPurchaseInvoiceUrl] = useState<string | undefined>(
-    typeof initialData?.purchaseInvoice === 'string' 
-      ? initialData.purchaseInvoice 
-      : typeof initialData?.purchaseInvoice === 'object'
-        ? `data:image/${initialData.purchaseInvoice.extension};base64,${initialData.purchaseInvoice.base64}`
-        : undefined
-  );
+  const [originalPurchaseInvoiceUrl] = useState<string | undefined>(() => {
+    // Primeiro verifica se há purchaseInvoiceUrl (vindo da API)
+    if ((initialData as any)?.purchaseInvoiceUrl) {
+      return (initialData as any).purchaseInvoiceUrl;
+    }
+    // Senão, verifica purchaseInvoice
+    if (typeof initialData?.purchaseInvoice === 'string') {
+      return initialData.purchaseInvoice;
+    }
+    if (typeof initialData?.purchaseInvoice === 'object') {
+      return `data:image/${initialData.purchaseInvoice.extension};base64,${initialData.purchaseInvoice.base64}`;
+    }
+    return undefined;
+  });
   const [openSupplier, setOpenSupplier] = useState(false);
   const [openVehicle, setOpenVehicle] = useState(false);
   const [customModel, setCustomModel] = useState(false);
