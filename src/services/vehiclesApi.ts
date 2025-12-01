@@ -219,3 +219,14 @@ export async function removeCompositionFromVehicle(mainVehicleId: string, traile
   });
   return response;
 }
+
+export interface VehicleCombo {
+  id: string;
+  plate: string;
+  model: string;
+}
+
+export async function getVehiclesCombo() {
+  const response = await apiRequest<VehicleCombo[]>('/vehicles/combo');
+  return response.data;
+}
