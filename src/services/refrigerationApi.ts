@@ -58,6 +58,35 @@ export async function getRefrigerationModels(brandId: number) {
   return apiRequest<RefrigerationModel[]>(`/refrigeration-units/models/combo?brandId=${brandId}`);
 }
 
+export interface GetRefrigerationUnitsParams {
+  page: number;
+  limit: number;
+  brand?: string;
+  model?: string;
+  serialNumber?: string;
+}
+
+export interface PaginatedRefrigerationUnits {
+  data: RefrigerationUnit[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export async function getRefrigerationUnits(params: GetRefrigerationUnitsParams) {
+  const queryParams = new URLSearchParams({
+    page: params.page.toString(),
+    limit: params.limit.toString(),
+  });
+
+  if (params.brand) queryParams.append('brand', params.brand);
+  if (params.model) queryParams.append('model', params.model);
+  if (params.serialNumber) queryParams.append('serialNumber', params.serialNumber);
+
+  return apiRequest<PaginatedRefrigerationUnits>(`/refrigeration-units?${queryParams.toString()}`);
+}
+
 export async function createRefrigerationUnit(data: CreateRefrigerationUnitData) {
   return apiRequest<RefrigerationUnit>('/refrigeration-units', {
     method: 'POST',
