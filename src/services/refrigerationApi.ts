@@ -11,6 +11,11 @@ export interface RefrigerationModel {
   brandId: number;
 }
 
+export interface ImagePayload {
+  base64: string;
+  extension: string;
+}
+
 export interface CreateRefrigerationUnitData {
   vehicleId?: string;
   companyId: string;
@@ -25,7 +30,7 @@ export interface CreateRefrigerationUnitData {
   purchaseDate?: string;
   purchaseValue?: number;
   supplierId?: string;
-  purchaseInvoice?: string;
+  purchaseInvoice?: ImagePayload;
   initialUsageHours?: number;
   fuelType?: string;
 }
@@ -45,7 +50,7 @@ export interface RefrigerationUnit {
   purchaseDate?: string;
   purchaseValue?: number;
   supplierId?: string;
-  purchaseInvoice?: string;
+  purchaseInvoice?: string | ImagePayload;
   initialUsageHours?: number;
   fuelType?: string;
 }

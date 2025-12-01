@@ -86,7 +86,23 @@ interface RefrigerationFormProps {
 
 export function RefrigerationForm({ onSubmit, onCancel, initialData }: RefrigerationFormProps) {
   const { toast } = useToast();
-  const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initialData?.purchaseInvoice);
+  
+  // Inicializar purchaseInvoice: converter ImagePayload para dataURL se necessário
+  const initPurchaseInvoice = () => {
+    if (!initialData?.purchaseInvoice) return undefined;
+    
+    if (typeof initialData.purchaseInvoice === 'string') {
+      return initialData.purchaseInvoice;
+    }
+    
+    // Se for ImagePayload, converter para data URL
+    return `data:image/${initialData.purchaseInvoice.extension};base64,${initialData.purchaseInvoice.base64}`;
+  };
+  
+  const [purchaseInvoice, setPurchaseInvoice] = useState<string | undefined>(initPurchaseInvoice());
+  const [purchaseInvoiceExtension, setPurchaseInvoiceExtension] = useState<string | undefined>(
+    typeof initialData?.purchaseInvoice === 'object' ? initialData.purchaseInvoice.extension : undefined
+  );
   const [openSupplier, setOpenSupplier] = useState(false);
   const [openVehicle, setOpenVehicle] = useState(false);
   const [customModel, setCustomModel] = useState(false);
@@ -220,6 +236,10 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
   const handlePurchaseInvoiceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Extrair extensão do arquivo
+      const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      setPurchaseInvoiceExtension(extension);
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         setPurchaseInvoice(reader.result as string);
@@ -230,9 +250,24 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
 
   const removePurchaseInvoice = () => {
     setPurchaseInvoice(undefined);
+    setPurchaseInvoiceExtension(undefined);
   };
 
   const handleSubmit = (data: RefrigerationFormData) => {
+    // Preparar purchaseInvoice no formato ImagePayload
+    let purchaseInvoicePayload: { base64: string; extension: string } | undefined;
+    
+    if (purchaseInvoice) {
+      // Extrair base64 puro do data URL
+      const base64Match = purchaseInvoice.match(/^data:image\/[a-zA-Z]+;base64,(.+)$/);
+      if (base64Match) {
+        purchaseInvoicePayload = {
+          base64: base64Match[1],
+          extension: purchaseInvoiceExtension || 'jpg',
+        };
+      }
+    }
+    
     onSubmit({
       vehicleId: data.vehicleId,
       companyId: data.companyId,
@@ -247,7 +282,7 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
       purchaseDate: data.purchaseDate ? format(data.purchaseDate, 'yyyy-MM-dd') : undefined,
       purchaseValue: data.purchaseValue,
       supplierId: data.supplierId,
-      purchaseInvoice: purchaseInvoice,
+      purchaseInvoice: purchaseInvoicePayload,
       initialUsageHours: data.initialUsageHours,
       fuelType: data.fuelType,
     });
