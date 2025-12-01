@@ -763,13 +763,13 @@ export default function Refuelings() {
                     <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
                       <div className="text-left sm:text-right flex-1 sm:flex-none">
                         <p className="text-xs md:text-sm text-muted-foreground">
-                          {refueling.liters}L × R$ {refueling.pricePerLiter.toFixed(2)}
+                          {parseFloat(refueling.liters).toFixed(2)}L × R$ {parseFloat(refueling.pricePerLiter).toFixed(2)}
                         </p>
                         <p className="font-bold text-base md:text-lg">
-                          R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          R$ {parseFloat(refueling.totalValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(refueling.date).toLocaleDateString('pt-BR')}
+                          {new Date(refueling.refuelingDate).toLocaleDateString('pt-BR')}
                         </p>
                       </div>
                       {isAdmin() && (
@@ -874,13 +874,13 @@ export default function Refuelings() {
                     <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
                       <div className="text-left sm:text-right flex-1 sm:flex-none">
                         <p className="text-xs md:text-sm text-muted-foreground">
-                          {refueling.liters}L × R$ {refueling.pricePerLiter.toFixed(2)}
+                          {parseFloat(refueling.liters).toFixed(2)}L × R$ {parseFloat(refueling.pricePerLiter).toFixed(2)}
                         </p>
                         <p className="font-bold text-base md:text-lg">
-                          R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          R$ {parseFloat(refueling.totalValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(refueling.date).toLocaleDateString('pt-BR')}
+                          {new Date(refueling.refuelingDate).toLocaleDateString('pt-BR')}
                         </p>
                       </div>
                       {isAdmin() && (

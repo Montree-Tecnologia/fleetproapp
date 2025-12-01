@@ -6,20 +6,46 @@ export interface Refueling {
   refrigerationUnitId?: string;
   driverId?: string;
   supplierId: string;
-  date: string;
-  liters: number;
-  pricePerLiter: number;
-  totalValue: number;
+  refuelingDate: string;
+  liters: string;
+  pricePerLiter: string;
+  totalValue: string;
+  fuelType: string;
   km?: number;
   usageHours?: number;
   paymentReceiptUrl?: string;
   fiscalNoteUrl?: string;
   createdAt: string;
   updatedAt: string;
-  vehicle?: any;
-  refrigerationUnit?: any;
-  driver?: any;
-  supplier?: any;
+  vehicle?: {
+    id: string;
+    plate: string;
+    model: string;
+    brand: string;
+    vehicleType: string;
+    fuelType: string;
+  };
+  refrigerationUnit?: {
+    id: string;
+    model: string;
+    serialNumber: string;
+  };
+  driver?: {
+    id: string;
+    name: string;
+    cpf: string;
+  };
+  supplier?: {
+    id: string;
+    name: string;
+    fantasyName?: string;
+    cnpj?: string;
+    cpf?: string;
+    type: string;
+    brand?: string;
+    city: string;
+    state: string;
+  };
 }
 
 export interface ImagePayload {
