@@ -41,6 +41,7 @@ import {
 import { getCompaniesCombo, type CompanyCombo } from '@/services/companiesApi';
 import { getSuppliersCombo, type SupplierCombo } from '@/services/suppliersApi';
 import { getVehicles, type Vehicle } from '@/services/vehiclesApi';
+import { getRefrigerationBrands, getRefrigerationModels, type RefrigerationBrand, type RefrigerationModel } from '@/services/refrigerationApi';
 import { useToast } from '@/hooks/use-toast';
 
 const refrigerationSchema = z.object({
@@ -94,20 +95,9 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
   const [companies, setCompanies] = useState<CompanyCombo[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [suppliers, setSuppliers] = useState<SupplierCombo[]>([]);
-  
-  // Mapeamento de modelos por marca
-  const refrigerationModels: Record<string, string[]> = {
-    "Thermo King": ["V-300 MAX", "V-500 MAX", "V-800 MAX", "T-600R", "T-800R", "T-1000R", "SLXi Spectrum", "SLXe Whisper", "SB-III SR", "SB-210", "SB-400", "Outro (digitar manualmente)"],
-    "Carrier Transicold": ["Xarios 350", "Xarios 500", "Xarios 600", "Vector 1550", "Vector 1850", "Vector HE 19", "Supra 850", "Supra 950", "Supra 1150", "Outro (digitar manualmente)"],
-    "Frigoblock": ["FK 13 Diesel", "FK 17 Diesel", "FK 25 Diesel", "HK 15 Hybrid", "HK 25 Hybrid", "FK 45 Max", "Outro (digitar manualmente)"],
-    "Zanotti": ["ZAN 200", "ZAN 300", "ZAN 500", "SFZ 300", "SFZ 500", "Outro (digitar manualmente)"],
-    "Eberspächer": ["Cooltronic C25", "Cooltronic C35", "Cooltronic C50", "Outro (digitar manualmente)"],
-    "GAH": ["Refrigerador 3000", "Refrigerador 5000", "Bi-Temperatura 4000", "Outro (digitar manualmente)"],
-    "Lamberet": ["SR1", "SR2", "SR3", "Multi-temp", "Outro (digitar manualmente)"],
-    "Mitsubishi ThermoTech": ["TU45", "TU73", "TU90", "Outro (digitar manualmente)"],
-    "Hubbard": ["Grumman 300", "Grumman 500", "VersaCold", "Outro (digitar manualmente)"],
-    "Kingtec": ["TK-300", "TK-500", "TK-800", "Outro (digitar manualmente)"]
-  };
+  const [refrigerationBrands, setRefrigerationBrands] = useState<RefrigerationBrand[]>([]);
+  const [refrigerationModels, setRefrigerationModels] = useState<RefrigerationModel[]>([]);
+  const [loadingModels, setLoadingModels] = useState(false);
   
   // Local state for temperature inputs to allow flexible typing
   const [minTempInput, setMinTempInput] = useState<string>(
@@ -129,38 +119,6 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
     const n = Number(normalized);
     return isNaN(n) ? undefined : n;
   };
-  
-  // Carregar dados da API
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [companiesRes, vehiclesRes, suppliersRes] = await Promise.all([
-          getCompaniesCombo(),
-          getVehicles({ limit: 1000 }),
-          getSuppliersCombo()
-        ]);
-
-        setCompanies(companiesRes.data || []);
-        setVehicles(vehiclesRes.data?.data || []);
-        setSuppliers(suppliersRes.data || []);
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error);
-        toast({
-          title: 'Erro ao carregar dados',
-          description: 'Não foi possível carregar empresas, veículos e fornecedores.',
-          variant: 'destructive',
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [toast]);
-
-  // Filtrar apenas fornecedores ativos
-  const activeSuppliers = suppliers.filter(s => s.active);
 
   const form = useForm<RefrigerationFormData>({
     resolver: zodResolver(refrigerationSchema),
@@ -190,6 +148,70 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
       initialUsageHours: 0,
     },
   });
+  
+  // Carregar dados da API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [companiesRes, vehiclesRes, suppliersRes, brandsRes] = await Promise.all([
+          getCompaniesCombo(),
+          getVehicles({ limit: 1000 }),
+          getSuppliersCombo(),
+          getRefrigerationBrands()
+        ]);
+
+        setCompanies(companiesRes.data || []);
+        setVehicles(vehiclesRes.data?.data || []);
+        setSuppliers(suppliersRes.data || []);
+        setRefrigerationBrands(brandsRes.data || []);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+        toast({
+          title: 'Erro ao carregar dados',
+          description: 'Não foi possível carregar empresas, veículos e fornecedores.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [toast]);
+
+  // Observar mudanças na marca selecionada
+  const selectedBrandValue = form.watch('brand');
+
+  // Carregar modelos quando marca for selecionada
+  useEffect(() => {
+    if (selectedBrandValue && !customBrand) {
+      const selectedBrand = refrigerationBrands.find(b => b.name === selectedBrandValue);
+      if (selectedBrand) {
+        setLoadingModels(true);
+        getRefrigerationModels(selectedBrand.id)
+          .then(res => {
+            setRefrigerationModels(res.data || []);
+          })
+          .catch(error => {
+            console.error('Erro ao carregar modelos:', error);
+            toast({
+              title: 'Erro ao carregar modelos',
+              description: 'Não foi possível carregar os modelos da marca.',
+              variant: 'destructive',
+            });
+          })
+          .finally(() => {
+            setLoadingModels(false);
+          });
+      }
+    } else {
+      setRefrigerationModels([]);
+    }
+  }, [selectedBrandValue, customBrand, refrigerationBrands, toast]);
+
+  // Filtrar apenas fornecedores ativos
+  const activeSuppliers = suppliers.filter(s => s.active);
 
   const handlePurchaseInvoiceUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -228,7 +250,6 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
   };
 
   const hasVehicle = form.watch('vehicleId');
-  const selectedBrand = form.watch('brand');
 
   if (loading) {
     return (
@@ -430,11 +451,13 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
                 ) : (
                   <Select 
                     onValueChange={(value) => {
-                      if (value === "Outra") {
+                      if (value === "custom") {
                         setCustomBrand(true);
                         field.onChange('');
                       } else {
                         field.onChange(value);
+                        // Limpar modelo quando marca mudar
+                        form.setValue('model', '');
                       }
                     }} 
                     value={field.value}
@@ -445,17 +468,12 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Thermo King">Thermo King</SelectItem>
-                      <SelectItem value="Carrier Transicold">Carrier Transicold</SelectItem>
-                      <SelectItem value="Frigoblock">Frigoblock</SelectItem>
-                      <SelectItem value="Zanotti">Zanotti</SelectItem>
-                      <SelectItem value="Eberspächer">Eberspächer</SelectItem>
-                      <SelectItem value="GAH">GAH</SelectItem>
-                      <SelectItem value="Lamberet">Lamberet</SelectItem>
-                      <SelectItem value="Mitsubishi ThermoTech">Mitsubishi ThermoTech</SelectItem>
-                      <SelectItem value="Hubbard">Hubbard</SelectItem>
-                      <SelectItem value="Kingtec">Kingtec</SelectItem>
-                      <SelectItem value="Outra">Outra (digitar manualmente)</SelectItem>
+                      {refrigerationBrands.map((brand) => (
+                        <SelectItem key={brand.id} value={brand.name}>
+                          {brand.name}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="custom">Outra (digitar manualmente)</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -495,7 +513,7 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
                 ) : (
                   <Select 
                     onValueChange={(value) => {
-                      if (value === "Outro (digitar manualmente)") {
+                      if (value === "custom") {
                         setCustomModel(true);
                         field.onChange('');
                       } else {
@@ -503,19 +521,28 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
                       }
                     }} 
                     value={field.value}
-                    disabled={!selectedBrand}
+                    disabled={!selectedBrandValue || loadingModels}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={selectedBrand ? "Selecione o modelo" : "Selecione uma marca primeiro"} />
+                        <SelectValue placeholder={
+                          loadingModels 
+                            ? "Carregando modelos..." 
+                            : selectedBrandValue 
+                              ? "Selecione o modelo" 
+                              : "Selecione uma marca primeiro"
+                        } />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {selectedBrand && refrigerationModels[selectedBrand]?.map((model) => (
-                        <SelectItem key={model} value={model}>
-                          {model}
+                      {refrigerationModels.map((model) => (
+                        <SelectItem key={model.id} value={model.name}>
+                          {model.name}
                         </SelectItem>
                       ))}
+                      {refrigerationModels.length > 0 && (
+                        <SelectItem value="custom">Outro (digitar manualmente)</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 )}
