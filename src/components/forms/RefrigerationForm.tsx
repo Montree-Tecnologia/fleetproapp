@@ -103,6 +103,13 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
   const [purchaseInvoiceExtension, setPurchaseInvoiceExtension] = useState<string | undefined>(
     typeof initialData?.purchaseInvoice === 'object' ? initialData.purchaseInvoice.extension : undefined
   );
+  const [originalPurchaseInvoiceUrl] = useState<string | undefined>(
+    typeof initialData?.purchaseInvoice === 'string' 
+      ? initialData.purchaseInvoice 
+      : typeof initialData?.purchaseInvoice === 'object'
+        ? `data:image/${initialData.purchaseInvoice.extension};base64,${initialData.purchaseInvoice.base64}`
+        : undefined
+  );
   const [openSupplier, setOpenSupplier] = useState(false);
   const [openVehicle, setOpenVehicle] = useState(false);
   const [customModel, setCustomModel] = useState(false);
@@ -917,8 +924,12 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
                   />
                 ) : (
                   <div className="flex items-center gap-2 p-3 bg-muted rounded-lg border border-border">
-                    <FileText className="h-5 w-5" />
-                    <span className="text-sm">Nota Fiscal de Compra anexada</span>
+                    <FileText className="h-5 w-5 text-primary" />
+                    <div className="flex-1">
+                      <span className="text-sm font-medium">Nota Fiscal de Compra anexada</span>
+                      <p className="text-xs text-muted-foreground">Clique no X para substituir</p>
+                    </div>
+                    <Check className="h-5 w-5 text-primary" />
                   </div>
                 )}
                 <Button
@@ -933,6 +944,15 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
               </div>
             ) : (
               <>
+                {originalPurchaseInvoiceUrl && (
+                  <div className="flex items-center gap-2 p-3 mb-2 bg-muted/50 rounded-lg border border-dashed border-border">
+                    <FileText className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex-1">
+                      <span className="text-sm text-muted-foreground">Nota Fiscal existente</span>
+                      <p className="text-xs text-muted-foreground">Anexe um novo arquivo para substituir</p>
+                    </div>
+                  </div>
+                )}
                 <Input
                   type="file"
                   accept="image/*,application/pdf"
@@ -944,7 +964,7 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
                   <Button type="button" variant="outline" className="w-full" asChild>
                     <span className="cursor-pointer">
                       <Upload className="h-4 w-4 mr-2" />
-                      Anexar Nota Fiscal de Compra
+                      {originalPurchaseInvoiceUrl ? 'Substituir Nota Fiscal' : 'Anexar Nota Fiscal de Compra'}
                     </span>
                   </Button>
                 </label>
