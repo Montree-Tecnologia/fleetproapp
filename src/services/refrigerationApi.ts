@@ -114,3 +114,14 @@ export async function updateRefrigerationUnitStatus(
     body: JSON.stringify({ status }),
   });
 }
+
+export interface RefrigerationUnitCombo {
+  id: string;
+  model: string;
+  serialNumber: string;
+}
+
+export async function getRefrigerationUnitsCombo() {
+  const response = await apiRequest<RefrigerationUnitCombo[]>('/refrigeration-units/combo');
+  return response.data;
+}
