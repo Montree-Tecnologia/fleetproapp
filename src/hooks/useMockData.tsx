@@ -115,7 +115,7 @@ export interface RefrigerationUnit {
   purchaseDate?: string;
   purchaseValue?: number;
   supplierId?: string;
-  purchaseInvoice?: string;
+  purchaseInvoice?: string | { base64: string; extension: string };
   status: 'active' | 'defective' | 'maintenance' | 'inactive' | 'sold';
   previousStatus?: 'active' | 'defective' | 'maintenance' | 'inactive';
   initialUsageHours?: number;
