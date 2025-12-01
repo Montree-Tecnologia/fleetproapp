@@ -192,21 +192,19 @@ export default function Refuelings() {
     }
   };
 
+  // Carregar dados quando página ou tab mudar
   useEffect(() => {
     loadRefuelings();
   }, [currentPage, activeTab]);
 
+  // Recarregar automaticamente quando filtros mudarem
   useEffect(() => {
-    // Reset para página 1 quando os filtros mudarem
-    setCurrentPage(1);
-  }, [startDate, endDate, selectedVehicle, selectedRefrigerationUnit, selectedDriver, selectedSupplier]);
-
-  useEffect(() => {
-    // Carregar dados quando voltar para página 1
-    if (currentPage === 1) {
-      loadRefuelings();
+    if (currentPage !== 1) {
+      setCurrentPage(1); // Volta pra página 1 e o useEffect acima carrega
+    } else {
+      loadRefuelings(); // Já está na página 1, então recarrega direto
     }
-  }, [currentPage]);
+  }, [startDate, endDate, selectedVehicle, selectedRefrigerationUnit, selectedDriver, selectedSupplier]);
 
   const handleSubmit = async (data: any) => {
     try {
