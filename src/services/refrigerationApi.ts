@@ -93,3 +93,9 @@ export async function createRefrigerationUnit(data: CreateRefrigerationUnitData)
     body: JSON.stringify(data),
   });
 }
+
+export async function deleteRefrigerationUnit(id: string) {
+  return apiRequest(`/refrigeration-units/${id}`, {
+    method: 'DELETE',
+  });
+}
