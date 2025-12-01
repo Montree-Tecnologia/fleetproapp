@@ -49,6 +49,7 @@ import { RefrigerationForm } from '@/components/forms/RefrigerationForm';
 import { RefrigerationSaleForm, RefrigerationSale } from '@/components/forms/RefrigerationSaleForm';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { createRefrigerationUnit } from '@/services/refrigerationApi';
 
 export default function Refrigeration() {
   const { 
@@ -127,21 +128,30 @@ export default function Refrigeration() {
     };
   };
 
-  const handleSubmit = (data: any) => {
-    if (editingUnit) {
-      updateRefrigerationUnit(editingUnit.id, data);
+  const handleSubmit = async (data: any) => {
+    try {
+      if (editingUnit) {
+        updateRefrigerationUnit(editingUnit.id, data);
+        toast({
+          title: 'Equipamento atualizado',
+          description: 'Aparelho de refrigeração atualizado com sucesso.',
+        });
+      } else {
+        await createRefrigerationUnit(data);
+        toast({
+          title: 'Equipamento cadastrado',
+          description: 'Aparelho de refrigeração cadastrado com sucesso.',
+        });
+      }
+      handleDialogClose();
+    } catch (error) {
+      console.error('Erro ao cadastrar equipamento:', error);
       toast({
-        title: 'Equipamento atualizado',
-        description: 'Aparelho de refrigeração atualizado com sucesso.',
-      });
-    } else {
-      addRefrigerationUnit(data);
-      toast({
-        title: 'Equipamento cadastrado',
-        description: 'Aparelho de refrigeração cadastrado com sucesso.',
+        title: 'Erro ao cadastrar',
+        description: 'Não foi possível cadastrar o equipamento. Verifique os dados e tente novamente.',
+        variant: 'destructive',
       });
     }
-    handleDialogClose();
   };
 
   const handleEdit = (unit: RefrigerationUnit) => {
