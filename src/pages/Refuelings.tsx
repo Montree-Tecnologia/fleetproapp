@@ -52,6 +52,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { RefuelingForm } from '@/components/forms/RefuelingForm';
 
 export default function Refuelings() {
   const { isAdmin } = usePermissions();
@@ -272,9 +273,72 @@ export default function Refuelings() {
               {editingRefueling ? 'Edite os dados do' : 'Registre um novo'} abastecimento da frota
             </DialogDescription>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            Formulário de abastecimento será integrado em breve
-          </p>
+          <RefuelingForm
+            onSubmit={handleSubmit}
+            onCancel={handleCloseDialog}
+            vehicles={vehiclesCombo.map(v => ({
+              ...v,
+              chassis: '',
+              renavam: '',
+              brand: '',
+              manufacturingYear: 2024,
+              modelYear: 2024,
+              color: '',
+              vehicleType: 'Veículo',
+              status: 'active',
+              fuelType: 'Diesel',
+              currentKm: 0,
+              purchaseKm: 0,
+              axles: 0,
+              weight: 0,
+              hasComposition: false,
+              isTraction: true,
+              active: true,
+              ownerBranchId: '',
+            })) as any}
+            drivers={driversCombo.map(d => ({
+              ...d,
+              birthDate: '',
+              cnhCategory: '',
+              cnhValidity: '',
+              branches: [],
+              active: true,
+            })) as any}
+            suppliers={suppliersCombo.map(s => ({
+              ...s,
+              fantasyName: s.fantasyName || s.name,
+              cnpj: s.cnpj || s.cpf || '',
+              city: s.city || '',
+              state: s.state || '',
+              type: s.type || 'gas_station',
+              branches: [],
+              active: s.active !== false,
+            })) as any}
+            refrigerationUnits={refrigerationUnitsCombo.map(r => ({
+              ...r,
+              companyId: '',
+              brand: '',
+              type: 'freezer',
+              minTemp: 0,
+              maxTemp: 0,
+              status: 'active',
+              fuelType: 'Gasolina',
+              vehicleId: null,
+            })) as any}
+            initialData={editingRefueling as any}
+            onAddSupplier={async (supplier) => {
+              toast({
+                title: 'Funcionalidade em desenvolvimento',
+                description: 'Cadastro rápido de fornecedor será implementado em breve',
+              });
+            }}
+            onUpdateVehicleDriver={(vehicleId, driverId) => {
+              toast({
+                title: 'Funcionalidade em desenvolvimento',
+                description: 'Vinculação de motorista será implementada em breve',
+              });
+            }}
+          />
         </DialogContent>
       </Dialog>
 
