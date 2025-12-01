@@ -129,6 +129,18 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
       const numValue = Number(initialData.maxTemp);
       setMaxTempInput(new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(numValue));
     }
+    
+    // Atualizar purchaseInvoice quando initialData mudar
+    if (initialData?.purchaseInvoice) {
+      if (typeof initialData.purchaseInvoice === 'string') {
+        setPurchaseInvoice(initialData.purchaseInvoice);
+      } else {
+        // Se for ImagePayload, converter para data URL
+        const dataUrl = `data:image/${initialData.purchaseInvoice.extension};base64,${initialData.purchaseInvoice.base64}`;
+        setPurchaseInvoice(dataUrl);
+        setPurchaseInvoiceExtension(initialData.purchaseInvoice.extension);
+      }
+    }
   }, [initialData]);
 
   const tempAllowedPattern = /^-?\d*(?:[.,]\d{0,2})?$/;
