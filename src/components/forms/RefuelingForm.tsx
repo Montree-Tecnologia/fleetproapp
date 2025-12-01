@@ -79,8 +79,27 @@ const refuelingSchema = z.object({
 
 type RefuelingFormData = z.infer<typeof refuelingSchema>;
 
+interface ImagePayload {
+  base64: string;
+  extension: string;
+}
+
 interface RefuelingFormProps {
-  onSubmit: (data: Omit<Refueling, 'id'>, driverId?: string) => void;
+  onSubmit: (data: {
+    vehicleId?: string;
+    refrigerationUnitId?: string;
+    date: string;
+    km?: number;
+    usageHours?: number;
+    liters: number;
+    pricePerLiter: number;
+    totalValue: number;
+    fuelType: string;
+    supplierId: string;
+    driverId?: string;
+    paymentReceipt?: ImagePayload;
+    fiscalNote?: ImagePayload;
+  }) => void;
   onCancel: () => void;
   vehicles: Vehicle[];
   drivers: Driver[];
@@ -338,9 +357,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     const totalValue = data.liters * data.pricePerLiter;
 
     // Usar o motorista selecionado ou buscar o atual
-    const driverId = selectedDriverId !== undefined ? (selectedDriverId || undefined) : undefined;
-    const driver = driverId ? drivers.find(d => d.id === driverId) : getDriverInfo();
-    const driverName = driver?.name || '';
+    const finalDriverId = selectedDriverId !== undefined ? (selectedDriverId || undefined) : getDriverInfo()?.id;
 
     // Atualizar o motorista do veículo se foi alterado
     if (onUpdateVehicleDriver && selectedDriverId !== undefined) {
@@ -354,6 +371,20 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       }
     }
 
+    // Processar imagens para o formato { base64, extension }
+    const processImage = (dataUrl: string | undefined) => {
+      if (!dataUrl) return undefined;
+      
+      // Extrair extensão e base64 puro do data URL
+      const matches = dataUrl.match(/^data:image\/(\w+);base64,(.+)$/);
+      if (!matches) return undefined;
+      
+      return {
+        extension: matches[1],
+        base64: matches[2]
+      };
+    };
+
     onSubmit({
       vehicleId: data.vehicleId,
       refrigerationUnitId: data.refrigerationUnitId,
@@ -365,9 +396,9 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       totalValue: totalValue,
       fuelType: data.fuelType,
       supplierId: data.supplierId,
-      driver: driverName,
-      paymentReceipt,
-      fiscalNote,
+      driverId: finalDriverId,
+      paymentReceipt: processImage(paymentReceipt),
+      fiscalNote: processImage(fiscalNote),
     });
   };
 
