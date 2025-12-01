@@ -49,7 +49,7 @@ import { RefrigerationForm } from '@/components/forms/RefrigerationForm';
 import { RefrigerationSaleForm, RefrigerationSale } from '@/components/forms/RefrigerationSaleForm';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { createRefrigerationUnit, getRefrigerationUnits, deleteRefrigerationUnit as deleteRefrigerationUnitApi, PaginatedRefrigerationUnits } from '@/services/refrigerationApi';
+import { createRefrigerationUnit, getRefrigerationUnits, deleteRefrigerationUnit as deleteRefrigerationUnitApi, updateRefrigerationUnitStatus, PaginatedRefrigerationUnits } from '@/services/refrigerationApi';
 
 export default function Refrigeration() {
   const { 
@@ -317,21 +317,36 @@ export default function Refrigeration() {
     }
   };
 
-  const confirmStatusChange = (unitId: string, newStatus: string) => {
-    updateRefrigerationUnit(unitId, { status: newStatus as any });
-    const statusLabels = {
-      active: 'Ativo',
-      defective: 'Defeito',
-      maintenance: 'Manutenção',
-      sold: 'Vendido'
-    };
-    toast({
-      title: 'Status atualizado',
-      description: `Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`,
-    });
-    
-    setStatusChangeDialogOpen(false);
-    setUnitToChangeStatus(null);
+  const confirmStatusChange = async (unitId: string, newStatus: string) => {
+    try {
+      await updateRefrigerationUnitStatus(
+        unitId,
+        newStatus as 'active' | 'defective' | 'maintenance' | 'inactive' | 'sold'
+      );
+      const statusLabels = {
+        active: 'Ativo',
+        defective: 'Defeito',
+        maintenance: 'Manutenção',
+        inactive: 'Inativo',
+        sold: 'Vendido'
+      };
+      toast({
+        title: 'Status atualizado',
+        description: `Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`,
+      });
+      // Atualizar a lista após alterar o status
+      fetchRefrigerationUnits(currentPage);
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+      toast({
+        title: 'Erro ao atualizar',
+        description: 'Não foi possível atualizar o status. Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setStatusChangeDialogOpen(false);
+      setUnitToChangeStatus(null);
+    }
   };
 
   const handleVehicleLink = (unitId: string, vehicleId: string) => {
