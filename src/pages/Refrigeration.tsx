@@ -94,17 +94,6 @@ export default function Refrigeration() {
 
   // Função para buscar equipamentos da API
   const fetchRefrigerationUnits = useCallback(async (page: number = 1) => {
-    // Só buscar se algum filtro tiver pelo menos 2 caracteres
-    const hasValidFilter = brandFilter.length >= 2 || modelFilter.length >= 2 || serialNumberFilter.length >= 2;
-    
-    if (!hasValidFilter) {
-      setApiUnits([]);
-      setCurrentPage(1);
-      setTotalPages(1);
-      setHasMorePages(false);
-      return;
-    }
-
     setLoading(true);
     try {
       const response = await getRefrigerationUnits({
@@ -140,14 +129,19 @@ export default function Refrigeration() {
     }
   }, [brandFilter, modelFilter, serialNumberFilter, toast]);
 
-  // Buscar quando os filtros mudarem
+  // Buscar inicial ao carregar a página
+  useEffect(() => {
+    fetchRefrigerationUnits(1);
+  }, []);
+
+  // Buscar quando os filtros mudarem (com debounce)
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchRefrigerationUnits(1);
     }, 300); // Debounce de 300ms
 
     return () => clearTimeout(timer);
-  }, [fetchRefrigerationUnits]);
+  }, [brandFilter, modelFilter, serialNumberFilter]);
 
   // Carregar mais ao fazer scroll
   const loadMore = useCallback(() => {
@@ -462,11 +456,6 @@ export default function Refrigeration() {
         </div>
       )}
 
-      {displayedItems.length === 0 && brandFilter.length < 2 && modelFilter.length < 2 && serialNumberFilter.length < 2 && (
-        <div className="text-center py-8 text-muted-foreground">
-          Digite pelo menos 2 caracteres em um dos campos para buscar equipamentos.
-        </div>
-      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         {displayedItems.map((unit) => {
