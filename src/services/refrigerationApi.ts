@@ -99,3 +99,13 @@ export async function deleteRefrigerationUnit(id: string) {
     method: 'DELETE',
   });
 }
+
+export async function updateRefrigerationUnitStatus(
+  id: string,
+  status: 'active' | 'defective' | 'maintenance' | 'inactive' | 'sold'
+) {
+  return apiRequest<RefrigerationUnit>(`/refrigeration-units/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}
