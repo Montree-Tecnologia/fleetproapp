@@ -115,14 +115,3 @@ export async function toggleDriverStatus(
     body: JSON.stringify({ isActive }),
   });
 }
-
-export interface DriverCombo {
-  id: string;
-  name: string;
-  cpf: string;
-}
-
-export async function getDriversCombo() {
-  const response = await apiRequest<DriverCombo[]>('/drivers/combo');
-  return response.data;
-}
