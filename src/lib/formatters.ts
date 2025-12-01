@@ -140,3 +140,26 @@ export const handleYearInput = (
   e.target.value = formatted;
   onChange(parseYear(formatted));
 };
+
+/**
+ * Parses a date string or Date object to a Date in local timezone
+ * Prevents timezone issues when converting date strings
+ */
+export const parseLocalDate = (dateValue: string | Date | undefined): Date | undefined => {
+  if (!dateValue) return undefined;
+  
+  // Se já é um objeto Date, retorna como está
+  if (dateValue instanceof Date) return dateValue;
+  
+  // Se é string, extrai ano, mês e dia e cria Date no timezone local
+  const dateStr = dateValue.toString();
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  
+  if (match) {
+    const [, year, month, day] = match;
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }
+  
+  // Fallback: tenta criar Date normalmente
+  return new Date(dateValue);
+};

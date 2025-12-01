@@ -27,7 +27,7 @@ import {
 import { CalendarIcon, Upload, X, FileText, Check, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
+import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput, parseLocalDate } from '@/lib/formatters';
 import { RefrigerationUnit } from '@/hooks/useMockData';
 import { useState, useEffect } from 'react';
 import {
@@ -136,8 +136,8 @@ export function RefrigerationForm({ onSubmit, onCancel, initialData }: Refrigera
       minTemp: Number(initialData.minTemp),
       maxTemp: Number(initialData.maxTemp),
       status: initialData.status,
-      installDate: initialData.installDate ? new Date(initialData.installDate) : new Date(),
-      purchaseDate: initialData.purchaseDate ? new Date(initialData.purchaseDate) : undefined,
+      installDate: parseLocalDate(initialData.installDate) || new Date(),
+      purchaseDate: parseLocalDate(initialData.purchaseDate),
       purchaseValue: initialData.purchaseValue ? Number(initialData.purchaseValue) : undefined,
       supplierId: initialData.supplierId,
       initialUsageHours: initialData.initialUsageHours ? Number(initialData.initialUsageHours) : undefined,
