@@ -13,7 +13,10 @@ import {
   type DriverCombo,
   type RefrigerationUnitCombo
 } from '@/services/refuelingsApi';
-import { getSuppliersCombo, type SupplierCombo } from '@/services/suppliersApi';
+import { getSuppliersCombo, getSuppliers, type SupplierCombo, type Supplier } from '@/services/suppliersApi';
+import { getVehicles, type Vehicle } from '@/services/vehiclesApi';
+import { fetchDrivers, type DriverResponse } from '@/services/driversApi';
+import { getRefrigerationUnits, type RefrigerationUnit as RefrigerationUnitAPI } from '@/services/refrigerationApi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Fuel, Pencil, Trash2, FilterX, CalendarIcon, FileText, Truck, Snowflake, Check, ChevronsUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -66,10 +69,18 @@ export default function Refuelings() {
   
   // Dados da API
   const [refuelingsData, setRefuelingsData] = useState<Refueling[]>([]);
+  
+  // Combos para filtros
   const [vehiclesCombo, setVehiclesCombo] = useState<VehicleCombo[]>([]);
   const [driversCombo, setDriversCombo] = useState<DriverCombo[]>([]);
   const [suppliersCombo, setSuppliersCombo] = useState<SupplierCombo[]>([]);
   const [refrigerationUnitsCombo, setRefrigerationUnitsCombo] = useState<RefrigerationUnitCombo[]>([]);
+  
+  // Dados completos para o formulário
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [drivers, setDrivers] = useState<DriverResponse[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [refrigerationUnits, setRefrigerationUnits] = useState<RefrigerationUnitAPI[]>([]);
   
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -91,25 +102,25 @@ export default function Refuelings() {
   const [openDriverFilter, setOpenDriverFilter] = useState(false);
   const [openSupplierFilter, setOpenSupplierFilter] = useState(false);
 
-  // Carregar combos
+  // Carregar combos para filtros
   useEffect(() => {
     const loadCombos = async () => {
       try {
-        const [vehicles, drivers, suppliersResponse, refrigeration] = await Promise.all([
+        const [vehiclesRes, driversRes, suppliersRes, refrigerationRes] = await Promise.all([
           getVehiclesCombo(),
           getDriversCombo(),
           getSuppliersCombo(),
           getRefrigerationUnitsCombo(),
         ]);
         
-        setVehiclesCombo(vehicles);
-        setDriversCombo(drivers);
-        setSuppliersCombo(suppliersResponse.data || []);
-        setRefrigerationUnitsCombo(refrigeration);
+        setVehiclesCombo(vehiclesRes);
+        setDriversCombo(driversRes);
+        setSuppliersCombo(suppliersRes.data || []);
+        setRefrigerationUnitsCombo(refrigerationRes);
       } catch (error) {
         console.error('Erro ao carregar combos:', error);
         toast({
-          title: 'Erro ao carregar dados',
+          title: 'Erro ao carregar dados dos filtros',
           description: 'Não foi possível carregar os dados necessários',
           variant: 'destructive',
         });
@@ -117,6 +128,34 @@ export default function Refuelings() {
     };
 
     loadCombos();
+  }, [toast]);
+
+  // Carregar dados completos para o formulário
+  useEffect(() => {
+    const loadFormData = async () => {
+      try {
+        const [vehiclesRes, driversRes, suppliersRes, refrigerationRes] = await Promise.all([
+          getVehicles({ limit: 1000 }),
+          fetchDrivers(1, 1000),
+          getSuppliers(),
+          getRefrigerationUnits({ page: 1, limit: 1000 }),
+        ]);
+
+        setVehicles(vehiclesRes.data?.data || []);
+        setDrivers(driversRes.data?.data || []);
+        setSuppliers(suppliersRes || []);
+        setRefrigerationUnits(refrigerationRes.data?.data || []);
+      } catch (error) {
+        console.error('Erro ao carregar dados do formulário:', error);
+        toast({
+          title: 'Erro ao carregar dados do formulário',
+          description: 'Não foi possível carregar os dados necessários',
+          variant: 'destructive',
+        });
+      }
+    };
+
+    loadFormData();
   }, [toast]);
 
   // Carregar abastecimentos
@@ -276,55 +315,10 @@ export default function Refuelings() {
           <RefuelingForm
             onSubmit={handleSubmit}
             onCancel={handleCloseDialog}
-            vehicles={vehiclesCombo.map(v => ({
-              ...v,
-              chassis: '',
-              renavam: '',
-              brand: '',
-              manufacturingYear: 2024,
-              modelYear: 2024,
-              color: '',
-              vehicleType: 'Veículo',
-              status: 'active',
-              fuelType: 'Diesel',
-              currentKm: 0,
-              purchaseKm: 0,
-              axles: 0,
-              weight: 0,
-              hasComposition: false,
-              isTraction: true,
-              active: true,
-              ownerBranchId: '',
-            })) as any}
-            drivers={driversCombo.map(d => ({
-              ...d,
-              birthDate: '',
-              cnhCategory: '',
-              cnhValidity: '',
-              branches: [],
-              active: true,
-            })) as any}
-            suppliers={suppliersCombo.map(s => ({
-              ...s,
-              fantasyName: s.fantasyName || s.name,
-              cnpj: s.cnpj || s.cpf || '',
-              city: s.city || '',
-              state: s.state || '',
-              type: s.type || 'gas_station',
-              branches: [],
-              active: s.active !== false,
-            })) as any}
-            refrigerationUnits={refrigerationUnitsCombo.map(r => ({
-              ...r,
-              companyId: '',
-              brand: '',
-              type: 'freezer',
-              minTemp: 0,
-              maxTemp: 0,
-              status: 'active',
-              fuelType: 'Gasolina',
-              vehicleId: null,
-            })) as any}
+            vehicles={vehicles as any}
+            drivers={drivers as any}
+            suppliers={suppliers as any}
+            refrigerationUnits={refrigerationUnits as any}
             initialData={editingRefueling as any}
             onAddSupplier={async (supplier) => {
               toast({
