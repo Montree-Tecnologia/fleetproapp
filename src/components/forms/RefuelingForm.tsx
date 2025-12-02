@@ -34,7 +34,7 @@ import {
 import { CalendarIcon, FileText, Upload, X, Check, ChevronsUpDown, Truck, Snowflake, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput } from '@/lib/formatters';
+import { formatCurrency, formatDecimal, formatInteger, handleCurrencyInput, handleDecimalInput, handleIntegerInput, parseLocalDate } from '@/lib/formatters';
 import { Refueling, Vehicle, Driver, Supplier, RefrigerationUnit } from '@/hooks/useMockData';
 import { useState, useEffect } from 'react';
 import {
@@ -198,11 +198,11 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       entityType: initialData.vehicleId ? 'vehicle' : 'refrigeration',
       vehicleId: initialData.vehicleId,
       refrigerationUnitId: initialData.refrigerationUnitId,
-      date: new Date(initialData.date),
+      date: parseLocalDate(initialData.refuelingDate) || new Date(),
       km: initialData.km,
       usageHours: initialData.usageHours,
-      liters: initialData.liters,
-      pricePerLiter: initialData.pricePerLiter,
+      liters: typeof initialData.liters === 'string' ? parseFloat(initialData.liters) : initialData.liters,
+      pricePerLiter: typeof initialData.pricePerLiter === 'string' ? parseFloat(initialData.pricePerLiter) : initialData.pricePerLiter,
       fuelType: initialData.fuelType as any,
       supplierId: initialData.supplierId,
       driver: initialData.driver,
