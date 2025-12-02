@@ -1,31 +1,44 @@
 import { useState } from 'react';
-import { useMockData } from '@/hooks/useMockData';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Truck, TrendingUp, Fuel, Activity, Snowflake } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  getDashboard,
+  getVehiclesConsumption,
+  getRefrigerationConsumption,
+  type DashboardData,
+  type VehicleConsumption,
+  type RefrigerationConsumption,
+} from '@/services/dashboardApi';
 
 export default function Dashboard() {
   const [showWorstVehicles, setShowWorstVehicles] = useState(false);
   const [showWorstRefrigeration, setShowWorstRefrigeration] = useState(false);
-  
-  const { 
-    getDashboardStats, 
-    getDashboardStatsForRefrigeration,
-    vehicles, 
-    refuelings, 
-    suppliers,
-    refrigerationUnits 
-  } = useMockData();
-  
-  const vehicleStats = getDashboardStats();
-  const refrigerationStats = getDashboardStatsForRefrigeration();
-  const allVehicles = vehicles();
-  const allRefuelings = refuelings();
-  const allSuppliers = suppliers();
-  const allRefrigerationUnits = refrigerationUnits();
 
-  const vehicleStatCards = [
+  const { data: dashboardData, isLoading: isLoadingDashboard } = useQuery<DashboardData>({
+    queryKey: ['dashboard'],
+    queryFn: getDashboard,
+  });
+
+  const { data: vehiclesConsumption, isLoading: isLoadingVehiclesConsumption } = useQuery<VehicleConsumption[]>({
+    queryKey: ['vehicles-consumption', showWorstVehicles ? 'worst' : 'best'],
+    queryFn: () => getVehiclesConsumption(showWorstVehicles ? 'worst' : 'best'),
+  });
+
+  const { data: refrigerationConsumption, isLoading: isLoadingRefrigerationConsumption } = useQuery<RefrigerationConsumption[]>({
+    queryKey: ['refrigeration-consumption', showWorstRefrigeration ? 'worst' : 'best'],
+    queryFn: () => getRefrigerationConsumption(showWorstRefrigeration ? 'worst' : 'best'),
+  });
+
+  const vehicleStats = dashboardData?.vehiclesStats;
+  const refrigerationStats = dashboardData?.refrigerationStats;
+  const recentVehicleRefuelings = dashboardData?.recentVehicleRefuelings || [];
+  const recentRefrigerationRefuelings = dashboardData?.recentRefrigerationRefuelings || [];
+
+  const vehicleStatCards = vehicleStats ? [
     {
       title: 'Total de Veículos',
       value: vehicleStats.totalVehicles,
@@ -54,9 +67,9 @@ export default function Dashboard() {
       description: 'Mês atual',
       color: 'text-chart-4'
     }
-  ];
+  ] : [];
 
-  const refrigerationStatCards = [
+  const refrigerationStatCards = refrigerationStats ? [
     {
       title: 'Total de Equipamentos',
       value: refrigerationStats.totalUnits,
@@ -85,7 +98,53 @@ export default function Dashboard() {
       description: 'Mês atual',
       color: 'text-chart-4'
     }
-  ];
+  ] : [];
+
+  const StatCardSkeleton = () => (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-4 w-4" />
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-8 w-20 mb-1" />
+        <Skeleton className="h-3 w-16" />
+      </CardContent>
+    </Card>
+  );
+
+  const StatusBarSkeleton = () => (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-4 w-6" />
+      </div>
+      <Skeleton className="h-2 w-full rounded-full" />
+    </div>
+  );
+
+  const ConsumptionItemSkeleton = () => (
+    <div className="flex items-center justify-between">
+      <div>
+        <Skeleton className="h-4 w-20 mb-1" />
+        <Skeleton className="h-3 w-32" />
+      </div>
+      <Skeleton className="h-4 w-16" />
+    </div>
+  );
+
+  const RefuelingItemSkeleton = () => (
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 border-b border-border pb-3">
+      <div>
+        <Skeleton className="h-4 w-32 mb-1" />
+        <Skeleton className="h-3 w-24" />
+      </div>
+      <div className="text-left sm:text-right">
+        <Skeleton className="h-4 w-20 mb-1" />
+        <Skeleton className="h-3 w-16" />
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-4 lg:space-y-6">
@@ -107,22 +166,31 @@ export default function Dashboard() {
         <TabsContent value="vehicles" className="space-y-4 lg:space-y-6">
           {/* Stats Cards */}
           <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            {vehicleStatCards.map((stat) => (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {stat.title}
-                  </CardTitle>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {stat.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+            {isLoadingDashboard ? (
+              <>
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+              </>
+            ) : (
+              vehicleStatCards.map((stat) => (
+                <Card key={stat.title}>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      {stat.title}
+                    </CardTitle>
+                    <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{stat.value}</div>
+                    <p className="text-xs text-muted-foreground">
+                      {stat.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
 
           {/* Status Distribution */}
@@ -133,66 +201,78 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Ativos</span>
-                      <span className="text-sm text-muted-foreground">{vehicleStats.activeVehicles}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-chart-2 h-2 rounded-full"
-                        style={{ width: `${(vehicleStats.activeVehicles / vehicleStats.totalVehicles) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Em Manutenção</span>
-                      <span className="text-sm text-muted-foreground">{vehicleStats.maintenanceVehicles}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-yellow-500 h-2 rounded-full"
-                        style={{ width: `${(vehicleStats.maintenanceVehicles / vehicleStats.totalVehicles) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Defeituosos</span>
-                      <span className="text-sm text-muted-foreground">{vehicleStats.defectiveVehicles}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-orange-500 h-2 rounded-full"
-                        style={{ width: `${(vehicleStats.defectiveVehicles / vehicleStats.totalVehicles) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Inativos</span>
-                      <span className="text-sm text-muted-foreground">{vehicleStats.inactiveVehicles}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-red-600 h-2 rounded-full"
-                        style={{ width: `${(vehicleStats.inactiveVehicles / vehicleStats.totalVehicles) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Vendidos</span>
-                      <span className="text-sm text-muted-foreground">{vehicleStats.soldVehicles}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-gray-700 h-2 rounded-full"
-                        style={{ width: `${(vehicleStats.soldVehicles / vehicleStats.totalVehicles) * 100}%` }}
-                      />
-                    </div>
-                  </div>
+                  {isLoadingDashboard || !vehicleStats ? (
+                    <>
+                      <StatusBarSkeleton />
+                      <StatusBarSkeleton />
+                      <StatusBarSkeleton />
+                      <StatusBarSkeleton />
+                      <StatusBarSkeleton />
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Ativos</span>
+                          <span className="text-sm text-muted-foreground">{vehicleStats.activeVehicles}</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div
+                            className="bg-chart-2 h-2 rounded-full"
+                            style={{ width: `${vehicleStats.totalVehicles > 0 ? (vehicleStats.activeVehicles / vehicleStats.totalVehicles) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Em Manutenção</span>
+                          <span className="text-sm text-muted-foreground">{vehicleStats.maintenanceVehicles}</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div
+                            className="bg-yellow-500 h-2 rounded-full"
+                            style={{ width: `${vehicleStats.totalVehicles > 0 ? (vehicleStats.maintenanceVehicles / vehicleStats.totalVehicles) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Defeituosos</span>
+                          <span className="text-sm text-muted-foreground">{vehicleStats.defectiveVehicles}</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div
+                            className="bg-orange-500 h-2 rounded-full"
+                            style={{ width: `${vehicleStats.totalVehicles > 0 ? (vehicleStats.defectiveVehicles / vehicleStats.totalVehicles) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Inativos</span>
+                          <span className="text-sm text-muted-foreground">{vehicleStats.inactiveVehicles}</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div
+                            className="bg-red-600 h-2 rounded-full"
+                            style={{ width: `${vehicleStats.totalVehicles > 0 ? (vehicleStats.inactiveVehicles / vehicleStats.totalVehicles) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Vendidos</span>
+                          <span className="text-sm text-muted-foreground">{vehicleStats.soldVehicles}</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div
+                            className="bg-gray-700 h-2 rounded-full"
+                            style={{ width: `${vehicleStats.totalVehicles > 0 ? (vehicleStats.soldVehicles / vehicleStats.totalVehicles) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -210,42 +290,27 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {allVehicles
-                    .map((vehicle) => {
-                      const vehicleRefuelings = allRefuelings
-                        .filter(r => r.vehicleId === vehicle.id)
-                        .sort((a, b) => new Date(a.refuelingDate).getTime() - new Date(b.refuelingDate).getTime());
-                      
-                      let totalConsumption = 0;
-                      let consumptionCount = 0;
-
-                      for (let i = 1; i < vehicleRefuelings.length; i++) {
-                        const kmDiff = (vehicleRefuelings[i].km || 0) - (vehicleRefuelings[i - 1].km || 0);
-                        const litersValue = vehicleRefuelings[i].liters;
-                        const liters = typeof litersValue === 'string' ? parseFloat(litersValue) : litersValue;
-                        if (kmDiff > 0 && liters > 0) {
-                          totalConsumption += kmDiff / liters;
-                          consumptionCount++;
-                        }
-                      }
-
-                      const avgConsumption = consumptionCount > 0 ? totalConsumption / consumptionCount : 0;
-                      return { ...vehicle, avgConsumption };
-                    })
-                    .filter(v => v.avgConsumption > 0)
-                    .sort((a, b) => showWorstVehicles ? a.avgConsumption - b.avgConsumption : b.avgConsumption - a.avgConsumption)
-                    .slice(0, 5)
-                    .map((vehicle) => (
+                  {isLoadingVehiclesConsumption ? (
+                    <>
+                      <ConsumptionItemSkeleton />
+                      <ConsumptionItemSkeleton />
+                      <ConsumptionItemSkeleton />
+                      <ConsumptionItemSkeleton />
+                      <ConsumptionItemSkeleton />
+                    </>
+                  ) : (
+                    vehiclesConsumption?.slice(0, 5).map((vehicle) => (
                       <div key={vehicle.id} className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium">{vehicle.plate}</p>
                           <p className="text-xs text-muted-foreground">{vehicle.model}</p>
                         </div>
                         <span className="text-sm font-bold">
-                          {vehicle.avgConsumption.toFixed(2)} km/l
+                          {Number(vehicle.avgConsumption).toFixed(2)} km/l
                         </span>
                       </div>
-                    ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -258,32 +323,34 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {allRefuelings
-                  .filter(r => r.vehicleId)
-                  .sort((a, b) => new Date(b.refuelingDate).getTime() - new Date(a.refuelingDate).getTime())
-                  .slice(0, 5)
-                  .map((refueling) => {
-                    const vehicle = allVehicles.find(v => v.id === refueling.vehicleId);
-                    const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
-                    return (
-                       <div key={refueling.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 border-b border-border pb-3 last:border-0">
-                         <div>
-                           <p className="text-sm font-medium">{vehicle?.plate} - {vehicle?.model}</p>
-                           <p className="text-xs text-muted-foreground mt-1">
-                             {refueling.liters}L • {supplier?.fantasyName}
-                           </p>
-                         </div>
-                         <div className="text-left sm:text-right">
-                           <p className="text-sm font-bold">
-                             R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                           </p>
-                           <p className="text-xs text-muted-foreground">
-                              {new Date(refueling.refuelingDate).toLocaleDateString('pt-BR')}
-                           </p>
-                         </div>
-                       </div>
-                    );
-                  })}
+                {isLoadingDashboard ? (
+                  <>
+                    <RefuelingItemSkeleton />
+                    <RefuelingItemSkeleton />
+                    <RefuelingItemSkeleton />
+                    <RefuelingItemSkeleton />
+                    <RefuelingItemSkeleton />
+                  </>
+                ) : (
+                  recentVehicleRefuelings.slice(0, 5).map((refueling) => (
+                    <div key={refueling.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 border-b border-border pb-3 last:border-0">
+                      <div>
+                        <p className="text-sm font-medium">{refueling.vehicle?.plate} - {refueling.vehicle?.model}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {refueling.liters}L • {refueling.supplier?.fantasyName}
+                        </p>
+                      </div>
+                      <div className="text-left sm:text-right">
+                        <p className="text-sm font-bold">
+                          R$ {Number(refueling.totalValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(refueling.refuelingDate).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
@@ -293,22 +360,31 @@ export default function Dashboard() {
         <TabsContent value="refrigeration" className="space-y-6">
           {/* Stats Cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {refrigerationStatCards.map((stat) => (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {stat.title}
-                  </CardTitle>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {stat.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+            {isLoadingDashboard ? (
+              <>
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+              </>
+            ) : (
+              refrigerationStatCards.map((stat) => (
+                <Card key={stat.title}>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      {stat.title}
+                    </CardTitle>
+                    <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{stat.value}</div>
+                    <p className="text-xs text-muted-foreground">
+                      {stat.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
 
           {/* Status Distribution */}
@@ -319,66 +395,78 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Ativos</span>
-                      <span className="text-sm text-muted-foreground">{refrigerationStats.activeUnits}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-chart-2 h-2 rounded-full"
-                        style={{ width: `${(refrigerationStats.activeUnits / refrigerationStats.totalUnits) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Em Manutenção</span>
-                      <span className="text-sm text-muted-foreground">{refrigerationStats.maintenanceUnits}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-yellow-500 h-2 rounded-full"
-                        style={{ width: `${(refrigerationStats.maintenanceUnits / refrigerationStats.totalUnits) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Defeituosos</span>
-                      <span className="text-sm text-muted-foreground">{refrigerationStats.defectiveUnits}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-orange-500 h-2 rounded-full"
-                        style={{ width: `${(refrigerationStats.defectiveUnits / refrigerationStats.totalUnits) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Inativos</span>
-                      <span className="text-sm text-muted-foreground">{refrigerationStats.inactiveUnits}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-red-600 h-2 rounded-full"
-                        style={{ width: `${(refrigerationStats.inactiveUnits / refrigerationStats.totalUnits) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Vendidos</span>
-                      <span className="text-sm text-muted-foreground">{refrigerationStats.soldUnits}</span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className="bg-gray-700 h-2 rounded-full"
-                        style={{ width: `${(refrigerationStats.soldUnits / refrigerationStats.totalUnits) * 100}%` }}
-                      />
-                    </div>
-                  </div>
+                  {isLoadingDashboard || !refrigerationStats ? (
+                    <>
+                      <StatusBarSkeleton />
+                      <StatusBarSkeleton />
+                      <StatusBarSkeleton />
+                      <StatusBarSkeleton />
+                      <StatusBarSkeleton />
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Ativos</span>
+                          <span className="text-sm text-muted-foreground">{refrigerationStats.activeUnits}</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div
+                            className="bg-chart-2 h-2 rounded-full"
+                            style={{ width: `${refrigerationStats.totalUnits > 0 ? (refrigerationStats.activeUnits / refrigerationStats.totalUnits) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Em Manutenção</span>
+                          <span className="text-sm text-muted-foreground">{refrigerationStats.maintenanceUnits}</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div
+                            className="bg-yellow-500 h-2 rounded-full"
+                            style={{ width: `${refrigerationStats.totalUnits > 0 ? (refrigerationStats.maintenanceUnits / refrigerationStats.totalUnits) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Defeituosos</span>
+                          <span className="text-sm text-muted-foreground">{refrigerationStats.defectiveUnits}</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div
+                            className="bg-orange-500 h-2 rounded-full"
+                            style={{ width: `${refrigerationStats.totalUnits > 0 ? (refrigerationStats.defectiveUnits / refrigerationStats.totalUnits) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Inativos</span>
+                          <span className="text-sm text-muted-foreground">{refrigerationStats.inactiveUnits}</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div
+                            className="bg-red-600 h-2 rounded-full"
+                            style={{ width: `${refrigerationStats.totalUnits > 0 ? (refrigerationStats.inactiveUnits / refrigerationStats.totalUnits) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Vendidos</span>
+                          <span className="text-sm text-muted-foreground">{refrigerationStats.soldUnits}</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div
+                            className="bg-gray-700 h-2 rounded-full"
+                            style={{ width: `${refrigerationStats.totalUnits > 0 ? (refrigerationStats.soldUnits / refrigerationStats.totalUnits) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -396,42 +484,27 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {allRefrigerationUnits
-                    .map((unit) => {
-                      const unitRefuelings = allRefuelings
-                        .filter(r => r.refrigerationUnitId === unit.id)
-                        .sort((a, b) => new Date(a.refuelingDate).getTime() - new Date(b.refuelingDate).getTime());
-                      
-                      let totalConsumption = 0;
-                      let consumptionCount = 0;
-
-                      for (let i = 1; i < unitRefuelings.length; i++) {
-                        const hoursDiff = (unitRefuelings[i].usageHours || 0) - (unitRefuelings[i - 1].usageHours || 0);
-                        const litersValue = unitRefuelings[i].liters;
-                        const liters = typeof litersValue === 'string' ? parseFloat(litersValue) : litersValue;
-                        if (hoursDiff > 0 && liters > 0) {
-                          totalConsumption += liters / hoursDiff;
-                          consumptionCount++;
-                        }
-                      }
-
-                      const avgConsumption = consumptionCount > 0 ? totalConsumption / consumptionCount : 0;
-                      return { ...unit, avgConsumption };
-                    })
-                    .filter(u => u.avgConsumption > 0)
-                    .sort((a, b) => showWorstRefrigeration ? b.avgConsumption - a.avgConsumption : a.avgConsumption - b.avgConsumption)
-                    .slice(0, 5)
-                    .map((unit) => (
+                  {isLoadingRefrigerationConsumption ? (
+                    <>
+                      <ConsumptionItemSkeleton />
+                      <ConsumptionItemSkeleton />
+                      <ConsumptionItemSkeleton />
+                      <ConsumptionItemSkeleton />
+                      <ConsumptionItemSkeleton />
+                    </>
+                  ) : (
+                    refrigerationConsumption?.slice(0, 5).map((unit) => (
                       <div key={unit.id} className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium">{unit.serialNumber}</p>
                           <p className="text-xs text-muted-foreground">{unit.brand} {unit.model}</p>
                         </div>
                         <span className="text-sm font-bold">
-                          {unit.avgConsumption.toFixed(2)} L/h
+                          {Number(unit.avgConsumption).toFixed(2)} L/h
                         </span>
                       </div>
-                    ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -444,32 +517,34 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {allRefuelings
-                  .filter(r => r.refrigerationUnitId)
-                  .sort((a, b) => new Date(b.refuelingDate).getTime() - new Date(a.refuelingDate).getTime())
-                  .slice(0, 5)
-                  .map((refueling) => {
-                    const unit = allRefrigerationUnits.find(u => u.id === refueling.refrigerationUnitId);
-                    const supplier = allSuppliers.find(s => s.id === refueling.supplierId);
-                    return (
-                      <div key={refueling.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 border-b border-border pb-3 last:border-0">
-                         <div>
-                           <p className="text-sm font-medium">SN: {unit?.serialNumber}</p>
-                           <p className="text-xs text-muted-foreground mt-1">
-                             {refueling.liters}L • {supplier?.fantasyName}
-                           </p>
-                         </div>
-                         <div className="text-left sm:text-right">
-                           <p className="text-sm font-bold">
-                             R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                           </p>
-                           <p className="text-xs text-muted-foreground">
-                             {new Date(refueling.refuelingDate).toLocaleDateString('pt-BR')}
-                           </p>
-                         </div>
-                       </div>
-                    );
-                  })}
+                {isLoadingDashboard ? (
+                  <>
+                    <RefuelingItemSkeleton />
+                    <RefuelingItemSkeleton />
+                    <RefuelingItemSkeleton />
+                    <RefuelingItemSkeleton />
+                    <RefuelingItemSkeleton />
+                  </>
+                ) : (
+                  recentRefrigerationRefuelings.slice(0, 5).map((refueling) => (
+                    <div key={refueling.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 border-b border-border pb-3 last:border-0">
+                      <div>
+                        <p className="text-sm font-medium">SN: {refueling.refrigerationUnit?.serialNumber}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {refueling.liters}L • {refueling.supplier?.fantasyName}
+                        </p>
+                      </div>
+                      <div className="text-left sm:text-right">
+                        <p className="text-sm font-bold">
+                          R$ {Number(refueling.totalValue).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(refueling.refuelingDate).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
