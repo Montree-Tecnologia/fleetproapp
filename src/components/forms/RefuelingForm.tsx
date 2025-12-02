@@ -425,9 +425,19 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
     onSubmit(submittedData);
   };
 
+  const onFormSubmit = (data: RefuelingFormData) => {
+    console.log('[RefuelingForm] Form validation passed, calling handleSubmit');
+    handleSubmit(data);
+  };
+
+  const onFormError = (errors: any) => {
+    console.log('[RefuelingForm] Form validation errors:', errors);
+    console.log('[RefuelingForm] Current form values:', form.getValues());
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onFormSubmit, onFormError)} className="space-y-4">
         <FormField
           control={form.control}
           name="entityType"
