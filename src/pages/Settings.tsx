@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useMockData } from '@/hooks/useMockData';
+import { changePassword } from '@/services/authApi';
+import { ApiError } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,12 +36,14 @@ const passwordSchema = z.object({
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { companies } = useMockData();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
@@ -50,23 +55,41 @@ export default function Settings() {
   });
 
   const onSubmit = async (data: PasswordFormValues) => {
-    // Simular validação de senha atual
-    if (data.currentPassword !== 'admin123' && data.currentPassword !== 'gestor123') {
-      toast({
-        title: 'Erro',
-        description: 'Senha atual incorreta',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // Simular alteração de senha
-    toast({
-      title: 'Sucesso',
-      description: 'Senha alterada com sucesso!',
-    });
+    setIsSubmitting(true);
     
-    form.reset();
+    try {
+      const response = await changePassword({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+
+      if (response.success) {
+        toast({
+          title: 'Sucesso',
+          description: 'Senha alterada com sucesso! Você será redirecionado para o login.',
+        });
+        
+        // Fazer logout e redirecionar para login
+        await logout();
+        navigate('/login');
+      }
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast({
+          title: 'Erro',
+          description: error.message || 'Erro ao alterar senha',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Erro',
+          description: 'Erro ao alterar senha. Tente novamente.',
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getRoleBadgeVariant = (role: string) => {
@@ -314,8 +337,8 @@ export default function Settings() {
                   )}
                 />
 
-                <Button type="submit" className="w-full md:w-auto">
-                  Alterar Senha
+                <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
+                  {isSubmitting ? 'Alterando...' : 'Alterar Senha'}
                 </Button>
               </form>
             </Form>
