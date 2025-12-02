@@ -61,3 +61,15 @@ export async function logoutUser(): Promise<ApiResponse<void>> {
     method: 'POST',
   });
 }
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export async function changePassword(payload: ChangePasswordPayload): Promise<ApiResponse<void>> {
+  return apiRequest<void>('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
