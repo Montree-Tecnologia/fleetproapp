@@ -214,7 +214,7 @@ export default function Dashboard() {
                     .map((vehicle) => {
                       const vehicleRefuelings = allRefuelings
                         .filter(r => r.vehicleId === vehicle.id)
-                        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                        .sort((a, b) => new Date(a.refuelingDate).getTime() - new Date(b.refuelingDate).getTime());
                       
                       let totalConsumption = 0;
                       let consumptionCount = 0;
@@ -259,7 +259,7 @@ export default function Dashboard() {
               <div className="space-y-4">
                 {allRefuelings
                   .filter(r => r.vehicleId)
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .sort((a, b) => new Date(b.refuelingDate).getTime() - new Date(a.refuelingDate).getTime())
                   .slice(0, 5)
                   .map((refueling) => {
                     const vehicle = allVehicles.find(v => v.id === refueling.vehicleId);
@@ -277,7 +277,7 @@ export default function Dashboard() {
                              R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                            </p>
                            <p className="text-xs text-muted-foreground">
-                             {new Date(refueling.date).toLocaleDateString('pt-BR')}
+                              {new Date(refueling.refuelingDate).toLocaleDateString('pt-BR')}
                            </p>
                          </div>
                        </div>
@@ -399,7 +399,7 @@ export default function Dashboard() {
                     .map((unit) => {
                       const unitRefuelings = allRefuelings
                         .filter(r => r.refrigerationUnitId === unit.id)
-                        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                        .sort((a, b) => new Date(a.refuelingDate).getTime() - new Date(b.refuelingDate).getTime());
                       
                       let totalConsumption = 0;
                       let consumptionCount = 0;
@@ -444,7 +444,7 @@ export default function Dashboard() {
               <div className="space-y-4">
                 {allRefuelings
                   .filter(r => r.refrigerationUnitId)
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .sort((a, b) => new Date(b.refuelingDate).getTime() - new Date(a.refuelingDate).getTime())
                   .slice(0, 5)
                   .map((refueling) => {
                     const unit = allRefrigerationUnits.find(u => u.id === refueling.refrigerationUnitId);
@@ -462,7 +462,7 @@ export default function Dashboard() {
                              R$ {refueling.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                            </p>
                            <p className="text-xs text-muted-foreground">
-                             {new Date(refueling.date).toLocaleDateString('pt-BR')}
+                             {new Date(refueling.refuelingDate).toLocaleDateString('pt-BR')}
                            </p>
                          </div>
                        </div>

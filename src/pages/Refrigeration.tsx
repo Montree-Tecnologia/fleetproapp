@@ -156,7 +156,7 @@ export default function Refrigeration() {
   const getRefrigerationStats = (unitId: string, initialHours: number = 0) => {
     const unitRefuelings = allRefuelings
       .filter(r => r.refrigerationUnitId === unitId)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => new Date(a.refuelingDate).getTime() - new Date(b.refuelingDate).getTime());
     
     if (unitRefuelings.length === 0) {
       return {

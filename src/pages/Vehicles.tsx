@@ -1188,7 +1188,7 @@ export default function Vehicles() {
                 // Calcular horímetro atual
                 const refrigerationRefuelings = allRefuelings
                   .filter(r => r.refrigerationUnitId === refrigerationUnit.id)
-                  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                  .sort((a, b) => new Date(a.refuelingDate).getTime() - new Date(b.refuelingDate).getTime());
                 
                 const currentUsageHours = refrigerationRefuelings.length > 0 
                   ? refrigerationRefuelings[refrigerationRefuelings.length - 1].usageHours || refrigerationUnit.initialUsageHours || 0
@@ -1459,7 +1459,7 @@ export default function Vehicles() {
             if (refrigerationUnit) {
               const refrigerationRefuelings = allRefuelings
                 .filter(r => r.refrigerationUnitId === refrigerationUnit.id)
-                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                .sort((a, b) => new Date(a.refuelingDate).getTime() - new Date(b.refuelingDate).getTime());
               
               currentRefrigerationUsageHours = refrigerationRefuelings.length > 0 
                 ? refrigerationRefuelings[refrigerationRefuelings.length - 1].usageHours || refrigerationUnit.initialUsageHours || 0

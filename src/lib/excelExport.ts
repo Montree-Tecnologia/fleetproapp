@@ -132,7 +132,7 @@ export const exportVehicleRefuelingsToExcel = (
     const supplier = suppliers?.find(s => s.id === r.supplierId);
     
     return {
-      'Data': format(new Date(r.date), 'dd/MM/yyyy'),
+      'Data': format(new Date(r.refuelingDate), 'dd/MM/yyyy'),
       'Placa': vehicle?.plate || '-',
       'Marca': vehicle?.brand || '-',
       'Modelo': vehicle?.model || '-',
@@ -188,7 +188,7 @@ export const exportRefrigerationRefuelingsToExcel = (
     const supplier = suppliers?.find(s => s.id === r.supplierId);
     
     return {
-      'Data': format(new Date(r.date), 'dd/MM/yyyy'),
+      'Data': format(new Date(r.refuelingDate), 'dd/MM/yyyy'),
       'Número de Série': refrigeration?.serialNumber || '-',
       'Marca Refrigeração': refrigeration?.brand || '-',
       'Modelo Refrigeração': refrigeration?.model || '-',
