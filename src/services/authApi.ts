@@ -39,3 +39,15 @@ export async function loginUser(payload: LoginPayload): Promise<ApiResponse<Logi
     body: JSON.stringify(payload),
   });
 }
+
+export interface ResetPasswordPayload {
+  token: string;
+  password: string;
+}
+
+export async function resetPassword(payload: ResetPasswordPayload): Promise<ApiResponse<void>> {
+  return apiRequest<void>('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
