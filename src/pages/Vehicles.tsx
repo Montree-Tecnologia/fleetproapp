@@ -554,7 +554,7 @@ export default function Vehicles() {
     if (vehicleRefuelings.length < 2) return null;
 
     const totalKmTraveled = vehicleRefuelings[vehicleRefuelings.length - 1].km - vehicleRefuelings[0].km;
-    const totalLiters = vehicleRefuelings.reduce((sum, r) => sum + r.liters, 0);
+    const totalLiters = vehicleRefuelings.reduce((sum, r) => sum + (typeof r.liters === 'string' ? parseFloat(r.liters) : r.liters), 0);
 
     if (totalLiters === 0) return null;
 
