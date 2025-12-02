@@ -28,7 +28,7 @@ export class ApiError extends Error {
   }
 }
 
-async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
+async function handleResponse<T>(response: Response, endpoint: string): Promise<ApiResponse<T>> {
   const contentType = response.headers.get('content-type');
   
   if (!contentType?.includes('application/json')) {
@@ -38,8 +38,8 @@ async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
   const data = await response.json();
 
   if (!response.ok) {
-    // Token inválido ou expirado - fazer logout
-    if (response.status === 401) {
+    // Token inválido ou expirado - fazer logout (exceto para endpoints de auth)
+    if (response.status === 401 && !endpoint.startsWith('/auth/')) {
       localStorage.removeItem('fleet_token');
       localStorage.removeItem('fleet_user');
       window.location.href = '/login';
@@ -91,7 +91,7 @@ export async function apiRequest<T>(
 
   try {
     const response = await fetch(url, config);
-    return await handleResponse<T>(response);
+    return await handleResponse<T>(response, endpoint);
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
