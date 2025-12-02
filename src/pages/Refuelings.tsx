@@ -207,8 +207,12 @@ export default function Refuelings() {
   }, [startDate, endDate, selectedVehicle, selectedRefrigerationUnit, selectedDriver, selectedSupplier]);
 
   const handleSubmit = async (data: any) => {
+    console.log('[Refuelings] handleSubmit called with data:', data);
+    console.log('[Refuelings] editingRefueling:', editingRefueling);
+    
     try {
       if (editingRefueling) {
+        console.log('[Refuelings] Updating refueling with ID:', editingRefueling.id);
         await updateRefueling(editingRefueling.id, data);
         toast({
           title: 'Abastecimento atualizado',
@@ -216,6 +220,7 @@ export default function Refuelings() {
         });
         setEditingRefueling(null);
       } else {
+        console.log('[Refuelings] Creating new refueling');
         await createRefueling(data);
         toast({
           title: 'Abastecimento registrado',

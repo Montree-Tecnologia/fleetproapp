@@ -354,6 +354,9 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   };
 
   const handleSubmit = (data: RefuelingFormData) => {
+    console.log('[RefuelingForm] handleSubmit called with data:', data);
+    console.log('[RefuelingForm] initialData:', initialData);
+    
     if (data.entityType === 'vehicle') {
       const vehicle = vehicles.find(v => v.id === data.vehicleId);
       
@@ -399,7 +402,7 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       return undefined;
     };
 
-    onSubmit({
+    const submittedData = {
       vehicleId: data.vehicleId,
       refrigerationUnitId: data.refrigerationUnitId,
       date: format(data.date, 'yyyy-MM-dd'),
@@ -415,7 +418,11 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       fiscalNote: processImage(fiscalNote),
       paymentReceiptUrl: paymentReceipt && !paymentReceipt.startsWith('data:') ? paymentReceipt : undefined,
       fiscalNoteUrl: fiscalNote && !fiscalNote.startsWith('data:') ? fiscalNote : undefined,
-    });
+    };
+    
+    console.log('[RefuelingForm] submittedData:', submittedData);
+    
+    onSubmit(submittedData);
   };
 
   return (

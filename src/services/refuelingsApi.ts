@@ -66,6 +66,8 @@ export interface CreateRefuelingPayload {
   usageHours?: number;
   paymentReceipt?: ImagePayload;
   fiscalNote?: ImagePayload;
+  paymentReceiptUrl?: string;
+  fiscalNoteUrl?: string;
 }
 
 export interface UpdateRefuelingPayload extends Partial<CreateRefuelingPayload> {}
