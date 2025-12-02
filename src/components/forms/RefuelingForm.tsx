@@ -49,19 +49,19 @@ import { useToast } from '@/hooks/use-toast';
 
 const refuelingSchema = z.object({
   entityType: z.enum(['vehicle', 'refrigeration']),
-  vehicleId: z.string().optional(),
-  refrigerationUnitId: z.string().optional(),
+  vehicleId: z.string().nullable().optional(),
+  refrigerationUnitId: z.string().nullable().optional(),
   date: z.date({
     required_error: 'Data é obrigatória',
   }),
-  km: z.number().min(0, 'KM deve ser positivo').optional(),
-  usageHours: z.number().min(0, 'Horas de uso devem ser positivas').optional(),
+  km: z.number().min(0, 'KM deve ser positivo').nullable().optional(),
+  usageHours: z.number().min(0, 'Horas de uso devem ser positivas').nullable().optional(),
   liters: z.number().min(0.1, 'Litros deve ser maior que 0'),
   pricePerLiter: z.number().min(0.01, 'Preço por litro deve ser maior que 0'),
   fuelType: z.enum(['Diesel S10', 'Diesel S500', 'Arla 32', 'Gasolina', 'Etanol', 'GNV', 'Biometano', 'Outro']),
   supplierId: z.string().min(1, 'Posto é obrigatório'),
-  driver: z.string().optional(),
-  driverId: z.string().optional(),
+  driver: z.string().nullable().optional(),
+  driverId: z.string().nullable().optional(),
 }).refine((data) => {
   // Se for veículo, precisa ter vehicleId e km
   if (data.entityType === 'vehicle' && !data.vehicleId) {
