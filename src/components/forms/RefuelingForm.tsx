@@ -99,6 +99,8 @@ interface RefuelingFormProps {
     driverId?: string;
     paymentReceipt?: ImagePayload;
     fiscalNote?: ImagePayload;
+    paymentReceiptUrl?: string;
+    fiscalNoteUrl?: string;
   }) => void;
   onCancel: () => void;
   vehicles: Vehicle[];
@@ -380,18 +382,21 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       }
     }
 
-    // Processar imagens para o formato { base64, extension }
+    // Processar imagens para o formato { base64, extension } ou URL
     const processImage = (dataUrl: string | undefined) => {
       if (!dataUrl) return undefined;
       
-      // Extrair extensão e base64 puro do data URL
+      // Se for um data URL (novo upload), extrair base64 e extensão
       const matches = dataUrl.match(/^data:image\/(\w+);base64,(.+)$/);
-      if (!matches) return undefined;
+      if (matches) {
+        return {
+          extension: matches[1],
+          base64: matches[2]
+        };
+      }
       
-      return {
-        extension: matches[1],
-        base64: matches[2]
-      };
+      // Se for uma URL existente, retornar undefined para usar o campo URL separado
+      return undefined;
     };
 
     onSubmit({
@@ -408,6 +413,8 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       driverId: finalDriverId,
       paymentReceipt: processImage(paymentReceipt),
       fiscalNote: processImage(fiscalNote),
+      paymentReceiptUrl: paymentReceipt && !paymentReceipt.startsWith('data:') ? paymentReceipt : undefined,
+      fiscalNoteUrl: fiscalNote && !fiscalNote.startsWith('data:') ? fiscalNote : undefined,
     });
   };
 
