@@ -170,7 +170,7 @@ export default function Refrigeration() {
     const currentUsageHours = lastRefueling.usageHours || initialHours;
 
     // Calcular consumo total
-    const totalLiters = unitRefuelings.reduce((sum, r) => sum + r.liters, 0);
+    const totalLiters = unitRefuelings.reduce((sum, r) => sum + (typeof r.liters === 'string' ? parseFloat(r.liters) : r.liters), 0);
     const hoursUsed = currentUsageHours - initialHours;
     const consumption = hoursUsed > 0 ? totalLiters / hoursUsed : 0;
 

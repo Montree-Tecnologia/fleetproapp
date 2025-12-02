@@ -81,14 +81,47 @@ export interface Refueling {
   refuelingDate: string;
   km?: number;
   usageHours?: number;
-  liters: number;
-  pricePerLiter: number;
-  totalValue: number;
+  liters: number | string;
+  pricePerLiter: number | string;
+  totalValue: number | string;
   fuelType: string;
   supplierId: string;
-  driver: string;
-  paymentReceipt?: string;
-  fiscalNote?: string;
+  driverId?: string;
+  driver?: string | {
+    id: string;
+    name: string;
+    cpf: string;
+  };
+  paymentReceiptUrl?: string;
+  fiscalNoteUrl?: string;
+  paymentReceipt?: string;  // Mantido para compatibilidade com mock
+  fiscalNote?: string;  // Mantido para compatibilidade com mock
+  vehicle?: {
+    id: string;
+    plate: string;
+    model: string;
+    brand: string;
+    vehicleType: string;
+    fuelType: string;
+  };
+  refrigerationUnit?: {
+    id: string;
+    model: string;
+    serialNumber: string;
+  };
+  supplier?: {
+    id: string;
+    name: string;
+    fantasyName?: string;
+    cnpj?: string;
+    cpf?: string;
+    type: string;
+    brand?: string;
+    city: string;
+    state: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface RefrigerationSale {
@@ -2700,7 +2733,7 @@ export function useMockData() {
              refuelDate.getFullYear() === now.getFullYear();
     });
     
-    const totalFuelCost = thisMonthRefuelings.reduce((sum, r) => sum + r.totalValue, 0);
+    const totalFuelCost = thisMonthRefuelings.reduce((sum, r) => sum + (typeof r.totalValue === 'string' ? parseFloat(r.totalValue) : r.totalValue), 0);
     
     // Calcular consumo médio real (km/L) baseado em abastecimentos consecutivos
     let totalConsumption = 0;
@@ -2718,7 +2751,8 @@ export function useMockData() {
       // Calcular consumo entre abastecimentos consecutivos
       for (let i = 1; i < vehicleRefuelings.length; i++) {
         const kmDiff = (vehicleRefuelings[i].km || 0) - (vehicleRefuelings[i - 1].km || 0);
-        const liters = vehicleRefuelings[i].liters;
+        const litersValue = vehicleRefuelings[i].liters;
+        const liters = typeof litersValue === 'string' ? parseFloat(litersValue) : litersValue;
         
         if (kmDiff > 0 && liters > 0) {
           const consumption = kmDiff / liters;
@@ -2771,7 +2805,7 @@ export function useMockData() {
              refuelDate.getFullYear() === now.getFullYear();
     });
     
-    const totalFuelCost = thisMonthRefuelings.reduce((sum, r) => sum + r.totalValue, 0);
+    const totalFuelCost = thisMonthRefuelings.reduce((sum, r) => sum + (typeof r.totalValue === 'string' ? parseFloat(r.totalValue) : r.totalValue), 0);
     
     // Calcular consumo médio (litros/hora) baseado em abastecimentos consecutivos
     let totalConsumption = 0;
@@ -2788,7 +2822,8 @@ export function useMockData() {
       // Calcular consumo entre abastecimentos consecutivos
       for (let i = 1; i < unitRefuelings.length; i++) {
         const hoursDiff = (unitRefuelings[i].usageHours || 0) - (unitRefuelings[i - 1].usageHours || 0);
-        const liters = unitRefuelings[i].liters;
+        const litersValue = unitRefuelings[i].liters;
+        const liters = typeof litersValue === 'string' ? parseFloat(litersValue) : litersValue;
         
         if (hoursDiff > 0 && liters > 0) {
           const consumption = liters / hoursDiff;

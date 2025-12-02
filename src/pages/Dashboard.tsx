@@ -221,7 +221,8 @@ export default function Dashboard() {
 
                       for (let i = 1; i < vehicleRefuelings.length; i++) {
                         const kmDiff = (vehicleRefuelings[i].km || 0) - (vehicleRefuelings[i - 1].km || 0);
-                        const liters = vehicleRefuelings[i].liters;
+                        const litersValue = vehicleRefuelings[i].liters;
+                        const liters = typeof litersValue === 'string' ? parseFloat(litersValue) : litersValue;
                         if (kmDiff > 0 && liters > 0) {
                           totalConsumption += kmDiff / liters;
                           consumptionCount++;
@@ -406,7 +407,8 @@ export default function Dashboard() {
 
                       for (let i = 1; i < unitRefuelings.length; i++) {
                         const hoursDiff = (unitRefuelings[i].usageHours || 0) - (unitRefuelings[i - 1].usageHours || 0);
-                        const liters = unitRefuelings[i].liters;
+                        const litersValue = unitRefuelings[i].liters;
+                        const liters = typeof litersValue === 'string' ? parseFloat(litersValue) : litersValue;
                         if (hoursDiff > 0 && liters > 0) {
                           totalConsumption += liters / hoursDiff;
                           consumptionCount++;

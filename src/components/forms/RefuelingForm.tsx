@@ -113,8 +113,8 @@ interface RefuelingFormProps {
 export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers, refrigerationUnits, initialData, onAddSupplier, onUpdateVehicleDriver }: RefuelingFormProps) {
   const { toast } = useToast();
   const gasStations = suppliers.filter(s => s.type === 'gas_station' && s.active);
-  const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>(initialData?.paymentReceipt);
-  const [fiscalNote, setFiscalNote] = useState<string | undefined>(initialData?.fiscalNote);
+  const [paymentReceipt, setPaymentReceipt] = useState<string | undefined>(initialData?.paymentReceiptUrl);
+  const [fiscalNote, setFiscalNote] = useState<string | undefined>(initialData?.fiscalNoteUrl);
   const [openVehicle, setOpenVehicle] = useState(false);
   const [openRefrigeration, setOpenRefrigeration] = useState(false);
   const [openSupplier, setOpenSupplier] = useState(false);
@@ -205,8 +205,8 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
       pricePerLiter: typeof initialData.pricePerLiter === 'string' ? parseFloat(initialData.pricePerLiter) : initialData.pricePerLiter,
       fuelType: initialData.fuelType as any,
       supplierId: initialData.supplierId,
-      driver: initialData.driver,
-      driverId: undefined,
+      driver: typeof initialData.driver === 'string' ? initialData.driver : undefined,
+      driverId: initialData.driverId || (typeof initialData.driver === 'object' && initialData.driver ? initialData.driver.id : undefined),
     } : {
       entityType: 'vehicle',
       date: new Date(),
@@ -226,10 +226,19 @@ export function RefuelingForm({ onSubmit, onCancel, vehicles, drivers, suppliers
   const watchRefrigerationUnitId = form.watch('refrigerationUnitId');
   const totalValue = watchLiters * watchPricePerLiter;
 
-  // Resetar motorista selecionado quando veículo ou equipamento mudar
+  // Inicializar motorista selecionado com o valor do initialData
   useEffect(() => {
-    setSelectedDriverId(undefined);
-  }, [watchVehicleId, watchRefrigerationUnitId]);
+    if (initialData?.driverId) {
+      setSelectedDriverId(initialData.driverId);
+    }
+  }, [initialData]);
+
+  // Resetar motorista selecionado quando veículo ou equipamento mudar (apenas se não for edição)
+  useEffect(() => {
+    if (!initialData) {
+      setSelectedDriverId(undefined);
+    }
+  }, [watchVehicleId, watchRefrigerationUnitId, initialData]);
 
   // Selecionar automaticamente equipamento quando veículo filtrado tiver apenas um equipamento
   useEffect(() => {
