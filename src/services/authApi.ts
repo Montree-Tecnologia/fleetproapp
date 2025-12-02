@@ -51,3 +51,13 @@ export async function resetPassword(payload: ResetPasswordPayload): Promise<ApiR
     body: JSON.stringify(payload),
   });
 }
+
+export async function fetchUserProfile(): Promise<ApiResponse<UserData>> {
+  return apiRequest<UserData>('/auth/profile');
+}
+
+export async function logoutUser(): Promise<ApiResponse<void>> {
+  return apiRequest<void>('/auth/logout', {
+    method: 'POST',
+  });
+}
