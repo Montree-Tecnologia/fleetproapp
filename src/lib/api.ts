@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3333/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://aws.vivaaguaslindas.com.br/api/v1';
 
 export interface ApiResponse<T = any> {
   success: boolean;
